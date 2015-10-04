@@ -115,7 +115,7 @@ function cache_menu() {
 function help() {
   print "\n";
   print "\t b commands\n";
-  print "\t\tb cc cache \t// clear menu\n";
+  print "\t\tb cc \t// clear cache menu\n";
   print "\t\tb cc all \t// clear all cache\n";
   print "\t\tb dl module \t// download one or more modules\n";
   print "\t that's it;";
