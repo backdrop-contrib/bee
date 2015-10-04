@@ -2,6 +2,12 @@
 // This needs to be set to the path to your Backdrop installation.
 $backdrop_path = '/Users/geoff/Sites/backdrop';
 require_once($backdrop_path . '/settings.php');
+/*define('BACKDROP_ROOT', "$backdrop_path");
+require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
+print BACKDROP_BOOTSTRAP_FULL . "\n";
+print backdrop_bootstrap(BACKDROP_BOOTSTRAP_FULL);
+
+print BACKDROP_ROOT;*/
 
 // get DB connection info for PDO object from Backdrop settings.php file.
 $info = explode('/', $database);
@@ -42,7 +48,7 @@ if (count($argv) > 1) {
       $handle = fopen ("php://stdin","r");
       $line = fgets($handle);
       $line = trim($line);
-      
+
       switch($line) {
         case 0:
           print "Canceled\n";
@@ -57,6 +63,20 @@ if (count($argv) > 1) {
         cache_clear_all($bdb, $ctables);
       }
     }
+  }
+  if ($argv[1] == 'dl') {
+    require_once 'commands/dl.php';
+    if (isset($argv[2])) {
+      $i = 2;
+      while (isset($argv[$i])) {
+        dl_project($argv[$i]);
+        $i++;
+      }
+    }
+    else {
+      print "You must specify a valid project, i.e. 'b dl redirect'.\n";
+    }
+
   }
 }
 
