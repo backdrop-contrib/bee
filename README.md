@@ -25,3 +25,8 @@ USING `b`
   * currently only `all` and `cancel` work
   * TODO: get the other cache-clears mapped and working
   
+* v0.0.1 adds `dl` support
+  * Download Backdrop core and modules
+  * `b dl backdrop` download Backdrop CMS core.
+  * `b dl redirect` download the redirect module to `./modules/`
+  * `b dl redirect webform` download redirect and webform
