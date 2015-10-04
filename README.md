@@ -11,7 +11,7 @@ INSTALATION
   * `git clone git@github.com:serundeputy/b.git`
 * make an alias to `b`
   * open your `.bash_profile` file
-  * add a line (at the end is fine) like this `alias b='/path/to/b.php'`
+  * add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
 * Make b.php executable
   * `chmod a+x b.php`
 * Configure `b.php`
