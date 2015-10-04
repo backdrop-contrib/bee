@@ -22,6 +22,6 @@ USING `b`
 * Type `b` from inside your Backdrop CMS installation will bring up the help items.
 * Type `b cc all` to clear all cache
 * Type `b cc` brings up the cache clear menu
-  * currently only `all` and `cancell` work
+  * currently only `all` and `cancel` work
   * TODO: get the other cache-clears mapped and working
   
