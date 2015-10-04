@@ -1,7 +1,7 @@
 <?php
 // This needs to be set to the path to your Backdrop installation.
-$settings_path = '/Users/geoff/Sites/backdrop/settings.php';
-require_once($settings_path);
+$backdrop_path = '/Users/geoff/Sites/backdrop';
+require_once($backdrop_path . '/settings.php');
 
 // get DB connection info for PDO object from Backdrop settings.php file.
 $info = explode('/', $database);
@@ -42,9 +42,14 @@ if (count($argv) > 1) {
       $handle = fopen ("php://stdin","r");
       $line = fgets($handle);
       $line = trim($line);
-      print "\n\n" . cache_selection($line) . "\n";
-      if ($line == 1) {
-        cache_clear_all($bdb, $ctables);
+      
+      switch($line) {
+        case 0:
+          print "Canceled\n";
+        break;
+        case 1:
+          cache_clear_all($bdb, $ctables);
+        break;
       }
     }
     if (count($argv) == 3) {
