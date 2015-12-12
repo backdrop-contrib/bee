@@ -30,3 +30,9 @@ USING `b`
   * `b dl backdrop` download Backdrop CMS core.
   * `b dl redirect` download the redirect module to `./modules/` or `./contrib/modules`
   * `b dl redirect webform` download redirect and webform
+  
+  ---
+  Maintainters:
+  
+  * Geoff St. Pierre (serundeputy)
+  * Seeking co-maintainer(s) 
