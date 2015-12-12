@@ -12,10 +12,10 @@ INSTALATION
 * make an alias to `b`
   * open your `.bash_profile` file
   * add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
+  * reload your bash profile: `source ~/.bash_profile`
 * Make b.php executable
   * `chmod a+x b.php`
-* Configure `b.php`
-  * Change the `$settings_path` variable to reflect the path of your backdrop installation.
+
 
 ---
 USING `b`
