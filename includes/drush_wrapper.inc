@@ -28,7 +28,7 @@ function _drush_commandfile_list($path) {
     foreach($search_path as $path) {        
       $files = file_scan_directory($path, "/\.drush(7|)\.inc$/");
       foreach ($files as $file) {
-        $command_file = basename($file->uri);
+        $command_file = basename($file->name);
         $list[$command_file] = $file->uri;
       }
     }
