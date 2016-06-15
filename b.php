@@ -2,6 +2,12 @@
 // $path is the root of the backdrop installation.
 $path = getcwd();
 
+require_once('includes/command.inc');
+
+$commands = b_get_commands();
+print_r($commands);
+exit();
+
 if (file_exists($path . '/settings.php')) {
   require_once "settings.php";
   // get DB connection info for PDO object from Backdrop settings.php file.
