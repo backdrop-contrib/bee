@@ -38,4 +38,26 @@ function b_init() {
       define('BACKDROP_ROOT', $path);
     }
   }
+  
+  $host = 'localhost';
+  $path = '';
+
+  $_SERVER['HTTP_HOST'] = $host;
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_SOFTWARE'] = '';
+  $_SERVER['SERVER_NAME'] = 'localhost';
+  $_SERVER['REQUEST_URI'] = $path .'/';
+  $_SERVER['REQUEST_METHOD'] = 'GET';
+  $_SERVER['SCRIPT_NAME'] = $path .'/index.php';
+  $_SERVER['PHP_SELF'] = $path .'/index.php';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
+
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+    // Ensure that any and all environment variables are changed to https://.
+    foreach ($_SERVER as $key => $value) {
+      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
+    }
+  }
+  
 }
