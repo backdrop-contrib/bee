@@ -49,3 +49,11 @@ define('B_BOOTSTRAP_LANGUAGE', 7);
  */
 define('B_BOOTSTRAP_FULL', 8);
 
+function b_print_error($text) {
+  b_render(array(
+    '#type' => 'text',
+    '#color' => 'red',
+    'value' => $text,
+  )
+  );
+}

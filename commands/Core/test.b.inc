@@ -10,7 +10,7 @@ function test_b_command() {
   return $items;
 }
 
-function test_b_callback(){
+function test_b_callback($arguments, $options) {
   if(defined('BACKDROP_ROOT')){
     return array(
       '#type' => 'text',

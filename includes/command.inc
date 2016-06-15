@@ -26,6 +26,9 @@ function b_process_command(){
         $element = $command_callback($arguments, $options);
         b_render($element);
       }
+      else{
+        b_print_error("Required bootstrap level is not ready");
+      }
     }
   } 
 }
@@ -89,7 +92,10 @@ function b_get_commands() {
     foreach ($list as $command_file => $path) {
       require_once($path);
       $function = $command_file . '_b_command';
-      function_exists($function);
+      if(!function_exists($function)) {
+        echo " skip  $function \n";
+        continue;
+      }
       $result = $function();
       
       foreach ((array)$result as $key => $command) {

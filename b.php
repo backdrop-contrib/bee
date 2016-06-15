@@ -30,7 +30,6 @@ function b_init() {
   if(isset($options['root'])) {
     if(file_exists($options['root'] . '/settings.php')) {
       define('BACKDROP_ROOT', $options['root']);
-      chdir(BACKDROP_ROOT);
     }
   }
   else{
