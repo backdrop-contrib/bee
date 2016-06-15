@@ -10,8 +10,17 @@
 
 function b_process_command(){
   global $argv;
-  $cmd = $argv[1];
+  if(!isset($argv[1])) {
+    $cmd = 'help';
+  }
+  else{
+    $cmd = $argv[1];  
+  }
   $commands = b_get_commands();
+  if(!isset($commands[$cmd])){
+    b_print_error('There is no ' . $cmd );
+    return;
+  }
   foreach($commands[$cmd] as $command) {
     $command_callback = $command['callback'];
     if(function_exists($command_callback)){ 
@@ -30,15 +39,18 @@ function b_process_command(){
         b_print_error("Required bootstrap level is not ready");
       }
     }
-  } 
+  }
 }
 
 function b_bootstrap($bootstrap_level){
   if(defined('BACKDROP_ROOT')) {
     require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
-    backdrop_bootstrap($bootstrap_level);
-    set_error_handler('b_errorHandler');
-    return TRUE;
+    if(function_exists('backdrop_bootstrap')) {
+      chdir(BACKDROP_ROOT);
+      $status = backdrop_bootstrap($bootstrap_level);
+      set_error_handler('b_errorHandler');
+      return TRUE;
+    }
   }
   return FALSE;
 }
@@ -102,6 +114,7 @@ function b_get_commands() {
         if(!isset($commands[$key])){
           $commands[$key] = array();
         }
+        $command['module'] = $command_file;
         $commands[$key][] = $command;
         // For every alias, make a copy of the command and store it in the command list
         // using the alias as a key

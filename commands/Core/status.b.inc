@@ -25,7 +25,6 @@ function status_b_command() {
 }
 
 function status_b_callback($arguments, $options) {
-
   $rows = array();
   if(defined('BACKDROP_VERSION')){
     $rows[] = array('Backdrop CMS', BACKDROP_VERSION);
