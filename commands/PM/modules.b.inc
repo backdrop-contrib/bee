@@ -41,86 +41,88 @@ function modules_b_command() {
 }
 
 function modules_b_list_callback($arguments, $options){
-  
-  $query = db_select('system', 's')
-    ->fields('s');
-  
-  if(isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
-    $query->condition('type', $options['type']);
-  }
-    
-  $projects = $query->execute()->fetchAll();
-    
-  $rows = array();
-  
 
-
-  foreach($projects as $project) {
-    $project->info = unserialize($project->info);
-    if(isset($project->info['hidden']) && $project->info['hidden']){
-      continue;
+  if(!isset($options['type']) or $options['type'] != 'layout') {
+    $query = db_select('system', 's')
+      ->fields('s');
+    
+    if(isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
+      $query->condition('type', $options['type']);
     }
-
-    $status = array(
-      'data' => '  [x]  ',
-      '#color' => 'red',
-    );
-    if($project->status){
+      
+    $projects = $query->execute()->fetchAll();
+      
+    $rows = array();
+    
+  
+  
+    foreach($projects as $project) {
+      $project->info = unserialize($project->info);
+      if(isset($project->info['hidden']) && $project->info['hidden']){
+        continue;
+      }
+  
       $status = array(
-        'data' => '  [v]  ',
-        '#color' => 'green',
+        'data' => '  [x]  ',
+        '#color' => 'red',
       );
-    }
-    
-    $name = array(
-        'data' => $project->name,
-        '#color' => 'bold_blue',
-      );
-    $rows[] = array(
-      $name,
-      $project->info['name'],
-      $project->type,
-      $status,
-      $project->info['version'],
-    );
-    
-  }
-  $used_layouts = layout_load_all();
-  
-  
-  
-  $layouts = layout_get_layout_template_info();
-  foreach($layouts as $layout) {
-    $name = array(
-      'data' => $layout['name'],
-      '#color' => 'bold_blue',
-    );
-    
-    $status = FALSE;
-    foreach($used_layouts as $used_layout){
-      if($used_layout->layout_template == $layout['name']) {
+      if($project->status){
         $status = array(
           'data' => '  [v]  ',
           '#color' => 'green',
         );
       }
+      
+      $name = array(
+          'data' => $project->name,
+          '#color' => 'bold_blue',
+        );
+      $rows[] = array(
+        $name,
+        $project->info['name'],
+        $project->type,
+        $status,
+        $project->info['version'],
+      );
+      
     }
-    if(!$status) {
-      $status = array(
-        'data' => '  [-]  ',
-        '#color' => 'red',
+  }
+  
+  if(!isset($options['type']) or $options['type'] == 'layout') {
+    $used_layouts = layout_load_all();
+  
+    $layouts = layout_get_layout_template_info();
+    foreach($layouts as $layout) {
+      $name = array(
+        'data' => $layout['name'],
+        '#color' => 'bold_blue',
+      );
+      
+      $status = FALSE;
+      foreach($used_layouts as $used_layout){
+        if($used_layout->layout_template == $layout['name']) {
+          $status = array(
+            'data' => '  [v]  ',
+            '#color' => 'green',
+          );
+        }
+      }
+      if(!$status) {
+        $status = array(
+          'data' => '  [-]  ',
+          '#color' => 'red',
+        );
+      }
+      
+      $rows[] = array(
+        $name,
+        $layout['title'],
+        'layout',
+        $status,
+        $layout['version'],
       );
     }
-    
-    $rows[] = array(
-      $name,
-      $layout['title'],
-      'layout',
-      $status,
-      $layout['version'],
-    );
   }
-
   $header = array(
     'Project',
     'Name',
