@@ -54,6 +54,7 @@ function render_text($variables) {
 function table_color_text($variables){
   $text = $variables['data'];
   $foreground = array(
+    'bold' => '1',
     'black' => '0;30',
     'dark_gray' => '1;30',
     'red' => '0;31',
@@ -188,7 +189,7 @@ function render_table($variables) {
     foreach($header as $index => $col){
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
-    echo $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right ."\n\n";
+    echo "\033[7m" . $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right ."\033[0m\n";
   }
 
   foreach($rows as $row) {
