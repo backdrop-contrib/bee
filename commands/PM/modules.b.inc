@@ -24,7 +24,7 @@ function modules_b_command() {
     ),
     'callback' => 'modules_b_enable_callback',
     'aliases' => array('en'),
-  ); 
+  );
   $items['pm-disable'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Disable one or more extensions (modules, layouts or themes).',
@@ -33,10 +33,10 @@ function modules_b_command() {
     ),
     'options' => array(
       'root' => 'Backdrop ROOT directory',
-    ),    
+    ),
     'aliases' => array('dis'),
     'callback' => 'modules_b_disable_callback',
-  ); 
+  );
   return $items;
 }
 
@@ -45,23 +45,23 @@ function modules_b_list_callback($arguments, $options){
   if(!isset($options['type']) or $options['type'] != 'layout') {
     $query = db_select('system', 's')
       ->fields('s');
-    
+
     if(isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
       $query->condition('type', $options['type']);
     }
-      
+
     $projects = $query->execute()->fetchAll();
-      
+
     $rows = array();
-    
-  
-  
+
+
+
     foreach($projects as $project) {
       $project->info = unserialize($project->info);
       if(isset($project->info['hidden']) && $project->info['hidden']){
         continue;
       }
-  
+
       $status = array(
         'data' => '  [x]  ',
         '#color' => 'red',
@@ -72,7 +72,7 @@ function modules_b_list_callback($arguments, $options){
           '#color' => 'green',
         );
       }
-      
+
       $name = array(
           'data' => $project->name,
           '#color' => 'bold_blue',
@@ -84,20 +84,20 @@ function modules_b_list_callback($arguments, $options){
         $status,
         $project->info['version'],
       );
-      
+
     }
   }
-  
+
   if(!isset($options['type']) or $options['type'] == 'layout') {
     $used_layouts = layout_load_all();
-  
+
     $layouts = layout_get_layout_template_info();
     foreach($layouts as $layout) {
       $name = array(
         'data' => $layout['name'],
         '#color' => 'bold_blue',
       );
-      
+
       $status = FALSE;
       foreach($used_layouts as $used_layout){
         if($used_layout->layout_template == $layout['name']) {
@@ -113,7 +113,7 @@ function modules_b_list_callback($arguments, $options){
           '#color' => 'red',
         );
       }
-      
+
       $rows[] = array(
         $name,
         $layout['title'],
