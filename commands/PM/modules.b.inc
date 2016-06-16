@@ -23,6 +23,9 @@ function modules_b_callback($arguments, $options){
   $rows = array();
   
   foreach($files as $file) {
+    if(isset($file->info['hidden']) && $file->info['hidden']){
+      continue;
+    }
     $status = array(
       'data' => 'Disabled',
       '#color' => 'red',
