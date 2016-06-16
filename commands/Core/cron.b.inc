@@ -2,7 +2,7 @@
 /**
  * Implementation of hook_b_command().
  */
- 
+
  function cron_b_command() {
   $items = array();
 
@@ -17,9 +17,5 @@
 
 function cron_command_process($arguments, $options) {
   backdrop_cron_run();
-  return array(
-    '#type' => 'text',
-    '#color' => 'green',
-    'value' => 'Cron processed.',
-  );
+  b_set_message('Cron processed.');
 }

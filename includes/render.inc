@@ -110,7 +110,7 @@ function b_render($elements){
  */
 function _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $delimiter_right){
   $max_width = exec('tput cols');
-  
+
   $cols_length = array();
   foreach($rows as $row) {
     $index = 0;
@@ -127,7 +127,7 @@ function _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $
       $index++;
     }
   }
-  
+
   $max_size_index = 0;
   $max_length = 0;
   $total_table_width = 0;
@@ -138,11 +138,11 @@ function _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $
     }
     $total_table_width += $length;
   }
-  
+
   $total_table_width += mb_strlen($delimiter_left);
   $total_table_width += mb_strlen($delimiter_right);
   $total_table_width += mb_strlen($delimiter) * count($cols_length) - 1;
-  
+
   if($total_table_width > $max_width) {
     $diff = $total_table_width - $max_width;
     $cols_length[$max_size_index] = $cols_length[$max_size_index] - $diff;
@@ -210,14 +210,14 @@ function render_table($variables) {
     $repeat = FALSE;
     $row_rendered = array();
     foreach($row as $index => $col) {
-      
+
       $data = '';
       $col_len = 0;
       if(isset($col['data'])){
         if(mb_strlen($col['data']) > $cols_length[$index]){
           $repeat = $col;
           $repeat['index'] = $index;
-          $repeat['data'] = mb_substr($col['data'], $cols_length[$index]);          
+          $repeat['data'] = mb_substr($col['data'], $cols_length[$index]);
           $col['data'] = mb_substr($col['data'], 0, $cols_length[$index]);
         }
       }
@@ -230,7 +230,7 @@ function render_table($variables) {
           $col = mb_substr($col, 0, $cols_length[$index]);
         }
       }
-        
+
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
     echo $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right . "\n";

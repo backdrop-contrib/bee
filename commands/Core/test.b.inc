@@ -12,9 +12,9 @@ function test_b_command() {
 
 function test_b_callback($arguments, $options) {
   if(defined('BACKDROP_ROOT')){
-    b_set_message('Backdrop CMS Installation detected; wooot;', 'status');  
+    b_set_message('Backdrop CMS Installation detected; wooot;', 'status');
   }
   else{
-    b_set_message('No Backdrop installation found. :(', 'warning');  
+    b_set_message('No Backdrop installation found. :(', 'warning');
   }
 }

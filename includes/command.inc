@@ -14,7 +14,7 @@ function b_process_command(){
     $cmd = 'help';
   }
   else{
-    $cmd = $argv[1];  
+    $cmd = $argv[1];
   }
   $commands = b_get_commands();
   if(!isset($commands[$cmd])){
@@ -23,7 +23,7 @@ function b_process_command(){
   }
   foreach($commands[$cmd] as $command) {
     $command_callback = $command['callback'];
-    if(function_exists($command_callback)){ 
+    if(function_exists($command_callback)){
       $arguments = array();
       $options = array();
       $ready = TRUE;
@@ -54,15 +54,15 @@ function b_bootstrap($bootstrap_level){
   return FALSE;
 }
 /**
- * Assign $arguments and $options based on 
+ * Assign $arguments and $options based on
  * $command['arguments'] & $command[options]
  *
  */
 function b_get_command_args_options(&$arguments, &$options, $command) {
   global $argc, $argv;
-  
+
   $command_args = array();
-  
+
   if(isset($command['arguments'])){
     $command_args = array_keys($command['arguments']);
   }
@@ -108,7 +108,7 @@ function b_get_commands() {
         continue;
       }
       $result = $function();
-      
+
       foreach ((array)$result as $key => $command) {
         if(!isset($commands[$key])){
           $commands[$key] = array();
@@ -155,7 +155,7 @@ function b_commandfile_list() {
   if(empty($list)) {
     $list = array();
     $search_path = b_commandfile_searchpaths();
-    foreach($search_path as $path) {    
+    foreach($search_path as $path) {
       $files = b_file_scan_directory($path, "/\.b\.inc$/");
       foreach ($files as $file) {
         $command_file = basename($file->filename, '.b.inc');
@@ -173,14 +173,14 @@ function b_commandfile_list() {
 function b_commandfile_searchpaths() {
   $search_path = array();
   $home = getenv("HOME");
-  
+
   if(is_dir($home . '/.b')) {
     $search_path[] = $home . '/.b';
   }
-  
+
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
-  
+
   if(function_exists('module_list') && function_exists('db_select')) {
     $modules = db_select('system', 's')
       ->fields('s')

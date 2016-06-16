@@ -75,7 +75,7 @@ function b_set_message($message = FALSE, $type = 'status') {
 
 function b_print_messages() {
   $messages = b_messages();
-  
+
   if(empty($messages)){
     return;
   }
@@ -88,15 +88,15 @@ function b_print_messages() {
         break;
       case 'warning':
         $color = 'yellow';
-        $symbol = '[!]';        
+        $symbol = '[!]';
         break;
       case 'error':
         $color = 'red';
-        $symbol = '[x]';         
+        $symbol = '[x]';
         break;
       default:
         $color = 'red';
-        $symbol = '[x]';         
+        $symbol = '[x]';
         break;
     };
     foreach($sub_messages as $message) {
@@ -111,10 +111,10 @@ function b_print_messages() {
     'rows' => $rows,
     'delimiter' => '   ',
     'delimiter_left' => ' ',
-    'delimiter_right' => ' ',    
+    'delimiter_right' => ' ',
   );
-  
+
   b_render($output);
   echo "\n";
-  
+
 }

@@ -41,7 +41,7 @@ function b_init() {
       define('BACKDROP_ROOT', $path);
     }
   }
-  
+
   $host = 'localhost';
   $path = '';
 
@@ -62,5 +62,5 @@ function b_init() {
       $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
     }
   }
-  
+
 }

@@ -27,7 +27,8 @@ function status_b_command() {
 function status_b_callback($arguments, $options) {
   $rows = array();
   if(defined('BACKDROP_VERSION')){
-    $rows[] = array('Backdrop CMS', BACKDROP_VERSION);
+    $color = 'green';
+    $rows[] = array('Backdrop CMS', array('data' => BACKDROP_VERSION, '#color' => $color));
   }
 
   if(defined('BACKDROP_ROOT')){
@@ -38,6 +39,7 @@ function status_b_callback($arguments, $options) {
       $conn = $connection->getConnectionOptions();
       $rows[] = array('Database driver', $conn['driver']);
       $rows[] = array('Database host', $conn['host']);
+
       $rows[] = array('Database name', $conn['database']);
       $rows[] = array('Database username', $conn['username']);
       if(isset($options['show-passwords']) or isset($options['full'])) {
@@ -45,10 +47,15 @@ function status_b_callback($arguments, $options) {
       }
     }
   }
+  else{
+    b_set_message('No database connection', 'warning');
+  }
 
   return array(
     '#type' => 'table',
     'rows' => $rows,
-    'delimiter' => ' : ',
+    'delimiter' => '  :  ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
   );
 }
