@@ -5,48 +5,124 @@
 function modules_b_command() {
   $items['pm-list'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Download contrib package.',
+    'description' => 'Show a list of available extensions (modules, layouts or themes).',
+    'options' => array(
+      'root' => 'Backdrop ROOT directory',
+      'type' => 'Filter by extension type. Choices: module, theme, layout.',
+    ),
+    'callback' => 'modules_b_list_callback',
+    'aliases' => array('pml'),
+  );
+  $items['pm-enable'] = array(
+    'bootstrap' => B_BOOTSTRAP_FULL,
+    'description' => 'Enable one or more extensions (modules, layouts or themes).',
     'arguments' => array(
-      'package' => 'Package to download.',
+      'extensions' => 'A list of modules or themes. You can use the * wildcard at the end of extension names to disable multiple matches.',
     ),
     'options' => array(
       'root' => 'Backdrop ROOT directory',
     ),
-    'callback' => 'modules_b_callback',
-    'aliases' => array('pml'),
-  );
+    'callback' => 'modules_b_enable_callback',
+    'aliases' => array('en'),
+  ); 
+  $items['pm-disable'] = array(
+    'bootstrap' => B_BOOTSTRAP_FULL,
+    'description' => 'Disable one or more extensions (modules, layouts or themes).',
+    'arguments' => array(
+      'extensions' => 'A list of modules or themes. You can use the * wildcard at the end of extension names to disable multiple matches.',
+    ),
+    'options' => array(
+      'root' => 'Backdrop ROOT directory',
+    ),    
+    'aliases' => array('dis'),
+    'callback' => 'modules_b_disable_callback',
+  ); 
   return $items;
 }
 
-function modules_b_callback($arguments, $options){
-  $files = system_rebuild_module_data();
+function modules_b_list_callback($arguments, $options){
+  
+  $query = db_select('system', 's')
+    ->fields('s');
+  
+  if(isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
+    $query->condition('type', $options['type']);
+  }
+    
+  $projects = $query->execute()->fetchAll();
+    
   $rows = array();
+  
 
-  foreach($files as $file) {
-    if(isset($file->info['hidden']) && $file->info['hidden']){
+
+  foreach($projects as $project) {
+    $project->info = unserialize($project->info);
+    if(isset($project->info['hidden']) && $project->info['hidden']){
       continue;
     }
+
     $status = array(
-      'data' => 'Disabled',
+      'data' => '  [x]  ',
       '#color' => 'red',
     );
-    if($file->status){
+    if($project->status){
       $status = array(
-        'data' => 'Enabled',
+        'data' => '  [v]  ',
         '#color' => 'green',
       );
     }
+    
+    $name = array(
+        'data' => $project->name,
+        '#color' => 'bold_blue',
+      );
     $rows[] = array(
-      $file->info['package'],
-      $file->info['name'],
-      $file->type,
+      $name,
+      $project->info['name'],
+      $project->type,
       $status,
-      $file->info['version'],
+      $project->info['version'],
+    );
+    
+  }
+  $used_layouts = layout_load_all();
+  
+  
+  
+  $layouts = layout_get_layout_template_info();
+  foreach($layouts as $layout) {
+    $name = array(
+      'data' => $layout['name'],
+      '#color' => 'bold_blue',
+    );
+    
+    $status = FALSE;
+    foreach($used_layouts as $used_layout){
+      if($used_layout->layout_template == $layout['name']) {
+        $status = array(
+          'data' => '  [v]  ',
+          '#color' => 'green',
+        );
+      }
+    }
+    if(!$status) {
+      $status = array(
+        'data' => '  [-]  ',
+        '#color' => 'red',
+      );
+    }
+    
+    $rows[] = array(
+      $name,
+      $layout['title'],
+      'layout',
+      $status,
+      $layout['version'],
     );
   }
 
   $header = array(
-    'Package',
+    'Project',
     'Name',
     'Type',
     'Status',
@@ -61,4 +137,9 @@ function modules_b_callback($arguments, $options){
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
   );
+}
+
+function modules_b_enable_callback($arguments, $options) {
+  print_r($arguments);
+  print_r($options);
 }

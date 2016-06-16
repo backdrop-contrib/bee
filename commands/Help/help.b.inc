@@ -15,17 +15,13 @@ function help_b_command() {
 
 function help_b_callback($arguments, $options) {
   $commands = b_get_commands();
-//  print_r($commands);
   $rows = array();
   $answer = array();
   if(isset($arguments['command'])){
     $cmd = $arguments['command'];
     if(!isset($commands[$cmd])){
-      return array(
-        '#type' => 'text',
-        '#color' => 'red',
-        'value' => 'There is no ' . $cmd,
-      );
+      b_set_message('There is no ' . $cmd, 'error');
+      return;
     }
     $output = display_help_by_cmd($commands[$cmd]);
   }
@@ -33,15 +29,14 @@ function help_b_callback($arguments, $options) {
     foreach($commands as $cmd => $callbacks){
       if($elements = display_help_command($callbacks)) {
         $rows[] = array(
-          array( 'data' => $cmd),
-          $elements
+          array('data' => $cmd, '#color' => 'bold_blue'),
+          array('data' => $elements)
         );
       }
     }
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'purple',
-      'value' => "\nB commands:\n",
+      'value' => "B commands:\n",
     );
     
     $output[] = array(
@@ -89,14 +84,14 @@ function display_help_by_cmd($commands){
   $output = array();
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'bold_gray',
+      '#color' => 'dark_gray',
       'value' => $callback['description'],
     );
 
   if(!empty($examples)){
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'blue',
+      '#color' => 'bold_blue',
       'value' => "\nExamples:",
     );
     $output[] = array(
@@ -110,7 +105,7 @@ function display_help_by_cmd($commands){
   if(!empty($available_options)){
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'blue',
+      '#color' => 'bold_blue',
       'value' => "\nOptions:",
     );
     $output[] = array(
@@ -124,7 +119,7 @@ function display_help_by_cmd($commands){
   if(!empty($available_arguments)){
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'blue',
+      '#color' => 'bold_blue',
       'value' => "\nArguments:",
     );
     $output[] = array(
@@ -144,7 +139,12 @@ function display_help_command($callbacks) {
     if(isset($callback['is_alias'])){
       continue;
     }
-    $rows[] = $callback['description'];
+    $aliases = '';
+    if(isset($callback['aliases'])) {
+      $aliases = "\n  (" .implode(",", $callback['aliases']) . ")";
+    }
+    $rows[] = $callback['description'] . $aliases;
+    
   }
   if(empty($rows)){
     return FALSE;
