@@ -43,7 +43,7 @@ function status_b_callback($arguments, $options) {
       $rows[] = array('Database name', $conn['database']);
       $rows[] = array('Database username', $conn['username']);
       if(isset($options['show-passwords']) or isset($options['full'])) {
-        $rows[] = array('Database password', $conn['password']);
+        $rows[] = array('Database password', array('data' => $conn['password'], '#color' => 'red'));
       }
     }
   }
