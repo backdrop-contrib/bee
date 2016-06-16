@@ -4,7 +4,7 @@
  */
 function modules_b_command() {
   $items['pm-list'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,    
+    'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Download contrib package.',
     'arguments' => array(
       'package' => 'Package to download.',
@@ -21,7 +21,7 @@ function modules_b_command() {
 function modules_b_callback($arguments, $options){
   $files = system_rebuild_module_data();
   $rows = array();
-  
+
   foreach($files as $file) {
     if(isset($file->info['hidden']) && $file->info['hidden']){
       continue;
@@ -44,7 +44,7 @@ function modules_b_callback($arguments, $options){
       $file->info['version'],
     );
   }
-  
+
   $header = array(
     'Package',
     'Name',
@@ -52,7 +52,7 @@ function modules_b_callback($arguments, $options){
     'Status',
     'Version',
   );
-  
+
   return array(
     '#type' => 'table',
     'rows' => $rows,
