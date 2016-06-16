@@ -8,8 +8,11 @@ require_once('includes/render.inc');
 require_once('includes/filesystem.inc');
 
 b_init();
+$elements = array();
 b_process_command();
 
+b_print_messages();
+b_render($elements);
 
 function b_errorHandler($errno, $message, $filename, $line, $context){
   echo $message."\n";

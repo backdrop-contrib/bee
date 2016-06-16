@@ -9,7 +9,7 @@
  */
 
 function b_process_command(){
-  global $argv;
+  global $argv, $elements;
   if(!isset($argv[1])) {
     $cmd = 'help';
   }
@@ -18,7 +18,7 @@ function b_process_command(){
   }
   $commands = b_get_commands();
   if(!isset($commands[$cmd])){
-    b_print_error('There is no ' . $cmd );
+    b_set_message('There is no ' . $cmd , 'error');
     return;
   }
   foreach($commands[$cmd] as $command) {
@@ -32,11 +32,10 @@ function b_process_command(){
       }
       if($ready) {
         b_get_command_args_options($arguments, $options, $command);
-        $element = $command_callback($arguments, $options);
-        b_render($element);
+        $elements[] = $command_callback($arguments, $options);
       }
       else{
-        b_print_error("Required bootstrap level is not ready");
+        b_set_message("Required bootstrap level for " . $command['module']. " is not ready", 'error');
       }
     }
   }

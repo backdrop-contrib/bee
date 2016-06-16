@@ -57,3 +57,64 @@ function b_print_error($text) {
   )
   );
 }
+
+function b_messages($message = FALSE, $type = FALSE) {
+  static $messages = array();
+  if($message) {
+    if(!isset($messages[$type])){
+      $messages[$type] = array();
+    }
+    $messages[$type][] = $message;
+  }
+  return $messages;
+}
+
+function b_set_message($message = FALSE, $type = 'status') {
+  b_messages($message, $type);
+}
+
+function b_print_messages() {
+  $messages = b_messages();
+  
+  if(empty($messages)){
+    return;
+  }
+  $rows = array();
+  foreach($messages as $type => $sub_messages) {
+    switch($type) {
+      case 'status':
+        $color = 'blue';
+        $symbol = '[o]';
+        break;
+      case 'warning':
+        $color = 'yellow';
+        $symbol = '[!]';        
+        break;
+      case 'error':
+        $color = 'red';
+        $symbol = '[x]';         
+        break;
+      default:
+        $color = 'red';
+        $symbol = '[x]';         
+        break;
+    };
+    foreach($sub_messages as $message) {
+      $rows[] = array(
+        array('data' => $symbol, '#color' => $color),
+        $message,
+      );
+    }
+  }
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => '   ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',    
+  );
+  
+  b_render($output);
+  echo "\n";
+  
+}
