@@ -181,29 +181,15 @@ function render_table($variables) {
   $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : " |";
   $max_width = exec('tput cols');
 
-
-  if($header){
-    $header_args = array();
-    foreach($header as $col) {
-      if(isset($col['data'])){
-        $header_args[] = table_color_text($col);
-      }
-      else{
-        $header_args[] = $col;
-      }
-    }
-
-    echo vsprintf($mask, $header_args);
-    echo str_repeat('-', $table_width - $width_diff) . "\n";
-  }
-
-  if(empty($rows)){
-    $mask = $delimiter . '%-' . ($max_width - mb_strlen($delimiter) *2 ) . 's' . $delimiter ."\n";
-    echo vsprintf($mask, array('no data'));
-    return;
-  }
-
   $cols_length = _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $delimiter_right);
+  
+  if($header){
+    $row_rendered = array();
+    foreach($header as $index => $col){
+      $row_rendered[] = _render_print_col($col, $cols_length[$index]);
+    }
+    echo $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right ."\n\n";
+  }
 
   foreach($rows as $row) {
     $print_args = array();
