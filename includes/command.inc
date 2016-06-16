@@ -66,6 +66,8 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
   if(isset($command['arguments'])){
     $command_args = array_keys($command['arguments']);
   }
+  $multiple_option = FALSE;
+  $arg_name = '';
   for($i=2;$i < $argc; $i++) {
     if (preg_match('/--(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
@@ -80,9 +82,25 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
       }
       continue;
     }
-    if(!empty($command_args)) {
-      $arg_name = array_shift($command_args);
-      $arguments[$arg_name] = $argv[$i];
+    if($multiple_option){
+
+      $arguments[$arg_name][] = $argv[$i];
+
+    }elseif(!empty($command_args)) {
+
+      if(!$multiple_option){
+        $arg_name = array_shift($command_args);
+      }
+      if(is_array($command['arguments'][$arg_name]) 
+        && isset($command['arguments'][$arg_name]['multiple']) 
+        && $command['arguments'][$arg_name]['multiple']) {
+      
+        $arguments[$arg_name][] = $argv[$i];
+        $multiple_option = TRUE;
+      }
+      else{
+        $arguments[$arg_name] = $argv[$i];
+      }
     }
   }
 }

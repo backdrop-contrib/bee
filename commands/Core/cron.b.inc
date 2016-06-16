@@ -17,5 +17,5 @@
 
 function cron_command_process($arguments, $options) {
   backdrop_cron_run();
-  b_set_message('Cron processed.');
+  b_set_message('Cron processed.', 'success');
 }

@@ -86,6 +86,10 @@ function b_print_messages() {
         $color = 'blue';
         $symbol = '[o]';
         break;
+      case 'success':
+        $color = 'green';
+        $symbol = '[v]';
+        break;
       case 'warning':
         $color = 'yellow';
         $symbol = '[!]';

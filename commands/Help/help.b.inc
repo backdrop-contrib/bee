@@ -74,10 +74,18 @@ function display_help_by_cmd($commands){
     }
     if(isset($callback['arguments'])){
       foreach($callback['arguments'] as $argument => $description){
-        $available_arguments[] = array(
-          $argument,
-          $description
-        );
+        if(is_array($description)) {
+          $available_arguments[] = array(
+            $argument,
+            $description['description'],
+          );
+        }
+        else {
+          $available_arguments[] = array(
+            $argument,
+            $description
+          );
+        }
       }
     }
   }
