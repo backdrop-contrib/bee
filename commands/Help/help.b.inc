@@ -81,6 +81,7 @@ function display_help_by_cmd($commands){
   $examples = array();
   $available_options = array();
   $available_arguments = array();
+  $aliases = array();
   foreach($commands as $callback){
     if(isset($callback['examples'])){
       foreach($callback['examples'] as $example => $description){
@@ -113,6 +114,9 @@ function display_help_by_cmd($commands){
           );
         }
       }
+    }
+    if(isset($callback['aliases'])){
+      $aliases += $callback['aliases'];
     }
   }
   $output = array();
@@ -162,6 +166,12 @@ function display_help_by_cmd($commands){
       'delimiter' => ' : ',
       'delimiter_left' => ' ',
       'delimiter_right' => '',    
+    );
+  }
+  if(!empty($aliases)) {
+    $output[] = array(
+      '#type' => 'text',
+      'value' => "\n" . 'Aliases: ' . implode(", ", $aliases),
     );
   }
   return $output;
