@@ -2,31 +2,27 @@
 /**
  * Implementation of hook_b_command().
  */
-function help_b_command() {
+function drush_help_drush_command() {
   $items['help'] = array(
-    'description' => 'Display help.',
+    'description' => 'Display drush help.',
     'arguments' => array(
       'command' => 'Command to print help',
     ),
-    'callback' => 'help_b_callback',
+    'callback' => 'drush_help_callback',
   );
   return $items;
 }
 
-function help_b_callback($arguments, $options) {
-  $commands = b_get_commands();
-  ksort($commands);
-  $rows = array();
-  $answer = array();
-  if(isset($arguments['command'])){
-    $cmd = $arguments['command'];
-    if(!isset($commands[$cmd])){
-      b_set_message('There is no ' . $cmd, 'error');
+function drush_help_callback($command = FALSE) {
+  $commands = drush_get_commands(); 
+  ksort($commands); 
+  if($command) {
+    if(!isset($commands[$command])){
+      b_set_message('There is no ' . $command, 'error');
       return;
     }
-    $output = display_help_by_cmd($commands[$cmd]);
-  }
-  else{
+    $output = drush_display_help_by_cmd($commands[$command]);
+  }else{
     foreach($commands as $cmd => $callbacks){
       $first = TRUE;
       $aliases = array();
@@ -62,7 +58,8 @@ function help_b_callback($arguments, $options) {
     }
     $output[] = array(
       '#type' => 'text',
-      'value' => "\nB commands:\n",
+      'value' => "\n[!] Drush commands:\n",
+      '#color' => 'red',
     );
     
     $output[] = array(
@@ -73,11 +70,10 @@ function help_b_callback($arguments, $options) {
       'delimiter_right' => '',    
     );
   }
-  
-  return $output;
+  b_render($output);
 }
 
-function display_help_by_cmd($commands){
+function drush_display_help_by_cmd($commands){
   $examples = array();
   $available_options = array();
   $available_arguments = array();

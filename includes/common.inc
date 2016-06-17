@@ -81,6 +81,9 @@ function b_print_messages() {
   }
   $rows = array();
   foreach($messages as $type => $sub_messages) {
+    if($type == 'log' && !b_is_debug()) {
+      continue;
+    }
     switch($type) {
       case 'status':
         $color = 'bold_blue';
@@ -97,6 +100,10 @@ function b_print_messages() {
       case 'error':
         $color = 'red';
         $symbol = '[x]';
+        break;
+      case 'log':
+        $color = 'red';
+        $symbol = ' - ';
         break;
       default:
         $color = 'red';
@@ -121,4 +128,40 @@ function b_print_messages() {
   b_render($output);
   echo "\n";
 
+}
+
+/**
+ * Set drush compatible mode and return status.
+ */
+function drush_mode($set = NULL) {
+  static $mode;
+  
+  if($set != NULL) {
+    $mode = $set;
+  }
+  return $mode;
+}
+
+/**
+ * Set Yes to all mode and return status.
+ */
+function b_yes_mode($set = NULL) {
+  static $mode;
+  
+  if($set != NULL) {
+    $mode = $set;
+  }
+  return $mode;
+}
+
+/**
+ * If -d specified.
+ */
+function b_is_debug($set = NULL) {
+  static $mode;
+  
+  if($set != NULL) {
+    $mode = $set;
+  }
+  return $mode;
 }

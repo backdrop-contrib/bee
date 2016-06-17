@@ -43,7 +43,6 @@ function b_bootstrap($bootstrap_level){
   if(defined('BACKDROP_ROOT')) {
     require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
     if(function_exists('backdrop_bootstrap')) {
-      chdir(BACKDROP_ROOT);
       $status = backdrop_bootstrap($bootstrap_level);
       set_error_handler('b_errorHandler');
       return TRUE;
@@ -58,11 +57,11 @@ function b_bootstrap($bootstrap_level){
 function b_get_command_name(){
   global $argc, $argv;
   for($i=1;$i < $argc; $i++) {
-    if (preg_match('/--(\S+)/', $argv[$i], $matches)) {
+    if (preg_match('/^--(\S+)/', $argv[$i], $matches)) {
       continue;
     }
     
-    if(preg_match('/-(\S+)/', $argv[$i], $matches)) {
+    if(preg_match('/^-(\S+)/', $argv[$i], $matches)) {
       continue;
     }
     
@@ -70,6 +69,7 @@ function b_get_command_name(){
   }
   return FALSE;
 }
+
 /**
  * Assign $arguments and $options based on
  * $command['arguments'] & $command[options]
@@ -232,6 +232,8 @@ function b_commandfile_searchpaths() {
 
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
+  
+  b_bootstrap(B_BOOTSTRAP_FULL);
 
   if(function_exists('module_list') && function_exists('db_select')) {
     $modules = db_select('system', 's')
