@@ -57,6 +57,10 @@ function modules_b_command() {
 function modules_b_list_callback($arguments, $options){
 
   if(!isset($options['type']) or $options['type'] != 'layout') {
+    
+    //Rescan for new modules.
+    system_rebuild_module_data();
+    
     $query = db_select('system', 's')
       ->fields('s');
 
