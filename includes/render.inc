@@ -84,11 +84,15 @@ function table_color_text($variables){
  * Main render function.
  */
 function b_render($elements){
-//  print_r($elements);
+  if(empty($elements)){
+    return;
+  }
+
   if(!is_array($elements)) {
     echo $elements."\n";
     return;
   }
+
   if(!isset($elements['#type'])){
     foreach($elements as $element){
       b_render($element);
@@ -189,6 +193,7 @@ function render_table($variables) {
     foreach($header as $index => $col){
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
+    // Flip background and foreground colors for table header.
     echo "\033[7m" . $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right ."\033[0m\n";
   }
 
@@ -230,6 +235,10 @@ function render_table($variables) {
   }
 }
 
+/**
+ * If column doesnot fit screen size and column size,
+ * we use this function to properly output next value line to fit column size.
+ */
 function _row_next_line_value($repeat, $cols_length) {
   $row_rendered = array();
   $rows_return = array();
