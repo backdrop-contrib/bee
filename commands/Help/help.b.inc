@@ -27,12 +27,37 @@ function help_b_callback($arguments, $options) {
   }
   else{
     foreach($commands as $cmd => $callbacks){
-      if($elements = display_help_command($callbacks)) {
+      $first = TRUE;
+      $aliases = array();
+      foreach($callbacks as $callback){
+        if(isset($callback['is_alias'])){
+          continue;
+        }
+        
+        if(isset($callback['aliases'])){
+          $aliases += $callback['aliases'];
+        }
+        if($first) {
+          $rows[] = array(
+            array('data' => $cmd, '#color' => 'bold_blue'),
+            array('data' => $callback['description'])
+          );
+          $first = FALSE;
+        }
+        else{
+          $rows[] = array(
+            '',
+            array('data' => $callback['description'])
+          );
+        }
+      }
+      if($aliases) {
         $rows[] = array(
-          array('data' => $cmd, '#color' => 'bold_blue'),
-          array('data' => $elements)
+          '',
+          array('data' => 'aliases: ' . implode(", ", $aliases), '#color' => 'purple')
         );
       }
+      
     }
     $output[] = array(
       '#type' => 'text',
@@ -92,7 +117,7 @@ function display_help_by_cmd($commands){
   $output = array();
     $output[] = array(
       '#type' => 'text',
-      '#color' => 'dark_gray',
+      '#color' => 'purple',
       'value' => $callback['description'],
     );
 
@@ -139,23 +164,4 @@ function display_help_by_cmd($commands){
     );
   }
   return $output;
-}
-
-function display_help_command($callbacks) {
-  $rows = array();
-  foreach($callbacks as $callback){
-    if(isset($callback['is_alias'])){
-      continue;
-    }
-    $aliases = '';
-    if(isset($callback['aliases'])) {
-      $aliases = "\n  (" .implode(",", $callback['aliases']) . ")";
-    }
-    $rows[] = $callback['description'] . $aliases;
-    
-  }
-  if(empty($rows)){
-    return FALSE;
-  }
-  return implode("\n", $rows);
 }

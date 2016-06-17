@@ -3,7 +3,7 @@
  * Implementation of hook_b_command().
  */
 function download_b_command() {
-  $items['dl'] = array(
+  $items['pm-download'] = array(
     'description' => 'Download contrib package.',
     'arguments' => array(
       'packages' => array(
@@ -15,6 +15,7 @@ function download_b_command() {
       'root' => 'Backdrop ROOT directory',
     ),
     'callback' => 'download_b_callback',
+    'aliases' => array('dl'),
   );
   return $items;
 }

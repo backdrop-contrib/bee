@@ -3,9 +3,10 @@
  * Implementation of hook_b_command().
  */
 function test_b_command() {
-  $items['st'] = array(
+  $items['core-status'] = array(
     'description' => 'This is test example how to add your own callback on command.',
     'callback' => 'test_b_callback',
+    'aliases' => array('status', 'st'),
   );
   return $items;
 }
