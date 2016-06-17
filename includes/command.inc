@@ -10,11 +10,9 @@
 
 function b_process_command(){
   global $argv, $elements;
-  if(!isset($argv[1])) {
+  $cmd = b_get_command_name();
+  if(empty($cmd)) {
     $cmd = 'help';
-  }
-  else{
-    $cmd = $argv[1];
   }
   $commands = b_get_commands();
   if(!isset($commands[$cmd])){
@@ -53,6 +51,25 @@ function b_bootstrap($bootstrap_level){
   }
   return FALSE;
 }
+
+/**
+ * search for first not option value
+ */
+function b_get_command_name(){
+  global $argc, $argv;
+  for($i=1;$i < $argc; $i++) {
+    if (preg_match('/--(\S+)/', $argv[$i], $matches)) {
+      continue;
+    }
+    
+    if(preg_match('/-(\S+)/', $argv[$i], $matches)) {
+      continue;
+    }
+    
+    return $argv[$i];
+  }
+  return FALSE;
+}
 /**
  * Assign $arguments and $options based on
  * $command['arguments'] & $command[options]
@@ -60,6 +77,8 @@ function b_bootstrap($bootstrap_level){
  */
 function b_get_command_args_options(&$arguments, &$options, $command) {
   global $argc, $argv;
+  
+  $command_name = FALSE;
 
   $command_args = array();
 
@@ -68,7 +87,8 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
   }
   $multiple_option = FALSE;
   $arg_name = '';
-  for($i=2;$i < $argc; $i++) {
+  
+  for($i=1;$i < $argc; $i++) {
     if (preg_match('/--(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
       if(FALSE !== strpos($opt_name, '=')) {
@@ -82,12 +102,26 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
       }
       continue;
     }
+    
+    if(preg_match('/-(\S+)/', $argv[$i], $matches)) {
+      $opt_name = $matches[1];
+      if(isset($command['options'][$opt_name])) {
+        $options[$opt_name] = TRUE;
+      }
+      continue;      
+    }
+    
     if($multiple_option){
-
       $arguments[$arg_name][] = $argv[$i];
-
-    }elseif(!empty($command_args)) {
-
+      continue;
+    }
+    
+    if(empty($command_name)){
+      $command_name = $argv[$i];
+      continue;
+    }
+    
+    if(!empty($command_args)) {
       if(!$multiple_option){
         $arg_name = array_shift($command_args);
       }
