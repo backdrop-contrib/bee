@@ -15,6 +15,7 @@ function help_b_command() {
 
 function help_b_callback($arguments, $options) {
   $commands = b_get_commands();
+  ksort($commands);
   $rows = array();
   $answer = array();
   if(isset($arguments['command'])){
