@@ -83,7 +83,7 @@ function b_print_messages() {
   foreach($messages as $type => $sub_messages) {
     switch($type) {
       case 'status':
-        $color = 'blue';
+        $color = 'bold_blue';
         $symbol = '[o]';
         break;
       case 'success':

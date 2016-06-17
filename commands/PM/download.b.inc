@@ -6,7 +6,10 @@ function download_b_command() {
   $items['dl'] = array(
     'description' => 'Download contrib package.',
     'arguments' => array(
-      'package' => 'Package to download.',
+      'packages' => array(
+        'description' => 'Package to download.',
+        'multiple' => TRUE,
+      ),
     ),
     'options' => array(
       'root' => 'Backdrop ROOT directory',
@@ -16,70 +19,114 @@ function download_b_command() {
   return $items;
 }
 
+/**
+ * dl callback. Download project.
+ */
 function download_b_callback($arguments, $options) {
-  if(!isset($arguments['package'])){
-    return array(
-      '#type' => 'text',
-      '#color' => 'red',
-      'value' => 'Please provide package name',
-    );
+
+  if(!isset($arguments['packages'])){
+    b_set_message('Please provide package name(s)', 'error');
+    return;
   }
-  if(!defined('BACKDROP_ROOT') && !isset($options['root'])){
-    return array(
-      '#type' => 'text',
-      '#color' => 'red',
-      'value' => 'Please provide --root option or change directory to BackdropCMS folder',
-    );
-  }
-  
-  if($arguments['package'] == 'backdrop'){
-    $link = get_project_link('backdrop', $arguments['package']);
-    if(isset($options['root'])) {
-      $download_target = $options['root'];
-    }else{
-      $download_target = defined('BACKDROP_ROOT');
+  foreach($arguments['packages'] as $package){
+    $tmp_folder = b_tmp_folder();
+    if(!$tmp_folder){
+      b_set_message('Failed to generate tmp directory!', 'error');
+      return;
     }
-    exec('wget -q --directory-prefix ' . $download_target . ' ' . $link);
-    exec('unzip ' . $download_target . '/' . $arguments['package'] . '.zip -d ' .$download_target);
-    unlink($download_target . '/' . $arguments['package'] . '.zip');
-    return array(
-      '#type' => 'text',
-      '#color' => 'green',
-      'value' => 'BackdropCMS downloaded!',
-    );
-  }
-  else{
-    if($link = get_project_link('backdrop-contrib', $arguments['package'])) {
+
+    if($package == 'backdrop'){
+      $link = get_project_link('backdrop', $package);
+      $download_target = '.';
       if(isset($options['root'])) {
-        $download_target = $options['root'] . '/modules';
-      }else{
-        $download_target = defined('BACKDROP_ROOT') . '/modules';
+        $download_target = $options['root'];
+      }elseif(defined('BACKDROP_ROOT')){
+        $download_target = BACKDROP_ROOT;
       }
-      if(file_exists($download_target . '/contrib')) {
-        $download_target = $download_target . '/contrib';
-      }
-      echo $download_target;
       exec('wget -q --directory-prefix ' . $download_target . ' ' . $link);
-      exec('unzip ' . $download_target . '/' . $arguments['package'] . '.zip -d ' .$download_target);
-      unlink($download_target . '/' . $arguments['package'] . '.zip');
-      return array(
-      '#type' => 'text',
-      '#color' => 'green',
-      'value' => $arguments['package'] . ' downloaded!',
-    );
+      exec('unzip ' . $download_target . '/' . $package . '.zip -d ' .$download_target);
+      unlink($download_target . '/' . $package . '.zip');
+      b_set_message('BackdropCMS downloaded!', 'success');
+      return;
     }
     else{
-       return array(
-        '#type' => 'text',
-        '#color' => 'red',
-        'value' => 'There is no such project or no releases!',
-      );
-      
+      if($link = get_project_link('backdrop-contrib', $package)) {
+
+        exec('wget -q --directory-prefix ' . $tmp_folder . ' ' . $link);
+        exec('unzip ' . $tmp_folder . '/' . $package . '.zip -d ' .$tmp_folder);
+        unlink($tmp_folder . '/' . $package . '.zip');
+
+        if($download_target = download_get_target($tmp_folder . '/' . $package, $options)) {
+          b_recursive_copy($tmp_folder . '/' . $package, $download_target. '/' . $package);
+          b_set_message($package . ' downloaded!');
+        }
+        else{
+          b_set_message($package . ' is unknown type!', 'error');
+        }
+
+        b_file_unmanaged_delete_recursive($tmp_folder);
+      }
+      else{
+        b_set_message('There is no such project or no releases!', 'error');
+      }
     }
   }
 }
 
-function get_project_link($owner,$repo) {
+/**
+ * Based on type of the project, return directory to move project into.
+ */
+function download_get_target($folder, $options) {
+  $download_target = FALSE;
+  if(isset($options['root'])) {
+    $download_target = $options['root'];
+  }elseif(defined('BACKDROP_ROOT')){
+    $download_target = BACKDROP_ROOT;
+  }
+  if($type = download_get_type($folder)){
+    switch($type) {
+      case 'module':
+        $download_target .= '/modules/';
+      break;
+      case 'theme':
+        $download_target .= '/themes/';
+      break;
+      case 'layout':
+        $download_target .= '/layouts/';
+      break;
+    }
+    if(file_exists($download_target . '/contrib')) {
+      $download_target = $download_target . '/contrib';
+    }
+    return $download_target;
+  }
+  return FALSE;
+}
+
+/**
+ * Scan for info file and return project type.
+ */
+function download_get_type($folder) {
+  $files = b_file_scan_directory($folder, "/\.info$/");
+  foreach($files as $file) {
+    $content = file($file->uri);
+    foreach($content as $line) {
+      if(FALSE !== strpos($line, 'type')) {
+        list($title, $type) = explode("=", $line);
+        $type = trim($type);
+        if(in_array($type, array('module', 'theme', 'layout'))){
+          return $type;
+        }
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Return linkg to zip file from GitHub.
+ */
+function get_project_link($owner, $repo) {
   $context = stream_context_create(
     array(
       "http" => array(
@@ -91,7 +138,7 @@ function get_project_link($owner,$repo) {
   );
   $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo .'/releases/latest', false, $context);
   $json = json_decode($content, TRUE);
-  
+
   if(isset($json['assets'][0]['browser_download_url'])){
     return $json['assets'][0]['browser_download_url'];
   }
