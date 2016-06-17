@@ -58,11 +58,15 @@ function download_b_callback($arguments, $options) {
         unlink($tmp_folder . '/' . $package . '.zip');
 
         if($download_target = download_get_target($tmp_folder . '/' . $package, $options)) {
+          if(file_exists($download_target. '/' . $package)) {
+            b_set_message('Folder ' . $download_target. '/' . $package . ' already exists', 'error');
+            return FALSE;
+          }
           b_recursive_copy($tmp_folder . '/' . $package, $download_target. '/' . $package);
-          b_set_message($package . ' downloaded!');
+          b_set_message($package . ' downloaded!','success');
         }
         else{
-          b_set_message($package . ' is unknown type!', 'error');
+          b_set_message('Failed to download ' . $package . '', 'error');
         }
 
         b_file_unmanaged_delete_recursive($tmp_folder);
@@ -84,6 +88,10 @@ function download_get_target($folder, $options) {
   }elseif(defined('BACKDROP_ROOT')){
     $download_target = BACKDROP_ROOT;
   }
+  if(!$download_target) {
+    b_set_message('Please change directory to BackdropCMS root or specify --root option.', 'error');
+    return FALSE;
+  }
   if($type = download_get_type($folder)){
     switch($type) {
       case 'module':
@@ -100,6 +108,9 @@ function download_get_target($folder, $options) {
       $download_target = $download_target . '/contrib';
     }
     return $download_target;
+  }
+  else{
+    b_set_message($package . ' is unknown type!', 'error'); 
   }
   return FALSE;
 }
