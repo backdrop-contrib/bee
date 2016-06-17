@@ -93,10 +93,25 @@ function display_help_by_cmd($commands){
     }
     if(isset($callback['options'])){
       foreach($callback['options'] as $option => $description){
-        $available_options[] = array(
-          '--' . $option,
-          $description
-        );
+        if(is_array($description)) {
+          $available_options[] = array(
+            '--' . $option,
+            $description['description'],
+          );
+          if(isset($description['example-value'])){
+            $available_options[] = array(
+              '',
+              array('data' => 'example: ' . $description['example-value'], '#color' => 'purple'),
+            );
+          }
+
+        }
+        else{
+          $available_options[] = array(
+            '--' . $option,
+            $description
+          );
+        }
       }
     }
     if(isset($callback['arguments'])){
