@@ -30,7 +30,9 @@ function b_process_command(){
       }
       if($ready) {
         b_get_command_args_options($arguments, $options, $command);
-        $elements[] = $command_callback($arguments, $options);
+        if(b_check_for_required($arguments, $options, $command)){
+          $elements[] = $command_callback($arguments, $options);
+        }
       }
       else{
         b_set_message("Required bootstrap level for " . $command['module']. " is not ready", 'error');
@@ -41,7 +43,13 @@ function b_process_command(){
 
 function b_bootstrap($bootstrap_level){
   if(defined('BACKDROP_ROOT')) {
-    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
+    require_once 'core/includes/bootstrap.inc';
+    if(function_exists('backdrop_bootstrap_is_installed')){
+      if(!backdrop_bootstrap_is_installed()){
+//        echo "Not Installed??";
+//        return FALSE;
+      }
+    }
     if(function_exists('backdrop_bootstrap')) {
       $status = backdrop_bootstrap($bootstrap_level);
       set_error_handler('b_errorHandler');
@@ -70,6 +78,38 @@ function b_get_command_name(){
   return FALSE;
 }
 
+/**
+ * Check for required options and arguments.
+ *
+ */
+function b_check_for_required(&$arguments, &$options, $command) {
+  if(isset($command['options'])){
+    foreach($command['options'] as $name => $option){
+      if(is_array($option)){
+        if(isset($option['required']) && $option['required'] == TRUE){
+          if(!isset($options[$name])) {
+            b_set_message(bt('Option !name is required.', array('!name' => $name)), 'error');
+            return FALSE;
+          }
+        }
+      }
+    }
+  }
+  
+  if(isset($command['arguments'])){
+    foreach($command['arguments'] as $name => $argument){
+      if(is_array($argument)){
+        if(isset($argument['required']) && $argument['required'] == TRUE){
+          if(!isset($arguments[$name])) {
+            b_set_message(bt('Argument !name is required.', array('!name' => $name)), 'error');
+            return FALSE;
+          }
+        }
+      }
+    }
+  }
+  return TRUE;
+}
 /**
  * Assign $arguments and $options based on
  * $command['arguments'] & $command[options]
@@ -232,8 +272,6 @@ function b_commandfile_searchpaths() {
 
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
-  
-  b_bootstrap(B_BOOTSTRAP_FULL);
 
   if(function_exists('module_list') && function_exists('db_select')) {
     $modules = db_select('system', 's')

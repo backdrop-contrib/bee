@@ -14,6 +14,9 @@ function help_b_command() {
 }
 
 function help_b_callback($arguments, $options) {
+  if(defined('BACKDROP_ROOT')){
+    b_bootstrap(B_BOOTSTRAP_FULL);
+  }
   $commands = b_get_commands();
   ksort($commands);
   $rows = array();
