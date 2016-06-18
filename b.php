@@ -1,150 +1,105 @@
 <?php
-// $path is the root of the backdrop installation.
-$path = getcwd();
 
-if (file_exists($path . '/settings.php')) {
-  require_once "settings.php";
-  // get DB connection info for PDO object from Backdrop settings.php file.
-  $info = explode('/', $database);
-  $host_and_creds = explode('@', $info[2]);
-  $host = $host_and_creds[1];
-  $creds = explode(':', $host_and_creds[0]);
-  $b_user = $creds[0];
-  $b_pass = $creds[1];
+set_error_handler('b_errorHandler');
 
-  // TODO: need to make DB table map of Backdrop cache tables.
-  //$dbh = new PDO("mysql:host=$host;dbname=mysql", $b_user, $b_pass);
+require_once('includes/common.inc');
+require_once('includes/command.inc');
+require_once('includes/render.inc');
+require_once('includes/output.inc');
+require_once('includes/filesystem.inc');
 
-  // Backdrop Database PDO Object.
-  $bdb = new PDO("mysql:host=$host;dbname=$info[3]", $b_user, $b_pass);
+//Global variables.
+$elements = array();
+
+b_init();
+
+if(drush_mode()){
+  require_once('includes/drush_wrapper.inc');
+  drush_process_command();
 }
-else {
-  print "\033[31mNo Backdrop installation was found :(.\033[0m\n";
-  return 0;
+else{
+  b_process_command();
 }
 
-// print b help.
-if (count($argv) == 1) {
-  print help();
+b_print_messages();
+b_render($elements);
+
+function b_errorHandler($errno, $message, $filename, $line, $context){
+  echo $message."\n";
+  echo "\t". $filename . ":" . $line ."\n";
 }
+exit();
 
-if (count($argv) > 1) {
-  // Clear all cache
-  if ($argv[1] == 'cc') {
-    // get the backdrop cache tables;
-    $p = $bdb->prepare(
-        "show tables"
-    );
-    $p->execute();
-    $my_tables = $p->fetchAll();
-    $arr_of_tables = array();
-    foreach ($my_tables as $t) {
-      if (strpos($t[0], 'cache') !== FALSE) {
-        $arr_of_tables[] = $t[0];
-      }
-    }
-    if (count($argv) == 2) {
-      $cache_menu = cache_menu();
-      print "\nEnter a number to choose which cache to clear.\n";
-      foreach ($cache_menu as $key => $c) {
-        print "\t$key \t:\t $c\n";
-      }
-      $handle = fopen ("php://stdin","r");
-      $line = fgets($handle);
-      $line = trim($line);
 
-      switch($line) {
-        case 0:
-          print "Canceled\n";
-        break;
-        case 1:
-          b_cache_clear_all($bdb, $arr_of_tables);
-        break;
-        // TODO: build out the rest of the cache_menu cases.
-      }
-    }
-    if (count($argv) == 3) {
-      if ($argv[2] == 'all') {
-        b_cache_clear_all($bdb, $arr_of_tables);
-      }
-    }
-  }
-  if ($argv[1] == 'dl') {
-    require_once 'commands/dl.php';
-    if (isset($argv[2])) {
-      $i = 2;
-      while (isset($argv[$i])) {
-        dl_project($argv[$i], $path);
-        $i++;
-      }
-    }
-    else {
-      print "You must specify a valid project, i.e. 'b dl redirect'.\n";
-    }
-  }
-  if ($argv[1] == 'status' || $argv[1] == 'st') {
-    require_once "commands/status.php";
-    status($path);
-  }
-}
-
-function cache_selection($index) {
-  $caches = array(
-    0 => 'cancel',
-    1 => 'all',
-    2 => 'admin-menu',
-    3 => 'css-js',
-    4 => 'layout',
-    5 => 'menu',
-    6 => 'page',
-    7 => 'theme',
-    8 => 'token',
-    9 => 'update-data',
+function b_init() {
+  $arguments = array();
+  $options = array();
+  $command = array(
+   'options' => array(
+     'root' => 'Backdrop root folder',
+     'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
+     'y' => 'Force Yes to all Yes/No questions',
+     'yes' => 'Force Yes to all Yes/No questions',
+     'd' => 'Debug mode',
+     'debug' => 'Debug mode on',
+    ),
   );
-  return $caches[$index];
-}
+  b_get_command_args_options($arguments, $options, $command);
 
-function cache_menu() {
-  $caches = array(
-    0 => 'cancel',
-    1 => 'all',
-    2 => 'admin-menu',
-    3 => 'css-js',
-    4 => 'layout',
-    5 => 'menu',
-    6 => 'page',
-    7 => 'theme',
-    8 => 'token',
-    9 => 'update-data',
-  );
-  return $caches;
-}
-
-function help() {
-  print "\n";
-  echo   "\033[32m \tb commands \n";
-  print "\t\tb cc \t\t// clear cache menu\n";
-  print "\t\tb cc all \t// clear all cache\n";
-  print "\t\tb dl module \t// download one or more modules\n";
-  print "\tthat's it; \033[0m";
-  print "\n\n";
-}
-
-/**
- * Clear all cache.
- * @param $database
- *   PDO database object to act on
- * @param $tables
- *   tables to truncate
- *
- */
-function b_cache_clear_all($database, $tables) {
-  foreach($tables as $c) {
-    $cc = $database->prepare(
-      "truncate table $c"
-    );
-    $cc->execute();
+  $_backdrop_root = FALSE;
+  if(isset($options['root'])) {
+    if(file_exists($options['root'] . '/settings.php')) {
+      $_backdrop_root =  $options['root'];
+    }
   }
-  print "\033[32mAll caches cleared.\033[0m\n";
+  else{
+    $path = getcwd();
+    if(file_exists($path . '/settings.php')) {
+      $_backdrop_root = $path;
+    }
+  }
+  
+  if($_backdrop_root){
+    chdir($_backdrop_root);
+    $full_path = getcwd();
+    define('BACKDROP_ROOT', $full_path);
+  }
+  
+  if(isset($options['drush'])) {
+    drush_mode(TRUE);
+    b_set_message('Drush mode on');
+  }
+  
+  if(isset($options['y']) or isset($options['yes'])) {
+    b_yes_mode(TRUE);
+    b_set_message('Yes mode on');
+  }
+  if(isset($options['d']) or isset($options['debug'])) {
+    b_is_debug(TRUE);
+    b_set_message('Debug mode on');
+  }
+  
+  
+
+  $host = 'localhost';
+  $path = '';
+
+  $_SERVER['HTTP_HOST'] = $host;
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_NAME'] = 'localhost';
+  $_SERVER['REQUEST_URI'] = $path .'/';
+  $_SERVER['REQUEST_METHOD'] = 'GET';
+  $_SERVER['SCRIPT_NAME'] = $path .'/index.php';
+  $_SERVER['PHP_SELF'] = $path .'/index.php';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
+
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+    // Ensure that any and all environment variables are changed to https://.
+    foreach ($_SERVER as $key => $value) {
+      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
+    }
+  }
+
 }
-?>
