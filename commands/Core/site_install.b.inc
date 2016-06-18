@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * Implements of hook_b_command().
  */
 function site_install_b_command() {
   $items['site-install'] = array(
@@ -9,7 +9,7 @@ function site_install_b_command() {
       'profile' => bt('The install profile you wish to run. Default is "standard"'),
       'key=value' => array(
         'description' => bt('Any additional settings you wish to pass to the profile. The key is in the form [form name].[parameter name]'),
-        'multiple' => true,
+        'multiple' => TRUE,
       )
     ),
     'options' => array(
@@ -37,6 +37,11 @@ function site_install_b_command() {
   return $items;
 }
 
+/**
+ * @param $arguments
+ * @param $options
+ * @return bool
+ */
 function site_install_b_callback($arguments, $options) {
 
   $defaul_options = array(
@@ -53,12 +58,12 @@ function site_install_b_callback($arguments, $options) {
     'root' => '',
   );
   foreach($defaul_options as $name => $value) {
-    if(!isset($options[$name])) {
+    if (!isset($options[$name])) {
       $options[$name] = $value;
     }
   }
   $additional_form_options = array();
-  if(isset($arguments['key=value']) && !empty($arguments['key=value'])){
+  if (isset($arguments['key=value']) && !empty($arguments['key=value'])) {
     foreach($arguments['key=value'] as $argument) {
       list($key, $value) = explode('=', $argument);
       $additional_form_options[$key] = $value; 
@@ -66,7 +71,7 @@ function site_install_b_callback($arguments, $options) {
   }
 
   $profile = 'standard';
-  if(isset($arguments['profile'])) {
+  if (isset($arguments['profile'])) {
     $profile = $arguments['profile'];
   }
   
@@ -124,9 +129,9 @@ function site_install_b_callback($arguments, $options) {
   );
   
   // Merge in the additional options.
-  foreach ($additional_form_options as $key => $value) {
+  foreach($additional_form_options as $key => $value) {
     $current = &$settings['forms'];
-    foreach (explode('.', $key) as $param) {
+    foreach(explode('.', $key) as $param) {
       $current = &$current[$param];
     }
     $current = $value;
@@ -138,7 +143,7 @@ function site_install_b_callback($arguments, $options) {
   try {
     render_text(array('value' => "Installing Backdrop. This may take a moment...", '#color' => 'bold_blue'));
     install_backdrop($settings);
-    b_set_message("Backdrop installed successfully.");
+    b_set_message(bt("Backdrop installed successfully."));
     return TRUE;
   }
   catch (Exception $e) {
@@ -146,5 +151,4 @@ function site_install_b_callback($arguments, $options) {
     b_set_message(bt("An error occurred. Output of installation attempt is as follows: !error", array( '!error' => $e->getMessage())), 'error');
     return FALSE;
   }
-
 }
