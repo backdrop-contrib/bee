@@ -10,7 +10,7 @@ function config_b_command() {
   );
   $items['config-get'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Chow config settings.',
+    'description' => 'Show config settings.',
     'callback' => 'config_get_callback',
     'arguments' => array(
       'config_name' => array(
@@ -21,9 +21,50 @@ function config_b_command() {
     ),
   );
 
+  $items['config-set'] = array(
+    'bootstrap' => B_BOOTSTRAP_FULL,
+    'description' => 'Set config settings.',
+    'callback' => 'config_set_callback',
+    'arguments' => array(
+      'config_name' => array(
+        'description' => 'Config name.',
+        'required' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Variable name.',
+        'required' => TRUE,
+      ),
+      'value' => array(
+        'description' => 'Value to assign to variable.',
+        'required' => TRUE,
+      ),
+    ),
+  );
+
   return $items;
 }
 
+/**
+ * config-set callback. Display list of configs.
+ */
+function config_set_callback($arguments, $options){
+  $config_dir = config_get_config_directory();
+  $config_storage = new ConfigFileStorage($config_dir);
+  if($config = $config_storage->read($arguments['config_name'])) {
+    if(isset($config[$arguments['name']])) {
+      if(is_array($config[$arguments['name']])) {
+        b_set_message(bt('Value is array. We do not support it yet.'), 'error');
+        return FALSE;
+      }
+      config_set($arguments['config_name'], $arguments['name'], $arguments['value']);
+      b_set_message(bt('Config updated'), 'success');
+    }
+  }
+  else{
+    b_set_message(bt('There is no config !name', array('!name' => $arguments['config_name'])), 'error');
+  }
+}
+  
 /**
  * config-get callback. Display list of configs.
  */
