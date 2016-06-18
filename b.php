@@ -45,20 +45,24 @@ function b_init() {
     ),
   );
   b_get_command_args_options($arguments, $options, $command);
+
+  $_backdrop_root = FALSE;
   if(isset($options['root'])) {
     if(file_exists($options['root'] . '/settings.php')) {
-      define('BACKDROP_ROOT', $options['root']);
+      $_backdrop_root =  $options['root'];
     }
   }
   else{
     $path = getcwd();
     if(file_exists($path . '/settings.php')) {
-      define('BACKDROP_ROOT', $path);
+      $_backdrop_root = $path;
     }
   }
   
-  if(defined('BACKDROP_ROOT')){
-    chdir(BACKDROP_ROOT);
+  if($_backdrop_root){
+    chdir($_backdrop_root);
+    $full_path = getcwd();
+    define('BACKDROP_ROOT', $full_path);
   }
   
   if(isset($options['drush'])) {
@@ -83,7 +87,7 @@ function b_init() {
   $_SERVER['HTTP_HOST'] = $host;
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = '';
+  $_SERVER['SERVER_SOFTWARE'] = NULL;
   $_SERVER['SERVER_NAME'] = 'localhost';
   $_SERVER['REQUEST_URI'] = $path .'/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
