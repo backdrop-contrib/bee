@@ -1,8 +1,7 @@
-b
+Backdrop Console
 ----
-
-`b` clears cache for Backdrop CMS.
-  * that's it.
+`Backdrop Console` is a command line utility for Backdrop CMS developers.  It is aimed
+at speeding your development cycles.
 
 ---
 INSTALATION
@@ -34,5 +33,6 @@ USING `b`
   ---
   Maintainters:
   
-  * Geoff St. Pierre (serundeputy)
+  * Gor Martsen (https://github.com/Gormartsen)
+  * Geoff St. Pierre (https://github.com/serundeputy)
   * Seeking co-maintainer(s) 
