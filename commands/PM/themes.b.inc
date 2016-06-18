@@ -12,6 +12,10 @@ function themes_b_command() {
         'multiple' => TRUE,
       ),
     ),
+    'options' => array(
+      'default' => bt('Set theme as default'),
+      'admin' => bt('Set as admin theme'),
+    ),
     'callback' => 'themes_b_enable_callback',
     'aliases' => array('en'),
   );
@@ -45,6 +49,20 @@ function themes_b_enable_callback($arguments, $options) {
       $clean_cache = TRUE;
     }
   }
+  
+  // If there is only one theme
+  if(count($arguments['extensions']) == 1) {
+    // And option --default
+    if(isset($options['default'])) {
+      // Set theme default.
+      config_set('system.core', 'theme_default', $arguments['extensions'][0]);
+    }
+    // And option --admin
+    if(isset($options['admin'])) {
+      // Set admintheme default.
+      config_set('system.core', 'admin_theme', $arguments['extensions'][0]);
+    }
+  }
 
   if($clean_cache) {
     backdrop_flush_all_caches();
@@ -62,7 +80,6 @@ function _enable_theme($project) {
   $theme = $query->execute()->fetchAssoc();
 
   if(!$theme){
-    b_set_message(bt("Theme !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
@@ -109,7 +126,6 @@ function _disable_theme($project) {
   $theme = $query->execute()->fetchAssoc();
 
   if(!$theme){
-    b_set_message(bt("Theme !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
   
@@ -118,7 +134,7 @@ function _disable_theme($project) {
     return FALSE;
   }
 
-  theme_disable(array($project['name']));
+  theme_disable(array($theme['name']));
   b_set_message("Theme " . $theme['name'] . "  disabled", 'success');
   return TRUE;
 }

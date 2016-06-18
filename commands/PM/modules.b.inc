@@ -191,7 +191,6 @@ function _enable_project($project) {
   $query->condition('type', 'module');
   $module = $query->execute()->fetchAssoc();
   if(!$module){
-    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
@@ -240,7 +239,6 @@ function _disable_project($project) {
   $query->condition('type', 'module');
   $module = $query->execute()->fetchAssoc();
   if(!$module){
-    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
