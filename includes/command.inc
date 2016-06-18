@@ -129,7 +129,7 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
   $arg_name = '';
   
   for($i=1;$i < $argc; $i++) {
-    if (preg_match('/--(\S+)/', $argv[$i], $matches)) {
+    if (preg_match('/^--(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
       if(FALSE !== strpos($opt_name, '=')) {
         list($opt_name, $opt_value) = explode('=', $opt_name);
@@ -143,7 +143,7 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
       continue;
     }
     
-    if(preg_match('/-(\S+)/', $argv[$i], $matches)) {
+    if(preg_match('/^-(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
       if(isset($command['options'][$opt_name])) {
         $options[$opt_name] = TRUE;
