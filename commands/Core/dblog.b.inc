@@ -57,8 +57,12 @@ function dblog_show_many($options) {
 
   if(isset($options['severity'])) {
     $severities = dblog_get_severities();
-    
-    $query->condition('severity', array_search($options['severity'], $severities));
+    if($key = array_search($options['severity'], $severities)){
+      $query->condition('severity', $key);
+    }
+    else{
+      b_set_message(bt('There is no Severity !name', array('!name' => $options['severity'])), 'warning');
+    }
   }
   
   $messages =  $query->limit($options['count'])->execute()->fetchAll();
