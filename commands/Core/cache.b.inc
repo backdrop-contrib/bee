@@ -26,7 +26,7 @@ function cache_b_command() {
  *  Success message to user.
  */
 function cache_command_clear($arguments, $options) {
-  if(!isset($arguments['type'])) {
+  if (!isset($arguments['type'])) {
     backdrop_flush_all_caches();
     return array(
       '#type' => 'text',
