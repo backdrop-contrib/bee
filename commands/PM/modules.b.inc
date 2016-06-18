@@ -61,6 +61,9 @@ function modules_b_list_callback($arguments, $options){
     //Rescan for new modules.
     system_rebuild_module_data();
     
+    //Rescan for new themes.
+    system_rebuild_theme_data();
+    
     $query = db_select('system', 's')
       ->fields('s');
 
@@ -71,8 +74,6 @@ function modules_b_list_callback($arguments, $options){
     $projects = $query->execute()->fetchAll();
 
     $rows = array();
-
-
 
     foreach($projects as $project) {
       $project->info = unserialize($project->info);
@@ -190,18 +191,30 @@ function _enable_project($project) {
   $project = $query->execute()->fetchAssoc();
 
   if($project['status']) {
-    b_set_message("Failed to enable module " . $project['name']. ": it is enabled already", 'error');
+    if($project['type'] == 'module') {
+      b_set_message("Failed to enable module " . $project['name']. ": it is enabled already", 'error');
+    }
+    if($project['type'] == 'theme') {
+      b_set_message("Failed to enable theme " . $project['name']. ": it is enabled already", 'error');
+    }
     return FALSE;
   }
 
-  if($project['status'] == 0 && $project['type'] == 'module') {
+  if($project['type'] == 'module') {
     if(module_enable(array($project['name']), FALSE)) {
       b_set_message("Module " . $project['name'] . "  enabled", 'success');
       return TRUE;
     }
     else{
       b_set_message("Failed to enable module " . $project['name'], 'error');
+      return FALSE;
     }
+  }
+  
+  if($project['type'] == 'theme') {
+    theme_enable(array($project['name']));
+    b_set_message("Theme " . $project['name'] . "  enabled", 'success');
+    return TRUE;
   }
   return FALSE;
 }
@@ -238,13 +251,24 @@ function _disable_project($project) {
   $project = $query->execute()->fetchAssoc();
 
   if(!$project['status']) {
-    b_set_message("Failed to disable module " . $project['name']. ": it is disabled already", 'error');
+    if($project['type'] == 'module') {
+      b_set_message("Failed to disable module " . $project['name']. ": it is disabled already", 'error');
+    }
+    if($project['type'] == 'theme') {
+      b_set_message("Failed to disable theme " . $project['name']. ": it is disabled already", 'error');
+    }
     return FALSE;
   }
 
-  if($project['status'] == 1 && $project['type'] == 'module') {
+  if($project['type'] == 'module') {
     module_disable(array($project['name']), FALSE);
     b_set_message("Module " . $project['name'] . "  disabled", 'success');
+    return TRUE;
+  }
+  
+  if($project['type'] == 'theme') {
+    theme_disable(array($project['name']));
+    b_set_message("Theme " . $project['name'] . "  disabled", 'success');
     return TRUE;
   }
   return FALSE;
