@@ -13,24 +13,38 @@ $elements = array();
 
 b_init();
 
-if(drush_mode()){
+if (drush_mode()) {
   require_once('includes/drush_wrapper.inc');
   drush_process_command();
 }
-else{
+else {
   b_process_command();
 }
 
 b_print_messages();
 b_render($elements);
 
-function b_errorHandler($errno, $message, $filename, $line, $context){
+/**
+ * @param $errno
+ *  todo: is this used?
+ * @param string $message
+ *  Message to output to the user.
+ * @param string $filename
+ *  The file that the error came from.
+ * @param string $line
+ *  The line number the error came from.
+ * @param $context
+ *  todo: is this used?
+ */
+function b_errorHandler($errno, $message, $filename, $line, $context) {
   echo $message."\n";
   echo "\t". $filename . ":" . $line ."\n";
 }
 exit();
 
-
+/**
+ * Initialize Backdrop Console.
+ */
 function b_init() {
   $arguments = array();
   $options = array();
@@ -47,39 +61,37 @@ function b_init() {
   b_get_command_args_options($arguments, $options, $command);
 
   $_backdrop_root = FALSE;
-  if(isset($options['root'])) {
-    if(file_exists($options['root'] . '/settings.php')) {
+  if (isset($options['root'])) {
+    if (file_exists($options['root'] . '/settings.php')) {
       $_backdrop_root =  $options['root'];
     }
   }
-  else{
+  else {
     $path = getcwd();
     if(file_exists($path . '/settings.php')) {
       $_backdrop_root = $path;
     }
   }
   
-  if($_backdrop_root){
+  if ($_backdrop_root) {
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
   }
   
-  if(isset($options['drush'])) {
+  if (isset($options['drush'])) {
     drush_mode(TRUE);
     b_set_message('Drush mode on');
   }
   
-  if(isset($options['y']) or isset($options['yes'])) {
+  if (isset($options['y']) or isset($options['yes'])) {
     b_yes_mode(TRUE);
     b_set_message('Yes mode on');
   }
-  if(isset($options['d']) or isset($options['debug'])) {
+  if (isset($options['d']) or isset($options['debug'])) {
     b_is_debug(TRUE);
     b_set_message('Debug mode on');
   }
-  
-  
 
   $host = 'localhost';
   $path = '';
@@ -89,10 +101,10 @@ function b_init() {
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_SOFTWARE'] = NULL;
   $_SERVER['SERVER_NAME'] = 'localhost';
-  $_SERVER['REQUEST_URI'] = $path .'/';
+  $_SERVER['REQUEST_URI'] = $path . '/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
-  $_SERVER['SCRIPT_NAME'] = $path .'/index.php';
-  $_SERVER['PHP_SELF'] = $path .'/index.php';
+  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
+  $_SERVER['PHP_SELF'] = $path . '/index.php';
   $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
 
   if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
@@ -101,5 +113,4 @@ function b_init() {
       $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
     }
   }
-
 }
