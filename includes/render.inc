@@ -113,10 +113,26 @@ function b_render($elements){
 /**
  * Count column width to fit screen width.
  */
-function _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $delimiter_right){
+function _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right){
   $max_width = exec('tput cols');
 
   $cols_length = array();
+  
+  if(is_array($header)){
+    $index = 0;
+    foreach($header as $col){
+      if(isset($col['data'])){
+        $length = mb_strlen($col['data']);
+      }
+      else{
+        $length= mb_strlen($col);
+      }
+      if(!isset($cols_length[$index]) or $cols_length[$index] < $length) {
+        $cols_length[$index] = $length;
+      }
+      $index++;
+    }
+  }
   foreach($rows as $row) {
     $index = 0;
     foreach($row as $col) {
@@ -185,8 +201,8 @@ function render_table($variables) {
   $delimiter_left = isset($variables['delimiter_left']) ? $variables['delimiter_left'] : "| ";
   $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : " |";
   $max_width = exec('tput cols');
-
-  $cols_length = _render_table_count_columns_width($rows, $delimiter, $delimiter_left, $delimiter_right);
+  
+  $cols_length = _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
   
   if($header){
     $row_rendered = array();
