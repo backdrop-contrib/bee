@@ -81,12 +81,34 @@ function help_b_callback($arguments, $options) {
 }
 
 function display_help_by_cmd($commands){
+  $output = array();
+  foreach($commands as $cmd => $callback){
+    $output[] = help_display_one_callback($callback);
+  }
+
+  return $output;
+}
+
+function help_display_one_callback($callback) {
+  $output = array();
+
+  if(isset($callback['module'])){
+    $output[] = array(
+      '#type' => 'text',
+      '#color' => 'bold_blue',
+      'value' => bt('Extension !name', array('!name' => $callback['module'])),
+    );
+  }
+  if(isset($callback['description'])){
+    $output[] = array(
+      '#type' => 'text',
+      '#color' => 'purple',
+      'value' => $callback['description'],
+    );
+  }
+  
   $examples = array();
-  $available_options = array();
-  $available_arguments = array();
-  $aliases = array();
-  foreach($commands as $callback){
-    if(isset($callback['examples'])){
+  if(isset($callback['examples'])){
       foreach($callback['examples'] as $example => $description){
         $examples[] = array(
           $example,
@@ -94,56 +116,6 @@ function display_help_by_cmd($commands){
         );
       }
     }
-    if(isset($callback['options'])){
-      foreach($callback['options'] as $option => $description){
-        if(is_array($description)) {
-          $available_options[] = array(
-            '--' . $option,
-            $description['description'],
-          );
-          if(isset($description['example-value'])){
-            $available_options[] = array(
-              '',
-              array('data' => 'example: ' . $description['example-value'], '#color' => 'purple'),
-            );
-          }
-
-        }
-        else{
-          $available_options[] = array(
-            '--' . $option,
-            $description
-          );
-        }
-      }
-    }
-    if(isset($callback['arguments'])){
-      foreach($callback['arguments'] as $argument => $description){
-        if(is_array($description)) {
-          $available_arguments[] = array(
-            $argument,
-            $description['description'],
-          );
-        }
-        else {
-          $available_arguments[] = array(
-            $argument,
-            $description
-          );
-        }
-      }
-    }
-    if(isset($callback['aliases'])){
-      $aliases += $callback['aliases'];
-    }
-  }
-  $output = array();
-    $output[] = array(
-      '#type' => 'text',
-      '#color' => 'purple',
-      'value' => $callback['description'],
-    );
-
   if(!empty($examples)){
     $output[] = array(
       '#type' => 'text',
@@ -158,6 +130,31 @@ function display_help_by_cmd($commands){
       'delimiter_right' => '',    
     );
   }
+  $available_options = array();
+  if(isset($callback['options'])){
+    foreach($callback['options'] as $option => $description){
+      if(is_array($description)) {
+        $available_options[] = array(
+          '--' . $option,
+          $description['description'],
+        );
+        if(isset($description['example-value'])){
+          $available_options[] = array(
+            '',
+            array('data' => 'example: ' . $description['example-value'], '#color' => 'purple'),
+          );
+        }
+
+      }
+      else{
+        $available_options[] = array(
+          '--' . $option,
+          $description
+        );
+      }
+    }
+  }
+    
   if(!empty($available_options)){
     $output[] = array(
       '#type' => 'text',
@@ -171,6 +168,23 @@ function display_help_by_cmd($commands){
       'delimiter_left' => ' ',
       'delimiter_right' => '',    
     );
+  }
+  $available_arguments = array();
+  if(isset($callback['arguments'])){
+    foreach($callback['arguments'] as $argument => $description){
+      if(is_array($description)) {
+        $available_arguments[] = array(
+          $argument,
+          $description['description'],
+        );
+      }
+      else {
+        $available_arguments[] = array(
+          $argument,
+          $description
+        );
+      }
+    }
   }
   if(!empty($available_arguments)){
     $output[] = array(
@@ -186,10 +200,10 @@ function display_help_by_cmd($commands){
       'delimiter_right' => '',    
     );
   }
-  if(!empty($aliases)) {
+  if(isset($callback['aliases'])){
     $output[] = array(
       '#type' => 'text',
-      'value' => "\n" . 'Aliases: ' . implode(", ", $aliases),
+      'value' => "\n" . 'Aliases: ' . implode(", ", $callback['aliases']),
     );
   }
   return $output;

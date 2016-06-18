@@ -14,10 +14,10 @@ function modules_b_command() {
   );
   $items['pm-enable'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Enable one or more extensions (modules or themes).',
+    'description' => 'Enable one or more modules.',
     'arguments' => array(
       'extensions' => array(
-        'description' => 'A list of modules or themes.',
+        'description' => 'List of modules.',
         'multiple' => TRUE,
       ),
     ),
@@ -26,10 +26,10 @@ function modules_b_command() {
   );
   $items['pm-disable'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Disable one or more extensions (modules or themes).',
+    'description' => 'Disable one or more modules.',
     'arguments' => array(
       'extensions' => array(
-        'description' => 'A list of modules or themes.',
+        'description' => 'List of modules.',
         'multiple' => TRUE,
       ),
     ),
@@ -41,7 +41,7 @@ function modules_b_command() {
     'description' => 'Uninstall one or more modules.',
     'arguments' => array(
       'modules' => array(
-        'description' => 'A list of modules.',
+        'description' => 'List of modules.',
         'multiple' => TRUE,
       ),
     ),
@@ -161,11 +161,11 @@ function modules_b_list_callback($arguments, $options){
 }
 
 /**
- * pm-enable callback. Enable module or theme.
+ * pm-enable callback. Enable module.
  */
 function modules_b_enable_callback($arguments, $options) {
   if(!isset($arguments['extensions'])){
-    b_set_message('Please provide project name(s)', 'error');
+    b_set_message('Please provide module name(s)', 'error');
     return;
   }
 
@@ -188,34 +188,23 @@ function _enable_project($project) {
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
-  $project = $query->execute()->fetchAssoc();
-
-  if($project['status']) {
-    if($project['type'] == 'module') {
-      b_set_message("Failed to enable module " . $project['name']. ": it is enabled already", 'error');
-    }
-    if($project['type'] == 'theme') {
-      b_set_message("Failed to enable theme " . $project['name']. ": it is enabled already", 'error');
-    }
+  $query->condition('type', 'module');
+  $module = $query->execute()->fetchAssoc();
+  if(!$module){
+    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
-  if($project['type'] == 'module') {
-    if(module_enable(array($project['name']), FALSE)) {
-      b_set_message("Module " . $project['name'] . "  enabled", 'success');
-      return TRUE;
-    }
-    else{
-      b_set_message("Failed to enable module " . $project['name'], 'error');
-      return FALSE;
-    }
+  if($module['status']) {
+    b_set_message("Failed to enable module " . $module['name']. ": it is enabled already", 'error');
+    return FALSE;
   }
-  
-  if($project['type'] == 'theme') {
-    theme_enable(array($project['name']));
-    b_set_message("Theme " . $project['name'] . "  enabled", 'success');
+
+  if(module_enable(array($module['name']), FALSE)) {
+    b_set_message("Module " . $module['name'] . "  enabled", 'success');
     return TRUE;
   }
+  b_set_message("Failed to enable module " . $module['name'], 'error');
   return FALSE;
 }
 
@@ -248,30 +237,21 @@ function _disable_project($project) {
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
-  $project = $query->execute()->fetchAssoc();
-
-  if(!$project['status']) {
-    if($project['type'] == 'module') {
-      b_set_message("Failed to disable module " . $project['name']. ": it is disabled already", 'error');
-    }
-    if($project['type'] == 'theme') {
-      b_set_message("Failed to disable theme " . $project['name']. ": it is disabled already", 'error');
-    }
+  $query->condition('type', 'module');
+  $module = $query->execute()->fetchAssoc();
+  if(!$module){
+    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
-  if($project['type'] == 'module') {
-    module_disable(array($project['name']), FALSE);
-    b_set_message("Module " . $project['name'] . "  disabled", 'success');
-    return TRUE;
+  if(!$module['status']) {
+    b_set_message("Failed to disable module " . $module['name']. ": it is disabled already", 'error');
+    return FALSE;
   }
-  
-  if($project['type'] == 'theme') {
-    theme_disable(array($project['name']));
-    b_set_message("Theme " . $project['name'] . "  disabled", 'success');
-    return TRUE;
-  }
-  return FALSE;
+
+  module_disable(array($module['name']), FALSE);
+  b_set_message("Module " . $module['name'] . "  disabled", 'success');
+  return TRUE;
 }
 
 /**
@@ -302,22 +282,26 @@ function _uninstall_project($project) {
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
-  $project = $query->execute()->fetchAssoc();
+  $query->condition('type', 'module');
+  
+  $module = $query->execute()->fetchAssoc();
+  if(!$module){
+    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
+    return FALSE;
+  }
 
-  if($project['status']) {
-    b_set_message("Failed to uninstall module " . $project['name']. ": it is need to be disabled first", 'error');
+  if($module['status']) {
+    b_set_message("Failed to uninstall module " . $module['name']. ": it is need to be disabled first", 'error');
     return FALSE;
   }
   
   include_once BACKDROP_ROOT . '/core/includes/install.inc';
 
-  if($project['status'] == 0 && $project['type'] == 'module') {
-    if(backdrop_uninstall_modules(array($project['name']), FALSE)) {
-      b_set_message("Module " . $project['name'] . "  uninstalled", 'success');
-      return TRUE;
-    }
-    else{
-      b_set_message("Failed to uninstall module " . $project['name'], 'error');
-    }
+  if(backdrop_uninstall_modules(array($module['name']), FALSE)) {
+    b_set_message("Module " . $module['name'] . "  uninstalled", 'success');
+    return TRUE;
+  }
+  else{
+    b_set_message("Failed to uninstall module " . $module['name'], 'error');
   }
 }
