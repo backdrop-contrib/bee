@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * Implements of hook_b_command().
  */
 function download_b_command() {
   $items['pm-download'] = array(
@@ -25,53 +25,54 @@ function download_b_command() {
  */
 function download_b_callback($arguments, $options) {
 
-  if(!isset($arguments['packages'])){
+  if (!isset($arguments['packages'])) {
     b_set_message('Please provide package name(s)', 'error');
     return;
   }
-  foreach($arguments['packages'] as $package){
+  foreach($arguments['packages'] as $package) {
     $tmp_folder = b_tmp_folder();
-    if(!$tmp_folder){
+    if (!$tmp_folder) {
       b_set_message('Failed to generate tmp directory!', 'error');
       return;
     }
 
-    if($package == 'backdrop'){
+    if ($package == 'backdrop') {
       $link = get_project_link('backdrop', $package);
       $download_target = '.';
-      if(isset($options['root'])) {
+      if (isset($options['root'])) {
         $download_target = $options['root'];
-      }elseif(defined('BACKDROP_ROOT')){
+      }
+      elseif (defined('BACKDROP_ROOT')) {
         $download_target = BACKDROP_ROOT;
       }
       exec('wget -q --directory-prefix ' . $download_target . ' ' . $link);
-      exec('unzip ' . $download_target . '/' . $package . '.zip -d ' .$download_target);
+      exec('unzip ' . $download_target . '/' . $package . '.zip -d ' . $download_target);
       unlink($download_target . '/' . $package . '.zip');
       b_set_message('BackdropCMS downloaded!', 'success');
       return;
     }
-    else{
-      if($link = get_project_link('backdrop-contrib', $package)) {
+    else {
+      if ($link = get_project_link('backdrop-contrib', $package)) {
 
         exec('wget -q --directory-prefix ' . $tmp_folder . ' ' . $link);
         exec('unzip ' . $tmp_folder . '/' . $package . '.zip -d ' .$tmp_folder);
         unlink($tmp_folder . '/' . $package . '.zip');
 
-        if($download_target = download_get_target($tmp_folder . '/' . $package, $options)) {
-          if(file_exists($download_target. '/' . $package)) {
+        if ($download_target = download_get_target($tmp_folder . '/' . $package, $options)) {
+          if (file_exists($download_target. '/' . $package)) {
             b_set_message('Folder ' . $download_target. '/' . $package . ' already exists', 'error');
             return FALSE;
           }
           b_recursive_copy($tmp_folder . '/' . $package, $download_target. '/' . $package);
           b_set_message($package . ' downloaded!','success');
         }
-        else{
+        else {
           b_set_message('Failed to download ' . $package . '', 'error');
         }
 
         b_file_unmanaged_delete_recursive($tmp_folder);
       }
-      else{
+      else {
         b_set_message('There is no such project or no releases!', 'error');
       }
     }
