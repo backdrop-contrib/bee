@@ -24,7 +24,12 @@
  *   Print new line if TRUE.
  */
 function render_text($variables, $newline = TRUE) {
-  $text = $variables['value'];
+  if(is_array($variables) && isset($variables['value']) ){
+    $text = $variables['value'];
+  }
+  else{
+    $text = $variables;
+  }
   $foreground = array(
     'black' => '0;30',
     'dark_gray' => '1;30',

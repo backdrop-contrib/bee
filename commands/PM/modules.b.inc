@@ -168,6 +168,19 @@ function modules_b_enable_callback($arguments, $options) {
     b_set_message('Please provide module name(s)', 'error');
     return;
   }
+  
+  render_text(bt('The following modules will be enabled: '), FALSE);
+
+  $text = array(
+    '#color' => 'bold_blue',
+    'value' => implode(", ", $arguments['extensions']),
+  );
+  render_text($text);
+  
+  if (!b_confirm(bt('Do you really want to continue?'))) {
+    b_set_message(bt('Cancelled'));
+    return;
+  }
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
@@ -200,7 +213,7 @@ function _enable_project($project) {
   }
 
   if(module_enable(array($module['name']), FALSE)) {
-    b_set_message("Module " . $module['name'] . "  enabled", 'success');
+    b_set_message("Module " . $module['name'] . " enabled", 'success');
     return TRUE;
   }
   b_set_message("Failed to enable module " . $module['name'], 'error');
@@ -216,6 +229,20 @@ function modules_b_disable_callback($arguments, $options) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
+  
+  render_text(bt('The following modules will be disabled: '), FALSE);
+
+  $text = array(
+    '#color' => 'bold_blue',
+    'value' => implode(", ", $arguments['extensions']),
+  );
+  render_text($text);
+  
+  if (!b_confirm(bt('Do you really want to continue?'))) {
+    b_set_message(bt('Cancelled'));
+    return;
+  }
+
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
@@ -260,6 +287,19 @@ function modules_b_uninstall_callback($arguments, $options) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
+  
+  render_text(bt('The following modules will be uninstalled: '), FALSE);
+
+  $text = array(
+    '#color' => 'bold_blue',
+    'value' => implode(", ", $arguments['modules']),
+  );
+  render_text($text);
+  
+  if (!b_confirm(bt('Do you really want to continue?'))) {
+    b_set_message(bt('Cancelled'));
+    return;
+  }
 
   $clean_cache = FALSE;
   foreach($arguments['modules'] as $project ) {
@@ -296,7 +336,7 @@ function _uninstall_project($project) {
   include_once BACKDROP_ROOT . '/core/includes/install.inc';
 
   if(backdrop_uninstall_modules(array($module['name']), FALSE)) {
-    b_set_message("Module " . $module['name'] . "  uninstalled", 'success');
+    b_set_message("Module " . $module['name'] . " uninstalled", 'success');
     return TRUE;
   }
   else{
