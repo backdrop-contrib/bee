@@ -135,7 +135,7 @@ function b_print_messages() {
  */
 function drush_mode($set = NULL) {
   static $mode;
-  
+
   if($set != NULL) {
     $mode = $set;
   }
@@ -147,7 +147,7 @@ function drush_mode($set = NULL) {
  */
 function b_yes_mode($set = NULL) {
   static $mode;
-  
+
   if($set != NULL) {
     $mode = $set;
   }
@@ -159,9 +159,51 @@ function b_yes_mode($set = NULL) {
  */
 function b_is_debug($set = NULL) {
   static $mode;
-  
+
   if($set != NULL) {
     $mode = $set;
   }
   return $mode;
+}
+
+/**
+ * Asks the user a basic yes/no question.
+ *
+ * @param string $msg
+ *   The question to ask.
+ * @param int $indent
+ *   The number of spaces to indent the message.
+ *
+ * @return bool
+ *   TRUE if the user enters "y" or FALSE if "n".
+ */
+function b_confirm($msg) {
+  $text = array(
+    '#color' => 'red',
+    'value' => $msg . " (y/N): ",
+  );
+  render_text($text, FALSE);
+
+  // Automatically accept confirmations if the --yes argument was supplied.
+  if (b_yes_mode()) {
+    b_print("y");
+    return TRUE;
+  }
+
+  // See http://drupal.org/node/499758 before changing this.
+  $stdin = fopen("php://stdin", "r");
+
+  while ($line = fgets($stdin)) {
+    $line = trim($line);
+    if (strtolower($line) == 'y') {
+      return TRUE;
+    }
+    if ($line == "") {
+      return FALSE;
+    }
+    if ($line == 'n') {
+      return FALSE;
+    }
+    b_print_prompt($msg . " (y/N): ");
+  }
 }

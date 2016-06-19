@@ -15,11 +15,15 @@
  */
 
 /**
- * Assign $arguments and $options based on
- * $command['arguments'] & $command[options]
+ * Print text to output
  *
+ * @param array $variables
+ *   - value - text to print
+ *   - #color - text color
+ * @param bool $newline 
+ *   Print new line if TRUE.
  */
-function render_text($variables) {
+function render_text($variables, $newline = TRUE) {
   $text = $variables['value'];
   $foreground = array(
     'black' => '0;30',
@@ -45,7 +49,9 @@ function render_text($variables) {
   else{
     echo $text;
   }
-  echo "\n";
+  if($newline) {
+    echo "\n";
+  }
 }
 
 /**
