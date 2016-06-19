@@ -57,13 +57,13 @@ function modules_b_command() {
 function modules_b_list_callback($arguments, $options){
 
   if(!isset($options['type']) or $options['type'] != 'layout') {
-    
+
     //Rescan for new modules.
     system_rebuild_module_data();
-    
+
     //Rescan for new themes.
     system_rebuild_theme_data();
-    
+
     $query = db_select('system', 's')
       ->fields('s');
 
@@ -168,19 +168,6 @@ function modules_b_enable_callback($arguments, $options) {
     b_set_message('Please provide module name(s)', 'error');
     return;
   }
-  
-  render_text(bt('The following modules will be enabled: '), FALSE);
-
-  $text = array(
-    '#color' => 'bold_blue',
-    'value' => implode(", ", $arguments['extensions']),
-  );
-  render_text($text);
-  
-  if (!b_confirm(bt('Do you really want to continue?'))) {
-    b_set_message(bt('Cancelled'));
-    return;
-  }
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
@@ -212,6 +199,42 @@ function _enable_project($project) {
     return FALSE;
   }
 
+  $rows = array();
+
+  $info =  unserialize($module['info']);
+
+  $rows[] = array(
+    array('data' => bt('Name'), '#color' => 'bold_blue'),
+    $info['name'],
+  );
+  $rows[] = array(
+    array('data' => bt('Description'), '#color' => 'bold_blue'),
+    $info['description'],
+  );
+  $rows[] = array(
+    array('data' => bt('Package'), '#color' => 'bold_blue'),
+    $info['package'],
+  );
+  $rows[] = array(
+    array('data' => bt('Version'), '#color' => 'bold_blue'),
+    $info['version'],
+  );
+
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => ' : ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  );
+
+  b_render($output);
+
+  if (!b_confirm(bt('Do you want to enable?'))) {
+    b_set_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
+    return;
+  }
+
   if(module_enable(array($module['name']), FALSE)) {
     b_set_message("Module " . $module['name'] . " enabled", 'success');
     return TRUE;
@@ -229,20 +252,6 @@ function modules_b_disable_callback($arguments, $options) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
-  
-  render_text(bt('The following modules will be disabled: '), FALSE);
-
-  $text = array(
-    '#color' => 'bold_blue',
-    'value' => implode(", ", $arguments['extensions']),
-  );
-  render_text($text);
-  
-  if (!b_confirm(bt('Do you really want to continue?'))) {
-    b_set_message(bt('Cancelled'));
-    return;
-  }
-
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
@@ -274,6 +283,42 @@ function _disable_project($project) {
     return FALSE;
   }
 
+  $rows = array();
+
+  $info =  unserialize($module['info']);
+
+  $rows[] = array(
+    array('data' => bt('Name'), '#color' => 'bold_blue'),
+    $info['name'],
+  );
+  $rows[] = array(
+    array('data' => bt('Description'), '#color' => 'bold_blue'),
+    $info['description'],
+  );
+  $rows[] = array(
+    array('data' => bt('Package'), '#color' => 'bold_blue'),
+    $info['package'],
+  );
+  $rows[] = array(
+    array('data' => bt('Version'), '#color' => 'bold_blue'),
+    $info['version'],
+  );
+
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => ' : ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  );
+
+  b_render($output);
+
+  if (!b_confirm(bt('Do you want to disable?'))) {
+    b_set_message(bt('Cancelled to disable !name', array('!name' => $module['name'])));
+    return;
+  }
+
   module_disable(array($module['name']), FALSE);
   b_set_message("Module " . $module['name'] . "  disabled", 'success');
   return TRUE;
@@ -285,19 +330,6 @@ function _disable_project($project) {
 function modules_b_uninstall_callback($arguments, $options) {
   if(!isset($arguments['modules'])){
     b_set_message('Please provide project name(s)', 'error');
-    return;
-  }
-  
-  render_text(bt('The following modules will be uninstalled: '), FALSE);
-
-  $text = array(
-    '#color' => 'bold_blue',
-    'value' => implode(", ", $arguments['modules']),
-  );
-  render_text($text);
-  
-  if (!b_confirm(bt('Do you really want to continue?'))) {
-    b_set_message(bt('Cancelled'));
     return;
   }
 
@@ -321,7 +353,7 @@ function _uninstall_project($project) {
       ->fields('s');
   $query->condition('name', $project);
   $query->condition('type', 'module');
-  
+
   $module = $query->execute()->fetchAssoc();
   if(!$module){
     b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
@@ -332,7 +364,43 @@ function _uninstall_project($project) {
     b_set_message("Failed to uninstall module " . $module['name']. ": it is need to be disabled first", 'error');
     return FALSE;
   }
-  
+
+  $rows = array();
+
+  $info =  unserialize($module['info']);
+
+  $rows[] = array(
+    array('data' => bt('Name'), '#color' => 'bold_blue'),
+    $info['name'],
+  );
+  $rows[] = array(
+    array('data' => bt('Description'), '#color' => 'bold_blue'),
+    $info['description'],
+  );
+  $rows[] = array(
+    array('data' => bt('Package'), '#color' => 'bold_blue'),
+    $info['package'],
+  );
+  $rows[] = array(
+    array('data' => bt('Version'), '#color' => 'bold_blue'),
+    $info['version'],
+  );
+
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => ' : ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  );
+
+  b_render($output);
+
+  if (!b_confirm(bt('Do you want to uninstall?'))) {
+    b_set_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
+    return;
+  }
+
   include_once BACKDROP_ROOT . '/core/includes/install.inc';
 
   if(backdrop_uninstall_modules(array($module['name']), FALSE)) {

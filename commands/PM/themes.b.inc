@@ -49,7 +49,7 @@ function themes_b_enable_callback($arguments, $options) {
       $clean_cache = TRUE;
     }
   }
-  
+
   // If there is only one theme
   if(count($arguments['extensions']) == 1) {
     // And option --default
@@ -88,8 +88,41 @@ function _enable_theme($project) {
     return FALSE;
   }
 
+  $info =  unserialize($theme['info']);
+  $rows[] = array(
+    array('data' => bt('Name'), '#color' => 'bold_blue'),
+    $info['name'],
+  );
+  $rows[] = array(
+    array('data' => bt('Description'), '#color' => 'bold_blue'),
+    $info['description'],
+  );
+  $rows[] = array(
+    array('data' => bt('Engine'), '#color' => 'bold_blue'),
+    $info['engine'],
+  );
+  $rows[] = array(
+    array('data' => bt('Version'), '#color' => 'bold_blue'),
+    $info['version'],
+  );
+
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => ' : ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  );
+
+  b_render($output);
+
+  if (!b_confirm(bt('Do you want to enable?'))) {
+    b_set_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
+    return;
+  }
+
   theme_enable(array($theme['name']));
-  b_set_message("Theme " . $theme['name'] . "  enabled", 'success');
+  b_set_message("Theme " . $theme['name'] . " enabled", 'success');
   return TRUE;
 }
 
@@ -128,13 +161,47 @@ function _disable_theme($project) {
   if(!$theme){
     return FALSE;
   }
-  
+
   if(!$theme['status']) {
     b_set_message("Failed to disable theme " . $theme['name']. ": it is disabled already", 'error');
     return FALSE;
   }
 
+  $info =  unserialize($theme['info']);
+  $rows[] = array(
+    array('data' => bt('Name'), '#color' => 'bold_blue'),
+    $info['name'],
+  );
+  $rows[] = array(
+    array('data' => bt('Description'), '#color' => 'bold_blue'),
+    $info['description'],
+  );
+  $rows[] = array(
+    array('data' => bt('Engine'), '#color' => 'bold_blue'),
+    $info['engine'],
+  );
+  $rows[] = array(
+    array('data' => bt('Version'), '#color' => 'bold_blue'),
+    $info['version'],
+  );
+
+  $output[] = array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => ' : ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  );
+
+  b_render($output);
+
+  if (!b_confirm(bt('Do you want to enable?'))) {
+    b_set_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
+    return;
+  }
+
+
   theme_disable(array($theme['name']));
-  b_set_message("Theme " . $theme['name'] . "  disabled", 'success');
+  b_set_message("Theme " . $theme['name'] . " disabled", 'success');
   return TRUE;
 }
