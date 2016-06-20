@@ -207,3 +207,82 @@ function b_confirm($msg) {
     b_print_prompt($msg . " (y/N): ");
   }
 }
+
+/**
+ * Ask the user to select an item from a list.
+ * From a provided associative array, drush_choice will
+ * display all of the questions, numbered from 1 to N,
+ * and return the item the user selected. "0" is always
+ * cancel; entering a blank line is also interpreted
+ * as cancelling.
+ *
+ * @param $options
+ *   A list of questions to display to the user.  The
+ *   KEYS of the array are the result codes to return to the
+ *   caller; the VALUES are the messages to display on
+ *   each line. Special keys of the form '-- something --' can be
+ *   provided as separator between choices groups. Separator keys
+ *    don't alter the numbering.
+ * @param $title
+ *   The message to display to the user prompting for input.
+ */
+function b_choice($options, $title) {
+  $text = array(
+    '#color' => 'blue',
+    'value' => $title . ": ",
+  );
+  $keys = array_keys($options);
+
+  $rows = array();
+  // Default Cancel option.
+  $rows[] = array(
+    array('data' => '[0]', '#color' => 'red'),
+    bt('Cancel'),
+  );
+  foreach($keys as $num => $value){
+    $rows[] = array(
+      array('data' => '[' . ($num + 1) . ']', '#color' => 'bold_blue'),
+      $options[$value],
+    );
+  }
+
+  // Automatically accept confirmations if the --yes argument was supplied.
+  if (b_yes_mode()) {
+    b_print("y");
+    return $keys[0];
+  }
+
+  b_render(array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => '  :  ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  ));
+
+  render_text("");
+  render_text($text, FALSE);
+
+  $stdin = fopen("php://stdin", "r");
+
+  while ($line = fgets($stdin)) {
+    $line = trim($line);
+    $num = (int) $line;
+
+    if ($num == "") {
+      return FALSE;
+    }
+    if ($num == 'n') {
+      return FALSE;
+    }
+    if ($num == 0) {
+      return FALSE;
+    }
+
+    if(isset($keys[$num - 1])){
+      return $keys[$num - 1];
+    }
+
+    render_text($text, FALSE);
+  }
+}
