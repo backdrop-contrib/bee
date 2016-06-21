@@ -6,15 +6,16 @@ define('DOWNLOAD_VIA_GIT', 2);
  */
 function download_b_command() {
   $items['pm-download'] = array(
-    'description' => 'Download contrib package.',
+    'description' => bt('Download contrib package.'),
     'arguments' => array(
       'packages' => array(
-        'description' => 'Package to download.',
+        'description' => bt('Package to download.'),
         'multiple' => TRUE,
       ),
     ),
     'options' => array(
-      'root' => 'Backdrop ROOT directory',
+      'root' => bt('Backdrop ROOT directory'),
+      'type' => bt('Fallback type if not detected by info file'),
     ),
     'callback' => 'download_b_callback',
     'aliases' => array('dl'),
@@ -119,6 +120,13 @@ function download_get_target($folder, $options) {
     return $download_target;
   }
   else{
+    if(isset($options['type'])) {
+      $download_target .= '/' . $options['type'] . '/';
+      if(file_exists($download_target . '/contrib')) {
+        $download_target = $download_target . '/contrib';
+      }
+      return $download_target;
+    }
     b_set_message($package . ' is unknown type!', 'error');
   }
   return FALSE;
