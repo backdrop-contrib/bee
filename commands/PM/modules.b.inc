@@ -101,7 +101,7 @@ function modules_b_list_callback($arguments, $options){
         $project->info['name'],
         $project->type,
         $status,
-        $project->info['version'],
+        isset($project->info['version']) ? $project->info['version'] : bt('Unknown'),
       );
 
     }
