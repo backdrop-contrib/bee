@@ -61,7 +61,7 @@ function _download_project($project, $options) {
     exec('git clone https://github.com/' . $owner . '/' . $project . ' ' . $tmp_folder . '/' . $project);
   }
   else{
-    exec('wget -O' . $tmp_folder . '/' . $project . '.zip ' . $link);
+    exec('wget -q -O ' . $tmp_folder . '/' . $project . '.zip ' . $link);
     exec('unzip ' . $tmp_folder . '/' . $project . '.zip -d ' .$tmp_folder);
     unlink($tmp_folder . '/' . $project . '.zip');
   }
