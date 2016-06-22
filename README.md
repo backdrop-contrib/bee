@@ -36,7 +36,6 @@ At this moment next commands available:
                     This is test example how to add your own callback on command.
                     aliases: status, st
  cron               Process cron.
- devel              Devel This is test example how to add your own callback on command.
  help               Display help.
  pm-disable         Disable one or more modules.
                     Disable one or more themes.
