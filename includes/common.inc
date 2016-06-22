@@ -167,6 +167,18 @@ function b_is_debug($set = NULL) {
 }
 
 /**
+ * If backdrop installed, it will return TRUE.
+ */
+function b_backdrop_installed($set = NULL) {
+  static $mode;
+
+  if($set != NULL) {
+    $mode = $set;
+  }
+  return $mode;
+}
+
+/**
  * Asks the user a basic yes/no question.
  *
  * @param string $msg

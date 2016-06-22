@@ -42,14 +42,10 @@ function b_process_command(){
 }
 
 function b_bootstrap($bootstrap_level){
+  if(!b_backdrop_installed() && $bootstrap_level > B_BOOTSTRAP_PAGE_CACHE) {
+    return FALSE;
+  }
   if(defined('BACKDROP_ROOT')) {
-    require_once 'core/includes/bootstrap.inc';
-    if(function_exists('backdrop_bootstrap_is_installed')){
-      if(!backdrop_bootstrap_is_installed()){
-//        echo "Not Installed??";
-//        return FALSE;
-      }
-    }
     if(function_exists('backdrop_bootstrap')) {
       $status = backdrop_bootstrap($bootstrap_level);
       set_error_handler('b_errorHandler');
@@ -274,9 +270,7 @@ function b_commandfile_searchpaths() {
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
   
-  b_bootstrap(B_BOOTSTRAP_DATABASE);
-  
-  if(function_exists('db_select')) {
+  if(b_backdrop_installed()) {
     $modules = db_select('system', 's')
       ->fields('s')
       ->condition('status', 1)
