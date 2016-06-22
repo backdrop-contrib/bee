@@ -73,10 +73,23 @@ function b_init() {
     }
   }
   
+  b_init_blobals();
+  
   if ($_backdrop_root) {
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
+    require_once 'core/includes/bootstrap.inc';
+    if(function_exists('backdrop_bootstrap_is_installed')){
+      backdrop_settings_initialize();
+      if(backdrop_bootstrap_is_installed()){
+        b_backdrop_installed(TRUE);
+      }
+      else{
+        b_backdrop_installed(FALSE);
+        b_set_message(bt('BackdropCMS is not installed yet.'), 'warning');
+      }
+    }
   }
   
   if (isset($options['drush'])) {
@@ -93,6 +106,9 @@ function b_init() {
     b_set_message('Debug mode on');
   }
 
+}
+
+function b_init_blobals() {
   $host = 'localhost';
   $path = '';
 

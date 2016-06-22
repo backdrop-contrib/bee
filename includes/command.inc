@@ -42,14 +42,10 @@ function b_process_command(){
 }
 
 function b_bootstrap($bootstrap_level){
+  if(!b_backdrop_installed() && $bootstrap_level > B_BOOTSTRAP_PAGE_CACHE) {
+    return FALSE;
+  }
   if(defined('BACKDROP_ROOT')) {
-    require_once 'core/includes/bootstrap.inc';
-    if(function_exists('backdrop_bootstrap_is_installed')){
-      if(!backdrop_bootstrap_is_installed()){
-//        echo "Not Installed??";
-//        return FALSE;
-      }
-    }
     if(function_exists('backdrop_bootstrap')) {
       $status = backdrop_bootstrap($bootstrap_level);
       set_error_handler('b_errorHandler');
@@ -68,11 +64,11 @@ function b_get_command_name(){
     if (preg_match('/^--(\S+)/', $argv[$i], $matches)) {
       continue;
     }
-    
+
     if(preg_match('/^-(\S+)/', $argv[$i], $matches)) {
       continue;
     }
-    
+
     return $argv[$i];
   }
   return FALSE;
@@ -95,7 +91,7 @@ function b_check_for_required(&$arguments, &$options, $command) {
       }
     }
   }
-  
+
   if(isset($command['arguments'])){
     foreach($command['arguments'] as $name => $argument){
       if(is_array($argument)){
@@ -117,7 +113,7 @@ function b_check_for_required(&$arguments, &$options, $command) {
  */
 function b_get_command_args_options(&$arguments, &$options, $command) {
   global $argc, $argv;
-  
+
   $command_name = FALSE;
 
   $command_args = array();
@@ -127,7 +123,7 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
   }
   $multiple_option = FALSE;
   $arg_name = '';
-  
+
   for($i=1;$i < $argc; $i++) {
     if (preg_match('/^--(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
@@ -142,33 +138,33 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
       }
       continue;
     }
-    
+
     if(preg_match('/^-(\S+)/', $argv[$i], $matches)) {
       $opt_name = $matches[1];
       if(isset($command['options'][$opt_name])) {
         $options[$opt_name] = TRUE;
       }
-      continue;      
+      continue;
     }
-    
+
     if($multiple_option){
       $arguments[$arg_name][] = $argv[$i];
       continue;
     }
-    
+
     if(empty($command_name)){
       $command_name = $argv[$i];
       continue;
     }
-    
+
     if(!empty($command_args)) {
       if(!$multiple_option){
         $arg_name = array_shift($command_args);
       }
-      if(is_array($command['arguments'][$arg_name]) 
-        && isset($command['arguments'][$arg_name]['multiple']) 
+      if(is_array($command['arguments'][$arg_name])
+        && isset($command['arguments'][$arg_name]['multiple'])
         && $command['arguments'][$arg_name]['multiple']) {
-      
+
         $arguments[$arg_name][] = $argv[$i];
         $multiple_option = TRUE;
       }
@@ -187,6 +183,7 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
  *
  */
 function b_get_commands() {
+  $commands = array();
   if(function_exists('backdrop_static')) {
     $commands = &backdrop_static(__FUNCTION__);
   }
@@ -196,7 +193,7 @@ function b_get_commands() {
       require_once($path);
       $function = $command_file . '_b_command';
       if(!function_exists($function)) {
-        echo " skip  $function \n";
+        b_set_message(dt("Skip !function. It does not exists.", array('!function' => $function)), 'log');
         continue;
       }
       $result = $function();
@@ -272,8 +269,8 @@ function b_commandfile_searchpaths() {
 
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
-
-  if(function_exists('module_list') && function_exists('db_select')) {
+  
+  if(b_backdrop_installed()) {
     $modules = db_select('system', 's')
       ->fields('s')
       ->condition('status', 1)

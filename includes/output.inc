@@ -1,5 +1,5 @@
 <?php
-  
+
 
 /**
  * Rudimentary replacement for Backdrop API t() function.
@@ -26,4 +26,27 @@ function bt($string, $args = array()) {
       return $string;
     }
   }
+}
+
+/**
+ * Prints a message.
+ *
+ * @param $message
+ *   The message to print.
+ * @param $newline
+ *    Add a "\n" to the end of the output.  Defaults to TRUE.
+ */
+function b_print($message = '', $newline = TRUE) {
+  $message = (string)$message;
+  if ($newline) {
+    $message .= "\n";
+  }
+  print $message;
+}
+
+/**
+ * Print a prompt -- that is, a message with no trailing newline.
+ */
+function b_print_prompt($message) {
+  b_print($message, FALSE);
 }

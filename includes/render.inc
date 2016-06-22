@@ -15,12 +15,21 @@
  */
 
 /**
- * Assign $arguments and $options based on
- * $command['arguments'] & $command[options]
+ * Print text to output
  *
+ * @param array $variables
+ *   - value - text to print
+ *   - #color - text color
+ * @param bool $newline 
+ *   Print new line if TRUE.
  */
-function render_text($variables) {
-  $text = $variables['value'];
+function render_text($variables, $newline = TRUE) {
+  if(is_array($variables) && isset($variables['value']) ){
+    $text = $variables['value'];
+  }
+  else{
+    $text = $variables;
+  }
   $foreground = array(
     'black' => '0;30',
     'dark_gray' => '1;30',
@@ -45,7 +54,9 @@ function render_text($variables) {
   else{
     echo $text;
   }
-  echo "\n";
+  if($newline) {
+    echo "\n";
+  }
 }
 
 /**
@@ -121,7 +132,7 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
   if(is_array($header)){
     $index = 0;
     foreach($header as $col){
-      if(isset($col['data'])){
+      if(is_array($col) && isset($col['data'])){
         $length = mb_strlen($col['data']);
       }
       else{
@@ -136,7 +147,7 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
   foreach($rows as $row) {
     $index = 0;
     foreach($row as $col) {
-      if(isset($col['data'])){
+      if(is_array($col) && isset($col['data'])){
         $length = mb_strlen($col['data']);
       }
       else{
@@ -176,7 +187,7 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
  */
 function _render_print_col($col, $width) {
   $color_width = 0;
-  if(isset($col['data'])){
+  if(is_array($col) && isset($col['data'])){
     $data = table_color_text($col);
     $color_width = mb_strlen($data) - mb_strlen($col['data']);
   }
@@ -221,7 +232,7 @@ function render_table($variables) {
 
       $data = '';
       $col_len = 0;
-      if(isset($col['data'])){
+      if(is_array($col) && isset($col['data'])){
         if(mb_strlen($col['data']) > $cols_length[$index]){
           $repeat = $col;
           $repeat['index'] = $index;
