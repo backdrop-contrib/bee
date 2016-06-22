@@ -76,6 +76,10 @@ function _download_project($project, $options) {
   }
   else {
     $download_target = download_get_target($tmp_folder . '/' . $project, $options);
+    if(FALSE == $download_target) {
+      b_set_message('Failed to detect destination directory.', 'error');
+      return FALSE;
+    }
     if (file_exists($download_target. '/' . $project)) {
       b_set_message('Folder ' . $download_target. '/' . $project . ' already exists', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
