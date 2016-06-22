@@ -1,6 +1,6 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * Implements hook_b_command().
  */
 function modules_b_command() {
   $items['pm-list'] = array(
@@ -53,6 +53,10 @@ function modules_b_command() {
 
 /**
  * pm-list callback. Display list of modules, themes and layouts.
+ *
+ * @param array $arguments
+ * @param array $options
+ * @return array
  */
 function modules_b_list_callback($arguments, $options){
 
@@ -67,7 +71,7 @@ function modules_b_list_callback($arguments, $options){
     $query = db_select('system', 's')
       ->fields('s');
 
-    if(isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
+    if (isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
       $query->condition('type', $options['type']);
     }
 
@@ -77,7 +81,7 @@ function modules_b_list_callback($arguments, $options){
 
     foreach($projects as $project) {
       $project->info = unserialize($project->info);
-      if(isset($project->info['hidden']) && $project->info['hidden']){
+      if (isset($project->info['hidden']) && $project->info['hidden']) {
         continue;
       }
 
@@ -85,7 +89,7 @@ function modules_b_list_callback($arguments, $options){
         'data' => '  [ ]  ',
         '#color' => 'bold_gray',
       );
-      if($project->status){
+      if ($project->status) {
         $status = array(
           'data' => '  [v]  ',
           '#color' => 'green',
@@ -107,7 +111,7 @@ function modules_b_list_callback($arguments, $options){
     }
   }
 
-  if(!isset($options['type']) or $options['type'] == 'layout') {
+  if (!isset($options['type']) or $options['type'] == 'layout') {
     $used_layouts = layout_load_all();
 
     $layouts = layout_get_layout_template_info();
@@ -118,7 +122,7 @@ function modules_b_list_callback($arguments, $options){
       );
 
       $status = FALSE;
-      foreach($used_layouts as $used_layout){
+      foreach($used_layouts as $used_layout) {
         if($used_layout->layout_template == $layout['name']) {
           $status = array(
             'data' => '  [v]  ',
@@ -126,7 +130,7 @@ function modules_b_list_callback($arguments, $options){
           );
         }
       }
-      if(!$status) {
+      if (!$status) {
         $status = array(
           'data' => '  [ ]  ',
           '#color' => 'bold_gray',
@@ -162,27 +166,35 @@ function modules_b_list_callback($arguments, $options){
 
 /**
  * pm-enable callback. Enable module.
+ *
+ * @param array $arguments
+ * @param array $options
+ *
  */
 function modules_b_enable_callback($arguments, $options) {
-  if(!isset($arguments['extensions'])){
+  if (!isset($arguments['extensions'])) {
     b_set_message('Please provide module name(s)', 'error');
     return;
   }
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
-    if(_enable_project($project)) {
+    if (_enable_project($project)) {
       $clean_cache = TRUE;
     }
   }
 
-  if($clean_cache) {
+  if ($clean_cache) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
  * Internal function to enable module or theme.
+ *
+ * @param string $project
+ *  The project machine name to be enabled.
+ * @return bool
  */
 function _enable_project($project) {
   $query = db_select('system', 's')
@@ -190,11 +202,11 @@ function _enable_project($project) {
   $query->condition('name', $project);
   $query->condition('type', 'module');
   $module = $query->execute()->fetchAssoc();
-  if(!$module){
+  if (!$module) {
     return FALSE;
   }
 
-  if($module['status']) {
+  if ($module['status']) {
     b_set_message("Failed to enable module " . $module['name']. ": it is enabled already", 'error');
     return FALSE;
   }
@@ -235,7 +247,7 @@ function _enable_project($project) {
     return;
   }
 
-  if(module_enable(array($module['name']), FALSE)) {
+  if (module_enable(array($module['name']), FALSE)) {
     b_set_message("Module " . $module['name'] . " enabled", 'success');
     return TRUE;
   }
@@ -245,28 +257,34 @@ function _enable_project($project) {
 
 /**
  * pm-disable callback. Disable module or theme.
+ *
+ * @param array $arguments
+ * @param array $options
  */
 function modules_b_disable_callback($arguments, $options) {
 
-  if(!isset($arguments['extensions'])){
+  if (!isset($arguments['extensions'])) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
 
   $clean_cache = FALSE;
   foreach($arguments['extensions'] as $project ) {
-    if(_disable_project($project)) {
+    if (_disable_project($project)) {
       $clean_cache = TRUE;
     }
   }
 
-  if($clean_cache) {
+  if ($clean_cache) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
  * Internal function to disable module or theme.
+ *
+ * @param sring $project
+ *  Project machine name to be disabled.
  */
 function _disable_project($project) {
   $query = db_select('system', 's')
@@ -274,12 +292,12 @@ function _disable_project($project) {
   $query->condition('name', $project);
   $query->condition('type', 'module');
   $module = $query->execute()->fetchAssoc();
-  if(!$module){
+  if (!$module) {
     return FALSE;
   }
 
-  if(!$module['status']) {
-    b_set_message("Failed to disable module " . $module['name']. ": it is disabled already", 'error');
+  if (!$module['status']) {
+    b_set_message("Failed to disable module " . $module['name'] . ": it is disabled already", 'error');
     return FALSE;
   }
 
@@ -326,27 +344,33 @@ function _disable_project($project) {
 
 /**
  * pm-unstall callback. Uninstall module.
+ *
+ * @param array $arguments
+ * @param array $options
  */
 function modules_b_uninstall_callback($arguments, $options) {
-  if(!isset($arguments['modules'])){
+  if (!isset($arguments['modules'])) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
 
   $clean_cache = FALSE;
   foreach($arguments['modules'] as $project ) {
-    if(_uninstall_project($project)) {
+    if (_uninstall_project($project)) {
       $clean_cache = TRUE;
     }
   }
 
-  if($clean_cache) {
+  if ($clean_cache) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
  * Internal function to disable module or theme.
+ *
+ * @param string $project
+ *  The machine name of the project to be uninstalled.
  */
 function _uninstall_project($project) {
   $query = db_select('system', 's')
@@ -355,12 +379,12 @@ function _uninstall_project($project) {
   $query->condition('type', 'module');
 
   $module = $query->execute()->fetchAssoc();
-  if(!$module){
+  if (!$module) {
     b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
-  if($module['status']) {
+  if ($module['status']) {
     b_set_message("Failed to uninstall module " . $module['name']. ": it is need to be disabled first", 'error');
     return FALSE;
   }
@@ -403,11 +427,11 @@ function _uninstall_project($project) {
 
   include_once BACKDROP_ROOT . '/core/includes/install.inc';
 
-  if(backdrop_uninstall_modules(array($module['name']), FALSE)) {
+  if (backdrop_uninstall_modules(array($module['name']), FALSE)) {
     b_set_message("Module " . $module['name'] . " uninstalled", 'success');
     return TRUE;
   }
-  else{
+  else {
     b_set_message("Failed to uninstall module " . $module['name'], 'error');
   }
 }
