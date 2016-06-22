@@ -5,26 +5,26 @@ at speeding your development cycles.
 
 ## Warning
 
-- not Windows compatible
-- possible API changes
+- Not Windows compatible
+- Possible API changes
 - Under active development
 
 
-## INSTALATION
+## Installation
 
-* clone this repo somewhere on your computer (I use my home directory)
-  * `git clone git@github.com:serundeputy/b.git`
-* make an alias to `b`
+* Clone this repo somewhere on your computer (for example, your home directory)
+  * `git clone https://github.com/backdrop-contrib/b.git`
+* Make an alias to `b`
   * open your `.bash_profile` file
   * add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
   * reload your bash profile: `source ~/.bash_profile`
-* Make b.php executable
+* Make `b.php` executable
   * `chmod a+x b.php`
 
-## Using
+## Usage
 Please use `b help` to see full list of available commands.
 
-At this moment next commands available:
+At the moment the following commands are available:
 
 ```
  cache-clear        Clear a specific cache, or all Backdrop caches.
@@ -93,16 +93,13 @@ Arguments:
 Aliases: si
 ```
 
-## Maintainters
+## Maintainers
   * Gor Martsen (https://github.com/Gormartsen)
   * Geoff St. Pierre (https://github.com/serundeputy)
   * Seeking co-maintainer(s) 
 
 ##Thanks to drush
-This module get inspired by [drush](https://github.com/drush-ops/drush) 
-
-Some code and logic has been copied from drush
-
+This module was inspired by (and some code and logic was copied from) [drush](https://github.com/drush-ops/drush).
 
 ##License
 This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
