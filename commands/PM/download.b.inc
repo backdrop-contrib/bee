@@ -75,7 +75,7 @@ function _download_project($project, $options) {
     }
   }
   else {
-    $download_target = download_get_target($tmp_folder . '/' . $project, $options);
+    $download_target = download_get_target($project, $tmp_folder . '/' . $project, $options);
     if(FALSE == $download_target) {
       b_set_message('Failed to detect destination directory.', 'error');
       return FALSE;
@@ -95,7 +95,7 @@ function _download_project($project, $options) {
 /**
  * Based on type of the project, return directory to move project into.
  */
-function download_get_target($folder, $options) {
+function download_get_target($project, $folder, $options) {
   $download_target = FALSE;
   if(isset($options['root'])) {
     $download_target = $options['root'];
@@ -131,7 +131,7 @@ function download_get_target($folder, $options) {
       }
       return $download_target;
     }
-    b_set_message($package . ' is unknown type!', 'error');
+    b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
   }
   return FALSE;
 }
