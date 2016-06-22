@@ -1,8 +1,13 @@
 <?php
+/**
+ * @file download.b.inc
+ *  Download Backdrop CMS project(s) (modules, themes or layouts) from github.
+ */
 
 define('DOWNLOAD_VIA_GIT', 2);
+
 /**
- * Implements of hook_b_command().
+ * Implements hook_b_command().
  */
 function download_b_command() {
   $items['pm-download'] = array(
@@ -25,6 +30,9 @@ function download_b_command() {
 
 /**
  * dl callback. Download project.
+ *
+ * @param array $arguments
+ * @param array $options
  */
 function download_b_callback($arguments, $options) {
 
@@ -39,14 +47,18 @@ function download_b_callback($arguments, $options) {
 
 /**
  * Internal function to download project by name.
+ *
+ * @param string $project
+ * @param array $options
  */
 function _download_project($project, $options) {
   if ($project == 'backdrop') {
     $owner = 'backdrop';
     $link = get_project_link('backdrop', $project);
-  }else{
+  }
+  else {
     $owner = 'backdrop-contrib';
-    if(!$link = get_project_link('backdrop-contrib', $project)){
+    if (!$link = get_project_link('backdrop-contrib', $project)) {
       return FALSE;
     }
   }
@@ -60,13 +72,13 @@ function _download_project($project, $options) {
   if(DOWNLOAD_VIA_GIT == $link) {
     exec('git clone https://github.com/' . $owner . '/' . $project . ' ' . $tmp_folder . '/' . $project);
   }
-  else{
+  else {
     exec('wget -q -O ' . $tmp_folder . '/' . $project . '.zip ' . $link);
-    exec('unzip ' . $tmp_folder . '/' . $project . '.zip -d ' .$tmp_folder);
+    exec('unzip ' . $tmp_folder . '/' . $project . '.zip -d ' . $tmp_folder);
     unlink($tmp_folder . '/' . $project . '.zip');
   }
 
-  if($project == 'backdrop') {
+  if ($project == 'backdrop') {
     $download_target = '.';
     if (isset($options['root'])) {
       $download_target = $options['root'];
@@ -77,39 +89,46 @@ function _download_project($project, $options) {
   }
   else {
     $download_target = download_get_target($project, $tmp_folder . '/' . $project, $options);
-    if(FALSE == $download_target) {
+    if (FALSE == $download_target) {
       b_set_message('Failed to detect destination directory.', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
-    if (file_exists($download_target. '/' . $project)) {
+    if (file_exists($download_target . '/' . $project)) {
       b_set_message('Folder ' . $download_target. '/' . $project . ' already exists', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
   }
 
-  b_recursive_copy($tmp_folder . '/' . $project, $download_target. '/' . $project);
+  b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
   b_set_message($project . ' downloaded!','success');
   b_file_unmanaged_delete_recursive($tmp_folder);
-
 }
+
 /**
  * Based on type of the project, return directory to move project into.
+ *
+ * @param string $project
+ * @param string $folder
+ * @param array $options
+ * @return $download_target or FALSE
+ *  A string that is the directory path to the destination of the project or FALSE.
  */
 function download_get_target($project, $folder, $options) {
   $download_target = FALSE;
-  if(isset($options['root'])) {
+  if (isset($options['root'])) {
     $download_target = $options['root'];
-  }elseif(defined('BACKDROP_ROOT')){
+  }
+  elseif (defined('BACKDROP_ROOT')) {
     $download_target = BACKDROP_ROOT;
   }
-  if(!$download_target) {
+  if (!$download_target) {
     b_set_message('Please change directory to BackdropCMS root or specify --root option.', 'error');
     return FALSE;
   }
   $type = download_get_type($folder);
-  if(FALSE == $type && isset($options['type'])){
+  if (FALSE == $type && isset($options['type'])) {
     $type = $options['type'];
   }
   switch($type) {
@@ -126,7 +145,7 @@ function download_get_target($project, $folder, $options) {
       b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
       return FALSE;
   }
-  if(file_exists($download_target . '/contrib')) {
+  if (file_exists($download_target . '/contrib')) {
     $download_target = $download_target . '/contrib';
   }
   return $download_target;
@@ -134,16 +153,20 @@ function download_get_target($project, $folder, $options) {
 
 /**
  * Scan for info file and return project type.
+ *
+ * @param string $folder
+ * @return $type or FALSE
+ *  either string of type of project: module, theme or layout or FALSE
  */
 function download_get_type($folder) {
   $files = b_file_scan_directory($folder, "/\.info$/");
   foreach($files as $file) {
     $content = file($file->uri);
     foreach($content as $line) {
-      if(FALSE !== strpos($line, 'type')) {
+      if (FALSE !== strpos($line, 'type')) {
         list($title, $type) = explode("=", $line);
         $type = trim($type);
-        if(in_array($type, array('module', 'theme', 'layout'))){
+        if (in_array($type, array('module', 'theme', 'layout'))) {
           return $type;
         }
       }
@@ -153,7 +176,12 @@ function download_get_type($folder) {
 }
 
 /**
- * Return linkg to zip file from GitHub.
+ * Return link to zip file from GitHub.
+ *
+ * @param string $owner
+ * @param string $repo
+ * @return string
+ *  either URL to project on github or 2.
  */
 function get_project_link($owner, $repo) {
   $context = stream_context_create(
@@ -168,18 +196,18 @@ function get_project_link($owner, $repo) {
 
   $message_variables = array('!owner' => $owner, '!repo' => $repo);
   // Check if project exists first.
-  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo, false, $context);
-  if(!$content) {
+  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo, FALSE, $context);
+  if (!$content) {
     b_set_message(bt('!owner/!repo not found', $message_variables), 'error');
     return FALSE;
   }
 
-  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo .'/releases/latest', false, $context);
+  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo .'/releases/latest', FALSE, $context);
 
-  if($content) {
+  if ($content) {
     $json = json_decode($content, TRUE);
-    if(isset($json['assets'][0]['browser_download_url'])
-       && $json['assets'][0]['name'] == $repo . '.zip'){
+    if (isset($json['assets'][0]['browser_download_url'])
+       && $json['assets'][0]['name'] == $repo . '.zip') {
       return $json['assets'][0]['browser_download_url'];
     }
   }
