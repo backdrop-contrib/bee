@@ -273,8 +273,10 @@ function b_commandfile_searchpaths() {
 
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
-
-  if(function_exists('module_list') && function_exists('db_select')) {
+  
+  b_bootstrap(B_BOOTSTRAP_DATABASE);
+  
+  if(function_exists('db_select')) {
     $modules = db_select('system', 's')
       ->fields('s')
       ->condition('status', 1)
