@@ -106,34 +106,28 @@ function download_get_target($project, $folder, $options) {
     b_set_message('Please change directory to BackdropCMS root or specify --root option.', 'error');
     return FALSE;
   }
-  if($type = download_get_type($folder)){
-    switch($type) {
-      case 'module':
-        $download_target .= '/modules/';
-      break;
-      case 'theme':
-        $download_target .= '/themes/';
-      break;
-      case 'layout':
-        $download_target .= '/layouts/';
-      break;
-    }
-    if(file_exists($download_target . '/contrib')) {
-      $download_target = $download_target . '/contrib';
-    }
-    return $download_target;
+  $type = download_get_type($folder);
+  if(FALSE == $type && isset($options['type'])){
+    $type = $options['type'];
   }
-  else{
-    if(isset($options['type'])) {
-      $download_target .= '/' . $options['type'] . '/';
-      if(file_exists($download_target . '/contrib')) {
-        $download_target = $download_target . '/contrib';
-      }
-      return $download_target;
-    }
-    b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
+  switch($type) {
+    case 'module':
+      $download_target .= '/modules/';
+    break;
+    case 'theme':
+      $download_target .= '/themes/';
+    break;
+    case 'layout':
+      $download_target .= '/layouts/';
+    break;
+    default:
+      b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
+      return FALSE;
   }
-  return FALSE;
+  if(file_exists($download_target . '/contrib')) {
+    $download_target = $download_target . '/contrib';
+  }
+  return $download_target;
 }
 
 /**
