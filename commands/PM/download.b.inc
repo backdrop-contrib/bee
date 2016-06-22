@@ -41,11 +41,6 @@ function download_b_callback($arguments, $options) {
  * Internal function to download project by name.
  */
 function _download_project($project, $options) {
-  $tmp_folder = b_tmp_folder();
-  if (!$tmp_folder) {
-    b_set_message('Failed to generate tmp directory!', 'error');
-    return;
-  }
   if ($project == 'backdrop') {
     $owner = 'backdrop';
     $link = get_project_link('backdrop', $project);
@@ -56,11 +51,17 @@ function _download_project($project, $options) {
     }
   }
 
+  $tmp_folder = b_tmp_folder();
+  if (!$tmp_folder) {
+    b_set_message('Failed to generate tmp directory!', 'error');
+    return;
+  }
+
   if(DOWNLOAD_VIA_GIT == $link) {
     exec('git clone https://github.com/' . $owner . '/' . $project . ' ' . $tmp_folder . '/' . $project);
   }
   else{
-    exec('wget -q --directory-prefix ' . $tmp_folder . ' ' . $link);
+    exec('wget --directory-prefix ' . $tmp_folder . ' ' . $link);
     exec('unzip ' . $tmp_folder . '/' . $project . '.zip -d ' .$tmp_folder);
     unlink($tmp_folder . '/' . $project . '.zip');
   }
@@ -78,6 +79,7 @@ function _download_project($project, $options) {
     $download_target = download_get_target($project, $tmp_folder . '/' . $project, $options);
     if(FALSE == $download_target) {
       b_set_message('Failed to detect destination directory.', 'error');
+      b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
     if (file_exists($download_target. '/' . $project)) {
