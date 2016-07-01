@@ -144,6 +144,7 @@ function site_install_b_callback($arguments, $options) {
     render_text(array('value' => "Installing Backdrop. This may take a moment...", '#color' => 'bold_blue'));
     install_backdrop($settings);
     b_set_message(bt("Backdrop installed successfully."));
+    b_set_message(bt("Username: " . $options['account-name'] . "\tpassword: " . $options['account-pass']));
     return TRUE;
   }
   catch (Exception $e) {
