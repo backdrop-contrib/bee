@@ -176,6 +176,44 @@ function b_get_command_args_options(&$arguments, &$options, $command) {
 }
 
 /**
+ * Use the command line options --root and --url to determine the site root
+ * directory the configuration path.  If they are not set, use reasonable
+ * default values.
+ *
+ * As a side effect, it loads bootstrap
+ *
+ * @param array &$options
+ *   The options from the command line.
+ */
+function b_process_options(&$options) {
+
+  // Set some reasonable defaults.
+  $options += array(
+      'conf_path' => './',
+      'root' => getcwd(),
+  );
+
+  $bootstrap = $options['root'] . '/core/includes/bootstrap.inc';
+  define('BACKDROP_ROOT', $options['root']);
+  if (file_exists($bootstrap)) {
+    require_once $bootstrap;
+
+    if (array_key_exists('url', $options)) {
+      $url = $options['url'];
+      $matches = array();
+      if (preg_match("/^(http(s)?:\/\/)?(.+?)(\/(.*))?$/", $url, $matches)) {
+        $host = empty($matches[3]) ? 'localhost' : $matches[3];
+        $path = empty($matches[5]) ? '/' : $matches[5];
+        $conf_path = conf_path(TRUE, TRUE, array('hostname' => $host, 'root_path' => $path));
+        if ($conf_path) {
+          $options['conf_path'] = $conf_path;
+        }
+      }
+    }
+  }
+}
+
+/**
  * Get a list of all implemented commands.
  *
  * @return
@@ -269,7 +307,7 @@ function b_commandfile_searchpaths() {
 
   // Add commands files
   $search_path[] = dirname(__DIR__) . '/commands/';
-  
+
   if(b_backdrop_installed()) {
     $modules = db_select('system', 's')
       ->fields('s')
