@@ -298,3 +298,36 @@ function b_choice($options, $title) {
     render_text($text, FALSE);
   }
 }
+
+/**
+ *  Prompt user for input.
+ *
+ * @param string $prompt
+ *   The prompt for user input.
+ *
+ * @param string $default
+ *   The defualt if the user just hits enter.
+ */
+function b_prompt($prompt, $default) {
+  if (isset($default)) {
+    $prompt .= " [" . $default . "]";
+  }
+  $prompt .= ": ";
+
+  print("\t\e[38;5;62m$prompt\e[0m");
+
+  $stdin = fopen('php://stdin', 'r');
+
+  while (($line = fgets($stdin)) !== FALSE) {
+    $line = trim($line);
+    if ($line === "") {
+      $line = $default;
+    }
+    if ($line) {
+      break;
+    }
+  }
+  fclose($stdin);
+
+  return $line;
+}

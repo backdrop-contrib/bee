@@ -17,7 +17,7 @@ function site_install_b_command() {
       'db-url' => array(
         'description' => 'A Drupal 6 style database URL. Only required for initial install - not re-install.',
         'example-value' => 'mysql://root:pass@host/db',
-        'required' => TRUE,
+        'required' => FALSE,
       ),
       'db-prefix' => 'An optional table prefix to use for initial install.  Can be a key-value array of tables/prefixes in a drushrc file (not the command line).',
       'account-name' => 'uid1 name. Defaults to admin',
@@ -44,29 +44,11 @@ function site_install_b_command() {
  */
 function site_install_b_callback($arguments, $options) {
 
-  $defaul_options = array(
-    'account-mail' => 'admin@example.com',
-    'account-name' => 'admin',
-    'account-pass' => md5(microtime() . mt_rand()),
-    'site-name' => 'Backdrop',
-    'clean-url' => '1',
-    'db-prefix' => '',
-    'db-url' => '',
-    'locale' => 'en',
-    'site-mail' => 'admin@example.com',
-    'site-name' => 'Backdrop',
-    'root' => '',
-  );
-  foreach($defaul_options as $name => $value) {
-    if (!isset($options[$name])) {
-      $options[$name] = $value;
-    }
-  }
   $additional_form_options = array();
   if (isset($arguments['key=value']) && !empty($arguments['key=value'])) {
     foreach($arguments['key=value'] as $argument) {
       list($key, $value) = explode('=', $argument);
-      $additional_form_options[$key] = $value; 
+      $additional_form_options[$key] = $value;
     }
   }
 
@@ -74,27 +56,73 @@ function site_install_b_callback($arguments, $options) {
   if (isset($arguments['profile'])) {
     $profile = $arguments['profile'];
   }
-  
-  $url = parse_url($options['db-url']);
-  $url += array(
-    'driver' => NULL,
-    'user' => NULL,
-    'pass' => NULL,
-    'host' => NULL,
-    'port' => NULL,
-    'path' => NULL,
-    'database' => NULL,
-  );
-  $url = (object)array_map('urldecode', $url);
-  $db_spec = array(
-    'driver' => 'mysql',
-    'username' => $url->user,
-    'password' => $url->pass,
-    'port' => $url->port,
-    'host' => $url->host,
-    // Remove leading / character from database names.
-    'database' => substr($url->path, 1),
-  );
+
+  // If the db-url is not provided get the information interactively from the
+  // user.
+  if (!isset($options['db-url'])) {
+    // Prompt for site information.
+    $default_options['account-mail'] = b_prompt('account-mail', 'admin@example.com');
+    $default_options['account-name'] = b_prompt('account-name', 'admin');
+    $default_options['account-pass'] = b_prompt('account-pass', md5(microtime() . mt_rand()));
+    $default_options['site-name'] = b_prompt('site-name', 'Backdrop CMS');
+    $default_options['clean-url'] = b_prompt('clean-url', '1');
+    $default_options['db-prefix'] = b_prompt('db-prefix', "\'\'");
+    $default_options['locale'] = b_prompt('locale', 'en');
+    $default_options['site-mail'] = b_prompt('site-mail', 'admin@example.com');
+
+    // Prompt for DB Specs.
+    print(bt("\n\tDB Credentials") . "\n");
+    $db_spec['driver'] = 'mysql';
+    $db_spec['username'] = b_prompt('username', 'your_db_user');
+    $db_spec['password'] = b_prompt('password', 'your_db_password');
+    $db_spec['port'] = b_prompt('port', '3306');
+    $db_spec['host'] = b_prompt('host', 'localhost');
+    $db_spec['database'] = b_prompt('database_name', 'database_name');
+    //print_r($db_spec); return;
+  }
+  else {
+    $default_options = array(
+      'account-mail' => 'admin@example.com',
+      'account-name' => 'admin',
+      'account-pass' => md5(microtime() . mt_rand()),
+      'site-name' => 'Backdrop',
+      'clean-url' => '1',
+      'db-prefix' => '',
+      'db-url' => '',
+      'locale' => 'en',
+      'site-mail' => 'admin@example.com',
+      'root' => '',
+    );
+
+    $url = parse_url($options['db-url']);
+    $url += array(
+      'driver' => NULL,
+      'user' => NULL,
+      'pass' => NULL,
+      'host' => NULL,
+      'port' => NULL,
+      'path' => NULL,
+      'database' => NULL,
+    );
+
+    $url = (object)array_map('urldecode', $url);
+
+    $db_spec = array(
+      'driver' => 'mysql',
+      'username' => $url->user,
+      'password' => $url->pass,
+      'port' => $url->port,
+      'host' => $url->host,
+      // Remove leading / character from database names.
+      'database' => substr($url->path, 1),
+    );
+  }
+
+  foreach($default_options as $name => $value) {
+    if (!isset($options[$name])) {
+      $options[$name] = $value;
+    }
+  }
 
   $settings = array(
     'parameters' => array(
@@ -127,7 +155,7 @@ function site_install_b_callback($arguments, $options) {
       ),
     ),
   );
-  
+
   // Merge in the additional options.
   foreach($additional_form_options as $key => $value) {
     $current = &$settings['forms'];
@@ -136,14 +164,16 @@ function site_install_b_callback($arguments, $options) {
     }
     $current = $value;
   }
-  
+
   define('MAINTENANCE_MODE', 'install');
   require_once './core/includes/install.core.inc';
-  
+
   try {
     render_text(array('value' => "Installing Backdrop. This may take a moment...", '#color' => 'bold_blue'));
     install_backdrop($settings);
     b_set_message(bt("Backdrop installed successfully."));
+    b_set_message(bt('Username: ' . $default_options['account-name']));
+    b_set_message(bt('Password: ' . $default_options['account-pass']));
     return TRUE;
   }
   catch (Exception $e) {
