@@ -96,7 +96,7 @@ Aliases: si
 ## Maintainers
   * Gor Martsen (https://github.com/Gormartsen)
   * Geoff St. Pierre (https://github.com/serundeputy)
-  * Seeking co-maintainer(s) 
+  * John Franklin (https://github.com/jlfranklin)
 
 ##Thanks to drush
 This module was inspired by (and some code and logic was copied from) [drush](https://github.com/drush-ops/drush).
