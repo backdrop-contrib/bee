@@ -100,10 +100,16 @@ function _download_project($project, $options) {
       return FALSE;
     }
   }
-
-  b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
-  b_set_message($project . ' downloaded!','success');
-  b_file_unmanaged_delete_recursive($tmp_folder);
+  if ($project == 'backdrop' && isset($options['root'])) {
+    b_recursive_copy($tmp_folder . '/' . $project, $download_target);
+    b_set_message($project . ' downloaded!','success');
+    b_file_unmanaged_delete_recursive($tmp_folder);
+  }
+  else {
+    b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
+    b_set_message($project . ' downloaded!','success');
+    b_file_unmanaged_delete_recursive($tmp_folder);
+  }
 }
 
 /**
