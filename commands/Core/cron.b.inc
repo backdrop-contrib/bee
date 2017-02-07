@@ -9,6 +9,9 @@
   $items['cron'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Process cron.',
+    'options' => array(
+      'quiet' => 'Supress output messages for non-interactive modes.',
+    ),
     'callback' => 'cron_command_process',
   );
   return $items;
@@ -17,5 +20,7 @@
 
 function cron_command_process($arguments, $options) {
   backdrop_cron_run();
-  b_set_message('Cron processed.', 'success');
+  if (!isset($options['quiet'])) {
+    b_set_message('Cron processed.', 'success');
+  }
 }
