@@ -18,8 +18,6 @@ at speeding your development cycles.
   * open your `.bash_profile` file
   * add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
   * reload your bash profile: `source ~/.bash_profile`
-* Make `b.php` executable
-  * `chmod a+x b.php`
 
 ## Usage
 Please use `b help` to see full list of available commands.
