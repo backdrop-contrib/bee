@@ -51,6 +51,7 @@ function b_init() {
   $command = array(
    'options' => array(
      'root' => 'Backdrop root folder',
+     'url' => 'Backdrop site URL (as defined in sites.php)',
      'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
      'y' => 'Force Yes to all Yes/No questions',
      'yes' => 'Force Yes to all Yes/No questions',
@@ -60,25 +61,33 @@ function b_init() {
   );
   b_get_command_args_options($arguments, $options, $command);
 
-  $_backdrop_root = FALSE;
+  b_init_blobals();
+
+  // Get root directory.
   if (isset($options['root'])) {
-    if (file_exists($options['root'] . '/settings.php')) {
-      $_backdrop_root =  $options['root'];
-    }
+    $_backdrop_root = b_find_root($options['root'], FALSE);
   }
   else {
-    $path = getcwd();
-    if(file_exists($path . '/settings.php')) {
-      $_backdrop_root = $path;
-    }
+    $_backdrop_root = b_find_root(getcwd());
   }
-  
-  b_init_blobals();
-  
+
   if ($_backdrop_root) {
+    // Get site directory.
+    if (isset($options['url'])) {
+      $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
+    }
+    else {
+      $_backdrop_site = b_find_site_by_path(getcwd(), $_backdrop_root);
+    }
+
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
+    $_SERVER['HTTP_HOST'] = substr($full_path, strrpos($full_path, '/') + 1);
+    if ($_backdrop_site) {
+      define('BACKDROP_SITE', $_backdrop_site);
+      $_SERVER['HTTP_HOST'] = $_backdrop_site;
+    }
     require_once 'core/includes/bootstrap.inc';
     if(function_exists('backdrop_bootstrap_is_installed')){
       backdrop_settings_initialize();
@@ -91,12 +100,12 @@ function b_init() {
       }
     }
   }
-  
+
   if (isset($options['drush'])) {
     drush_mode(TRUE);
     b_set_message('Drush mode on');
   }
-  
+
   if (isset($options['y']) or isset($options['yes'])) {
     b_yes_mode(TRUE);
     b_set_message('Yes mode on');

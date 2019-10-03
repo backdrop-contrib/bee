@@ -293,3 +293,94 @@ function b_recursive_copy($src, $dst) {
   }
   closedir($dir);
 }
+
+/**
+ * Find Backdrop's root directory, optionally recursing backwards through the
+ * filesystem from the given $path.
+ */
+function b_find_root($path, $recursive = TRUE) {
+  // Make sure we have a valid dir path.
+  if (!empty($path) && is_dir($path)) {
+    // Check if this is Backdrop's root dir.
+    if (file_exists($path . '/index.php') && file_exists($path . '/core/misc/backdrop.js')) {
+      return $path;
+    }
+    else {
+      if ($recursive) {
+        // Get the path of the parent dir.
+        $path = substr($path, 0, strrpos($path, '/'));
+        if (!empty($path)) {
+          // Check the parent path.
+          return b_find_root($path);
+        }
+      }
+    }
+  }
+  else {
+    b_set_message("$path is not a valid directory.", 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Find Backdrop's site directory from the given $url.
+ */
+function b_find_site_by_url($url, $root) {
+  $sites_php = $root . '/sites/sites.php';
+
+  if (file_exists($sites_php)) {
+    $sites = array();
+
+    // Populate the $sites array.
+    include $sites_php;
+
+    if (isset($sites[$url])) {
+      return $sites[$url];
+    }
+    else {
+      b_set_message("$url could not be found in $root/sites/sites.php.", 'error');
+    }
+  }
+  else {
+    b_set_message("$root/sites/sites.php could not be found.", 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Find Backdrop's current site directory by recursing backwards through the
+ * filesystem from the given $path.
+ */
+function b_find_site_by_path($path, $root) {
+  // Make sure we have a valid dir path.
+  if (!empty($path) && is_dir($path)) {
+    // Make sure $path is below $root.
+    if (strpos(realpath($path) . '/', realpath($root) . '/') !== FALSE) {
+      // Check if this is Backdrop's current site dir.
+      if (file_exists($path . '/settings.php')) {
+        if ($path != $root) {
+          // Return the last part of the path (the site dir name).
+          return substr($path, strrpos($path, '/') + 1);
+        }
+      }
+      else {
+        // Get the path of the parent dir.
+        $path = substr($path, 0, strrpos($path, '/'));
+        if (!empty($path)) {
+          // Check the parent path.
+          return b_find_site_by_path($path, $root);
+        }
+      }
+    }
+    else {
+      b_set_message("Current directory and --root don't match. Please change to a directory under --root or remove --root option.", 'error');
+    }
+  }
+  else {
+    b_set_message("$path is not a valid directory.", 'error');
+  }
+
+  return FALSE;
+}

@@ -126,6 +126,10 @@ function download_get_target($project, $folder, $options) {
   if (isset($options['root'])) {
     $download_target = $options['root'];
   }
+  elseif (defined('BACKDROP_SITE')) {
+    // If BACKDROP_SITE is set, we know BACKDROP_ROOT is set too.
+    $download_target = BACKDROP_ROOT . '/sites/' . BACKDROP_SITE;
+  }
   elseif (defined('BACKDROP_ROOT')) {
     $download_target = BACKDROP_ROOT;
   }
@@ -139,13 +143,13 @@ function download_get_target($project, $folder, $options) {
   }
   switch($type) {
     case 'module':
-      $download_target .= '/modules/';
+      $download_target .= '/modules';
     break;
     case 'theme':
-      $download_target .= '/themes/';
+      $download_target .= '/themes';
     break;
     case 'layout':
-      $download_target .= '/layouts/';
+      $download_target .= '/layouts';
     break;
     default:
       b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');

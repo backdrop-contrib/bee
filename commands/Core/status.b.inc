@@ -34,6 +34,9 @@ function status_b_callback($arguments, $options) {
   if(defined('BACKDROP_ROOT')){
     $rows[] = array('Backdrop root', BACKDROP_ROOT);
   }
+  if(defined('BACKDROP_SITE')){
+    $rows[] = array('Backdrop site', BACKDROP_SITE);
+  }
   if(class_exists('Database')){
     if($connection = Database::getConnection('default', 'default')) {
       $conn = $connection->getConnectionOptions();
