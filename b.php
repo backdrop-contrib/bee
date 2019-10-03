@@ -68,24 +68,38 @@ function b_init() {
   }
   else {
     $path = getcwd();
-    if(file_exists($path . '/settings.php')) {
+    if (file_exists($path . '/settings.php')) {
       $_backdrop_root = $path;
     }
   }
-  
-  b_init_blobals();
+
+  $hostname = 'localhost';
+  if (!is_dir($_backdrop_root . '/core')) {
+    // Could be a multisite install.
+    $parent_dir = dirname($_backdrop_root);
+    if (file_exists($parent_dir . '/sites.php')) {
+      require_once($parent_dir . '/sites.php');
+      $base = basename($_backdrop_root);
+      $key = array_search($base, $sites);
+      if ($key !== FALSE) {
+        $hostname = $key;
+        $_backdrop_root = dirname($parent_dir);
+      }
+    }
+  }
   
   if ($_backdrop_root) {
-    chdir($_backdrop_root);
-    $full_path = getcwd();
-    define('BACKDROP_ROOT', $full_path);
-    require_once 'core/includes/bootstrap.inc';
-    if(function_exists('backdrop_bootstrap_is_installed')){
+    define('BACKDROP_ROOT', $_backdrop_root);
+    chdir(BACKDROP_ROOT);
+    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
+
+    if (function_exists('backdrop_bootstrap_is_installed')) {
+      $_SERVER['HTTP_HOST'] = $hostname;
       backdrop_settings_initialize();
-      if(backdrop_bootstrap_is_installed()){
+      if (backdrop_bootstrap_is_installed()) {
         b_backdrop_installed(TRUE);
       }
-      else{
+      else {
         b_backdrop_installed(FALSE);
         b_set_message(bt('BackdropCMS is not installed yet.'), 'warning');
       }
@@ -106,27 +120,4 @@ function b_init() {
     b_set_message('Debug mode on');
   }
 
-}
-
-function b_init_blobals() {
-  $host = 'localhost';
-  $path = '';
-
-  $_SERVER['HTTP_HOST'] = $host;
-  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
-  $_SERVER['SERVER_NAME'] = 'localhost';
-  $_SERVER['REQUEST_URI'] = $path . '/';
-  $_SERVER['REQUEST_METHOD'] = 'GET';
-  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
-  $_SERVER['PHP_SELF'] = $path . '/index.php';
-  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
-
-  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-    // Ensure that any and all environment variables are changed to https://.
-    foreach ($_SERVER as $key => $value) {
-      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
-    }
-  }
 }
