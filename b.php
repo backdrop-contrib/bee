@@ -8,7 +8,7 @@ require_once('includes/render.inc');
 require_once('includes/output.inc');
 require_once('includes/filesystem.inc');
 
-//Global variables.
+// Global variables.
 $elements = array();
 
 b_init();
@@ -40,6 +40,7 @@ function b_errorHandler($errno, $message, $filename, $line, $context) {
   echo $message."\n";
   echo "\t". $filename . ":" . $line ."\n";
 }
+
 exit();
 
 /**
@@ -49,13 +50,13 @@ function b_init() {
   $arguments = array();
   $options = array();
   $command = array(
-   'options' => array(
-     'root' => 'Backdrop root folder',
-     'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
-     'y' => 'Force Yes to all Yes/No questions',
-     'yes' => 'Force Yes to all Yes/No questions',
-     'd' => 'Debug mode',
-     'debug' => 'Debug mode on',
+    'options' => array(
+      'root' => 'Backdrop root folder',
+      'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
+      'y' => 'Force Yes to all Yes/No questions',
+      'yes' => 'Force Yes to all Yes/No questions',
+      'd' => 'Debug mode',
+      'debug' => 'Debug mode on',
     ),
   );
   b_get_command_args_options($arguments, $options, $command);
@@ -63,40 +64,42 @@ function b_init() {
   $_backdrop_root = FALSE;
   if (isset($options['root'])) {
     if (file_exists($options['root'] . '/settings.php')) {
-      $_backdrop_root =  $options['root'];
+      $_backdrop_root = $options['root'];
     }
   }
   else {
     $path = getcwd();
-    if(file_exists($path . '/settings.php')) {
+    if (file_exists($path . '/settings.php')) {
       $_backdrop_root = $path;
     }
   }
-  
+
   b_init_blobals();
-  
+
   if ($_backdrop_root) {
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
     require_once 'core/includes/bootstrap.inc';
-    if(function_exists('backdrop_bootstrap_is_installed')){
+
+    if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();
-      if(backdrop_bootstrap_is_installed()){
+
+      if (backdrop_bootstrap_is_installed()) {
         b_backdrop_installed(TRUE);
       }
-      else{
+      else {
         b_backdrop_installed(FALSE);
         b_set_message(bt('BackdropCMS is not installed yet.'), 'warning');
       }
     }
   }
-  
+
   if (isset($options['drush'])) {
     drush_mode(TRUE);
     b_set_message('Drush mode on');
   }
-  
+
   if (isset($options['y']) or isset($options['yes'])) {
     b_yes_mode(TRUE);
     b_set_message('Yes mode on');
@@ -105,7 +108,6 @@ function b_init() {
     b_is_debug(TRUE);
     b_set_message('Debug mode on');
   }
-
 }
 
 function b_init_blobals() {
@@ -121,7 +123,7 @@ function b_init_blobals() {
   $_SERVER['REQUEST_METHOD'] = 'GET';
   $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
   $_SERVER['PHP_SELF'] = $path . '/index.php';
-  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
 
   if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
     // Ensure that any and all environment variables are changed to https://.
@@ -130,3 +132,4 @@ function b_init_blobals() {
     }
   }
 }
+

@@ -102,12 +102,12 @@ function _download_project($project, $options) {
   }
   if ($project == 'backdrop' && isset($options['root'])) {
     b_recursive_copy($tmp_folder . '/' . $project, $download_target);
-    b_set_message($project . ' downloaded!','success');
+    b_set_message($project . ' downloaded to ' . $download_target . '!', 'success');
     b_file_unmanaged_delete_recursive($tmp_folder);
   }
   else {
     b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
-    b_set_message($project . ' downloaded!','success');
+    b_set_message($project . ' downloaded to ' . $download_target . '/' . $project . '!', 'success');
     b_file_unmanaged_delete_recursive($tmp_folder);
   }
 }
@@ -139,13 +139,13 @@ function download_get_target($project, $folder, $options) {
   }
   switch($type) {
     case 'module':
-      $download_target .= '/modules/';
+      $download_target .= '/modules';
     break;
     case 'theme':
-      $download_target .= '/themes/';
+      $download_target .= '/themes';
     break;
     case 'layout':
-      $download_target .= '/layouts/';
+      $download_target .= '/layouts';
     break;
     default:
       b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
