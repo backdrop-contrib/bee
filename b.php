@@ -87,6 +87,8 @@ function b_init() {
       }
     }
   }
+
+  b_init_blobals($hostname);
   
   if ($_backdrop_root) {
     define('BACKDROP_ROOT', $_backdrop_root);
@@ -94,7 +96,6 @@ function b_init() {
     require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
 
     if (function_exists('backdrop_bootstrap_is_installed')) {
-      $_SERVER['HTTP_HOST'] = $hostname;
       backdrop_settings_initialize();
       if (backdrop_bootstrap_is_installed()) {
         b_backdrop_installed(TRUE);
@@ -120,4 +121,24 @@ function b_init() {
     b_set_message('Debug mode on');
   }
 
+}
+
+function b_init_blobals($hostname = 'localhost') {
+  $path = '';
+  $_SERVER['HTTP_HOST'] = $hostname;
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_NAME'] = $hostname;
+  $_SERVER['REQUEST_URI'] = $path . '/';
+  $_SERVER['REQUEST_METHOD'] = 'GET';
+  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
+  $_SERVER['PHP_SELF'] = $path . '/index.php';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop command line';
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+    // Ensure that any and all environment variables are changed to https://.
+    foreach ($_SERVER as $key => $value) {
+      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
+    }
+  }
 }
