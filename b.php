@@ -83,7 +83,7 @@ function b_init() {
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
-    $_SERVER['HTTP_HOST'] = substr($full_path, strrpos($full_path, '/') + 1);
+    $_SERVER['HTTP_HOST'] = basename($full_path);
     if ($_backdrop_site) {
       define('BACKDROP_SITE', $_backdrop_site);
       $_SERVER['HTTP_HOST'] = $_backdrop_site;

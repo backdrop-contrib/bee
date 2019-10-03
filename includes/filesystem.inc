@@ -308,8 +308,8 @@ function b_find_root($path, $recursive = TRUE) {
     else {
       if ($recursive) {
         // Get the path of the parent dir.
-        $path = substr($path, 0, strrpos($path, '/'));
-        if (!empty($path)) {
+        $path = dirname($path);
+        if ($path != '/') {
           // Check the parent path.
           return b_find_root($path);
         }
@@ -362,13 +362,13 @@ function b_find_site_by_path($path, $root) {
       if (file_exists($path . '/settings.php')) {
         if ($path != $root) {
           // Return the last part of the path (the site dir name).
-          return substr($path, strrpos($path, '/') + 1);
+          return basename($path);
         }
       }
       else {
         // Get the path of the parent dir.
-        $path = substr($path, 0, strrpos($path, '/'));
-        if (!empty($path)) {
+        $path = dirname($path);
+        if ($path != '/') {
           // Check the parent path.
           return b_find_site_by_path($path, $root);
         }
