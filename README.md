@@ -97,6 +97,7 @@ Aliases: si
   * Gor Martsen (https://github.com/Gormartsen)
   * Geoff St. Pierre (https://github.com/serundeputy)
   * John Franklin (https://github.com/jlfranklin)
+  * Peter Anderson (https://github.com/BWPanda)
 
 ##Thanks to drush
 This module was inspired by (and some code and logic was copied from) [drush](https://github.com/drush-ops/drush).
