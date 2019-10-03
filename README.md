@@ -15,10 +15,9 @@ aimed at speeding up your development cycles.
   * `git clone https://github.com/backdrop-contrib/b.git`
 * Make an alias to `b`:
   * Open your `.bash_profile` file
-  * Add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
+  * Add a line (at the end is fine) like this: `alias b='php /path/to/b/b.php'`
+    (you may need to provide the full path to the `php` executable)
   * Reload your bash profile: `source ~/.bash_profile`
-* Make `b.php` executable:
-  * `chmod a+x b.php`
 
 ## Usage
 
