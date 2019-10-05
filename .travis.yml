@@ -1,0 +1,15 @@
+language: php
+services: mysql
+
+install:
+  - chmod +x $TRAVIS_BUILD_DIR/b.php
+  - sudo ln -s $TRAVIS_BUILD_DIR/b.php /usr/local/bin/b
+
+before_script:
+  - git clone https://github.com/backdrop/backdrop.git $HOME/www
+  - mysql -e 'CREATE DATABASE backdrop'
+  - cd $HOME/www
+  - ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop
+
+script: phpunit --testdox $TRAVIS_BUILD_DIR/tests
+
