@@ -31,7 +31,7 @@ class CoreTest extends TestCase {
    */
   public function testRequiredArgumentsAreRequired() {
     exec('b config-get', $output);
-    $this->assertStringContainsString('Argument config_name is required', $output);
+    $this->assertContains('Argument config_name is required', $output);
   }
 
   /**
@@ -48,7 +48,7 @@ class CoreTest extends TestCase {
    */
   public function testYesOptionWorks() {
     exec('b en book --y', $output);
-    $this->assertStringContainsString('Module book enabled', $output);
+    $this->assertContains('Module book enabled', $output);
   }
 
 }
