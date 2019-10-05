@@ -21,8 +21,8 @@ class CoreTest extends TestCase {
    * is given).
    */
   public function testHelpIsDefaultCommand() {
-    exec('b', $output_b);
-    exec('b help', $output_help);
+    $output_b = shell_exec('b');
+    $output_help = shell_exec('b help');
     $this->assertEquals($output_help, $output_b);
   }
 
@@ -30,16 +30,16 @@ class CoreTest extends TestCase {
    * Make sure that required arguments are actually required.
    */
   public function testRequiredArgumentsAreRequired() {
-    exec('b config-get', $output);
-    $this->assertContains('Argument config_name is required', $output);
+    $output = shell_exec('b config-get');
+    $this->assertStringContainsString('Argument config_name is required', $output);
   }
 
   /**
    * Make sure that command aliases work.
    */
   public function testCommandAliasesWork() {
-    exec('b st', $output_alias);
-    exec('b core-status', $output_command);
+    $output_alias = shell_exec('b st');
+    $output_command = shell_exec('b core-status');
     $this->assertEquals($output_command, $output_alias);
   }
 
@@ -47,8 +47,8 @@ class CoreTest extends TestCase {
    * Make sure that the `--y/--yes` options work.
    */
   public function testYesOptionWorks() {
-    exec('b en book --y', $output);
-    $this->assertContains('Module book enabled', $output);
+    $output = shell_exec('b en book --y');
+    $this->assertStringContainsString('Module book enabled', $output);
   }
 
 }
