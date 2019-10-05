@@ -47,7 +47,7 @@ class CoreTest extends TestCase {
    * Make sure that the `--y/--yes` options work.
    */
   public function testYesOptionWorks() {
-    exec('b en book', $output);
+    exec('b en book --y', $output);
     $this->assertStringContainsString('Module book enabled', $output);
   }
 
