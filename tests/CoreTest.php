@@ -49,6 +49,8 @@ class CoreTest extends TestCase {
   public function testYesOptionWorks() {
     $output = shell_exec('b en book --y');
     $this->assertStringContainsString('Module book enabled', $output);
+    $output = shell_exec('b dis book --yes');
+    $this->assertStringContainsString('Module book disabled', $output);
   }
 
 }
