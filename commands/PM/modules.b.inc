@@ -338,7 +338,7 @@ function _disable_project($project) {
   }
 
   module_disable(array($module['name']), FALSE);
-  b_set_message("Module " . $module['name'] . "  disabled", 'success');
+  b_set_message("Module " . $module['name'] . " disabled", 'success');
   return TRUE;
 }
 
