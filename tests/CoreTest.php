@@ -62,11 +62,8 @@ class CoreTest extends TestCase {
    * Make sure that the `--root` option works.
    */
   public function testRootOptionWorks() {
-    print_r(getcwd());
-    exec('cd ../');
-    print_r(getcwd());
-    print_r($output_no_root = shell_exec('b st'));
-    print_r($output_root = shell_exec('b --root=backdrop st'));
+    print_r($output_no_root = shell_exec('b st') . "\n\n");
+    print_r($output_root = shell_exec('cd ../ && b --root=www st'));
 
     $this->assertEquals($output_no_root, $output_root);
   }
