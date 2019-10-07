@@ -74,7 +74,7 @@ function b_init() {
     }
   }
 
-  b_init_blobals();
+  b_init_globals();
 
   if ($_backdrop_root) {
     chdir($_backdrop_root);
@@ -110,7 +110,7 @@ function b_init() {
   }
 }
 
-function b_init_blobals() {
+function b_init_globals() {
   $host = 'localhost';
   $path = '';
 
