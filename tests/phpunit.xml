@@ -1,0 +1,8 @@
+<phpunit colors="true" testdox="true">
+  <testsuites>
+    <testsuite name="Backdrop Console tests">
+      <directory>.</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
+
