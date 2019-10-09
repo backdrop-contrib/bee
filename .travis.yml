@@ -11,5 +11,5 @@ before_script:
   - cd $HOME/www
   - ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop
 
-script: phpunit --testdox $TRAVIS_BUILD_DIR/tests
+script: phpunit -c $TRAVIS_BUILD_DIR/tests
 
