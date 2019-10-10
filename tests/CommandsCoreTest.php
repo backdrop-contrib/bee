@@ -106,9 +106,10 @@ class CommandsCoreTest extends TestCase {
   public function testSiteInstall() {
     // Since this test uses environment-specific information, it is only run on
     // Travis CI.
-    if (getenv('TRAVIS') !== TRUE) {
-      $this->markTestSkipped('This test is only run on Travis CI.');
-    }
+    print_r('Travis: ' . getenv('TRAVIS'));
+    // if (getenv('TRAVIS') !== TRUE) {
+    //   $this->markTestSkipped('This test is only run on Travis CI.');
+    // }
 
     $path = getenv('HOME') . '/site_install';
     $db = 'site_install';
