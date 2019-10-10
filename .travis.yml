@@ -1,5 +1,5 @@
 language: php
-dist: bionic
+dist: bionic # This distribution is needed for its updated PHPUnit version.
 services: mysql
 
 install:

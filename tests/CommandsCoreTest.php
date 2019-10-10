@@ -93,10 +93,10 @@ class CommandsCoreTest extends TestCase {
     exec('b ws --count=2', $output_count);
     $this->assertEquals(3, count($output_count));
 
-    exec('b ws --severity=info', $output_severity);
+    $output_severity = shell_exec('b ws --severity=info');
     $this->assertStringNotContainsString('notice', $output_severity);
 
-    exec('b ws --type=cron', $output_type);
+    $output_type = shell_exec('b ws --type=cron');
     $this->assertStringNotContainsString('system', $output_type);
   }
 
