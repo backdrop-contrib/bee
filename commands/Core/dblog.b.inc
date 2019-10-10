@@ -45,7 +45,7 @@ function dblog_show_many($options) {
   }    
   $query = db_select('watchdog', 'wd')->extend('PagerDefault')
     ->fields('wd')
-    ->orderBy('wid', DESC);
+    ->orderBy('wid', 'DESC');
 
   if(isset($options['type'])) {
     $query->condition('type', $options['type']);
