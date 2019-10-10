@@ -9,7 +9,7 @@ function dblog_b_command() {
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Show dblog messages.',
     'arguments' => array(
-      'wid' => 'Optional id of a watchdog message to show in detail. If not provided, a listing of most recent 10 messages will be displayed. Alternatively if a string is provided, watchdog messages will be filtered by it.',
+      'wid' => 'Optional id of a watchdog message to show in detail. If not provided, a listing of most recent 10 messages will be displayed.',
     ),
     'options' => array(
       'count' => 'The number of messages to show. Defaults to 10.',
