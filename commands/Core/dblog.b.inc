@@ -25,11 +25,6 @@ function dblog_b_command() {
   return $items;
 }
 
-function dblog_messages(){
-  
-  
-}
-
 function dblog_command_show($arguments, $options) {
   if(isset($arguments['wid'])) {
     return dblog_show_one($arguments['wid']);
@@ -49,7 +44,8 @@ function dblog_show_many($options) {
     $options['count'] = 10;
   }    
   $query = db_select('watchdog', 'wd')->extend('PagerDefault')
-    ->fields('wd');
+    ->fields('wd')
+    ->orderBy('wid', DESC);
 
   if(isset($options['type'])) {
     $query->condition('type', $options['type']);
