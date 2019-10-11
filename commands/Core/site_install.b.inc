@@ -23,9 +23,9 @@ function site_install_b_command() {
       'account-name' => 'uid1 name. Defaults to admin',
       'account-pass' => 'uid1 pass. Defaults to a randomly generated password. If desired, set a fixed password in drushrc.php.',
       'account-mail' => 'uid1 email. Defaults to admin@example.com',
-      'locale' => array(
+      'langcode' => array(
         'description' => 'A short language code. Sets the default site language. Language files must already be present. You may use download command to get them.',
-        'example-value' => 'en-GB',
+        'example-value' => 'en',
       ),
       'clean-url'=> 'Defaults to 1',
       'site-name' => 'Defaults to Site-Install',
@@ -67,7 +67,7 @@ function site_install_b_callback($arguments, $options) {
     $default_options['site-name'] = b_prompt('site-name', 'Backdrop CMS');
     $default_options['clean-url'] = b_prompt('clean-url', '1');
     $default_options['db-prefix'] = b_prompt('db-prefix', "\'\'");
-    $default_options['locale'] = b_prompt('locale', 'en');
+    $default_options['langcode'] = b_prompt('langcode', 'en');
     $default_options['site-mail'] = b_prompt('site-mail', 'admin@example.com');
 
     // Prompt for DB Specs.
@@ -89,7 +89,7 @@ function site_install_b_callback($arguments, $options) {
       'clean-url' => '1',
       'db-prefix' => '',
       'db-url' => '',
-      'locale' => 'en',
+      'langcode' => 'en',
       'site-mail' => 'admin@example.com',
       'root' => '',
     );
@@ -127,7 +127,7 @@ function site_install_b_callback($arguments, $options) {
   $settings = array(
     'parameters' => array(
       'profile' => $profile,
-      'locale' => $options['locale'],
+      'langcode' => $options['langcode'],
     ),
     'forms' => array(
       'install_settings_form' => array(
