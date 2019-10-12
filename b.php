@@ -37,8 +37,10 @@ b_render($elements);
  *  todo: is this used?
  */
 function b_errorHandler($errno, $message, $filename, $line, $context) {
-  echo $message."\n";
-  echo "\t". $filename . ":" . $line ."\n";
+  if (error_reporting() > 0) {
+    echo $message."\n";
+    echo "\t". $filename . ":" . $line ."\n";
+  }
 }
 
 exit();
