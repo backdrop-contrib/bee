@@ -153,5 +153,40 @@ class CommandsCoreTest extends TestCase {
     $output = shell_exec('b st');
     $this->assertStringContainsString('Backdrop CMS Installation detected', $output);
   }
+
+  /**
+   * Check that the Update DB Status command works.
+   */
+  public function testUpdateDbStatus() {
+    // Install an old version of Devel.
+    exec('cd modules && git clone -qb 1.x-1.5.5 https://github.com/backdrop-contrib/devel.git');
+    exec('b en devel');
+
+    // Check there are no DB updates.
+    $output_clean = shell_exec('b updbst');
+    $this->assertStringContainsString('No database updates required', $output_clean);
+
+    // Update Devel to a newer version.
+    exec('cd modules/devel && git checkout -q 1.x-1.6.0');
+
+    // Check for DB updates.
+    $output_updates = shell_exec('b updbst');
+    $this->assertStringContainsString('Remove option for Krumo skin', $output_updates);
+  }
+
+  /**
+   * Check that the Update DB command works.
+   */
+  public function testUpdateDb() {
+    $output = shell_exec('b updb -y');
+    $this->assertStringContainsString('Remove option for Krumo skin', $output);
+    $this->assertStringContainsString('Do you wish to run all pending updates', $output);
+    $this->assertStringContainsString('All updates processed', $output);
+
+    // Uninstall Devel for future tests.
+    exec('b dis -y devel');
+    exec('b pmu -y devel');
+    exec('cd modules && rm -rf devel');
+  }
 }
 
