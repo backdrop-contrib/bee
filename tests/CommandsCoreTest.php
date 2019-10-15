@@ -102,14 +102,18 @@ class CommandsCoreTest extends TestCase {
 
   /**
    * Check that the Site Install command works.
+   *
+   * TODO: @see https://github.com/backdrop-contrib/b/issues/53
    */
   public function testSiteInstall() {
+    $this->markTestSkipped('This test is still under development...');
+
     // Since this test uses environment-specific information, it is only run on
     // Travis CI.
     print_r('Travis: ' . getenv('TRAVIS'));
-    // if (getenv('TRAVIS') !== TRUE) {
-    //   $this->markTestSkipped('This test is only run on Travis CI.');
-    // }
+    if (getenv('TRAVIS') !== TRUE) {
+      $this->markTestSkipped('This test is only run on Travis CI.');
+    }
 
     $path = getenv('HOME') . '/site_install';
     $db = 'site_install';
@@ -120,8 +124,34 @@ class CommandsCoreTest extends TestCase {
 
     $output = shell_exec("b si --root=$path --db_url=mysql://travis:@127.0.0.1/$db");
     print_r($output);
-    //$this->assertStringContainsString('Cron processed', $output);
   }
 
+  /**
+   * Check that the Core Status command works.
+   */
+  public function testCoreStatus() {
+    $asserted = FALSE;
+
+    exec('b st', $output_default);
+    foreach ($output_default as $output) {
+      if (strpos($output, 'Backdrop root') !== FALSE) {
+        $this->assertStringContainsString(getcwd(), $output);
+        $asserted = TRUE;
+      }
+      if (strpos($output, 'Database name') !== FALSE) {
+        $this->assertStringContainsString('backdrop', $output);
+        $asserted = TRUE;
+      }
+    }
+    $this->assertTrue($asserted, 'Expected output not found.');
+  }
+
+  /**
+   * Check that the Test callback works.
+   */
+  public function testTestCallback() {
+    $output = shell_exec('b st');
+    $this->assertStringContainsString('Backdrop CMS Installation detected', $output);
+  }
 }
 
