@@ -160,7 +160,7 @@ class CommandsCoreTest extends TestCase {
   public function testUpdateDbStatus() {
     // Install an old version of Devel.
     exec('cd modules && git clone -qb 1.x-1.5.5 https://github.com/backdrop-contrib/devel.git');
-    exec('b en devel');
+    exec('b en --y devel');
 
     // Check there are no DB updates.
     $output_clean = shell_exec('b updbst');
@@ -178,14 +178,14 @@ class CommandsCoreTest extends TestCase {
    * Check that the Update DB command works.
    */
   public function testUpdateDb() {
-    $output = shell_exec('b updb -y');
+    $output = shell_exec('b updb --y');
     $this->assertStringContainsString('Remove option for Krumo skin', $output);
     $this->assertStringContainsString('Do you wish to run all pending updates', $output);
     $this->assertStringContainsString('All updates processed', $output);
 
     // Uninstall Devel for future tests.
-    exec('b dis -y devel');
-    exec('b pmu -y devel');
+    exec('b dis --y devel');
+    exec('b pmu --y devel');
     exec('cd modules && rm -rf devel');
   }
 }

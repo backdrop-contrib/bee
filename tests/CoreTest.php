@@ -69,11 +69,14 @@ class CoreTest extends TestCase {
   public function testYesOptionWorks() {
     $module = 'book';
 
-    $output_y = shell_exec("b en $module --y");
+    $output_y = shell_exec("b en --y $module");
     $this->assertStringContainsString("Module $module enabled", $output_y);
 
-    $output_yes = shell_exec("b dis $module --yes");
+    $output_yes = shell_exec("b dis --yes $module");
     $this->assertStringContainsString("Module $module disabled", $output_yes);
+
+    // Uninstall $module for future tests.
+    exec("b pmu --y $module");
   }
 
 }
