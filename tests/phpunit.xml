@@ -3,6 +3,8 @@
     <testsuite name="Backdrop Console tests">
       <file>CoreTest.php</file>
       <file>CommandsCoreTest.php</file>
+      <file>CommandsHelpTest.php</file>
+      <file>CommandsPMTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
