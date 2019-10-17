@@ -197,6 +197,9 @@ function modules_b_enable_callback($arguments, $options) {
  * @return bool
  */
 function _enable_project($project) {
+  // Rescan for new modules.
+  system_rebuild_module_data();
+  
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);

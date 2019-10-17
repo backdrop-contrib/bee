@@ -136,8 +136,7 @@ function updatedb_status() {
   $pending = update_get_update_list();
 
   $return = array();
-  // Ensure system module's updates run first.
-  $start['system'] = array();
+  $start = array();
 
   // Print a list of pending updates for this module and get confirmation.
   foreach ($pending as $module => $updates) {
@@ -152,5 +151,6 @@ function updatedb_status() {
       }
     }
   }
+
   return array($return, $start);
 }

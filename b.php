@@ -38,8 +38,10 @@ b_render($elements);
  *  todo: is this used?
  */
 function b_errorHandler($errno, $message, $filename, $line, $context) {
-  echo $message."\n";
-  echo "\t". $filename . ":" . $line ."\n";
+  if (error_reporting() > 0) {
+    echo $message."\n";
+    echo "\t". $filename . ":" . $line ."\n";
+  }
 }
 
 exit();
@@ -75,7 +77,7 @@ function b_init() {
     }
   }
 
-  b_init_blobals();
+  b_init_globals();
 
   if ($_backdrop_root) {
     chdir($_backdrop_root);
@@ -111,7 +113,7 @@ function b_init() {
   }
 }
 
-function b_init_blobals() {
+function b_init_globals() {
   $host = 'localhost';
   $path = '';
 
