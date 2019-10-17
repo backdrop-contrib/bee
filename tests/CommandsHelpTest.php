@@ -15,7 +15,7 @@ class CommandsHelpTest extends TestCase {
     // Display help for the `b` command in general.
     $output_all = shell_exec('b help');
     $this->assertStringContainsString('Backdrop Console commands', $output_all);
-    $this->assertStringContainsString('Provides a birds-eye view of the current Backdrop installation', $output_all);
+    $this->assertStringContainsString('Provides a birds-eye view', $output_all);
 
     // Display help for the `help` command.
     $output_help = shell_exec('b help help');
