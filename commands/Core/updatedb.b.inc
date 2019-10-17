@@ -152,12 +152,5 @@ function updatedb_status() {
     }
   }
 
-  // Ensure system module's updates run first.
-  if (array_key_exists('system', $start)) {
-    $system = $start['system'];
-    unset($start['system']);
-    $start = array('system' => $system) + $start;
-  }
-
   return array($return, $start);
 }
