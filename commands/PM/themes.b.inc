@@ -73,6 +73,9 @@ function themes_b_enable_callback($arguments, $options) {
  * Internal function to enable theme.
  */
 function _enable_theme($project) {
+  // Rescan for new themes.
+  system_rebuild_theme_data();
+  
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
