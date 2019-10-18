@@ -1,6 +1,11 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Drush help.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function drush_help_drush_command() {
   $items['help'] = array(
@@ -13,67 +18,75 @@ function drush_help_drush_command() {
   return $items;
 }
 
+/**
+ * Callback drush_help_callback.
+ */
 function drush_help_callback($command = FALSE) {
-  $commands = drush_get_commands(); 
-  ksort($commands); 
-  if($command) {
-    if(!isset($commands[$command])){
+  $commands = drush_get_commands();
+  ksort($commands);
+  if ($command) {
+    if (!isset($commands[$command])) {
       b_set_message('There is no ' . $command, 'error');
       return;
     }
     $output = drush_display_help_by_cmd($commands[$command]);
-  }else{
-    foreach($commands as $cmd => $callbacks){
+  }
+  else {
+    foreach ($commands as $cmd => $callbacks) {
       $first = TRUE;
       $aliases = array();
-      foreach($callbacks as $callback){
-        if(isset($callback['is_alias'])){
+      foreach ($callbacks as $callback) {
+        if (isset($callback['is_alias'])) {
           continue;
         }
-        
-        if(isset($callback['aliases'])){
+
+        if (isset($callback['aliases'])) {
           $aliases += $callback['aliases'];
         }
-        if($first) {
+        if ($first) {
           $rows[] = array(
             array('data' => $cmd, '#color' => 'bold_blue'),
-            array('data' => $callback['description'])
+            array('data' => $callback['description']),
           );
           $first = FALSE;
         }
-        else{
+        else {
           $rows[] = array(
             '',
-            array('data' => $callback['description'])
+            array('data' => $callback['description']),
           );
         }
       }
-      if($aliases) {
+      if ($aliases) {
         $rows[] = array(
           '',
-          array('data' => 'aliases: ' . implode(", ", $aliases), '#color' => 'purple')
+          array(
+            'data' => 'aliases: ' . implode(", ", $aliases), '#color' => 'purple',
+          ),
         );
       }
-      
     }
     $output[] = array(
       '#type' => 'text',
       'value' => "\n[!] Drush commands:\n",
       '#color' => 'red',
     );
-    
+
     $output[] = array(
       '#type' => 'table',
       'rows' => $rows,
       'delimiter' => '    ',
       'delimiter_left' => ' ',
-      'delimiter_right' => '',    
+      'delimiter_right' => '',
     );
   }
   b_render($output);
 }
 
-function drush_display_help_by_cmd($commands){
+/**
+ * Help per command.
+ */`
+function drush_display_help_by_cmd($commands) {
   $examples = array();
   $available_options = array();
   $available_arguments = array();
