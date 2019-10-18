@@ -1,3 +1,6 @@
 .DS_Store
 .idea
 */.idea
+.phpunit.result.cache
+/vendor/
+

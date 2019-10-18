@@ -11,13 +11,14 @@ aimed at speeding up your development cycles.
 
 ## Installation
 
-* Clone this repo somewhere on your computer (for example, your home directory):
-  * `git clone https://github.com/backdrop-contrib/b.git`
-* Make an alias to `b`:
-  * Open your `.bash_profile` file
-  * Add a line (at the end is fine) like this: `alias b='php /path/to/b/b.php'`
-    (you may need to provide the full path to the `php` executable)
-  * Reload your bash profile: `source ~/.bash_profile`
+- Clone this repository to your computer (your home directory is a good place):
+  - `git clone https://github.com/backdrop-contrib/b.git`
+- Make `b.php` executable:
+  - `chmod +x b.php`
+- Put a symlink to `b.php` in your $PATH:
+  - `sudo ln -s /home/[username]/b/b.php /usr/local/bin/b`
+- Test to make sure it works:
+  - Simply type `b` (you should see a list of available commands printed out)
 
 ## Usage
 
