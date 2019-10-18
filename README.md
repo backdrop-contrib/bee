@@ -48,6 +48,8 @@ At the moment the following commands are available:
                     aliases: pml
  pm-uninstall       Uninstall one or more modules.
                     aliases: pmu
+ pm-info            Show detailed info for one or more extensions (modules or themes).
+                    aliases: pmi
  site-install       Install Backdrop along with modules/themes/configuration using the specified install profile.
                     aliases: si
  updatedb           Apply any database updates required (as with running update.php).
