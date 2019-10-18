@@ -80,4 +80,3 @@ class CoreTest extends TestCase {
   }
 
 }
-

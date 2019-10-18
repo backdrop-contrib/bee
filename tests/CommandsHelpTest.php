@@ -24,4 +24,3 @@ class CommandsHelpTest extends TestCase {
   }
 
 }
-
