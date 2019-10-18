@@ -494,7 +494,7 @@ function _info_project($project) {
     if (!empty($info['project'])) {
       $rows[] = array(
         array('data' => bt('Project'), '#color' => 'bold_blue'),
-        isset($info['project']),
+        $info['project'],
       );
     }
     $rows[] = array(
