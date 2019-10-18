@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * Module management commands.
+ */
+
+/**
  * Implements hook_b_command().
  */
 function modules_b_command() {
@@ -64,20 +69,24 @@ function modules_b_command() {
 }
 
 /**
- * pm-list callback. Display list of modules, themes and layouts.
+ * Callback for pm-list. Display list of modules, themes and layouts.
  *
  * @param array $arguments
+ *   Arguments for the Pm-list commnand.
  * @param array $options
+ *   Options for the pm-list command.
+ *
  * @return array
+ *   Array of pm-list info.
  */
-function modules_b_list_callback($arguments, $options){
+function modules_b_list_callback($arguments, $options) {
 
-  if(!isset($options['type']) or $options['type'] != 'layout') {
+  if (!isset($options['type']) or $options['type'] != 'layout') {
 
-    //Rescan for new modules.
+    // Rescan for new modules.
     system_rebuild_module_data();
 
-    //Rescan for new themes.
+    // Rescan for new themes.
     system_rebuild_theme_data();
 
     $query = db_select('system', 's')
@@ -91,7 +100,7 @@ function modules_b_list_callback($arguments, $options){
 
     $rows = array();
 
-    foreach($projects as $project) {
+    foreach ($projects as $project) {
       $project->info = unserialize($project->info);
       if (isset($project->info['hidden']) && $project->info['hidden']) {
         continue;
@@ -109,9 +118,9 @@ function modules_b_list_callback($arguments, $options){
       }
 
       $name = array(
-          'data' => $project->name,
-          '#color' => 'bold_blue',
-        );
+        'data' => $project->name,
+        '#color' => 'bold_blue',
+      );
       $rows[] = array(
         $name,
         $project->info['name'],
@@ -127,15 +136,15 @@ function modules_b_list_callback($arguments, $options){
     $used_layouts = layout_load_all();
 
     $layouts = layout_get_layout_template_info();
-    foreach($layouts as $layout) {
+    foreach ($layouts as $layout) {
       $name = array(
         'data' => $layout['name'],
         '#color' => 'bold_blue',
       );
 
       $status = FALSE;
-      foreach($used_layouts as $used_layout) {
-        if($used_layout->layout_template == $layout['name']) {
+      foreach ($used_layouts as $used_layout) {
+        if ($used_layout->layout_template == $layout['name']) {
           $status = array(
             'data' => '  [v]  ',
             '#color' => 'green',
@@ -177,11 +186,12 @@ function modules_b_list_callback($arguments, $options){
 }
 
 /**
- * pm-enable callback. Enable module.
+ * Callback for pm-enable. Enable module.
  *
  * @param array $arguments
+ *   Arguments fro pm-enable command.
  * @param array $options
- *
+ *   Options for pm-enable command.
  */
 function modules_b_enable_callback($arguments, $options) {
   if (!isset($arguments['extensions'])) {
@@ -190,7 +200,7 @@ function modules_b_enable_callback($arguments, $options) {
   }
 
   $clean_cache = FALSE;
-  foreach($arguments['extensions'] as $project ) {
+  foreach ($arguments['extensions'] as $project) {
     if (_enable_project($project)) {
       $clean_cache = TRUE;
     }
@@ -205,8 +215,10 @@ function modules_b_enable_callback($arguments, $options) {
  * Internal function to enable module or theme.
  *
  * @param string $project
- *  The project machine name to be enabled.
+ *   The project machine name to be enabled.
+ *
  * @return bool
+ *   True if enabled otherwise False.
  */
 function _enable_project($project) {
   // Rescan for new modules.
@@ -222,13 +234,13 @@ function _enable_project($project) {
   }
 
   if ($module['status']) {
-    b_set_message("Failed to enable module " . $module['name']. ": it is enabled already", 'error');
+    b_set_message("Failed to enable module " . $module['name'] . ": it is enabled already", 'error');
     return FALSE;
   }
 
   $rows = array();
 
-  $info =  unserialize($module['info']);
+  $info = unserialize($module['info']);
 
   $rows[] = array(
     array('data' => bt('Name'), '#color' => 'bold_blue'),
@@ -271,10 +283,12 @@ function _enable_project($project) {
 }
 
 /**
- * pm-disable callback. Disable module or theme.
+ * Callback for pm-disable. Disable module or theme.
  *
  * @param array $arguments
+ *   Arguments for pm-disable command.
  * @param array $options
+ *   Options for pm-disable command.
  */
 function modules_b_disable_callback($arguments, $options) {
 
@@ -284,7 +298,7 @@ function modules_b_disable_callback($arguments, $options) {
   }
 
   $clean_cache = FALSE;
-  foreach($arguments['extensions'] as $project ) {
+  foreach ($arguments['extensions'] as $project) {
     if (_disable_project($project)) {
       $clean_cache = TRUE;
     }
@@ -299,7 +313,7 @@ function modules_b_disable_callback($arguments, $options) {
  * Internal function to disable module or theme.
  *
  * @param sring $project
- *  Project machine name to be disabled.
+ *   Project machine name to be disabled.
  */
 function _disable_project($project) {
   $query = db_select('system', 's')
@@ -318,7 +332,7 @@ function _disable_project($project) {
 
   $rows = array();
 
-  $info =  unserialize($module['info']);
+  $info = unserialize($module['info']);
 
   $rows[] = array(
     array('data' => bt('Name'), '#color' => 'bold_blue'),
@@ -358,10 +372,12 @@ function _disable_project($project) {
 }
 
 /**
- * pm-unstall callback. Uninstall module.
+ * Callback pm-unstall. Uninstall module.
  *
  * @param array $arguments
+ *   Arguments for pm-uminstall.
  * @param array $options
+ *   Options for pm-uninstall.
  */
 function modules_b_uninstall_callback($arguments, $options) {
   if (!isset($arguments['modules'])) {
@@ -370,7 +386,7 @@ function modules_b_uninstall_callback($arguments, $options) {
   }
 
   $clean_cache = FALSE;
-  foreach($arguments['modules'] as $project ) {
+  foreach ($arguments['modules'] as $project) {
     if (_uninstall_project($project)) {
       $clean_cache = TRUE;
     }
@@ -385,7 +401,7 @@ function modules_b_uninstall_callback($arguments, $options) {
  * Internal function to disable module or theme.
  *
  * @param string $project
- *  The machine name of the project to be uninstalled.
+ *   The machine name of the project to be uninstalled.
  */
 function _uninstall_project($project) {
   $query = db_select('system', 's')
@@ -400,13 +416,13 @@ function _uninstall_project($project) {
   }
 
   if ($module['status']) {
-    b_set_message("Failed to uninstall module " . $module['name']. ": it is need to be disabled first", 'error');
+    b_set_message("Failed to uninstall module " . $module['name'] . ": it is need to be disabled first", 'error');
     return FALSE;
   }
 
   $rows = array();
 
-  $info =  unserialize($module['info']);
+  $info = unserialize($module['info']);
 
   $rows[] = array(
     array('data' => bt('Name'), '#color' => 'bold_blue'),
@@ -452,17 +468,19 @@ function _uninstall_project($project) {
 }
 
 /**
- * pm-info callback. Provide info about extention.
+ * Callback pm-info. Provide info about extention.
  *
  * @param array $arguments
+ *   Arguments for pm-info command.
  * @param array $options
+ *   Options for pm-info command.
  */
 function modules_b_info_callback($arguments, $options) {
   if (!isset($arguments['modules'])) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
-  foreach($arguments['modules'] as $project) {
+  foreach ($arguments['modules'] as $project) {
     _info_project($project);
   }
 }
@@ -471,7 +489,7 @@ function modules_b_info_callback($arguments, $options) {
  * Internal function to provide detailed information about module or theme.
  *
  * @param string $project
- *  The machine name of the project about which info is required.
+ *   The machine name of the project about which info is required.
  */
 function _info_project($project) {
   $query = db_select('system', 's')
@@ -482,10 +500,11 @@ function _info_project($project) {
   $module = $query->execute()->fetchAssoc();
   if (!$module) {
     b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
-  } else {
+  }
+  else {
     $rows = array();
 
-    $info =  unserialize($module['info']);
+    $info = unserialize($module['info']);
 
     $rows[] = array(
       array('data' => bt('Name'), '#color' => 'bold_blue'),
