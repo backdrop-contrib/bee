@@ -519,27 +519,22 @@ function _info_project($project) {
       array('data' => bt('PHP'), '#color' => 'bold_blue'),
       $info['php'],
     );
-
-    if (!empty($info['files'])) {
-      $files = implode(', ', $info['files']);
-    } else {
-      $files = 'none';
-    }
+    $rows[] = array(
+      array('data' => bt('Status'), '#color' => 'bold_blue'),
+      $module['status'] == '1' ? 'enabled' : 'disabled',
+    );
+    $rows[] = array(
+      array('data' => bt('Path'), '#color' => 'bold_blue'),
+      substr($module['filename'], 0, strrpos($module['filename'], '/')),
+    );
     $rows[] = array(
       array('data' => bt('Files'), '#color' => 'bold_blue'),
-      $files,
+      !empty($info['files']) ? implode(', ', $info['files']) : 'none',
     );
-
-    if (!empty($info['dependencies'])) {
-      $dependencies = implode(', ', $info['dependencies']);
-    } else {
-      $dependencies = 'none';
-    }
     $rows[] = array(
       array('data' => bt('Requires'), '#color' => 'bold_blue'),
-      $dependencies,
+      !empty($info['dependencies']) ? implode(', ', $info['dependencies']) : 'none',
     );
-
     $rows[] = array(
       array('data' => bt('Configure'), '#color' => 'bold_blue'),
       isset($info['configure']) ? $info['configure'] : 'none',
