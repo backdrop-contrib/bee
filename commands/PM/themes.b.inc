@@ -1,6 +1,11 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Theme Project Management (PM) commands.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function themes_b_command() {
   $items['pm-enable'] = array(
@@ -35,36 +40,36 @@ function themes_b_command() {
 }
 
 /**
- * pm-enable callback. Enable theme.
+ * Callback pm-enable. Enable theme.
  */
 function themes_b_enable_callback($arguments, $options) {
-  if(!isset($arguments['extensions'])){
+  if (!isset($arguments['extensions'])) {
     b_set_message('Please provide theme name(s)', 'error');
     return;
   }
 
   $clean_cache = FALSE;
-  foreach($arguments['extensions'] as $project ) {
-    if(_enable_theme($project)) {
+  foreach ($arguments['extensions'] as $project) {
+    if (_enable_theme($project)) {
       $clean_cache = TRUE;
     }
   }
 
-  // If there is only one theme
-  if(count($arguments['extensions']) == 1) {
+  // If there is only one theme.
+  if (count($arguments['extensions']) == 1) {
     // And option --default
-    if(isset($options['default'])) {
+    if (isset($options['default'])) {
       // Set theme default.
       config_set('system.core', 'theme_default', $arguments['extensions'][0]);
     }
     // And option --admin
-    if(isset($options['admin'])) {
+    if (isset($options['admin'])) {
       // Set admintheme default.
       config_set('system.core', 'admin_theme', $arguments['extensions'][0]);
     }
   }
 
-  if($clean_cache) {
+  if ($clean_cache) {
     backdrop_flush_all_caches();
   }
 }
@@ -75,23 +80,23 @@ function themes_b_enable_callback($arguments, $options) {
 function _enable_theme($project) {
   // Rescan for new themes.
   system_rebuild_theme_data();
-  
+
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
   $query->condition('type', 'theme');
   $theme = $query->execute()->fetchAssoc();
 
-  if(!$theme){
+  if (!$theme) {
     return FALSE;
   }
 
-  if($theme['status']) {
-    b_set_message("Failed to enable theme " . $theme['name']. ": it is enabled already", 'error');
+  if ($theme['status']) {
+    b_set_message("Failed to enable theme " . $theme['name'] . ": it is enabled already", 'error');
     return FALSE;
   }
 
-  $info =  unserialize($theme['info']);
+  $info = unserialize($theme['info']);
   $rows[] = array(
     array('data' => bt('Name'), '#color' => 'bold_blue'),
     $info['name'],
@@ -130,23 +135,23 @@ function _enable_theme($project) {
 }
 
 /**
- * pm-disable callback. Disable theme(s).
+ * Callback pm-disable. Disable theme(s).
  */
 function themes_b_disable_callback($arguments, $options) {
 
-  if(!isset($arguments['extensions'])){
+  if (!isset($arguments['extensions'])) {
     b_set_message('Please provide theme name(s)', 'error');
     return;
   }
 
   $clean_cache = FALSE;
-  foreach($arguments['extensions'] as $project ) {
-    if(_disable_theme($project)) {
+  foreach ($arguments['extensions'] as $project) {
+    if (_disable_theme($project)) {
       $clean_cache = TRUE;
     }
   }
 
-  if($clean_cache) {
+  if ($clean_cache) {
     backdrop_flush_all_caches();
   }
 }
@@ -161,16 +166,16 @@ function _disable_theme($project) {
   $query->condition('type', 'theme');
   $theme = $query->execute()->fetchAssoc();
 
-  if(!$theme){
+  if (!$theme) {
     return FALSE;
   }
 
-  if(!$theme['status']) {
-    b_set_message("Failed to disable theme " . $theme['name']. ": it is disabled already", 'error');
+  if (!$theme['status']) {
+    b_set_message("Failed to disable theme " . $theme['name'] . ": it is disabled already", 'error');
     return FALSE;
   }
 
-  $info =  unserialize($theme['info']);
+  $info = unserialize($theme['info']);
   $rows[] = array(
     array('data' => bt('Name'), '#color' => 'bold_blue'),
     $info['name'],
@@ -202,7 +207,6 @@ function _disable_theme($project) {
     b_set_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
     return;
   }
-
 
   theme_disable(array($theme['name']));
   b_set_message("Theme " . $theme['name'] . " disabled", 'success');
