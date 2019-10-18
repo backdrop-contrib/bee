@@ -1,5 +1,4 @@
 language: php
-dist: bionic # This distribution is needed for its updated PHPUnit version.
 services: mysql
 
 install:
@@ -7,6 +6,7 @@ install:
   - sudo ln -s $TRAVIS_BUILD_DIR/b.php /usr/local/bin/b
 
 before_script:
+  - cd $TRAVIS_BUILD_DIR && composer install
   - git clone https://github.com/backdrop/backdrop.git $HOME/www
   - mysql -e 'CREATE DATABASE backdrop'
   - cd $HOME/www
