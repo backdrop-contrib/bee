@@ -48,6 +48,18 @@ function modules_b_command() {
     'aliases' => array('pmu'),
     'callback' => 'modules_b_uninstall_callback',
   );
+  $items['pm-info'] = array(
+    'bootstrap' => B_BOOTSTRAP_FULL,
+    'description' => 'Show detailed info for one or more extensions (modules or themes).',
+    'arguments' => array(
+      'modules' => array(
+        'description' => 'List of modules.',
+        'multiple' => TRUE,
+      ),
+    ),
+    'aliases' => array('pmi'),
+    'callback' => 'modules_b_info_callback',
+  );
   return $items;
 }
 
@@ -199,7 +211,7 @@ function modules_b_enable_callback($arguments, $options) {
 function _enable_project($project) {
   // Rescan for new modules.
   system_rebuild_module_data();
-  
+
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
@@ -436,5 +448,105 @@ function _uninstall_project($project) {
   }
   else {
     b_set_message("Failed to uninstall module " . $module['name'], 'error');
+  }
+}
+
+/**
+ * pm-info callback. Provide info about extention.
+ *
+ * @param array $arguments
+ * @param array $options
+ */
+function modules_b_info_callback($arguments, $options) {
+  if (!isset($arguments['modules'])) {
+    b_set_message('Please provide project name(s)', 'error');
+    return;
+  }
+  foreach($arguments['modules'] as $project) {
+    _info_project($project);
+  }
+}
+
+/**
+ * Internal function to provide detailed information about module or theme.
+ *
+ * @param string $project
+ *  The machine name of the project about which info is required.
+ */
+function _info_project($project) {
+  $query = db_select('system', 's')
+      ->fields('s');
+  $query->condition('name', $project);
+  $query->condition('type', 'module');
+
+  $module = $query->execute()->fetchAssoc();
+  if (!$module) {
+    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
+  } else {
+    $rows = array();
+
+    $info =  unserialize($module['info']);
+
+    $rows[] = array(
+      array('data' => bt('Name'), '#color' => 'bold_blue'),
+      $info['name'],
+    );
+    $rows[] = array(
+      array('data' => bt('Type'), '#color' => 'bold_blue'),
+      $info['type'],
+    );
+    $rows[] = array(
+      array('data' => bt('Project'), '#color' => 'bold_blue'),
+      $info['project'],
+    );
+    $rows[] = array(
+      array('data' => bt('Description'), '#color' => 'bold_blue'),
+      $info['description'],
+    );
+    $rows[] = array(
+      array('data' => bt('Package'), '#color' => 'bold_blue'),
+      $info['package'],
+    );
+    $rows[] = array(
+      array('data' => bt('Version'), '#color' => 'bold_blue'),
+      $info['version'],
+    );
+    $rows[] = array(
+      array('data' => bt('Date'), '#color' => 'bold_blue'),
+      format_date($info['timestamp'], 'custom', 'Y-m-d'),
+    );
+    $rows[] = array(
+      array('data' => bt('PHP'), '#color' => 'bold_blue'),
+      $info['php'],
+    );
+    $rows[] = array(
+      array('data' => bt('Status'), '#color' => 'bold_blue'),
+      $module['status'] == '1' ? 'enabled' : 'disabled',
+    );
+    $rows[] = array(
+      array('data' => bt('Path'), '#color' => 'bold_blue'),
+      substr($module['filename'], 0, strrpos($module['filename'], '/')),
+    );
+    $rows[] = array(
+      array('data' => bt('Files'), '#color' => 'bold_blue'),
+      !empty($info['files']) ? implode(', ', $info['files']) : 'none',
+    );
+    $rows[] = array(
+      array('data' => bt('Requires'), '#color' => 'bold_blue'),
+      !empty($info['dependencies']) ? implode(', ', $info['dependencies']) : 'none',
+    );
+    $rows[] = array(
+      array('data' => bt('Configure'), '#color' => 'bold_blue'),
+      isset($info['configure']) ? $info['configure'] : 'none',
+    );
+
+    $output[] = array(
+      '#type' => 'table',
+      'rows' => $rows,
+      'delimiter' => ' : ',
+      'delimiter_left' => ' ',
+      'delimiter_right' => ' ',
+    );
+    b_render($output);
   }
 }
