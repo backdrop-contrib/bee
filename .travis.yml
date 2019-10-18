@@ -12,5 +12,7 @@ before_script:
   - cd $HOME/www
   - ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop
 
-script: phpunit -c $TRAVIS_BUILD_DIR/tests
+script:
+  - $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests
+  - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --standard=$TRAVIS_BUILD_DIR/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* $TRAVIS_BUILD_DIR
 
