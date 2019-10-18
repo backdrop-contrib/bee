@@ -462,7 +462,7 @@ function modules_b_info_callback($arguments, $options) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
-  foreach($arguments['modules'] as $project ) {
+  foreach($arguments['modules'] as $project) {
     _info_project($project);
   }
 }
