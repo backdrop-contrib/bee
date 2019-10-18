@@ -52,8 +52,8 @@ function modules_b_command() {
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Show detailed info for one or more extensions (modules or themes).',
     'arguments' => array(
-      'modules' => array(
-        'description' => 'List of modules.',
+      'extensions' => array(
+        'description' => 'List of extensions.',
         'multiple' => TRUE,
       ),
     ),
@@ -458,11 +458,11 @@ function _uninstall_project($project) {
  * @param array $options
  */
 function modules_b_info_callback($arguments, $options) {
-  if (!isset($arguments['modules'])) {
+  if (!isset($arguments['extensions'])) {
     b_set_message('Please provide project name(s)', 'error');
     return;
   }
-  foreach($arguments['modules'] as $project) {
+  foreach($arguments['extensions'] as $project) {
     _info_project($project);
   }
 }
@@ -474,38 +474,40 @@ function modules_b_info_callback($arguments, $options) {
  *  The machine name of the project about which info is required.
  */
 function _info_project($project) {
+
   $query = db_select('system', 's')
       ->fields('s');
   $query->condition('name', $project);
-  $query->condition('type', 'module');
 
-  $module = $query->execute()->fetchAssoc();
-  if (!$module) {
-    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
+  $extension = $query->execute()->fetchAssoc();
+  if (!$extension) {
+    b_set_message(bt("Extension !name not found", array('!name' => $project)), 'error');
   } else {
     $rows = array();
 
-    $info =  unserialize($module['info']);
+    $info =  unserialize($extension['info']);
 
     $rows[] = array(
-      array('data' => bt('Name'), '#color' => 'bold_blue'),
-      $info['name'],
+      array('data' => bt('Extension'), '#color' => 'bold_blue'),
+      $extension['name'],
     );
+    if (!empty($info['project'])) {
+      $rows[] = array(
+        array('data' => bt('Project'), '#color' => 'bold_blue'),
+        isset($info['project']),
+      );
+    }
     $rows[] = array(
       array('data' => bt('Type'), '#color' => 'bold_blue'),
       $info['type'],
     );
     $rows[] = array(
-      array('data' => bt('Project'), '#color' => 'bold_blue'),
-      $info['project'],
+      array('data' => bt('Title'), '#color' => 'bold_blue'),
+      $info['name'],
     );
     $rows[] = array(
       array('data' => bt('Description'), '#color' => 'bold_blue'),
       $info['description'],
-    );
-    $rows[] = array(
-      array('data' => bt('Package'), '#color' => 'bold_blue'),
-      $info['package'],
     );
     $rows[] = array(
       array('data' => bt('Version'), '#color' => 'bold_blue'),
@@ -513,7 +515,17 @@ function _info_project($project) {
     );
     $rows[] = array(
       array('data' => bt('Date'), '#color' => 'bold_blue'),
-      format_date($info['timestamp'], 'custom', 'Y-m-d'),
+      format_date($info['mtime'], 'custom', 'Y-m-d'),
+    );
+    if (!empty($info['package'])) {
+      $rows[] = array(
+        array('data' => bt('Package'), '#color' => 'bold_blue'),
+        $info['package'],
+      );
+    }
+    $rows[] = array(
+      array('data' => bt('Core'), '#color' => 'bold_blue'),
+      $info['backdrop'],
     );
     $rows[] = array(
       array('data' => bt('PHP'), '#color' => 'bold_blue'),
@@ -521,12 +533,18 @@ function _info_project($project) {
     );
     $rows[] = array(
       array('data' => bt('Status'), '#color' => 'bold_blue'),
-      $module['status'] == '1' ? 'enabled' : 'disabled',
+      $extension['status'] == '1' ? 'enabled' : 'disabled',
     );
     $rows[] = array(
       array('data' => bt('Path'), '#color' => 'bold_blue'),
-      substr($module['filename'], 0, strrpos($module['filename'], '/')),
+      substr($extension['filename'], 0, strrpos($extension['filename'], '/')),
     );
+    if (!empty($extension['schema_version'])) {
+      $rows[] = array(
+        array('data' => bt('Schema version'), '#color' => 'bold_blue'),
+        $extension['schema_version'],
+      );
+    }
     $rows[] = array(
       array('data' => bt('Files'), '#color' => 'bold_blue'),
       !empty($info['files']) ? implode(', ', $info['files']) : 'none',
@@ -539,6 +557,47 @@ function _info_project($project) {
       array('data' => bt('Configure'), '#color' => 'bold_blue'),
       isset($info['configure']) ? $info['configure'] : 'none',
     );
+    if (!empty($info['tags'])) {
+      $rows[] = array(
+        array('data' => bt('Tags'), '#color' => 'bold_blue'),
+        !empty($info['tags']) ? implode(', ', $info['tags']) : 'none',
+      );
+    }
+    if (!empty($info['engine'])) {
+      $rows[] = array(
+        array('data' => bt('Engine'), '#color' => 'bold_blue'),
+        $info['engine'],
+      );
+    }
+    if (!empty($info['screenshot'])) {
+      $rows[] = array(
+        array('data' => bt('Screenshot'), '#color' => 'bold_blue'),
+        $info['screenshot'],
+      );
+    }
+    if (!empty($info['stylesheets'])) {
+      foreach ($info['stylesheets'] as $key => $value) {
+        foreach ($value as $key => $value) {
+          $stylesheets[] = $value;
+        }
+      }
+      $rows[] = array(
+        array('data' => bt('Stylesheets'), '#color' => 'bold_blue'),
+        implode(', ', $stylesheets),
+      );
+    }
+    if (!empty($info['ckeditor_stylesheets'])) {
+      $rows[] = array(
+        array('data' => bt('Ckeditor stylesheets'), '#color' => 'bold_blue'),
+        $info['ckeditor_stylesheets'] ? implode(', ', $info['ckeditor_stylesheets']) : 'none',
+      );
+    }
+    if (!empty($info['scripts'])) {
+      $rows[] = array(
+        array('data' => bt('Scripts'), '#color' => 'bold_blue'),
+        $info['scripts'] ? implode(', ', $info['scripts']) : 'none',
+      );
+    }
 
     $output[] = array(
       '#type' => 'table',
