@@ -1,6 +1,11 @@
 <?php
 /**
- * Implements of hook_b_command().
+ * @file
+ * Command(s) for installing Backdrop.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function site_install_b_command() {
   $items['site-install'] = array(
@@ -10,7 +15,7 @@ function site_install_b_command() {
       'key=value' => array(
         'description' => bt('Any additional settings you wish to pass to the profile. The key is in the form [form name].[parameter name]'),
         'multiple' => TRUE,
-      )
+      ),
     ),
     'options' => array(
       'root' => 'Set the working directory for the script to the specified path. Required if running this script from a directory other than the Backdrop root.',
@@ -27,7 +32,7 @@ function site_install_b_command() {
         'description' => 'A short language code. Sets the default site language. Language files must already be present. You may use download command to get them.',
         'example-value' => 'en-GB',
       ),
-      'clean-url'=> 'Defaults to 1',
+      'clean-url' => 'Defaults to 1',
       'site-name' => 'Defaults to Site-Install',
       'site-mail' => 'From: for system mailings. Defaults to admin@example.com',
     ),
@@ -38,15 +43,21 @@ function site_install_b_command() {
 }
 
 /**
- * @param $arguments
- * @param $options
+ * Callback function for hook_b_command().
+ *
+ * @param array $arguments
+ *   An array of user-provided arguments to the command.
+ * @param array $options
+ *   An array of user-provided options to the command.
+ *
  * @return bool
+ *   Whether or not Backdrop was installed successfully.
  */
 function site_install_b_callback($arguments, $options) {
 
   $additional_form_options = array();
   if (isset($arguments['key=value']) && !empty($arguments['key=value'])) {
-    foreach($arguments['key=value'] as $argument) {
+    foreach ($arguments['key=value'] as $argument) {
       list($key, $value) = explode('=', $argument);
       $additional_form_options[$key] = $value;
     }
@@ -71,14 +82,13 @@ function site_install_b_callback($arguments, $options) {
     $default_options['site-mail'] = b_prompt('site-mail', 'admin@example.com');
 
     // Prompt for DB Specs.
-    print(bt("\n\tDB Credentials") . "\n");
+    print bt("\n\tDB Credentials") . "\n";
     $db_spec['driver'] = 'mysql';
     $db_spec['username'] = b_prompt('username', 'your_db_user');
     $db_spec['password'] = b_prompt('password', 'your_db_password');
     $db_spec['port'] = b_prompt('port', '3306');
     $db_spec['host'] = b_prompt('host', 'localhost');
     $db_spec['database'] = b_prompt('database_name', 'database_name');
-    //print_r($db_spec); return;
   }
   else {
     $default_options = array(
@@ -105,7 +115,7 @@ function site_install_b_callback($arguments, $options) {
       'database' => NULL,
     );
 
-    $url = (object)array_map('urldecode', $url);
+    $url = (object) array_map('urldecode', $url);
 
     $db_spec = array(
       'driver' => 'mysql',
@@ -118,7 +128,7 @@ function site_install_b_callback($arguments, $options) {
     );
   }
 
-  foreach($default_options as $name => $value) {
+  foreach ($default_options as $name => $value) {
     if (!isset($options[$name])) {
       $options[$name] = $value;
     }
@@ -157,9 +167,9 @@ function site_install_b_callback($arguments, $options) {
   );
 
   // Merge in the additional options.
-  foreach($additional_form_options as $key => $value) {
+  foreach ($additional_form_options as $key => $value) {
     $current = &$settings['forms'];
-    foreach(explode('.', $key) as $param) {
+    foreach (explode('.', $key) as $param) {
       $current = &$current[$param];
     }
     $current = $value;
@@ -178,7 +188,7 @@ function site_install_b_callback($arguments, $options) {
   }
   catch (Exception $e) {
     echo $e->getMessage();
-    b_set_message(bt("An error occurred. Output of installation attempt is as follows: !error", array( '!error' => $e->getMessage())), 'error');
+    b_set_message(bt("An error occurred. Output of installation attempt is as follows: !error", array('!error' => $e->getMessage())), 'error');
     return FALSE;
   }
 }

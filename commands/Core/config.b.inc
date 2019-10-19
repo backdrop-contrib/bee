@@ -1,6 +1,11 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Command(s) for configuration management.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function config_b_command() {
   $items['config-list'] = array(
@@ -20,7 +25,6 @@ function config_b_command() {
       ),
     ),
   );
-
   $items['config-set'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Set config settings.',
@@ -45,14 +49,16 @@ function config_b_command() {
 }
 
 /**
- * config-set callback. Display list of configs.
+ * Callback function for hook_b_command().
+ *
+ * Respond on command 'config-set'.
  */
-function config_set_callback($arguments, $options){
+function config_set_callback($arguments, $options) {
   $config_dir = config_get_config_directory();
   $config_storage = new ConfigFileStorage($config_dir);
-  if($config = $config_storage->read($arguments['config_name'])) {
-    if(isset($config[$arguments['name']])) {
-      if(is_array($config[$arguments['name']])) {
+  if ($config = $config_storage->read($arguments['config_name'])) {
+    if (isset($config[$arguments['name']])) {
+      if (is_array($config[$arguments['name']])) {
         b_set_message(bt('Value is array. We do not support it yet.'), 'error');
         return FALSE;
       }
@@ -60,39 +66,39 @@ function config_set_callback($arguments, $options){
       b_set_message(bt('Config updated'), 'success');
     }
   }
-  else{
+  else {
     b_set_message(bt('There is no config !name', array('!name' => $arguments['config_name'])), 'error');
   }
 }
-  
-/**
- * config-get callback. Display list of configs.
- */
-function config_get_callback($arguments, $options){
 
+/**
+ * Callback function for hook_b_command().
+ *
+ * Respond on command 'config-get'.
+ */
+function config_get_callback($arguments, $options) {
   $config_dir = config_get_config_directory();
   $config_storage = new ConfigFileStorage($config_dir);
 
-  foreach($arguments['config_name'] as $config_name){
+  foreach ($arguments['config_name'] as $config_name) {
     $config = $config_storage->read($config_name);
-
-    $info =  config_get_info($config_name);
-
+    $info = config_get_info($config_name);
     $rows = array();
-    $label ='';
-    if(isset($info['label'])){
+    $label = '';
+
+    if (isset($info['label'])) {
       $label = $info['label'];
     }
-    if(isset($info['label_key'])){
-      $label = config_get($config_name,$info['label_key']);
+    if (isset($info['label_key'])) {
+      $label = config_get($config_name, $info['label_key']);
     }
 
-    if(isset($info['label_callback'])){
+    if (isset($info['label_callback'])) {
       $label = $info['label_callback']($config, $config_name);
     }
 
-    $group ='';
-    if(isset($info['group'])){
+    $group = '';
+    if (isset($info['group'])) {
       $group = $info['group'];
     }
 
@@ -127,6 +133,7 @@ function config_get_callback($arguments, $options){
     );
     $output[] = prepare_config_table($config);
   }
+
   return $output;
 }
 
@@ -135,8 +142,8 @@ function config_get_callback($arguments, $options){
  */
 function prepare_config_table($config) {
   $rows = array();
-  foreach($config as $key => $value) {
-    if(is_string($value)) {
+  foreach ($config as $key => $value) {
+    if (is_string($value)) {
       $rows[] = array(
         $key,
         $value,
@@ -144,7 +151,7 @@ function prepare_config_table($config) {
       continue;
     }
 
-    if(is_bool($value)){
+    if (is_bool($value)) {
       $rows[] = array(
         $key,
         $value ? 'TRUE' : 'FALSE',
@@ -152,10 +159,10 @@ function prepare_config_table($config) {
       continue;
     }
 
-    if(is_array($value)){
+    if (is_array($value)) {
       $list = array();
-      foreach($value as $ar_name => $ar_value){;
-        if(is_array($ar_value)){
+      foreach ($value as $ar_name => $ar_value) {
+        if (is_array($ar_value)) {
           $ar_value = 'Array()';
         }
         $list[] = $ar_name . " = " . $ar_value;
@@ -181,34 +188,36 @@ function prepare_config_table($config) {
     'delimiter_right' => ' ',
   );
 }
+
 /**
- * config-list callback. Display list of configs.
+ * Callback function for hook_b_command().
+ *
+ * Respond on command 'config-list'.
  */
-function config_list_callback($arguments, $options){
+function config_list_callback($arguments, $options) {
   $config_dir = config_get_config_directory();
   $config_storage = new ConfigFileStorage($config_dir);
   $config_files = array();
-
   $rows = array();
 
   foreach ($config_storage->listAll() as $config_name) {
-    $info =  config_get_info($config_name);
+    $info = config_get_info($config_name);
 
-    $label ='';
-    if(isset($info['label'])){
+    $label = '';
+    if (isset($info['label'])) {
       $label = $info['label'];
     }
-    if(isset($info['label_key'])){
-      $label = config_get($config_name,$info['label_key']);
+    if (isset($info['label_key'])) {
+      $label = config_get($config_name, $info['label_key']);
     }
 
-    if(isset($info['label_callback'])){
+    if (isset($info['label_callback'])) {
       $config = $config_storage->read($config_name);
       $label = $info['label_callback']($config, $config_name);
     }
 
-    $group ='';
-    if(isset($info['group'])){
+    $group = '';
+    if (isset($info['group'])) {
       $group = $info['group'];
     }
 
@@ -217,13 +226,14 @@ function config_list_callback($arguments, $options){
       $label,
       $group,
     );
-
   }
+
   $header = array(
     bt('File name'),
     bt('Label'),
     bt('Group'),
   );
+
   return array(
     '#type' => 'table',
     'rows' => $rows,

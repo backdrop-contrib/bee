@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @file
  * Common functions.
  */
@@ -49,68 +49,85 @@ define('B_BOOTSTRAP_LANGUAGE', 7);
  */
 define('B_BOOTSTRAP_FULL', 8);
 
+/**
+ * Format and print and error message.
+ */
 function b_print_error($text) {
   b_render(array(
     '#type' => 'text',
     '#color' => 'red',
     'value' => $text,
-  )
-  );
+  ));
 }
 
+/**
+ * Add a message to the $messages array.
+ */
 function b_messages($message = FALSE, $type = FALSE) {
   static $messages = array();
-  if($message) {
-    if(!isset($messages[$type])){
+
+  if ($message) {
+    if (!isset($messages[$type])) {
       $messages[$type] = array();
     }
     $messages[$type][] = $message;
   }
+
   return $messages;
 }
 
+/**
+ * An alias for b_messages(), defaulting to 'status' type messages.
+ */
 function b_set_message($message = FALSE, $type = 'status') {
   b_messages($message, $type);
 }
 
+/**
+ * Format and print messages to the user.
+ */
 function b_print_messages() {
   $messages = b_messages();
 
-  if(empty($messages)){
+  if (empty($messages)) {
     return;
   }
   $rows = array();
-  foreach($messages as $type => $sub_messages) {
-    if($type == 'log' && !b_is_debug()) {
+  foreach ($messages as $type => $sub_messages) {
+    if ($type == 'log' && !b_is_debug()) {
       continue;
     }
-    switch($type) {
+    switch ($type) {
       case 'status':
         $color = 'bold_blue';
         $symbol = '[o]';
         break;
+
       case 'success':
         $color = 'green';
         $symbol = '[v]';
         break;
+
       case 'warning':
         $color = 'yellow';
         $symbol = '[!]';
         break;
+
       case 'error':
         $color = 'red';
         $symbol = '[x]';
         break;
+
       case 'log':
         $color = 'red';
         $symbol = ' - ';
         break;
+
       default:
         $color = 'red';
         $symbol = '[x]';
-        break;
-    };
-    foreach($sub_messages as $message) {
+    }
+    foreach ($sub_messages as $message) {
       $rows[] = array(
         array('data' => $symbol, '#color' => $color),
         $message,
@@ -127,7 +144,6 @@ function b_print_messages() {
 
   b_render($output);
   echo "\n";
-
 }
 
 /**
@@ -136,9 +152,10 @@ function b_print_messages() {
 function drush_mode($set = NULL) {
   static $mode;
 
-  if($set != NULL) {
+  if ($set != NULL) {
     $mode = $set;
   }
+
   return $mode;
 }
 
@@ -148,9 +165,10 @@ function drush_mode($set = NULL) {
 function b_yes_mode($set = NULL) {
   static $mode;
 
-  if($set != NULL) {
+  if ($set != NULL) {
     $mode = $set;
   }
+
   return $mode;
 }
 
@@ -160,9 +178,10 @@ function b_yes_mode($set = NULL) {
 function b_is_debug($set = NULL) {
   static $mode;
 
-  if($set != NULL) {
+  if ($set != NULL) {
     $mode = $set;
   }
+
   return $mode;
 }
 
@@ -172,9 +191,10 @@ function b_is_debug($set = NULL) {
 function b_backdrop_installed($set = NULL) {
   static $mode;
 
-  if($set != NULL) {
+  if ($set != NULL) {
     $mode = $set;
   }
+
   return $mode;
 }
 
@@ -183,8 +203,6 @@ function b_backdrop_installed($set = NULL) {
  *
  * @param string $msg
  *   The question to ask.
- * @param int $indent
- *   The number of spaces to indent the message.
  *
  * @return bool
  *   TRUE if the user enters "y" or FALSE if "n".
@@ -222,20 +240,21 @@ function b_confirm($msg) {
 
 /**
  * Ask the user to select an item from a list.
+ *
  * From a provided associative array, drush_choice will
  * display all of the questions, numbered from 1 to N,
  * and return the item the user selected. "0" is always
  * cancel; entering a blank line is also interpreted
  * as cancelling.
  *
- * @param $options
+ * @param array $options
  *   A list of questions to display to the user.  The
  *   KEYS of the array are the result codes to return to the
  *   caller; the VALUES are the messages to display on
  *   each line. Special keys of the form '-- something --' can be
  *   provided as separator between choices groups. Separator keys
  *    don't alter the numbering.
- * @param $title
+ * @param string $title
  *   The message to display to the user prompting for input.
  */
 function b_choice($options, $title) {
@@ -251,7 +270,7 @@ function b_choice($options, $title) {
     array('data' => '[0]', '#color' => 'red'),
     bt('Cancel'),
   );
-  foreach($keys as $num => $value){
+  foreach ($keys as $num => $value) {
     $rows[] = array(
       array('data' => '[' . ($num + 1) . ']', '#color' => 'bold_blue'),
       $options[$value],
@@ -291,7 +310,7 @@ function b_choice($options, $title) {
       return FALSE;
     }
 
-    if(isset($keys[$num - 1])){
+    if (isset($keys[$num - 1])) {
       return $keys[$num - 1];
     }
 
@@ -300,7 +319,7 @@ function b_choice($options, $title) {
 }
 
 /**
- *  Prompt user for input.
+ * Prompt user for input.
  *
  * @param string $prompt
  *   The prompt for user input.
@@ -314,7 +333,7 @@ function b_prompt($prompt, $default) {
   }
   $prompt .= ": ";
 
-  print("\t\e[38;5;62m$prompt\e[0m");
+  print "\t\e[38;5;62m$prompt\e[0m";
 
   $stdin = fopen('php://stdin', 'r');
 
