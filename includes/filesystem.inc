@@ -179,7 +179,8 @@ function b_find_tmp() {
  */
 function b_file_unmanaged_delete_recursive($path) {
   if (is_dir($path)) {
-    $dir = getdir($path);
+    // @codingStandardsIgnoreLine -- The recommendation is outdated (https://github.com/serundeputy/coder/issues/3)
+    $dir = dir($path);
     while (($entry = $dir->read()) !== FALSE) {
       if ($entry == '.' || $entry == '..') {
         continue;
