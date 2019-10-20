@@ -129,4 +129,3 @@ class CommandsPMTest extends TestCase {
   }
 
 }
-

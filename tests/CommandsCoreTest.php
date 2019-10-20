@@ -194,4 +194,3 @@ class CommandsCoreTest extends TestCase {
   }
 
 }
-

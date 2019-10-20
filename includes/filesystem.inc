@@ -11,11 +11,11 @@
  * prevents hidden files and directories (such as SVN working directories)
  * from being scanned.
  *
- * @param $dir
+ * @param string $dir
  *   The base directory or URI to scan, without trailing slash.
- * @param $mask
+ * @param string $mask
  *   The preg_match() regular expression of the files to find.
- * @param $options
+ * @param array $options
  *   An associative array of additional options, with the following elements:
  *   - 'nomask': The preg_match() regular expression of the files to ignore.
  *     Defaults to '/^(\..*)|(CVS)$/'. This default ignores all hidden files
@@ -30,11 +30,11 @@
  *     extension. Defaults to 'uri'.
  *   - 'min_depth': Minimum depth of directories to return files from. Defaults
  *     to 0.
- * @param $depth
+ * @param int $depth
  *   Current depth of recursion. This parameter is only used internally and
  *   should not be passed in.
  *
- * @return
+ * @return array
  *   An associative array (keyed on the chosen key) of objects with 'uri',
  *   'filename', and 'name' members corresponding to the matching files.
  */
@@ -61,9 +61,10 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
     while (FALSE !== ($filename = readdir($handle))) {
       if (!preg_match($options['nomask'], $filename) && $filename !== '.' && $filename !== '..') {
         $uri = "$dir/$filename";
-//        $uri = file_stream_wrapper_uri_normalize($uri);
+        // $uri = file_stream_wrapper_uri_normalize($uri);
         if (is_dir($uri) && $options['recurse']) {
-          // Give priority to files in this folder by merging them in after any subdirectory files.
+          // Give priority to files in this folder by merging them in after any
+          // subdirectory files.
           $files = array_merge(b_file_scan_directory($uri, $mask, $options, $depth + 1), $files);
         }
         elseif ($depth >= $options['min_depth'] && preg_match($mask, $filename)) {
@@ -89,16 +90,17 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
 }
 /**
  * Generate temporary directory and return path to it.
- *
  */
-function b_tmp_folder(){
-  if($tmp = b_find_tmp()) {
-    $tmp = $tmp . '/' .hash('sha256', mt_rand());
+function b_tmp_folder() {
+  if ($tmp = b_find_tmp()) {
+    $tmp = $tmp . '/' . hash('sha256', mt_rand());
     mkdir($tmp);
     return $tmp;
   }
+
   return FALSE;
 }
+
 /**
  * Returns the path to a temporary directory.
  *
@@ -113,8 +115,8 @@ function b_find_tmp() {
   static $temporary_directory;
   if (!isset($temporary_directory)) {
     $directories = array();
-    // Get user specific and operating system temp folders from system environment variables.
-    // See http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/ntcmds_shelloverview.mspx?mfr=true
+    // Get user specific and operating system temp folders from system
+    // environment variables.
     $tempdir = getenv('TEMP');
     if (!empty($tempdir)) {
       $directories[] = $tempdir;
@@ -166,10 +168,10 @@ function b_find_tmp() {
  *
  * Note that this only deletes visible files with write permission.
  *
- * @param $path
+ * @param string $path
  *   A string containing either an URI or a file or directory path.
  *
- * @return
+ * @return bool
  *   TRUE for success or if path does not exist, FALSE in the event of an
  *   error.
  *
@@ -177,6 +179,7 @@ function b_find_tmp() {
  */
 function b_file_unmanaged_delete_recursive($path) {
   if (is_dir($path)) {
+    // @codingStandardsIgnoreLine -- The recommendation is outdated (https://github.com/serundeputy/coder/issues/3)
     $dir = dir($path);
     while (($entry = $dir->read()) !== FALSE) {
       if ($entry == '.' || $entry == '..') {
@@ -198,10 +201,10 @@ function b_file_unmanaged_delete_recursive($path) {
  * This function should be used when the file to be deleted does not have an
  * entry recorded in the files table.
  *
- * @param $path
+ * @param string $path
  *   A string containing a file path or (streamwrapper) URI.
  *
- * @return
+ * @return bool
  *   TRUE for success or path does not exist, or FALSE in the event of an
  *   error.
  *
@@ -234,11 +237,11 @@ function b_file_unmanaged_delete($path) {
  * PHP's rmdir() is broken on Windows, as it can fail to remove a directory
  * when it has a read-only flag set.
  *
- * @param $uri
+ * @param string $uri
  *   A URI or pathname.
  *
- * @return
- *   Boolean TRUE on success, or FALSE on failure.
+ * @return bool
+ *   TRUE on success, or FALSE on failure.
  *
  * @see rmdir()
  * @ingroup php_wrappers
@@ -256,11 +259,11 @@ function b_rmdir($uri) {
  * PHP's unlink() is broken on Windows, as it can fail to remove a file
  * when it has a read-only flag set.
  *
- * @param $uri
+ * @param string $uri
  *   A URI or pathname.
  *
- * @return
- *   Boolean TRUE on success, or FALSE on failure.
+ * @return bool
+ *   TRUE on success, or FALSE on failure.
  *
  * @see unlink()
  * @ingroup php_wrappers
@@ -274,16 +277,15 @@ function b_unlink($uri) {
 
 /**
  * Recursively copy one directory to another.
- *
  */
 function b_recursive_copy($src, $dst) {
   $dir = opendir($src);
-  if(!file_exists($dst)){
+  if (!file_exists($dst)) {
     mkdir($dst);
   }
-  while(false !== ( $file = readdir($dir)) ) {
-    if (( $file != '.' ) && ( $file != '..' )) {
-      if ( is_dir($src . '/' . $file) ) {
+  while (($file = readdir($dir)) !== FALSE) {
+    if (($file != '.') && ($file != '..')) {
+      if (is_dir($src . '/' . $file)) {
         b_recursive_copy($src . '/' . $file, $dst . '/' . $file);
       }
       else {

@@ -1,21 +1,25 @@
 <?php
-
+/**
+ * @file
+ * Output functions.
+ */
 
 /**
  * Rudimentary replacement for Backdrop API t() function.
  *
- * @param string
+ * @param string $string
  *   String to process, possibly with replacement item.
- * @param array
- *  An associative array of replacement items.
+ * @param array $args
+ *   An associative array of replacement items.
  *
- * @return
+ * @return string
  *   The processed string.
  *
  * @see t()
  */
 function bt($string, $args = array()) {
   if (function_exists('t')) {
+    // @codingStandardsIgnoreLine -- Need to send variable here.
     return t($string, $args);
   }
   else {
@@ -31,13 +35,13 @@ function bt($string, $args = array()) {
 /**
  * Prints a message.
  *
- * @param $message
+ * @param string $message
  *   The message to print.
- * @param $newline
- *    Add a "\n" to the end of the output.  Defaults to TRUE.
+ * @param bool $newline
+ *   Add a "\n" to the end of the output.  Defaults to TRUE.
  */
 function b_print($message = '', $newline = TRUE) {
-  $message = (string)$message;
+  $message = (string) $message;
   if ($newline) {
     $message .= "\n";
   }

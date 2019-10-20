@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Help commands for b.
+ * Command(s) for displaying help information.
  */
 
 /**
@@ -15,21 +15,20 @@ function help_b_command() {
     ),
     'callback' => 'help_b_callback',
   );
+
   return $items;
 }
 
 /**
  * Callback function for hook_b_command().
  *
- * @param string $arguments
- *   Arguments for help.
- * @param array $options
- *   todo: are we using this?
+ * @param array $arguments
+ *   An array of user-provided arguments to the command.
  *
  * @return array
- *   Table of help for the command.
+ *   Table of help info for the command.
  */
-function help_b_callback($arguments, $options) {
+function help_b_callback($arguments) {
   if (defined('BACKDROP_ROOT')) {
     b_bootstrap(B_BOOTSTRAP_FULL);
   }
@@ -74,7 +73,8 @@ function help_b_callback($arguments, $options) {
         $rows[] = array(
           '',
           array(
-            'data' => 'aliases: ' . implode(", ", $aliases), '#color' => 'purple',
+            'data' => 'aliases: ' . implode(", ", $aliases),
+            '#color' => 'purple',
           ),
         );
       }
@@ -96,13 +96,13 @@ function help_b_callback($arguments, $options) {
 }
 
 /**
- * Help per command.
+ * Display help info for each callback of the provided command.
  *
  * @param array $commands
- *   Array of commands to help with.
+ *   An array of command info.
  *
  * @return array
- *   Formatted help on each command to the stdout.
+ *   Formatted help info on each command to the stdout.
  */
 function display_help_by_cmd($commands) {
   $output = array();
@@ -113,13 +113,13 @@ function display_help_by_cmd($commands) {
 }
 
 /**
- * Callback for display_one.
+ * Display help info for the provided command.
  *
  * @param string $callback
- *   Backdrop command to return help about.
+ *   Backdrop command to return help info about.
  *
  * @return array
- *   Array of help for the Backdrop command.
+ *   Array of help info for the Backdrop command.
  */
 function help_display_one_callback($callback) {
   $output = array();

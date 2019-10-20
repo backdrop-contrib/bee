@@ -1,13 +1,17 @@
 #!/usr/bin/env php
 <?php
+/**
+ * @file
+ * A command line utility for Backdrop CMS developers.
+ */
 
 set_error_handler('b_errorHandler');
 
-require_once('includes/common.inc');
-require_once('includes/command.inc');
-require_once('includes/render.inc');
-require_once('includes/output.inc');
-require_once('includes/filesystem.inc');
+require_once 'includes/common.inc';
+require_once 'includes/command.inc';
+require_once 'includes/render.inc';
+require_once 'includes/output.inc';
+require_once 'includes/filesystem.inc';
 
 // Global variables.
 $elements = array();
@@ -15,7 +19,7 @@ $elements = array();
 b_init();
 
 if (drush_mode()) {
-  require_once('includes/drush_wrapper.inc');
+  require_once 'includes/drush_wrapper.inc';
   drush_process_command();
 }
 else {
@@ -26,21 +30,23 @@ b_print_messages();
 b_render($elements);
 
 /**
- * @param $errno
- *  todo: is this used?
+ * Setup a custom error handler.
+ *
+ * @param int $errno
+ *   The level of the error.
  * @param string $message
- *  Message to output to the user.
+ *   Error message to output to the user.
  * @param string $filename
- *  The file that the error came from.
- * @param string $line
- *  The line number the error came from.
- * @param $context
- *  todo: is this used?
+ *   The file that the error came from.
+ * @param int $line
+ *   The line number the error came from.
+ * @param array $context
+ *   An array of all variables from where the error was triggered.
  */
 function b_errorHandler($errno, $message, $filename, $line, $context) {
   if (error_reporting() > 0) {
-    echo $message."\n";
-    echo "\t". $filename . ":" . $line ."\n";
+    echo $message . "\n";
+    echo "\t" . $filename . ':' . $line . "\n";
   }
 }
 
@@ -113,11 +119,15 @@ function b_init() {
   }
 }
 
+/**
+ * Initialize $_SERVER environment variables.
+ */
 function b_init_globals() {
   $host = 'localhost';
   $path = '';
 
   $_SERVER['HTTP_HOST'] = $host;
+  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_SOFTWARE'] = NULL;
@@ -135,4 +145,3 @@ function b_init_globals() {
     }
   }
 }
-
