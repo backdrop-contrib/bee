@@ -1,7 +1,7 @@
 <?php
 /**
- * @file download.b.inc
- *  Download Backdrop CMS project(s) (modules, themes or layouts) from github.
+ * @file
+ * Download Backdrop CMS project(s) (modules, themes or layouts) from github.
  */
 
 define('DOWNLOAD_VIA_GIT', 2);
@@ -29,10 +29,12 @@ function download_b_command() {
 }
 
 /**
- * dl callback. Download project.
+ * Download project. dl callback.
  *
  * @param array $arguments
+ *   An array of packages do download.
  * @param array $options
+ *   An array of options, i.e. type.
  */
 function download_b_callback($arguments, $options) {
 
@@ -40,7 +42,7 @@ function download_b_callback($arguments, $options) {
     b_set_message('Please provide package name(s)', 'error');
     return;
   }
-  foreach($arguments['packages'] as $package) {
+  foreach ($arguments['packages'] as $package) {
     _download_project($package, $options);
   }
 }
@@ -49,7 +51,9 @@ function download_b_callback($arguments, $options) {
  * Internal function to download project by name.
  *
  * @param string $project
+ *   The project name.
  * @param array $options
+ *   The options for the command.
  */
 function _download_project($project, $options) {
   if ($project == 'backdrop') {
@@ -69,7 +73,7 @@ function _download_project($project, $options) {
     return;
   }
 
-  if(DOWNLOAD_VIA_GIT == $link) {
+  if (DOWNLOAD_VIA_GIT == $link) {
     exec('git clone https://github.com/' . $owner . '/' . $project . ' ' . $tmp_folder . '/' . $project);
   }
   else {
@@ -95,19 +99,19 @@ function _download_project($project, $options) {
       return FALSE;
     }
     if (file_exists($download_target . '/' . $project)) {
-      b_set_message('Folder ' . $download_target. '/' . $project . ' already exists', 'error');
+      b_set_message('Folder ' . $download_target . '/' . $project . ' already exists', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
   }
   if ($project == 'backdrop' && isset($options['root'])) {
     b_recursive_copy($tmp_folder . '/' . $project, $download_target);
-    b_set_message($project . ' downloaded!','success');
+    b_set_message($project . ' downloaded to ' . $download_target . '!', 'success');
     b_file_unmanaged_delete_recursive($tmp_folder);
   }
   else {
     b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
-    b_set_message($project . ' downloaded!','success');
+    b_set_message($project . ' downloaded to ' . $download_target . '/' . $project . '!', 'success');
     b_file_unmanaged_delete_recursive($tmp_folder);
   }
 }
@@ -116,10 +120,14 @@ function _download_project($project, $options) {
  * Based on type of the project, return directory to move project into.
  *
  * @param string $project
+ *   The machine name of the project.
  * @param string $folder
+ *   The folder.
  * @param array $options
- * @return $download_target or FALSE
- *  A string that is the directory path to the destination of the project or FALSE.
+ *   Array of options for the command.
+ *
+ * @return string|FALSE
+ *   The directory path to the destination of the project or FALSE.
  */
 function download_get_target($project, $folder, $options) {
   $download_target = FALSE;
@@ -141,16 +149,19 @@ function download_get_target($project, $folder, $options) {
   if (FALSE == $type && isset($options['type'])) {
     $type = $options['type'];
   }
-  switch($type) {
+  switch ($type) {
     case 'module':
       $download_target .= '/modules';
-    break;
+      break;
+
     case 'theme':
       $download_target .= '/themes';
-    break;
+      break;
+
     case 'layout':
       $download_target .= '/layouts';
-    break;
+      break;
+
     default:
       b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
       return FALSE;
@@ -165,14 +176,16 @@ function download_get_target($project, $folder, $options) {
  * Scan for info file and return project type.
  *
  * @param string $folder
- * @return $type or FALSE
- *  either string of type of project: module, theme or layout or FALSE
+ *   The folder.
+ *
+ * @return string|FALSE
+ *   Either string of type of project: module, theme or layout or FALSE
  */
 function download_get_type($folder) {
   $files = b_file_scan_directory($folder, "/\.info$/");
-  foreach($files as $file) {
+  foreach ($files as $file) {
     $content = file($file->uri);
-    foreach($content as $line) {
+    foreach ($content as $line) {
       if (FALSE !== strpos($line, 'type')) {
         list($title, $type) = explode("=", $line);
         $type = trim($type);
@@ -189,18 +202,20 @@ function download_get_type($folder) {
  * Return link to zip file from GitHub.
  *
  * @param string $owner
+ *   The owner i.e. backdrop-contrib or backdrop.
  * @param string $repo
+ *   The reposoitory name.
+ *
  * @return string
- *  either URL to project on github or 2.
+ *   Either URL to project on github or 2.
  */
 function get_project_link($owner, $repo) {
   $context = stream_context_create(
     array(
       "http" => array(
-        'method'=>"GET",
-        'header'=>"Accept-language: en\r\n" .
-              "User-Agent: B.project\r\n"
-      )
+        'method' => "GET",
+        'header' => "Accept-language: en\r\nUser-Agent: B.project\r\n",
+      ),
     )
   );
 
@@ -212,7 +227,7 @@ function get_project_link($owner, $repo) {
     return FALSE;
   }
 
-  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo .'/releases/latest', FALSE, $context);
+  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo . '/releases/latest', FALSE, $context);
 
   if ($content) {
     $json = json_decode($content, TRUE);

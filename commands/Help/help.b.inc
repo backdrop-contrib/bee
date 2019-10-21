@@ -1,6 +1,11 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Command(s) for displaying help information.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function help_b_command() {
   $items['help'] = array(
@@ -10,19 +15,20 @@ function help_b_command() {
     ),
     'callback' => 'help_b_callback',
   );
+
   return $items;
 }
 
-
 /**
  * Callback function for hook_b_command().
- * @param string $arguments
- * @param $options
- *  todo: are we using this?
- * @return array $output
- *  Table of help for the command.
+ *
+ * @param array $arguments
+ *   An array of user-provided arguments to the command.
+ *
+ * @return array
+ *   Table of help info for the command.
  */
-function help_b_callback($arguments, $options) {
+function help_b_callback($arguments) {
   if (defined('BACKDROP_ROOT')) {
     b_bootstrap(B_BOOTSTRAP_FULL);
   }
@@ -39,10 +45,10 @@ function help_b_callback($arguments, $options) {
     $output = display_help_by_cmd($commands[$cmd]);
   }
   else {
-    foreach($commands as $cmd => $callbacks) {
+    foreach ($commands as $cmd => $callbacks) {
       $first = TRUE;
       $aliases = array();
-      foreach($callbacks as $callback) {
+      foreach ($callbacks as $callback) {
         if (isset($callback['is_alias'])) {
           continue;
         }
@@ -52,21 +58,24 @@ function help_b_callback($arguments, $options) {
         if ($first) {
           $rows[] = array(
             array('data' => $cmd, '#color' => 'bold_blue'),
-            array('data' => $callback['description'])
+            array('data' => $callback['description']),
           );
           $first = FALSE;
         }
         else {
           $rows[] = array(
             '',
-            array('data' => $callback['description'])
+            array('data' => $callback['description']),
           );
         }
       }
       if ($aliases) {
         $rows[] = array(
           '',
-          array('data' => 'aliases: ' . implode(", ", $aliases), '#color' => 'purple')
+          array(
+            'data' => 'aliases: ' . implode(", ", $aliases),
+            '#color' => 'purple',
+          ),
         );
       }
     }
@@ -74,36 +83,43 @@ function help_b_callback($arguments, $options) {
       '#type' => 'text',
       'value' => "\nBackdrop Console commands:\n",
     );
-    
+
     $output[] = array(
       '#type' => 'table',
       'rows' => $rows,
       'delimiter' => '    ',
       'delimiter_left' => ' ',
-      'delimiter_right' => '',    
+      'delimiter_right' => '',
     );
   }
   return $output;
 }
 
 /**
+ * Display help info for each callback of the provided command.
+ *
  * @param array $commands
- * @return array $output
- *  Formatted help on each command to the stdout.
+ *   An array of command info.
+ *
+ * @return array
+ *   Formatted help info on each command to the stdout.
  */
-function display_help_by_cmd($commands){
+function display_help_by_cmd($commands) {
   $output = array();
-  foreach($commands as $cmd => $callback){
+  foreach ($commands as $cmd => $callback) {
     $output[] = help_display_one_callback($callback);
   }
   return $output;
 }
 
 /**
+ * Display help info for the provided command.
+ *
  * @param string $callback
- *  Backdrop command to return help about.
- * @return array $output
- *  Array of help for the Backdrop command.
+ *   Backdrop command to return help info about.
+ *
+ * @return array
+ *   Array of help info for the Backdrop command.
  */
 function help_display_one_callback($callback) {
   $output = array();
@@ -122,13 +138,13 @@ function help_display_one_callback($callback) {
       'value' => $callback['description'],
     );
   }
-  
+
   $examples = array();
   if (isset($callback['examples'])) {
-    foreach($callback['examples'] as $example => $description){
+    foreach ($callback['examples'] as $example => $description) {
       $examples[] = array(
         $example,
-        $description
+        $description,
       );
     }
   }
@@ -143,12 +159,12 @@ function help_display_one_callback($callback) {
       'rows' => $examples,
       'delimiter' => ' : ',
       'delimiter_left' => ' ',
-      'delimiter_right' => '',    
+      'delimiter_right' => '',
     );
   }
   $available_options = array();
   if (isset($callback['options'])) {
-    foreach($callback['options'] as $option => $description) {
+    foreach ($callback['options'] as $option => $description) {
       if (is_array($description)) {
         $available_options[] = array(
           '--' . $option,
@@ -164,12 +180,12 @@ function help_display_one_callback($callback) {
       else {
         $available_options[] = array(
           '--' . $option,
-          $description
+          $description,
         );
       }
     }
   }
-    
+
   if (!empty($available_options)) {
     $output[] = array(
       '#type' => 'text',
@@ -181,12 +197,12 @@ function help_display_one_callback($callback) {
       'rows' => $available_options,
       'delimiter' => ' : ',
       'delimiter_left' => ' ',
-      'delimiter_right' => '',    
+      'delimiter_right' => '',
     );
   }
   $available_arguments = array();
   if (isset($callback['arguments'])) {
-    foreach($callback['arguments'] as $argument => $description) {
+    foreach ($callback['arguments'] as $argument => $description) {
       if (is_array($description)) {
         $available_arguments[] = array(
           $argument,
@@ -196,7 +212,7 @@ function help_display_one_callback($callback) {
       else {
         $available_arguments[] = array(
           $argument,
-          $description
+          $description,
         );
       }
     }
@@ -212,7 +228,7 @@ function help_display_one_callback($callback) {
       'rows' => $available_arguments,
       'delimiter' => ' : ',
       'delimiter_left' => ' ',
-      'delimiter_right' => '',    
+      'delimiter_right' => '',
     );
   }
   if (isset($callback['aliases'])) {

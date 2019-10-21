@@ -1,10 +1,13 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Command(s) for displaying watchdog (log) information.
  */
- 
+
+/**
+ * Implements hook_b_command().
+ */
 function dblog_b_command() {
-  $items = array();
   $items['watchdog-show'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => 'Show dblog messages.',
@@ -22,53 +25,53 @@ function dblog_b_command() {
     'callback' => 'dblog_command_show',
     'aliases' => array('wd-show', 'ws'),
   );
+
   return $items;
 }
 
-function dblog_messages(){
-  
-  
-}
-
+/**
+ * Callback function for hook_b_command().
+ */
 function dblog_command_show($arguments, $options) {
-  if(isset($arguments['wid'])) {
+  if (isset($arguments['wid'])) {
     return dblog_show_one($arguments['wid']);
   }
-  
+
   return dblog_show_many($options);
 }
 
 /**
  * Print a table of watchdog messages.
  *
- * @param $filter
- *   String to filter the message's text by.
+ * @param array $options
+ *   An array of user-provided options to the command.
  */
 function dblog_show_many($options) {
-  if(!isset($options['count'])) {
+  if (!isset($options['count'])) {
     $options['count'] = 10;
-  }    
+  }
   $query = db_select('watchdog', 'wd')->extend('PagerDefault')
-    ->fields('wd');
+    ->fields('wd')
+    ->orderBy('wid', 'DESC');
 
-  if(isset($options['type'])) {
+  if (isset($options['type'])) {
     $query->condition('type', $options['type']);
   }
 
-  if(isset($options['severity'])) {
+  if (isset($options['severity'])) {
     $severities = dblog_get_severities();
-    if($key = array_search($options['severity'], $severities)){
+    if ($key = array_search($options['severity'], $severities)) {
       $query->condition('severity', $key);
     }
-    else{
+    else {
       b_set_message(bt('There is no Severity !name', array('!name' => $options['severity'])), 'warning');
     }
   }
-  
-  $messages =  $query->limit($options['count'])->execute()->fetchAll();
-  
+
+  $messages = $query->limit($options['count'])->execute()->fetchAll();
+
   $rows = array();
-  foreach($messages as $message) {
+  foreach ($messages as $message) {
     $rows[] = array(
       $message->wid,
       format_date($message->timestamp, 'custom', 'd/M H:i'),
@@ -77,7 +80,7 @@ function dblog_show_many($options) {
       dblog_return_message($message),
     );
   }
-  
+
   $header = array(
     'ID',
     'Date',
@@ -85,7 +88,7 @@ function dblog_show_many($options) {
     'Severity',
     'Message',
   );
-  
+
   return array(
     '#type' => 'table',
     'rows' => $rows,
@@ -112,7 +115,7 @@ function dblog_return_message($message) {
 /**
  * Return array of human readable severities.
  */
-function dblog_get_severities($severity = FALSE){
+function dblog_get_severities($severity = FALSE) {
   $severities = array(
     WATCHDOG_DEBUG => 'debug',
     WATCHDOG_INFO => 'info',
@@ -123,17 +126,20 @@ function dblog_get_severities($severity = FALSE){
     WATCHDOG_ALERT => 'alert',
     WATCHDOG_EMERGENCY => 'emergency',
   );
-  
-  if($severity){
+
+  if ($severity) {
     return $severities[$severity];
   }
   return $severities;
 }
 
-function dblog_colored_severities_output($severity){
+/**
+ * Get the name and color of a severity.
+ */
+function dblog_colored_severities_output($severity) {
   $title = dblog_get_severities($severity);
   $color = 'cyan';
-  switch($title){
+  switch ($title) {
     case 'debug':
     case 'error':
     case 'critical':
@@ -141,15 +147,17 @@ function dblog_colored_severities_output($severity){
     case 'emergency':
       $color = 'bold_red';
       break;
+
     case 'notice':
     case 'info':
       $color = 'green';
       break;
+
     case 'warning':
       $color = 'yellow';
       break;
   }
-  
+
   return array(
     'data' => $title,
     '#color' => $color,
@@ -159,8 +167,8 @@ function dblog_colored_severities_output($severity){
 /**
  * Print a watchdog message.
  *
- * @param $wid
- *    The id of the message to show.
+ * @param int $wid
+ *   The id of the message to show.
  */
 function dblog_show_one($wid) {
   $message = db_select('watchdog', 'wd')
@@ -168,14 +176,14 @@ function dblog_show_one($wid) {
     ->condition('wid', $wid)
     ->execute()
     ->fetchObject();
-    
-  if(!$message) {
+
+  if (!$message) {
     b_set_message(bt('Resent log message #!wid not found.', array('!wid' => $wid)), 'error');
     return FALSE;
   }
-  
+
   $rows = array();
-  
+
   $rows[] = array(
     'ID',
     $message->wid,
@@ -190,7 +198,7 @@ function dblog_show_one($wid) {
     'Type',
     $message->type,
   );
-  
+
   $rows[] = array(
     'Severity',
     dblog_colored_severities_output($message->severity),
@@ -200,7 +208,7 @@ function dblog_show_one($wid) {
     'Message',
     dblog_return_message($message),
   );
-  
+
   return array(
     '#type' => 'table',
     'rows' => $rows,

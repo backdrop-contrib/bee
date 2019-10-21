@@ -1,7 +1,7 @@
-#Backdrop Console
+# Backdrop Console
 
-`Backdrop Console` is a command line utility for Backdrop CMS developers.  It is aimed
-at speeding your development cycles.
+`Backdrop Console` is a command line utility for Backdrop CMS developers. It is
+aimed at speeding up your development cycles.
 
 ## Warning
 
@@ -9,19 +9,19 @@ at speeding your development cycles.
 - Possible API changes
 - Under active development
 
-
 ## Installation
 
-* Clone this repo somewhere on your computer (for example, your home directory)
-  * `git clone https://github.com/backdrop-contrib/b.git`
-* Make an alias to `b`
-  * open your `.bash_profile` file
-  * add a line (at the end is fine) like this `alias b='php /path/to/b/b.php'`
-  * reload your bash profile: `source ~/.bash_profile`
-* Make `b.php` executable
-  * `chmod a+x b.php`
+- Clone this repository to your computer (your home directory is a good place):
+  - `git clone https://github.com/backdrop-contrib/b.git`
+- Make `b.php` executable:
+  - `chmod +x b.php`
+- Put a symlink to `b.php` in your $PATH:
+  - `sudo ln -s /home/[username]/b/b.php /usr/local/bin/b`
+- Test to make sure it works:
+  - Simply type `b` (you should see a list of available commands printed out)
 
 ## Usage
+
 Please use `b help` to see full list of available commands.
 
 At the moment the following commands are available:
@@ -49,6 +49,8 @@ At the moment the following commands are available:
                     aliases: pml
  pm-uninstall       Uninstall one or more modules.
                     aliases: pmu
+ pm-info            Show detailed info for one or more extensions (modules or themes).
+                    aliases: pmi
  site-install       Install Backdrop along with modules/themes/configuration using the specified install profile.
                     aliases: si
  updatedb           Apply any database updates required (as with running update.php).
@@ -58,7 +60,6 @@ At the moment the following commands are available:
  watchdog-show      Show dblog messages.
                     aliases: wd-show, ws
 ```
-
 
 To see command details, use `b help command_name`:
 
@@ -94,12 +95,19 @@ Aliases: si
 ```
 
 ## Maintainers
+
   * Gor Martsen (https://github.com/Gormartsen)
   * Geoff St. Pierre (https://github.com/serundeputy)
   * John Franklin (https://github.com/jlfranklin)
+  * Peter Anderson (https://github.com/BWPanda)
 
-##Thanks to drush
-This module was inspired by (and some code and logic was copied from) [drush](https://github.com/drush-ops/drush).
+## Thanks to drush
 
-##License
-This project is GPL v2 software. See the LICENSE.txt file in this directory for complete text.
+This module was inspired by (and some code and logic was copied from)
+[drush](https://github.com/drush-ops/drush).
+
+## License
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
+

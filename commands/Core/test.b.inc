@@ -1,6 +1,11 @@
 <?php
 /**
- * Implementation of hook_b_command().
+ * @file
+ * Command(s) for providing an example of implementation.
+ */
+
+/**
+ * Implements hook_b_command().
  */
 function test_b_command() {
   $items['core-status'] = array(
@@ -8,14 +13,18 @@ function test_b_command() {
     'callback' => 'test_b_callback',
     'aliases' => array('status', 'st'),
   );
+
   return $items;
 }
 
+/**
+ * Callback function for hook_b_command().
+ */
 function test_b_callback($arguments, $options) {
-  if(defined('BACKDROP_ROOT') && file_exists(BACKDROP_ROOT . '/index.php')){
+  if (defined('BACKDROP_ROOT') && file_exists(BACKDROP_ROOT . '/index.php')) {
     b_set_message('Backdrop CMS Installation detected; wooot;', 'status');
   }
-  else{
+  else {
     b_set_message('No Backdrop installation found. :(', 'warning');
   }
 }

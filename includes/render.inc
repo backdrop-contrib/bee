@@ -1,33 +1,23 @@
 <?php
-/*
+/**
  * @file
  * Render functions.
  */
 
 /**
- * Renders an element.
- *
- * This function renders an element using b_render().
- *
- * @param $element
- *   The element to be rendered.
- *
- */
-
-/**
- * Print text to output
+ * Print text to output.
  *
  * @param array $variables
  *   - value - text to print
  *   - #color - text color
- * @param bool $newline 
+ * @param bool $newline
  *   Print new line if TRUE.
  */
 function render_text($variables, $newline = TRUE) {
-  if(is_array($variables) && isset($variables['value']) ){
+  if (is_array($variables) && isset($variables['value'])) {
     $text = $variables['value'];
   }
-  else{
+  else {
     $text = $variables;
   }
   $foreground = array(
@@ -48,21 +38,21 @@ function render_text($variables, $newline = TRUE) {
     'white' => '1;37',
     'bold_gray' => '0;37',
   );
-  if(isset($variables['#color']) && isset($foreground[$variables['#color']])) {
+  if (isset($variables['#color']) && isset($foreground[$variables['#color']])) {
     echo "\033[" . $foreground[$variables['#color']] . "m" . $text . "\033[0m";
   }
-  else{
+  else {
     echo $text;
   }
-  if($newline) {
+  if ($newline) {
     echo "\n";
   }
 }
 
 /**
- * If #color provided, return collored text
+ * If #color provided, return colored text.
  */
-function table_color_text($variables){
+function table_color_text($variables) {
   $text = $variables['data'];
   $foreground = array(
     'bold' => '1',
@@ -83,10 +73,10 @@ function table_color_text($variables){
     'white' => '1;37',
     'bold_gray' => '0;37',
   );
-  if(isset($variables['#color']) && isset($foreground[$variables['#color']])) {
+  if (isset($variables['#color']) && isset($foreground[$variables['#color']])) {
     return "\033[" . $foreground[$variables['#color']] . "m" . $text . "\033[0m";
   }
-  else{
+  else {
     return $text;
   }
 }
@@ -94,28 +84,29 @@ function table_color_text($variables){
 /**
  * Main render function.
  */
-function b_render($elements){
-  if(empty($elements)){
+function b_render($elements) {
+  if (empty($elements)) {
     return;
   }
 
-  if(!is_array($elements)) {
-    echo $elements."\n";
+  if (!is_array($elements)) {
+    echo $elements . "\n";
     return;
   }
 
-  if(!isset($elements['#type'])){
-    foreach($elements as $element){
+  if (!isset($elements['#type'])) {
+    foreach ($elements as $element) {
       b_render($element);
     }
-  }else{
+  }
+  else {
     $element = $elements;
     $type = $element['#type'];
     $function = 'render_' . $type;
-    if(function_exists($function)) {
+    if (function_exists($function)) {
       $function($element);
     }
-    if(isset($element['elements'])){
+    if (isset($element['elements'])) {
       b_render($element['elements']);
     }
   }
@@ -124,36 +115,35 @@ function b_render($elements){
 /**
  * Count column width to fit screen width.
  */
-function _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right){
+function _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
   $max_width = exec('tput cols');
-
   $cols_length = array();
-  
-  if(is_array($header)){
+
+  if (is_array($header)) {
     $index = 0;
-    foreach($header as $col){
-      if(is_array($col) && isset($col['data'])){
+    foreach ($header as $col) {
+      if (is_array($col) && isset($col['data'])) {
         $length = mb_strlen($col['data']);
       }
-      else{
-        $length= mb_strlen($col);
+      else {
+        $length = mb_strlen($col);
       }
-      if(!isset($cols_length[$index]) or $cols_length[$index] < $length) {
+      if (!isset($cols_length[$index]) or $cols_length[$index] < $length) {
         $cols_length[$index] = $length;
       }
       $index++;
     }
   }
-  foreach($rows as $row) {
+  foreach ($rows as $row) {
     $index = 0;
-    foreach($row as $col) {
-      if(is_array($col) && isset($col['data'])){
+    foreach ($row as $col) {
+      if (is_array($col) && isset($col['data'])) {
         $length = mb_strlen($col['data']);
       }
-      else{
-        $length= mb_strlen($col);
+      else {
+        $length = mb_strlen($col);
       }
-      if(!isset($cols_length[$index]) or $cols_length[$index] < $length) {
+      if (!isset($cols_length[$index]) or $cols_length[$index] < $length) {
         $cols_length[$index] = $length;
       }
       $index++;
@@ -163,8 +153,8 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
   $max_size_index = 0;
   $max_length = 0;
   $total_table_width = 0;
-  foreach($cols_length as $index => $length) {
-    if($length > $max_length){
+  foreach ($cols_length as $index => $length) {
+    if ($length > $max_length) {
       $max_size_index = $index;
       $max_length = $length;
     }
@@ -175,7 +165,7 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
   $total_table_width += mb_strlen($delimiter_right);
   $total_table_width += mb_strlen($delimiter) * count($cols_length) - 1;
 
-  if($total_table_width > $max_width) {
+  if ($total_table_width > $max_width) {
     $diff = $total_table_width - $max_width;
     $cols_length[$max_size_index] = $cols_length[$max_size_index] - $diff;
   }
@@ -187,24 +177,22 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
  */
 function _render_print_col($col, $width) {
   $color_width = 0;
-  if(is_array($col) && isset($col['data'])){
+  if (is_array($col) && isset($col['data'])) {
     $data = table_color_text($col);
     $color_width = mb_strlen($data) - mb_strlen($col['data']);
   }
-  else{
+  else {
     $data = $col;
   }
-  return sprintf('%-' . ($width + $color_width) .'s', $data);
+  return sprintf('%-' . ($width + $color_width) . 's', $data);
 }
 
 /**
- * Assign $arguments and $options based on
- * $command['arguments'] & $command[options]
- *
+ * Display a table of information.
  */
 function render_table($variables) {
   $header = FALSE;
-  if(isset($variables['header'])){
+  if (isset($variables['header'])) {
     $header = $variables['header'];
   }
   $rows = $variables['rows'];
@@ -212,36 +200,36 @@ function render_table($variables) {
   $delimiter_left = isset($variables['delimiter_left']) ? $variables['delimiter_left'] : "| ";
   $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : " |";
   $max_width = exec('tput cols');
-  
+
   $cols_length = _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
-  
-  if($header){
+
+  if ($header) {
     $row_rendered = array();
-    foreach($header as $index => $col){
+    foreach ($header as $index => $col) {
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
     // Flip background and foreground colors for table header.
-    echo "\033[7m" . $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right ."\033[0m\n";
+    echo "\033[7m" . $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right . "\033[0m\n";
   }
 
-  foreach($rows as $row) {
+  foreach ($rows as $row) {
     $print_args = array();
     $repeat = FALSE;
     $row_rendered = array();
-    foreach($row as $index => $col) {
+    foreach ($row as $index => $col) {
 
       $data = '';
       $col_len = 0;
-      if(is_array($col) && isset($col['data'])){
-        if(mb_strlen($col['data']) > $cols_length[$index]){
+      if (is_array($col) && isset($col['data'])) {
+        if (mb_strlen($col['data']) > $cols_length[$index]) {
           $repeat = $col;
           $repeat['index'] = $index;
           $repeat['data'] = mb_substr($col['data'], $cols_length[$index]);
           $col['data'] = mb_substr($col['data'], 0, $cols_length[$index]);
         }
       }
-      else{
-        if(mb_strlen($col) > $cols_length[$index]){
+      else {
+        if (mb_strlen($col) > $cols_length[$index]) {
           $repeat = array(
             'index' => $index,
             'data' => mb_substr($col, $cols_length[$index]),
@@ -249,13 +237,12 @@ function render_table($variables) {
           $col = mb_substr($col, 0, $cols_length[$index]);
         }
       }
-
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
     echo $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right . "\n";
-    if($repeat) {
+    if ($repeat) {
       $rows_return = _row_next_line_value($repeat, $cols_length, $delimiter);
-      foreach($rows_return as $row_return) {
+      foreach ($rows_return as $row_return) {
         echo $delimiter_left . implode($delimiter, $row_return) . $delimiter_right . "\n";
       }
     }
@@ -263,34 +250,37 @@ function render_table($variables) {
 }
 
 /**
- * If column doesnot fit screen size and column size,
- * we use this function to properly output next value line to fit column size.
+ * Output next value line to fit column size.
+ *
+ * If column does not fit screen size and column size, we use this function to
+ * properly output next value line to fit column size.
  */
 function _row_next_line_value($repeat, $cols_length) {
   $row_rendered = array();
   $rows_return = array();
-  foreach($cols_length as $index => $length){
-    if($index == $repeat['index']){
+  foreach ($cols_length as $index => $length) {
+    if ($index == $repeat['index']) {
       $col = $repeat;
-      if(mb_strlen($col['data']) > $length){
+      if (mb_strlen($col['data']) > $length) {
         $col['data'] = mb_substr($col['data'], 0, $length);
-        $repeat['data'] =  mb_substr($repeat['data'], $length);
+        $repeat['data'] = mb_substr($repeat['data'], $length);
       }
-      else{
+      else {
         $repeat = FALSE;
       }
       $row_rendered[$index] = _render_print_col($col, $length);
     }
-    else{
+    else {
       $row_rendered[$index] = _render_print_col('', $length);
     }
   }
   $rows_return[] = $row_rendered;
-  if($repeat) {
+  if ($repeat) {
     $tmp = _row_next_line_value($repeat, $cols_length);
-    foreach($tmp as $tmp_row){
+    foreach ($tmp as $tmp_row) {
       $rows_return[] = $tmp_row;
     }
   }
+
   return $rows_return;
 }
