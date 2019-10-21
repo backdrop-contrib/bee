@@ -514,10 +514,12 @@ function _info_project($project) {
       array('data' => bt('Type'), '#color' => 'bold_blue'),
       $info['type'],
     );
-    $rows[] = array(
-      array('data' => bt('Project'), '#color' => 'bold_blue'),
-      $info['project'],
-    );
+    if (isset($info['project'])) {
+      $rows[] = array(
+        array('data' => bt('Project'), '#color' => 'bold_blue'),
+        $info['project'],
+      );
+    }
     $rows[] = array(
       array('data' => bt('Description'), '#color' => 'bold_blue'),
       $info['description'],
@@ -530,10 +532,12 @@ function _info_project($project) {
       array('data' => bt('Version'), '#color' => 'bold_blue'),
       $info['version'],
     );
-    $rows[] = array(
-      array('data' => bt('Date'), '#color' => 'bold_blue'),
-      format_date($info['timestamp'], 'custom', 'Y-m-d'),
-    );
+    if (isset($info['timestamp'])) {
+      $rows[] = array(
+        array('data' => bt('Date'), '#color' => 'bold_blue'),
+        format_date($info['timestamp'], 'custom', 'Y-m-d'),
+      );
+    }
     $rows[] = array(
       array('data' => bt('PHP'), '#color' => 'bold_blue'),
       $info['php'],
