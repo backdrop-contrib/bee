@@ -297,8 +297,9 @@ function b_recursive_copy($src, $dst) {
 }
 
 /**
- * Find Backdrop's root directory, optionally recursing backwards through the
- * filesystem from the given $path.
+ * Find Backdrop's root directory.
+ *
+ * Optionally recurse backwards through the filesystem from the given $path.
  */
 function b_find_root($path, $recursive = TRUE) {
   // Make sure we have a valid dir path.
@@ -352,8 +353,9 @@ function b_find_site_by_url($url, $root) {
 }
 
 /**
- * Find Backdrop's current site directory by recursing backwards through the
- * filesystem from the given $path.
+ * Find Backdrop's current site directory.
+ *
+ * Recurse backwards through the filesystem from the given $path.
  */
 function b_find_site_by_path($path, $root) {
   // Make sure we have a valid dir path.
