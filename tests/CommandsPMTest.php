@@ -62,6 +62,19 @@ class CommandsPMTest extends TestCase {
   }
 
   /**
+   * Check that the PM Info command works.
+   */
+  public function testPmInfo() {
+    // Contrib module.
+    $output_all = shell_exec('b pmi devel');
+    $this->assertStringNotContainsString('Undefined', $output_all);
+    // Core module.
+    $output_all = shell_exec('b pmi system');
+    $this->assertStringNotContainsString('Undefined', $output_all);
+    $this->assertStringContainsString('Version', $output_all);
+  }
+
+  /**
    * Check that the PM Enable module command works.
    */
   public function testPmEnableModule() {
