@@ -7,11 +7,11 @@
 
 set_error_handler('b_errorHandler');
 
-require_once 'includes/common.inc';
-require_once 'includes/command.inc';
-require_once 'includes/render.inc';
-require_once 'includes/output.inc';
-require_once 'includes/filesystem.inc';
+require_once __DIR__ . '/includes/common.inc';
+require_once __DIR__ . '/includes/command.inc';
+require_once __DIR__ . '/includes/render.inc';
+require_once __DIR__ . '/includes/output.inc';
+require_once __DIR__ . '/includes/filesystem.inc';
 
 // Global variables.
 $elements = array();
@@ -19,7 +19,7 @@ $elements = array();
 b_init();
 
 if (drush_mode()) {
-  require_once 'includes/drush_wrapper.inc';
+  require_once __DIR__ . '/includes/drush_wrapper.inc';
   drush_process_command();
 }
 else {
@@ -98,7 +98,7 @@ function b_init() {
       define('BACKDROP_SITE', $_backdrop_site);
       $_SERVER['HTTP_HOST'] = $_backdrop_site;
     }
-    require_once 'core/includes/bootstrap.inc';
+    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
 
     if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();
