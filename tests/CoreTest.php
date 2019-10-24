@@ -49,18 +49,15 @@ class CoreTest extends TestCase {
   /**
    * Make sure that the `--root` option works.
    *
-   * Test running `b` from inside Backdrop, outside Backdrop, and then with the
-   * '--root' option.
+   * Test running `b` from outside Backdrop without the '--root' option, and
+   * then with the '--root' option.
    */
   public function testRootOptionWorks() {
-    $output_backdrop = shell_exec('b st');
-    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_backdrop);
-
-    $output_not_backdrop = shell_exec('cd ../ && b st');
-    $this->assertStringContainsString('No Backdrop installation found', $output_not_backdrop);
+    $output_no_root = shell_exec('cd ../ && b st');
+    $this->assertStringContainsString('No Backdrop installation found', $output_no_root);
 
     $output_root = shell_exec('cd ../ && b --root=www st');
-    $this->assertEquals($output_backdrop, $output_root);
+    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_root);
   }
 
   /**

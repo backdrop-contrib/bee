@@ -7,11 +7,11 @@
 
 set_error_handler('b_errorHandler');
 
-require_once 'includes/common.inc';
-require_once 'includes/command.inc';
-require_once 'includes/render.inc';
-require_once 'includes/output.inc';
-require_once 'includes/filesystem.inc';
+require_once __DIR__ . '/includes/common.inc';
+require_once __DIR__ . '/includes/command.inc';
+require_once __DIR__ . '/includes/render.inc';
+require_once __DIR__ . '/includes/output.inc';
+require_once __DIR__ . '/includes/filesystem.inc';
 
 // Global variables.
 $elements = array();
@@ -19,7 +19,7 @@ $elements = array();
 b_init();
 
 if (drush_mode()) {
-  require_once 'includes/drush_wrapper.inc';
+  require_once __DIR__ . '/includes/drush_wrapper.inc';
   drush_process_command();
 }
 else {
@@ -61,35 +61,44 @@ function b_init() {
   $command = array(
     'options' => array(
       'root' => 'Backdrop root folder',
+      'url' => 'Backdrop site URL (as defined in sites.php)',
       'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
       'y' => 'Force Yes to all Yes/No questions',
       'yes' => 'Force Yes to all Yes/No questions',
-      'd' => 'Debug mode',
+      'd' => 'Debug mode on',
       'debug' => 'Debug mode on',
     ),
   );
   b_get_command_args_options($arguments, $options, $command);
 
-  $_backdrop_root = FALSE;
-  if (isset($options['root'])) {
-    if (file_exists($options['root'] . '/settings.php')) {
-      $_backdrop_root = $options['root'];
-    }
-  }
-  else {
-    $path = getcwd();
-    if (file_exists($path . '/settings.php')) {
-      $_backdrop_root = $path;
-    }
-  }
-
   b_init_globals();
 
+  // Get root directory.
+  if (isset($options['root'])) {
+    $_backdrop_root = b_find_root($options['root'], FALSE);
+  }
+  else {
+    $_backdrop_root = b_find_root(getcwd());
+  }
+
   if ($_backdrop_root) {
+    // Get site directory.
+    if (isset($options['url'])) {
+      $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
+    }
+    else {
+      $_backdrop_site = b_find_site_by_path(getcwd(), $_backdrop_root);
+    }
+
     chdir($_backdrop_root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
-    require_once 'core/includes/bootstrap.inc';
+    $_SERVER['HTTP_HOST'] = basename($full_path);
+    if ($_backdrop_site) {
+      define('BACKDROP_SITE', $_backdrop_site);
+      $_SERVER['HTTP_HOST'] = $_backdrop_site;
+    }
+    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
 
     if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();

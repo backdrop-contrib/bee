@@ -122,7 +122,7 @@ function _download_project($project, $options) {
  * @param string $project
  *   The machine name of the project.
  * @param string $folder
- *   The folder. 
+ *   The folder.
  * @param array $options
  *   Array of options for the command.
  *
@@ -133,6 +133,10 @@ function download_get_target($project, $folder, $options) {
   $download_target = FALSE;
   if (isset($options['root'])) {
     $download_target = $options['root'];
+  }
+  elseif (defined('BACKDROP_SITE')) {
+    // If BACKDROP_SITE is set, we know BACKDROP_ROOT is set too.
+    $download_target = BACKDROP_ROOT . '/sites/' . BACKDROP_SITE;
   }
   elseif (defined('BACKDROP_ROOT')) {
     $download_target = BACKDROP_ROOT;
