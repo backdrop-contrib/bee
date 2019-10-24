@@ -11,7 +11,7 @@ class CoreMultisite extends TestCase {
   /**
    * Setup Backdrop multisite.
    */
-  protected function setUp(): void {
+  protected function setUp() : void {
 
   }
 
