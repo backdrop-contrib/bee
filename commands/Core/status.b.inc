@@ -66,6 +66,31 @@ function status_b_callback($arguments, $options) {
   else {
     b_set_message('No database connection', 'warning');
   }
+  if (function_exists('conf_path')) {
+    $settings_path = realpath(conf_path());
+    $rows[] = array('Settings.php path', $settings_path);
+    include $settings_path . '/settings.php';
+    $rows[] = array('Drupal compability', $settings['backdrop_drupal_compatibility']);
+    $rows[] = array('Config dir active', $config_directories['active']);
+    $rows[] = array('Config dir staging', $config_directories['staging']);
+  }
+  if (function_exists('config_get')) {
+    $default_theme = config_get('system.core', 'theme_default');
+    $rows[] = array('Default theme', $default_theme);
+    $files_public = config_get('system.core', 'file_public_path');
+    $rows[] = array('Public files path', $files_public);
+    $files_private = config_get('system.core', 'file_private_path');
+    if (!empty($files_private)) {
+      $rows[] = array('Private files path', $files_private);
+    }
+  }
+  if (function_exists('state_get') && function_exists('format_interval')) {
+    $cron_last = state_get('cron_last');
+    $ago = format_interval(time() - $cron_last);
+    $rows[] = array('Cron run latest', $ago);
+  }
+  $rows[] = array('PHP version', PHP_VERSION );
+  $rows[] = array('PHP OS', PHP_OS);
 
   return array(
     '#type' => 'table',
