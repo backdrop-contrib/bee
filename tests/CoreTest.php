@@ -61,6 +61,20 @@ class CoreTest extends TestCase {
   }
 
   /**
+   * Make sure that the `--url` option works.
+   *
+   * Test running `b` from a multisite installation without the '--url' option,
+   * and then with the '--url' option.
+   */
+  public function testUrlOptionWorks() {
+    $output_no_url = shell_exec('cd ../multisite && b st');
+    $this->assertStringContainsString('', $output_no_url);
+
+    $output_url = shell_exec('cd ../multisite && b --url=multisite.lndo.site st');
+    $this->assertStringContainsString('', $output_url);
+  }
+
+  /**
    * Make sure that the `--y/--yes` options work.
    */
   public function testYesOptionWorks() {

@@ -4,15 +4,19 @@ services: mysql
 install:
   - chmod +x $TRAVIS_BUILD_DIR/b.php
   - sudo ln -s $TRAVIS_BUILD_DIR/b.php /usr/local/bin/b
+  - cd $TRAVIS_BUILD_DIR && composer install
 
 before_script:
-  - cd $TRAVIS_BUILD_DIR && composer install
   - git clone https://github.com/backdrop/backdrop.git $HOME/www
+  - cp -rp $HOME/www $HOME/multisite
+  - cd $HOME/multisite && wget https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/2946.patch && git apply 2946.patch
+  - echo '$sites['multisite.lndo.site'] = 'multisite';' >> $HOME/multisite/sites/sites.php
+  - mkdir $HOME/multisite/sites/multisite && cp $HOME/multisite/settings.php $HOME/multisite/sites/multisite/settings.php
   - mysql -e 'CREATE DATABASE backdrop'
-  - cd $HOME/www
-  - ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop
+  - mysql -e 'CREATE DATABASE multisite'
+  - cd $HOME/www && ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop
+  - cd $HOME/multisite && ./core/scripts/install.sh --url=multisite.lndo.site --db-url=mysql://travis:@127.0.0.1/multisite
 
 script:
   - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --standard=$TRAVIS_BUILD_DIR/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* $TRAVIS_BUILD_DIR
-  - $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests
-
+  - cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests
