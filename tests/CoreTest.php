@@ -68,10 +68,13 @@ class CoreTest extends TestCase {
    */
   public function testUrlOptionWorks() {
     $output_no_url = shell_exec('cd ../multisite && b st');
-    $this->assertStringContainsString('', $output_no_url);
+    $this->assertStringContainsString('BackdropCMS is not installed yet', $output_no_url);
+    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_no_url);
 
     $output_url = shell_exec('cd ../multisite && b --url=multisite.lndo.site st');
-    $this->assertStringContainsString('', $output_url);
+    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_url);
+    $this->assertStringContainsString('Backdrop site', $output_url);
+    $this->assertStringContainsString('Database username', $output_url);
   }
 
   /**
