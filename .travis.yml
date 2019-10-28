@@ -11,7 +11,7 @@ before_script:
   - cp -rp $HOME/www $HOME/multisite
   - cd $HOME/multisite && wget https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/2946.patch && git apply 2946.patch
   - echo "$sites['multisite.lndo.site'] = 'multisite';" >> $HOME/multisite/sites/sites.php
-  - echo "\n" . file_get_contents('$HOME/multisite/sites/sites.php') . "\n";
+  - echo file_get_contents($HOME/multisite/sites/sites.php)
   - mkdir $HOME/multisite/sites/multisite && cp $HOME/multisite/settings.php $HOME/multisite/sites/multisite/settings.php
   - mysql -e 'CREATE DATABASE backdrop'
   - mysql -e 'CREATE DATABASE multisite'
