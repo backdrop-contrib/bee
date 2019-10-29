@@ -21,7 +21,7 @@ function user_b_command() {
     'callback' => 'userpassword_b_callback',
     'aliases' => array('upw'),
     'arguments' => array(
-      'username' => 'The username of the account to modify.',
+      'username' => array('The username of the account to modify.', 'required' => TRUE),
     ),
     'options' => array(
       'password' => array(
@@ -84,24 +84,19 @@ function userlist_b_callback($arguments, $options) {
  * Sets the password for the account with the given username.
  */
 function userpassword_b_callback($arguments, $options) {
-  if (isset($arguments['username'])) {
-    $account = user_load_by_name($arguments['username']);
-    if (!is_object($account)) {
-      b_set_message(bt('Username !user not found.', array('!user' => $arguments['username'])), 'error');
-      return;
-    }
-    $new_password = '';
-    if (isset($options['password'])) {
-      $new_password = $options['password'];
-    }
-    else {
-      $new_password = b_prompt('password', backdrop_random_key(12));
-    }
-    $account->pass = $new_password;
-    user_save($account);
-    b_set_message(bt('(Re)set password for !user', array('!user' => $account->name)));
+  $account = user_load_by_name($arguments['username']);
+  if (!is_object($account)) {
+    b_set_message(bt('Username !user not found.', array('!user' => $arguments['username'])), 'error');
+    return;
+  }
+  $new_password = '';
+  if (isset($options['password'])) {
+    $new_password = $options['password'];
   }
   else {
-    b_set_message(bt('A username argument is required.'), 'error');
+    $new_password = b_prompt('New password', backdrop_random_key(12));
   }
+  $account->pass = $new_password;
+  user_save($account);
+  b_set_message(bt('(Re)set password for !user', array('!user' => $account->name)));
 }
