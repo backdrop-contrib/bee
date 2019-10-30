@@ -8,6 +8,7 @@
     </testsuite>
     <testsuite name="multisite">
       <file>MultisiteTest.php</file>
+      <file>MultisiteCommandsPMTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
