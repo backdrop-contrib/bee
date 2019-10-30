@@ -1,7 +1,0 @@
-<phpunit colors="true" testdox="true">
-  <testsuites>
-    <testsuite name="Backdrop Console multisite tests">
-      <file>CoreMultisite.php</file>
-    </testsuite>
-  </testsuites>
-</phpunit>

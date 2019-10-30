@@ -1,0 +1,13 @@
+<phpunit colors="true" testdox="true">
+  <testsuites>
+    <testsuite name="backdrop">
+      <file>BackdropTest.php</file>
+      <file>BackdropCommandsCoreTest.php</file>
+      <file>BackdropCommandsHelpTest.php</file>
+      <file>BackdropCommandsPMTest.php</file>
+    </testsuite>
+    <testsuite name="multisite">
+      <file>MultisiteTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

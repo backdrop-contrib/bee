@@ -12,16 +12,14 @@ install:
 
 before_script:
   - git clone https://github.com/backdrop/backdrop.git $HOME/www
-  # - cp -rp $HOME/www $HOME/multisite
   - if [ "$MULTISITE" = true ]; then cd $HOME/www && wget https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/2946.patch && git apply 2946.patch; fi
   - if [ "$MULTISITE" = true ]; then echo '$sites["127.0.0.1"] = "multisite";' >> $HOME/www/sites/sites.php; fi
   - if [ "$MULTISITE" = true ]; then mkdir $HOME/www/sites/multisite && cp $HOME/www/settings.php $HOME/www/sites/multisite/settings.php; fi
   - mysql -e 'CREATE DATABASE backdrop'
-  # - mysql -e 'CREATE DATABASE multisite'
   - if [ "$MULTISITE" = false ]; then cd $HOME/www && ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop; fi
   - if [ "$MULTISITE" = true ]; then cd $HOME/www && ./core/scripts/install.sh --url=127.0.0.1 --db-url=mysql://travis:@127.0.0.1/backdrop; fi
 
 script:
   - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --standard=$TRAVIS_BUILD_DIR/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* $TRAVIS_BUILD_DIR
-  - if [ "$MULTISITE" = false ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests/phpunit_backdrop.xml; fi
-  - if [ "$MULTISITE" = true ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests/phpunit_multisite.xml; fi
+  - if [ "$MULTISITE" = false ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests --testsuite backdrop; fi
+  - if [ "$MULTISITE" = true ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests --testsuite multisite; fi
