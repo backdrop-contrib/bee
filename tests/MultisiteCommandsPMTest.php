@@ -14,12 +14,12 @@ class MultisiteCommandsPMTest extends TestCase {
   public function testPmDownloadMultisite() {
     // Root directory.
     $output_root = shell_exec('b dl simplify');
-    $this->assertStringContainsString('simplify downloaded to ' . BACKDROP_ROOT . '/modules/simplify', $output_root);
+    $this->assertStringContainsString('simplify downloaded to ' . $HOME . '/www/modules/simplify', $output_root);
     $this->assertTrue(file_exists('modules/simplify/simplify.info'));
 
     // Site directory.
     $output_site = shell_exec('cd sites/multisite && b dl borg');
-    $this->assertStringContainsString('borg downloaded to ' . BACKDROP_ROOT . '/sites/multisite/themes/borg', $output_site);
+    $this->assertStringContainsString('borg downloaded to ' . $HOME . '/www/sites/multisite/themes/borg', $output_site);
     $this->assertTrue(file_exists('sites/multisite/themes/borg/borg.info'));
 
     // Remove downloads for future tests.
