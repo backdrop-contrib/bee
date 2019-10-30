@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class CoreTest extends TestCase {
+class BackdropTest extends TestCase {
 
   /**
    * Make sure that `b` is installed correctly.

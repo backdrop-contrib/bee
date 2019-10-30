@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class CommandsPMTest extends TestCase {
+class BackdropCommandsPMTest extends TestCase {
 
   /**
    * Check that the PM Download command works.

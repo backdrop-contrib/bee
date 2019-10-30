@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class CommandsCoreTest extends TestCase {
+class BackdropCommandsCoreTest extends TestCase {
 
   /**
    * Check that the Cache Clear command works.

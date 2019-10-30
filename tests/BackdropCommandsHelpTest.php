@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class CommandsHelpTest extends TestCase {
+class BackdropCommandsHelpTest extends TestCase {
 
   /**
    * Check that the Help command works.
