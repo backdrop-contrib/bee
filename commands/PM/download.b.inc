@@ -37,7 +37,6 @@ function download_b_command() {
  *   An array of options, i.e. type.
  */
 function download_b_callback($arguments, $options) {
-
   if (!isset($arguments['packages'])) {
     b_set_message('Please provide package name(s)', 'error');
     return;
@@ -56,15 +55,16 @@ function download_b_callback($arguments, $options) {
  *   The options for the command.
  */
 function _download_project($project, $options) {
+  // Get the project owner.
   if ($project == 'backdrop') {
     $owner = 'backdrop';
-    $link = get_project_link('backdrop', $project);
   }
   else {
     $owner = 'backdrop-contrib';
-    if (!$link = get_project_link('backdrop-contrib', $project)) {
-      return FALSE;
-    }
+  }
+
+  if (!$link = get_project_link($owner, $project)) {
+    return FALSE;
   }
 
   $tmp_folder = b_tmp_folder();
@@ -206,40 +206,34 @@ function download_get_type($folder) {
  * @param string $repo
  *   The reposoitory name.
  *
- * @return string
+ * @return string|int
  *   Either URL to project on github or 2.
  */
 function get_project_link($owner, $repo) {
-  $context = stream_context_create(
-    array(
-      "http" => array(
-        'method' => "GET",
-        'header' => "Accept-language: en\r\nUser-Agent: B.project\r\n",
-      ),
-    )
-  );
-
   $message_variables = array('!owner' => $owner, '!repo' => $repo);
-  // Check if project exists first.
-  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo, FALSE, $context);
-  if (!$content) {
+
+  // Make sure repo exists.
+  $url = 'https://github.com/' . $owner . '/' . $repo;
+  $headers = get_headers($url);
+  $header_parts = explode(' ', $headers[0]);
+  $response = $header_parts[1];
+  if ($response[0] == '4' || $response[0] == '5') {
     b_set_message(bt('!owner/!repo not found', $message_variables), 'error');
     return FALSE;
   }
 
-  $content = file_get_contents('https://api.github.com/repos/' . $owner . '/' . $repo . '/releases/latest', FALSE, $context);
-
-  if ($content) {
-    $json = json_decode($content, TRUE);
-    if (isset($json['assets'][0]['browser_download_url'])
-       && $json['assets'][0]['name'] == $repo . '.zip') {
-      return $json['assets'][0]['browser_download_url'];
+  // Make sure download file exists.
+  $url = 'https://github.com/' . $owner . '/' . $repo . '/releases/latest/download/' . $repo . '.zip';
+  $headers = get_headers($url);
+  $header_parts = explode(' ', $headers[0]);
+  $response = $header_parts[1];
+  if ($response[0] == '4' || $response[0] == '5') {
+    if (!b_confirm(bt("There is no release for !owner/!repo\nDo you you want to download the *git* version instead?", $message_variables))) {
+      b_set_message(bt('Cancelled *git* version download for !owner/!repo.', $message_variables));
+      return FALSE;
     }
+    return DOWNLOAD_VIA_GIT;
   }
 
-  if (!b_confirm(bt("There is no release for !owner/!repo\nDo you you want to download *git* version instead?", $message_variables))) {
-    b_set_message(bt('Cancelled to download *git* version for !owner/!repo.', $message_variables));
-    return FALSE;
-  }
-  return DOWNLOAD_VIA_GIT;
+  return $url;
 }
