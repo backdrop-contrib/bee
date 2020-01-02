@@ -12,7 +12,7 @@ class MultisiteCommandsPMTest extends TestCase {
    * Check that the PM Download command works for multisites.
    */
   public function testPmDownloadMultisite() {
-    $root = shell_exec('pwd');
+    $root = trim(shell_exec('pwd'));
 
     // Root directory.
     $output_root = shell_exec('b dl simplify');
