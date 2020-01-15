@@ -110,4 +110,3 @@ This module was inspired by (and some code and logic was copied from)
 
 This project is GPL v2 software. See the LICENSE.txt file in this directory for
 complete text.
-
