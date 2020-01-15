@@ -103,6 +103,14 @@ function _download_project($project, $options) {
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
+    // Create the folder if it doesn't exist.
+    if (!file_exists($download_target)) {
+      if (!mkdir($download_target, 0755)) {
+        b_set_message("Folder " . $download_target . " doesn't exist and attempts to create it failed.", 'error');
+        b_file_unmanaged_delete_recursive($tmp_folder);
+        return FALSE;
+      }
+    }
   }
   if ($project == 'backdrop' && isset($options['root'])) {
     b_recursive_copy($tmp_folder . '/' . $project, $download_target);
