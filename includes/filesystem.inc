@@ -360,26 +360,20 @@ function b_find_site_by_url($url, $root) {
 function b_find_site_by_path($path, $root) {
   // Make sure we have a valid dir path.
   if (!empty($path) && is_dir($path)) {
-    // Make sure $path is below $root.
-    if (strpos(realpath($path) . '/', realpath($root) . '/') !== FALSE) {
-      // Check if this is Backdrop's current site dir.
-      if (file_exists($path . '/settings.php')) {
-        if ($path != $root) {
-          // Return the last part of the path (the site dir name).
-          return basename($path);
-        }
-      }
-      else {
-        // Get the path of the parent dir.
-        $path = dirname($path);
-        if ($path != '/') {
-          // Check the parent path.
-          return b_find_site_by_path($path, $root);
-        }
+    // Check if this is Backdrop's current site dir.
+    if (file_exists($path . '/settings.php')) {
+      if ($path != $root) {
+        // Return the last part of the path (the site dir name).
+        return basename($path);
       }
     }
     else {
-      b_set_message("Current directory and --root don't match. Please change to a directory under --root or remove --root option.", 'error');
+      // Get the path of the parent dir.
+      $path = dirname($path);
+      if ($path != '/') {
+        // Check the parent path.
+        return b_find_site_by_path($path, $root);
+      }
     }
   }
   else {
