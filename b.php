@@ -83,6 +83,7 @@ function b_init() {
 
   if ($_backdrop_root) {
     // Get site directory.
+    $_backdrop_site = FALSE;
     if (isset($options['url'])) {
       $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
     }
