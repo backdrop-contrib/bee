@@ -330,14 +330,9 @@ function b_find_root($path, $recursive = TRUE) {
  * Find Backdrop's site directory from the given $url.
  */
 function b_find_site_by_url($url, $root) {
-  $sites_php = $root . '/sites/sites.php';
+  $sites = b_is_multisite($root);
 
-  if (file_exists($sites_php)) {
-    $sites = array();
-
-    // Populate the $sites array.
-    include $sites_php;
-
+  if ($sites) {
     if (isset($sites[$url])) {
       return $sites[$url];
     }
@@ -346,7 +341,7 @@ function b_find_site_by_url($url, $root) {
     }
   }
   else {
-    b_set_message("$root/sites/sites.php could not be found.", 'error');
+    b_set_message("$root/sites/sites.php could not be found or is empty.", 'error');
   }
 
   return FALSE;
@@ -378,6 +373,33 @@ function b_find_site_by_path($path, $root) {
   }
   else {
     b_set_message("$path is not a valid directory.", 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Check if this is a multisite installation.
+ *
+ * @param string $root
+ *   The path to the root dir of the Backdrop installation to check.
+ *
+ * @return array|boolean
+ *   Returns an array of sites (as per sites.php) if this is a multisite
+ *   installation, or FALSE if it's a regular (non-multisite) installation.
+ */
+function b_is_multisite($root) {
+  $sites_php = $root . '/sites/sites.php';
+
+  if (file_exists($sites_php)) {
+    $sites = array();
+
+    // Populate the $sites array.
+    include $sites_php;
+
+    if (!empty($sites)) {
+      return $sites;
+    }
   }
 
   return FALSE;
