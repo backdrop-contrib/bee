@@ -22,9 +22,14 @@ function test_b_command() {
  */
 function test_b_callback($arguments, $options) {
   if (defined('BACKDROP_ROOT') && file_exists(BACKDROP_ROOT . '/index.php')) {
-    b_set_message('Backdrop CMS Installation detected; wooot;', 'status');
+    if (b_is_multisite(BACKDROP_ROOT)) {
+      b_set_message('Backdrop multisite installation detected.', 'status');
+    }
+    else {
+      b_set_message('Backdrop installation detected.', 'status');
+    }
   }
   else {
-    b_set_message('No Backdrop installation found. :(', 'warning');
+    b_set_message('Backdrop installation not found.', 'warning');
   }
 }

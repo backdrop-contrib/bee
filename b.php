@@ -109,7 +109,12 @@ function b_init() {
       }
       else {
         b_backdrop_installed(FALSE);
-        b_set_message(bt('BackdropCMS is not installed yet.'), 'warning');
+        if (!$_backdrop_site && b_is_multisite($_backdrop_root)) {
+          b_set_message(bt('The Backdrop site within the multisite installation could not be determined. Some functionality may not be available.'), 'warning');
+        }
+        else {
+          b_set_message(bt('Backdrop has not yet been installed.'), 'warning');
+        }
       }
     }
   }
