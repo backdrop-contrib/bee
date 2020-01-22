@@ -152,7 +152,7 @@ class BackdropCommandsCoreTest extends TestCase {
    */
   public function testTestCallback() {
     $output = shell_exec('b st');
-    $this->assertStringContainsString('Backdrop CMS Installation detected', $output);
+    $this->assertStringContainsString('Backdrop installation detected', $output);
   }
 
   /**
