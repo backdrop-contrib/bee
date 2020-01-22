@@ -16,7 +16,8 @@ class MultisiteTest extends TestCase {
    */
   public function testUrlOptionWorks() {
     $output_no_url = shell_exec('b st');
-    $this->assertStringContainsString('The Backdrop site within the multisite installation could not be determined', $output_no_url);
+    // Have to truncate the string as line breaks cause the test to fail.
+    $this->assertStringContainsString('The Backdrop site within the multisite installation', $output_no_url);
     $this->assertStringContainsString('Backdrop multisite installation detected', $output_no_url);
 
     $output_url = shell_exec('b --url=127.0.0.1 st');
