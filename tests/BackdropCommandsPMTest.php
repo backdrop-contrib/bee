@@ -28,7 +28,7 @@ class BackdropCommandsPMTest extends TestCase {
     $output_backdrop = shell_exec('cd ../ && b dl backdrop');
     $this->assertStringContainsString('backdrop downloaded to', $output_backdrop);
     $this->assertTrue(file_exists('../backdrop/index.php'));
-    $output_backdrop_root = shell_exec('b dl backdrop --root=../bd_root');
+    $output_backdrop_root = shell_exec('b dl backdrop --dir=../bd_root');
     $this->assertStringContainsString('backdrop downloaded to', $output_backdrop_root);
     $this->assertTrue(file_exists('../bd_root/index.php'));
 
