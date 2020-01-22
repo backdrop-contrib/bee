@@ -16,11 +16,12 @@ class MultisiteTest extends TestCase {
    */
   public function testUrlOptionWorks() {
     $output_no_url = shell_exec('b st');
-    $this->assertStringContainsString('BackdropCMS is not installed yet', $output_no_url);
-    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_no_url);
+    // Have to truncate the string as line breaks cause the test to fail.
+    $this->assertStringContainsString('The Backdrop site within the multisite installation', $output_no_url);
+    $this->assertStringContainsString('Backdrop multisite installation detected', $output_no_url);
 
     $output_url = shell_exec('b --url=127.0.0.1 st');
-    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_url);
+    $this->assertStringContainsString('Backdrop multisite installation detected', $output_url);
     $this->assertStringContainsString('Backdrop site', $output_url);
     $this->assertStringContainsString('Database username', $output_url);
   }

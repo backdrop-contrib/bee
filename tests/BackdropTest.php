@@ -54,10 +54,10 @@ class BackdropTest extends TestCase {
    */
   public function testRootOptionWorks() {
     $output_no_root = shell_exec('cd ../ && b st');
-    $this->assertStringContainsString('No Backdrop installation found', $output_no_root);
+    $this->assertStringContainsString('Backdrop installation not found', $output_no_root);
 
     $output_root = shell_exec('cd ../ && b --root=www st');
-    $this->assertStringContainsString('Backdrop CMS Installation detected', $output_root);
+    $this->assertStringContainsString('Backdrop installation detected', $output_root);
   }
 
   /**
