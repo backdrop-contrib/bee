@@ -20,7 +20,6 @@ function dblog_b_command() {
       'type' => 'Restrict to messages of a given type.',
       'tail' => 'Continuously show new watchdog messages until interrupted.',
       'sleep-delay' => 'To be used in conjunction with --tail. This is the number of seconds to wait between each poll to the database. Delay is 1 second by default.',
-      'extended' => 'Return extended information about each message.',
     ),
     'callback' => 'dblog_command_show',
     'aliases' => array('wd-show', 'ws'),
