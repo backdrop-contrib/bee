@@ -174,19 +174,6 @@ function b_set_message($message = FALSE, $type = 'status') {
 }
 
 /**
- * Set drush compatible mode and return status.
- */
-function drush_mode($set = NULL) {
-  static $mode;
-
-  if ($set != NULL) {
-    $mode = $set;
-  }
-
-  return $mode;
-}
-
-/**
  * Set Yes to all mode and return status.
  */
 function b_yes_mode($set = NULL) {

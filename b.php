@@ -39,13 +39,7 @@ $elements = array();
 
 // Main execution code.
 b_init();
-if (drush_mode()) {
-  require_once __DIR__ . '/includes/drush_wrapper.inc';
-  drush_process_command();
-}
-else {
-  b_process_command();
-}
+b_process_command();
 b_print_messages();
 b_render($elements);
 exit();
