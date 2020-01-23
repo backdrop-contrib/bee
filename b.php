@@ -18,13 +18,7 @@ $elements = array();
 
 b_init();
 
-if (drush_mode()) {
-  require_once __DIR__ . '/includes/drush_wrapper.inc';
-  drush_process_command();
-}
-else {
-  b_process_command();
-}
+b_process_command();
 
 b_print_messages();
 b_render($elements);
@@ -62,7 +56,6 @@ function b_init() {
     'options' => array(
       'root' => 'Backdrop root folder',
       'url' => 'Backdrop site URL (as defined in sites.php)',
-      'drush' => 'Use .drush.inc files instead. Drupal 7 drush commands compatibility.',
       'y' => 'Force Yes to all Yes/No questions',
       'yes' => 'Force Yes to all Yes/No questions',
       'd' => 'Debug mode on',
@@ -117,11 +110,6 @@ function b_init() {
         }
       }
     }
-  }
-
-  if (isset($options['drush'])) {
-    drush_mode(TRUE);
-    b_set_message('Drush mode on');
   }
 
   if (isset($options['y']) or isset($options['yes'])) {
