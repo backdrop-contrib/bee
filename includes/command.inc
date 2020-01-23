@@ -1,8 +1,83 @@
 <?php
 /**
  * @file
- * Functions handle command dispatching.
+ * Functions to handle command dispatching.
  */
+
+/**
+ * Assign $arguments and $options.
+ */
+function b_command_get_options() {
+  global $global_options, $argv;
+  $options = array();
+
+  foreach ($argv as $id => $arg) {
+    // Skip the first argument (the script name).
+    if ($id == 0) {
+      continue;
+    }
+
+    // Find long options.
+    if (preg_match('#^--(\S+)#', $arg, $matches)) {
+      $opt_name = $matches[1];
+      $opt_value = TRUE;
+
+      if (strpos($opt_name, '=') !== FALSE) {
+        list($opt_name, $opt_value) = explode('=', $opt_name);
+      }
+
+      if (isset($global_options[$opt_name])) {
+        $options[$opt_name] = $opt_value;
+      }
+
+      continue;
+    }
+
+    // Find short options.
+    if (preg_match('#^-(\S+)#', $arg, $matches)) {
+      $opt_name = $matches[1];
+
+      foreach ($global_options as $global_option) {
+        if (isset($global_option['short']) && $global_option['short'] == $opt_name) {
+          $options[$opt_name] = TRUE;
+        }
+      }
+
+      continue;
+    }
+
+
+
+
+    if ($multiple_option) {
+      $arguments[$arg_name][] = $argv[$i];
+      continue;
+    }
+
+    if (empty($command_name)) {
+      $command_name = $argv[$i];
+      continue;
+    }
+
+    if (!empty($command_args)) {
+      if (!$multiple_option) {
+        $arg_name = array_shift($command_args);
+      }
+      if (is_array($command['arguments'][$arg_name])
+        && isset($command['arguments'][$arg_name]['multiple'])
+        && $command['arguments'][$arg_name]['multiple']) {
+
+        $arguments[$arg_name][] = $argv[$i];
+        $multiple_option = TRUE;
+      }
+      else {
+        $arguments[$arg_name] = $argv[$i];
+      }
+    }
+  }
+
+  return $options;
+}
 
 /**
  * Search for all callbacks on command and process it.
@@ -40,23 +115,6 @@ function b_process_command() {
       }
     }
   }
-}
-
-/**
- * Bootstrap Backdrop.
- */
-function b_bootstrap($bootstrap_level) {
-  if (!b_backdrop_installed() && $bootstrap_level > B_BOOTSTRAP_PAGE_CACHE) {
-    return FALSE;
-  }
-  if (defined('BACKDROP_ROOT')) {
-    if (function_exists('backdrop_bootstrap')) {
-      $status = backdrop_bootstrap($bootstrap_level);
-      set_error_handler('b_errorHandler');
-      return TRUE;
-    }
-  }
-  return FALSE;
 }
 
 /**
@@ -110,73 +168,6 @@ function b_check_for_required(&$arguments, &$options, $command) {
   }
 
   return TRUE;
-}
-
-/**
- * Assign $arguments and $options.
- */
-function b_get_command_args_options(&$arguments, &$options, $command) {
-  global $argc, $argv;
-
-  $command_name = FALSE;
-
-  $command_args = array();
-
-  if (isset($command['arguments'])) {
-    $command_args = array_keys($command['arguments']);
-  }
-  $multiple_option = FALSE;
-  $arg_name = '';
-
-  for ($i = 1; $i < $argc; $i++) {
-    if (preg_match('/^--(\S+)/', $argv[$i], $matches)) {
-      $opt_name = $matches[1];
-      if (FALSE !== strpos($opt_name, '=')) {
-        list($opt_name, $opt_value) = explode('=', $opt_name);
-      }
-      if (empty($opt_value)) {
-        $opt_value = TRUE;
-      }
-      if (isset($command['options'][$opt_name])) {
-        $options[$opt_name] = $opt_value;
-      }
-      continue;
-    }
-
-    if (preg_match('/^-(\S+)/', $argv[$i], $matches)) {
-      $opt_name = $matches[1];
-      if (isset($command['options'][$opt_name])) {
-        $options[$opt_name] = TRUE;
-      }
-      continue;
-    }
-
-    if ($multiple_option) {
-      $arguments[$arg_name][] = $argv[$i];
-      continue;
-    }
-
-    if (empty($command_name)) {
-      $command_name = $argv[$i];
-      continue;
-    }
-
-    if (!empty($command_args)) {
-      if (!$multiple_option) {
-        $arg_name = array_shift($command_args);
-      }
-      if (is_array($command['arguments'][$arg_name])
-        && isset($command['arguments'][$arg_name]['multiple'])
-        && $command['arguments'][$arg_name]['multiple']) {
-
-        $arguments[$arg_name][] = $argv[$i];
-        $multiple_option = TRUE;
-      }
-      else {
-        $arguments[$arg_name] = $argv[$i];
-      }
-    }
-  }
 }
 
 /**

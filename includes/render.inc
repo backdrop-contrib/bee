@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Render functions.
+ * Functions for rendering elements.
  */
 
 /**

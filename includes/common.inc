@@ -5,49 +5,139 @@
  */
 
 /**
- * First bootstrap phase: initialize configuration.
+ * Define bootstrap phase constants.
  */
+// 1st phase: Initialize configuration.
 define('B_BOOTSTRAP_CONFIGURATION', 0);
-
-/**
- * Second bootstrap phase: try to serve a cached page.
- */
+// 2nd phase: Try to serve a cached page.
 define('B_BOOTSTRAP_PAGE_CACHE', 1);
-
-/**
- * Third bootstrap phase: initialize database layer.
- */
+// 3rd phase: Initialize database layer.
 define('B_BOOTSTRAP_DATABASE', 2);
-
-/**
- * Fourth bootstrap phase: initialize the lock system.
- */
+// 4th phase: Initialize the lock system.
 define('B_BOOTSTRAP_LOCK', 3);
-
-/**
- * Fifth bootstrap phase: initialize the variable system.
- */
+// 5th phase: Initialize the variable system.
 define('B_BOOTSTRAP_VARIABLES', 4);
-
-/**
- * Sixth bootstrap phase: initialize session handling.
- */
+// 6th phase: Initialize session handling.
 define('B_BOOTSTRAP_SESSION', 5);
-
-/**
- * Seventh bootstrap phase: set up the page header.
- */
+// 7th phase: Set up the page header.
 define('B_BOOTSTRAP_PAGE_HEADER', 6);
-
-/**
- * Eighth bootstrap phase: find out language of the page.
- */
+// 8th phase: Get page language.
 define('B_BOOTSTRAP_LANGUAGE', 7);
+// 9th phase: Backdrop is fully loaded; validate and fix input data.
+define('B_BOOTSTRAP_FULL', 8);
 
 /**
- * Final bootstrap phase: Backdrop is fully loaded; validate and fix input data.
+ * Initialize Backdrop Console.
  */
-define('B_BOOTSTRAP_FULL', 8);
+function b_init() {
+  $options = b_command_get_options();
+
+  b_init_globals();
+
+  // Get root directory.
+  if (isset($options['root'])) {
+    $_backdrop_root = b_find_root($options['root'], FALSE);
+  }
+  else {
+    $_backdrop_root = b_find_root(getcwd());
+  }
+
+  if ($_backdrop_root) {
+    // Get site directory.
+    $_backdrop_site = FALSE;
+    if (isset($options['url'])) {
+      $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
+    }
+    elseif (!isset($options['root'])) {
+      $_backdrop_site = b_find_site_by_path(getcwd(), $_backdrop_root);
+    }
+
+    chdir($_backdrop_root);
+    $full_path = getcwd();
+    define('BACKDROP_ROOT', $full_path);
+    $_SERVER['HTTP_HOST'] = basename($full_path);
+    if ($_backdrop_site) {
+      define('BACKDROP_SITE', $_backdrop_site);
+      $_SERVER['HTTP_HOST'] = $_backdrop_site;
+    }
+    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
+
+    if (function_exists('backdrop_bootstrap_is_installed')) {
+      backdrop_settings_initialize();
+
+      if (backdrop_bootstrap_is_installed()) {
+        b_backdrop_installed(TRUE);
+      }
+      else {
+        b_backdrop_installed(FALSE);
+        if (!$_backdrop_site && b_is_multisite($_backdrop_root)) {
+          b_set_message(bt('The Backdrop site within the multisite installation could not be determined. Some functionality may not be available.'), 'warning');
+        }
+        else {
+          b_set_message(bt('Backdrop has not yet been installed.'), 'warning');
+        }
+      }
+    }
+  }
+
+  if (isset($options['drush'])) {
+    drush_mode(TRUE);
+    b_set_message('Drush mode on');
+  }
+
+  if (isset($options['y']) or isset($options['yes'])) {
+    b_yes_mode(TRUE);
+    b_set_message('Yes mode on');
+  }
+  if (isset($options['d']) or isset($options['debug'])) {
+    b_is_debug(TRUE);
+    b_set_message('Debug mode on');
+  }
+}
+
+/**
+ * Initialize $_SERVER environment variables.
+ */
+function b_init_globals() {
+  $host = 'localhost';
+  $path = '';
+
+  $_SERVER['HTTP_HOST'] = $host;
+  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_NAME'] = 'localhost';
+  $_SERVER['REQUEST_URI'] = $path . '/';
+  $_SERVER['REQUEST_METHOD'] = 'GET';
+  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
+  $_SERVER['PHP_SELF'] = $path . '/index.php';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
+
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+    // Ensure that any and all environment variables are changed to https://.
+    foreach ($_SERVER as $key => $value) {
+      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
+    }
+  }
+}
+
+/**
+ * Bootstrap Backdrop.
+ */
+function b_bootstrap($bootstrap_level) {
+  if (!b_backdrop_installed() && $bootstrap_level > B_BOOTSTRAP_PAGE_CACHE) {
+    return FALSE;
+  }
+  if (defined('BACKDROP_ROOT')) {
+    if (function_exists('backdrop_bootstrap')) {
+      $status = backdrop_bootstrap($bootstrap_level);
+      set_error_handler('b_errorHandler');
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
 
 /**
  * Format and print and error message.
@@ -81,69 +171,6 @@ function b_messages($message = FALSE, $type = FALSE) {
  */
 function b_set_message($message = FALSE, $type = 'status') {
   b_messages($message, $type);
-}
-
-/**
- * Format and print messages to the user.
- */
-function b_print_messages() {
-  $messages = b_messages();
-
-  if (empty($messages)) {
-    return;
-  }
-  $rows = array();
-  foreach ($messages as $type => $sub_messages) {
-    if ($type == 'log' && !b_is_debug()) {
-      continue;
-    }
-    switch ($type) {
-      case 'status':
-        $color = 'bold_blue';
-        $symbol = '[o]';
-        break;
-
-      case 'success':
-        $color = 'green';
-        $symbol = '[v]';
-        break;
-
-      case 'warning':
-        $color = 'yellow';
-        $symbol = '[!]';
-        break;
-
-      case 'error':
-        $color = 'red';
-        $symbol = '[x]';
-        break;
-
-      case 'log':
-        $color = 'red';
-        $symbol = ' - ';
-        break;
-
-      default:
-        $color = 'red';
-        $symbol = '[x]';
-    }
-    foreach ($sub_messages as $message) {
-      $rows[] = array(
-        array('data' => $symbol, '#color' => $color),
-        $message,
-      );
-    }
-  }
-  $output[] = array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => '   ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  );
-
-  b_render($output);
-  echo "\n";
 }
 
 /**

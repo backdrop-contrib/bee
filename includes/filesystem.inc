@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Filesystem utilities.
+ * Functions for interaction with the filesystem.
  */
 
 /**
