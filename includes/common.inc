@@ -30,38 +30,48 @@ define('B_BOOTSTRAP_FULL', 8);
  * Initialize Backdrop Console.
  */
 function b_init() {
-  $options = b_command_get_options();
+  global $options, $multisites;
 
+  // Separate the input into the command, options and arguments, and store them
+  // in global variables for later use.
+  b_command_parse_input();
+
+  // Set global server variables.
   b_init_globals();
 
-  // Get root directory.
+  // Get the root directory of the Backdrop installation to use.
   if (isset($options['root'])) {
-    $_backdrop_root = b_find_root($options['root'], FALSE);
+    $root = b_find_root($options['root'], FALSE);
   }
   else {
-    $_backdrop_root = b_find_root(getcwd());
+    $root = b_find_root(getcwd());
   }
 
-  if ($_backdrop_root) {
-    // Get site directory.
-    $_backdrop_site = FALSE;
-    if (isset($options['url'])) {
-      $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
-    }
-    elseif (!isset($options['root'])) {
-      $_backdrop_site = b_find_site_by_path(getcwd(), $_backdrop_root);
+  if ($root) {
+    $site = FALSE;
+    // Store array of multisites for future reference, if applicable.
+    if ($multisites = b_is_multisite($root)) {
+      // Get the site directory of the Backdrop multisite to use.
+      if (isset($options['url'])) {
+        $site = b_find_site_by_url($options['url'], $root);
+      }
+      elseif (!isset($options['root'])) {
+        $site = b_find_site_by_path(getcwd(), $root);
+      }
     }
 
-    chdir($_backdrop_root);
+    // Store the root and site variables for future reference.
+    chdir($root);
     $full_path = getcwd();
     define('BACKDROP_ROOT', $full_path);
     $_SERVER['HTTP_HOST'] = basename($full_path);
-    if ($_backdrop_site) {
-      define('BACKDROP_SITE', $_backdrop_site);
-      $_SERVER['HTTP_HOST'] = $_backdrop_site;
+    if ($site) {
+      define('BACKDROP_SITE', $site);
+      $_SERVER['HTTP_HOST'] = $site;
     }
-    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
 
+    // Determine if Backdrop is installed or not.
+    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();
 
@@ -70,6 +80,7 @@ function b_init() {
       }
       else {
         b_backdrop_installed(FALSE);
+
         if (!$_backdrop_site && b_is_multisite($_backdrop_root)) {
           b_set_message(bt('The Backdrop site within the multisite installation could not be determined. Some functionality may not be available.'), 'warning');
         }
@@ -80,18 +91,14 @@ function b_init() {
     }
   }
 
-  if (isset($options['drush'])) {
-    drush_mode(TRUE);
-    b_set_message('Drush mode on');
-  }
-
-  if (isset($options['y']) or isset($options['yes'])) {
+  // Turn on various 'modes' as appropriate.
+  if (isset($options['yes']) || isset($options['y'])) {
     b_yes_mode(TRUE);
-    b_set_message('Yes mode on');
+    b_set_message(bt('`Yes` mode enabled.'), 'log');
   }
-  if (isset($options['d']) or isset($options['debug'])) {
-    b_is_debug(TRUE);
-    b_set_message('Debug mode on');
+  if (isset($options['debug']) || isset($options['d'])) {
+    b_debug_mode(TRUE);
+    b_set_message(bt('`Debug` mode enabled.'), 'log');
   }
 }
 
@@ -99,28 +106,28 @@ function b_init() {
  * Initialize $_SERVER environment variables.
  */
 function b_init_globals() {
-  $host = 'localhost';
-  $path = '';
-
-  $_SERVER['HTTP_HOST'] = $host;
+  $_SERVER['HTTP_HOST'] = 'localhost';
   // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_SOFTWARE'] = NULL;
   $_SERVER['SERVER_NAME'] = 'localhost';
-  $_SERVER['REQUEST_URI'] = $path . '/';
+  $_SERVER['REQUEST_URI'] = '/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
-  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
-  $_SERVER['PHP_SELF'] = $path . '/index.php';
+  $_SERVER['SCRIPT_NAME'] = '/index.php';
+  $_SERVER['PHP_SELF'] = '/index.php';
   $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
 
+  // If applicable, ensure any appropriate variables are changed to `https`.
   if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-    // Ensure that any and all environment variables are changed to https://.
     foreach ($_SERVER as $key => $value) {
       $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
     }
   }
 }
+
+
+
 
 /**
  * Bootstrap Backdrop.

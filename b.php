@@ -28,18 +28,22 @@ $global_options = array(
   ),
   'yes' => array(
     'short' => 'y',
-    'description' => bt('Answer `yes` to all yes/no questions without prompting.'),
+    'description' => bt('Answer `yes` automatically to all questions without prompting.'),
   ),
   'debug' => array(
     'short' => 'd',
     'description' => bt('Enables `debug` mode.'),
   ),
 );
+$command = NULL;
+$options = array();
+$arguments = array();
+$multisites = array();
 $elements = array();
 
 // Main execution code.
 b_init();
-b_process_command();
+b_command_process();
 b_print_messages();
 b_render($elements);
 exit();
@@ -61,6 +65,6 @@ exit();
 function b_errorHandler($errno, $message, $filename, $line, $context) {
   if (error_reporting() > 0) {
     echo "$message\n";
-    echo "\t$filename:$line\n";
+    echo " $filename:$line\n\n";
   }
 }
