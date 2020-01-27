@@ -283,3 +283,35 @@ function _row_next_line_value($repeat, $cols_length) {
 
   return $rows_return;
 }
+
+function b_format_text($text, $color = FALSE, $bold = FALSE) {
+  // Get color codes.
+  $colors = array(
+    'black' => '30',
+    'red' => '31',
+    'green' => '32',
+    'yellow' => '33',
+    'blue' => '34',
+    'magenta' => '35',
+    'cyan' => '36',
+    'gray' => '37',
+    'white' => '97',
+  );
+
+  // Get format code.
+  $code = array();
+  if ($bold) {
+    $code[] = '1';
+  }
+  if (isset($colors[$color])) {
+    $code[] = $colors[$color];
+  }
+
+  // Return formatted text.
+  if (!empty($code)) {
+    return "\033[" . implode(';', $code) . 'm' . $text . "\033[0m";
+  }
+  else {
+    return $text;
+  }
+}

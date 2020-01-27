@@ -11,7 +11,7 @@ set_error_handler('b_errorHandler');
 // Include files.
 require_once __DIR__ . '/includes/common.inc';
 require_once __DIR__ . '/includes/command.inc';
-require_once __DIR__ . '/includes/output.inc';
+require_once __DIR__ . '/includes/input_output.inc';
 require_once __DIR__ . '/includes/render.inc';
 require_once __DIR__ . '/includes/filesystem.inc';
 

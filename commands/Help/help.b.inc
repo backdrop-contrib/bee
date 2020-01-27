@@ -32,7 +32,7 @@ function help_b_callback($arguments) {
   if (defined('BACKDROP_ROOT')) {
     b_bootstrap(B_BOOTSTRAP_FULL);
   }
-  $commands = b_get_commands();
+  $commands = b_command_all_commands();
   ksort($commands);
   $rows = array();
   $answer = array();

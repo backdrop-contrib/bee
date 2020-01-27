@@ -82,7 +82,7 @@ function site_install_b_callback($arguments, $options) {
     $default_options['site-mail'] = b_prompt('site-mail', 'admin@example.com');
 
     // Prompt for DB Specs.
-    print bt("\n\tDB Credentials") . "\n";
+    echo bt("\n\tDB Credentials") . "\n";
     $db_spec['driver'] = 'mysql';
     $db_spec['username'] = b_prompt('username', 'your_db_user');
     $db_spec['password'] = b_prompt('password', 'your_db_password');
