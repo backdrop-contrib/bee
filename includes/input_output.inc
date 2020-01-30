@@ -5,32 +5,44 @@
  */
 
 /**
- * Display some text to the user.
+ * Add a message to the `$messages` array.
  *
- * This differs from `b_print_messages()` in that messages are displayed
- * together at the top of the terminal output. Text printed here can be
- * displayed anywhere in the rendered output.
+ * @param string $message
+ *   The message to be displayed.
+ * @param string $type
+ *   The type of message to be displayed. One of: status, success, warning,
+ *   error, log.
  *
- * @param string $text
- *   The text to display.
- * @param boolean $newline
- *   Whether or not to add a newline character (`\n`) to the end of the output.
- *   Defaults to TRUE.
+ * @return array
+ *   An array of messages to be displayed, grouped by type.
  */
-function b_print($text = '', $newline = TRUE) {
-  $text = (string) $text;
+function b_messages($message = FALSE, $type = FALSE) {
+  static $messages = array();
 
-  if ($newline) {
-    $text .= "\n";
+  if ($message) {
+    if (!isset($messages[$type])) {
+      $messages[$type] = array();
+    }
+    $messages[$type][] = $message;
   }
 
-  echo $text;
+  return $messages;
+}
+
+/**
+ * An alias for `b_messages()`, defaulting to 'status' type messages.
+ *
+ * @see b_messages()
+ */
+function b_set_message($message = FALSE, $type = 'status') {
+  b_messages($message, $type);
 }
 
 /**
  * Format and display all messages to the user.
  */
 function b_print_messages() {
+  global $debug_mode;
   $rows = array();
 
   // Get all messages.
@@ -40,16 +52,11 @@ function b_print_messages() {
 
   // Style each type of message.
   foreach ($messages as $type => $type_messages) {
-    if ($type == 'log' && !b_debug_mode()) {
+    if ($type == 'log' && !$debug_mode) {
       continue;
     }
 
     switch ($type) {
-      case 'status':
-        $color = 'bold_blue';
-        $symbol = '[o]';
-        break;
-
       case 'success':
         $color = 'green';
         $symbol = '[v]';
@@ -70,39 +77,39 @@ function b_print_messages() {
         $symbol = ' - ';
         break;
 
+      case 'status':
       default:
-        $color = 'red';
-        $symbol = '[x]';
+        $color = 'blue';
+        $bold = TRUE;
+        $symbol = '[o]';
     }
-    foreach ($sub_messages as $message) {
+
+    foreach ($type_messages as $message) {
       $rows[] = array(
-        array('data' => $symbol, '#color' => $color),
+        array(
+          'data' => $symbol,
+          '#color' => $color,
+          '#bold' => $bold,
+        ),
         $message,
       );
     }
   }
-  $output[] = array(
+
+  // Render messages in a table.
+  b_render(array(
     '#type' => 'table',
     'rows' => $rows,
     'delimiter' => '   ',
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
-  );
-
-  b_render($output);
+  ));
   echo "\n";
 }
 
-/**
- * Format and print and error message.
- */
-function b_print_error($text) {
-  b_render(array(
-    '#type' => 'text',
-    '#color' => 'red',
-    'value' => $text,
-  ));
-}
+
+
+
 
 /**
  * Asks the user a basic yes/no question.
@@ -114,6 +121,8 @@ function b_print_error($text) {
  *   TRUE if the user enters "y" or FALSE if "n".
  */
 function b_confirm($msg) {
+  global $yes_mode;
+
   $text = array(
     '#color' => 'red',
     'value' => $msg . " (y/N): ",
@@ -121,8 +130,8 @@ function b_confirm($msg) {
   render_text($text, FALSE);
 
   // Automatically accept confirmations if the --yes argument was supplied.
-  if (b_yes_mode()) {
-    b_print("y");
+  if ($yes_mode) {
+    b_render_text("y");
     return TRUE;
   }
 
@@ -140,7 +149,7 @@ function b_confirm($msg) {
     if ($line == 'n') {
       return FALSE;
     }
-    b_print($msg . " (y/N): ", FALSE);
+    b_render_text($msg . " (y/N): ", FALSE);
   }
 }
 
@@ -164,6 +173,8 @@ function b_confirm($msg) {
  *   The message to display to the user prompting for input.
  */
 function b_choice($options, $title) {
+  global $yes_mode;
+
   $text = array(
     '#color' => 'blue',
     'value' => $title . ": ",
@@ -184,8 +195,8 @@ function b_choice($options, $title) {
   }
 
   // Automatically accept confirmations if the --yes argument was supplied.
-  if (b_yes_mode()) {
-    b_print("y");
+  if ($yes_mode) {
+    b_render_text("y");
     return $keys[0];
   }
 

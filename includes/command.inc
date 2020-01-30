@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Functions to handle command dispatching.
+ * Process and validate commands.
  */
 
 /**
@@ -9,12 +9,6 @@
  */
 function b_command_parse_input() {
   global $argv, $command, $options, $arguments;
-
-  // These variables should already be empty (since this function should only be
-  // run initially via `b_init()`), but we reset them here just in case.
-  $command = NULL;
-  $options = array();
-  $arguments = array();
 
   foreach ($argv as $id => $arg) {
     // Skip the first argument (the script name).
@@ -59,7 +53,7 @@ function b_command_parse_input() {
  * Get the callback function for the command and process it.
  */
 function b_command_process() {
-  global $command, $options, $arguments, $elements;
+  global $command, $elements;
 
   // Display help text if no command is given.
   if (empty($command)) {
@@ -78,7 +72,6 @@ function b_command_process() {
   // Process the command.
   $descriptor = $commands[$command];
   $callback = $descriptor['callback'];
-
   if (function_exists($callback)) {
     $ready = TRUE;
     if (isset($descriptor['bootstrap'])) {
@@ -87,7 +80,8 @@ function b_command_process() {
 
     if ($ready) {
       if (b_command_validate($descriptor)) {
-        $elements[] = $callback($arguments, $options);
+        $elements[] = $callback(b_storage('arguments'), b_storage('options'));
+        b_storage('elements', $elements);
       }
     }
     else {
@@ -193,6 +187,7 @@ function b_command_file_list() {
  *   A list of paths to directories where command files can be found.
  */
 function b_command_file_search_paths() {
+  global $installed;
   $search_paths = array();
   $home = getenv('HOME') . '/.b';
 
@@ -205,7 +200,7 @@ function b_command_file_search_paths() {
   }
 
   // Add enabled modules' directories.
-  if (b_backdrop_installed()) {
+  if ($installed) {
     $filenames = db_query('SELECT filename FROM {system} WHERE type = :type AND status = :status', array(
       ':type' => 'module',
       ':status' => 1,
@@ -226,7 +221,7 @@ function b_command_file_search_paths() {
  * @param array $descriptor
  *   An associative array describing a command, its arguments and options.
  *
- * @return boolean
+ * @return bool
  *   Whether or not the command input is valid.
  */
 function b_command_validate($descriptor) {

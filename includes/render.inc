@@ -5,112 +5,142 @@
  */
 
 /**
- * Print text to output.
+ * Process an array of elements for rendering.
+ *
+ * @param array $elements
+ *   An associative array which may contain:
+ *   - #type: A string that determines which render function to call for
+ *     formatting and displaying the element. One of: 'text', 'table'.
+ *     See the appropriate render function for other key => value requirements.
+ *   If there is no `#type` key, or if there is an `elements` key, sub-elements
+ *   will be processed recursively.
+ */
+function b_render($elements) {
+  // Ignore empty elements.
+  if (empty($elements)) {
+    return;
+  }
+
+  // For non-arrays, convert objects to arrays and print anything else as-is.
+  if (!is_array($elements)) {
+    if (is_object($elements)) {
+      $elements = (array) $elements;
+    }
+    else {
+      b_render_text($elements);
+      return;
+    }
+  }
+
+  // Recurse through the array to find the elements to render.
+  if (isset($elements['#type'])) {
+    $type = $elements['#type'];
+    $function = 'b_render_' . $type;
+
+    if (function_exists($function)) {
+      $function($elements);
+    }
+
+    if (isset($elements['elements'])) {
+      b_render($elements['elements']);
+    }
+  }
+  else {
+    foreach ($elements as $element) {
+      b_render($element);
+    }
+  }
+}
+
+/**
+ * Output formatted text.
  *
  * @param array $variables
- *   - value - text to print
- *   - #color - text color
+ *   An associative array containing:
+ *   - value: The text to format and output.
+ *   - #color: (optional) The name or code of the color to use for the text.
+ *   - #bold: (optional) A boolean indicating whether or not to format the text
+ *     as bold.
  * @param bool $newline
- *   Print new line if TRUE.
+ *   Whether or not to add a newline character (`\n`) to the end of the output.
+ *   Defaults to TRUE.
+ *
+ * @see b_format_text()
  */
-function render_text($variables, $newline = TRUE) {
-  if (is_array($variables) && isset($variables['value'])) {
-    $text = $variables['value'];
+function b_render_text($variables, $newline = TRUE) {
+  $color = FALSE;
+  $bold = FALSE;
+
+  // Get the text and format options.
+  if (is_array($variables)) {
+    $text = isset($variables['value']) ? $variables['value'] : '';
+    $color = isset($variables['#color']) ? $variables['#color'] : FALSE;
+    $bold = isset($variables['#bold']) ? $variables['#bold'] : FALSE;
   }
   else {
-    $text = $variables;
+    $text = (string) $variables;
   }
-  $foreground = array(
-    'black' => '0;30',
-    'dark_gray' => '1;30',
-    'red' => '0;31',
-    'bold_red' => '1;31',
-    'green' => '0;32',
-    'bold_green' => '1;32',
-    'brown' => '0;33',
-    'yellow' => '1;33',
-    'blue' => '0;34',
-    'bold_blue' => '1;34',
-    'purple' => '0;35',
-    'bold_purple' => '1;35',
-    'cyan' => '0;36',
-    'bold_cyan' => '1;36',
-    'white' => '1;37',
-    'bold_gray' => '0;37',
-  );
-  if (isset($variables['#color']) && isset($foreground[$variables['#color']])) {
-    echo "\033[" . $foreground[$variables['#color']] . "m" . $text . "\033[0m";
-  }
-  else {
-    echo $text;
-  }
+
+  // Format and output the text.
+  echo b_format_text($text, $color, $bold);
   if ($newline) {
     echo "\n";
   }
 }
 
 /**
- * If #color provided, return colored text.
+ * Format text to be displayed in the terminal.
+ *
+ * @param string|int|false $color
+ *   The name or code of the color to use, or FALSE to use the default color.
+ * @param bool $bold
+ *   Whether or not to format the text as bold. Defaults to FALSE.
+ *
+ * @return string
+ *   The formatted text.
  */
-function table_color_text($variables) {
-  $text = $variables['data'];
-  $foreground = array(
-    'bold' => '1',
-    'black' => '0;30',
-    'dark_gray' => '1;30',
-    'red' => '0;31',
-    'bold_red' => '1;31',
-    'green' => '0;32',
-    'bold_green' => '1;32',
-    'brown' => '0;33',
-    'yellow' => '1;33',
-    'blue' => '0;34',
-    'bold_blue' => '1;34',
-    'purple' => '0;35',
-    'bold_purple' => '1;35',
-    'cyan' => '0;36',
-    'bold_cyan' => '1;36',
-    'white' => '1;37',
-    'bold_gray' => '0;37',
+function b_format_text($text, $color = FALSE, $bold = FALSE) {
+  // Get color codes.
+  $colors = array(
+    'black' => '30',
+    'red' => '31',
+    'green' => '32',
+    'yellow' => '33',
+    'blue' => '34',
+    'magenta' => '35',
+    'cyan' => '36',
+    'gray' => '37',
+    'white' => '97',
   );
-  if (isset($variables['#color']) && isset($foreground[$variables['#color']])) {
-    return "\033[" . $foreground[$variables['#color']] . "m" . $text . "\033[0m";
+
+  // Generate format code.
+  $code = array();
+  if ($bold) {
+    $code[] = '1';
+  }
+  if (!empty($color)) {
+    if (is_string($color) && isset($colors[$color])) {
+      $code[] = $colors[$color];
+    }
+    elseif (is_int($color)) {
+      $code[] = $color;
+    }
+  }
+
+  // Return formatted text.
+  if (!empty($code)) {
+    return "\033[" . implode(';', $code) . 'm' . $text . "\033[0m";
   }
   else {
     return $text;
   }
 }
 
-/**
- * Main render function.
- */
-function b_render($elements) {
-  if (empty($elements)) {
-    return;
-  }
 
-  if (!is_array($elements)) {
-    echo $elements . "\n";
-    return;
-  }
 
-  if (!isset($elements['#type'])) {
-    foreach ($elements as $element) {
-      b_render($element);
-    }
-  }
-  else {
-    $element = $elements;
-    $type = $element['#type'];
-    $function = 'render_' . $type;
-    if (function_exists($function)) {
-      $function($element);
-    }
-    if (isset($element['elements'])) {
-      b_render($element['elements']);
-    }
-  }
-}
+
+
+
 
 /**
  * Count column width to fit screen width.
@@ -178,7 +208,7 @@ function _render_table_count_columns_width($rows, $header, $delimiter, $delimite
 function _render_print_col($col, $width) {
   $color_width = 0;
   if (is_array($col) && isset($col['data'])) {
-    $data = table_color_text($col);
+    $data = b_format_text($col['data'], $col['#color'], $col['#bold']);
     $color_width = mb_strlen($data) - mb_strlen($col['data']);
   }
   else {
@@ -189,8 +219,20 @@ function _render_print_col($col, $width) {
 
 /**
  * Display a table of information.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - rows: An array of columns. Each column is either text to output or an
+ *     associative array containing:
+ *     - data: The text to output.
+ *     - #color: (optional) The name or code of the color to use for the text.
+ *     - #bold: (optional) A boolean indicating whether or not to format the
+ *       text as bold.
+ *  - delimiter: The character(s) used to separate columns.
+ *  - delimiter_left: The character(s) displayed on the left of the table.
+ *  - delimiter_right: The character(s) displayed on the right of the table.
  */
-function render_table($variables) {
+function b_render_table($variables) {
   $header = FALSE;
   if (isset($variables['header'])) {
     $header = $variables['header'];
@@ -208,7 +250,8 @@ function render_table($variables) {
       $row_rendered[] = _render_print_col($col, $cols_length[$index]);
     }
     // Flip background and foreground colors for table header.
-    echo "\033[7m" . $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right . "\033[0m\n";
+    $text = $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right;
+    echo b_format_text($text, 7) . "\n";
   }
 
   foreach ($rows as $row) {
@@ -282,36 +325,4 @@ function _row_next_line_value($repeat, $cols_length) {
   }
 
   return $rows_return;
-}
-
-function b_format_text($text, $color = FALSE, $bold = FALSE) {
-  // Get color codes.
-  $colors = array(
-    'black' => '30',
-    'red' => '31',
-    'green' => '32',
-    'yellow' => '33',
-    'blue' => '34',
-    'magenta' => '35',
-    'cyan' => '36',
-    'gray' => '37',
-    'white' => '97',
-  );
-
-  // Get format code.
-  $code = array();
-  if ($bold) {
-    $code[] = '1';
-  }
-  if (isset($colors[$color])) {
-    $code[] = $colors[$color];
-  }
-
-  // Return formatted text.
-  if (!empty($code)) {
-    return "\033[" . implode(';', $code) . 'm' . $text . "\033[0m";
-  }
-  else {
-    return $text;
-  }
 }
