@@ -19,8 +19,8 @@ function download_b_command() {
       ),
     ),
     'options' => array(
-      'root' => bt('Backdrop ROOT directory'),
       'type' => bt('Fallback type if not detected by info file'),
+      'dir' => bt("(Only used when downloading Backdrop) The directory to download and extract Backdrop into. If not set, Backdrop will be downloaded to a 'backdrop' folder in the current directory."),
     ),
     'callback' => 'download_b_callback',
     'aliases' => array('dl'),
@@ -56,24 +56,21 @@ function download_b_callback($arguments, $options) {
  */
 function _download_project($project, $options) {
   // Get the project owner.
+  $owner = 'backdrop-contrib';
   if ($project == 'backdrop') {
     $owner = 'backdrop';
-  }
-  else {
-    $owner = 'backdrop-contrib';
   }
 
   if (!$link = get_project_link($owner, $project)) {
     return FALSE;
   }
 
-  $tmp_folder = b_tmp_folder();
-  if (!$tmp_folder) {
-    b_set_message('Failed to generate tmp directory!', 'error');
+  if (!$tmp_folder = b_tmp_folder()) {
+    b_set_message('Failed to generate temp directory!', 'error');
     return;
   }
 
-  if (DOWNLOAD_VIA_GIT == $link) {
+  if ($link == DOWNLOAD_VIA_GIT) {
     exec('git clone https://github.com/' . $owner . '/' . $project . ' ' . $tmp_folder . '/' . $project);
   }
   else {
@@ -83,26 +80,51 @@ function _download_project($project, $options) {
   }
 
   if ($project == 'backdrop') {
-    $download_target = '.';
-    if (isset($options['root'])) {
-      $download_target = $options['root'];
+    $download_target = getcwd();
+    if (isset($options['dir'])) {
+      if (!realpath($options['dir'])) {
+        // Create the folder if it doesn't exist.
+        if (!mkdir($options['dir'], 0755)) {
+          b_set_message("Folder " . $options['dir'] . " doesn't exist and attempts to create it failed.", 'error');
+          b_file_unmanaged_delete_recursive($tmp_folder);
+          return FALSE;
+        }
+      }
+      $download_target = realpath($options['dir']);
     }
-    elseif (defined('BACKDROP_ROOT')) {
-      $download_target = BACKDROP_ROOT;
+
+    // Cannot download Backdrop into an existing installation.
+    if (b_find_root($download_target)) {
+      b_set_message('Downloading Backdrop into an existing Backdrop installation is not allowed. Please run the command outside of the installation or use the `--dir` option to specify a different destination.', 'error');
+      b_file_unmanaged_delete_recursive($tmp_folder);
+      return FALSE;
+    }
+
+    if (!isset($options['dir'])) {
+      $download_target = $download_target . '/' . $project;
+    }
+
+    if (file_exists($download_target . '/index.php')) {
+      b_set_message('There is already a Backdrop installation in ' . $download_target . '.', 'error');
+      b_file_unmanaged_delete_recursive($tmp_folder);
+      return FALSE;
     }
   }
   else {
     $download_target = download_get_target($project, $tmp_folder . '/' . $project, $options);
-    if (FALSE == $download_target) {
+
+    if (!$download_target) {
       b_set_message('Failed to detect destination directory.', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
+
     if (file_exists($download_target . '/' . $project)) {
       b_set_message('Folder ' . $download_target . '/' . $project . ' already exists', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
+
     // Create the folder if it doesn't exist.
     if (!file_exists($download_target)) {
       if (!mkdir($download_target, 0755)) {
@@ -111,17 +133,13 @@ function _download_project($project, $options) {
         return FALSE;
       }
     }
+
+    $download_target = $download_target . '/' . $project;
   }
-  if ($project == 'backdrop' && isset($options['root'])) {
-    b_recursive_copy($tmp_folder . '/' . $project, $download_target);
-    b_set_message($project . ' downloaded to ' . $download_target . '!', 'success');
-    b_file_unmanaged_delete_recursive($tmp_folder);
-  }
-  else {
-    b_recursive_copy($tmp_folder . '/' . $project, $download_target . '/' . $project);
-    b_set_message($project . ' downloaded to ' . $download_target . '/' . $project . '!', 'success');
-    b_file_unmanaged_delete_recursive($tmp_folder);
-  }
+
+  b_recursive_copy($tmp_folder . '/' . $project, $download_target);
+  b_set_message($project . ' downloaded to ' . $download_target . '!', 'success');
+  b_file_unmanaged_delete_recursive($tmp_folder);
 }
 
 /**
@@ -139,10 +157,7 @@ function _download_project($project, $options) {
  */
 function download_get_target($project, $folder, $options) {
   $download_target = FALSE;
-  if (isset($options['root'])) {
-    $download_target = $options['root'];
-  }
-  elseif (defined('BACKDROP_SITE')) {
+  if (defined('BACKDROP_SITE')) {
     // If BACKDROP_SITE is set, we know BACKDROP_ROOT is set too.
     $download_target = BACKDROP_ROOT . '/sites/' . BACKDROP_SITE;
   }
