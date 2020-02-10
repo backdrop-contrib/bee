@@ -23,9 +23,9 @@ function cron_b_command() {
 function cron_command_process($arguments, $options) {
   $success = backdrop_cron_run();
   if ($success) {
-    b_set_message('Cron processed.', 'success');
+    b_message('Cron processed.', 'success');
   }
   else {
-    b_set_message('Cron is already running.', 'error');
+    b_message('Cron is already running.', 'error');
   }
 }

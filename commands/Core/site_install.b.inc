@@ -181,14 +181,14 @@ function site_install_b_callback($arguments, $options) {
   try {
     render_text(array('value' => "Installing Backdrop. This may take a moment...", '#color' => 'bold_blue'));
     install_backdrop($settings);
-    b_set_message(bt("Backdrop installed successfully."));
-    b_set_message(bt('Username: ' . $default_options['account-name']));
-    b_set_message(bt('Password: ' . $default_options['account-pass']));
+    b_message(bt("Backdrop installed successfully."));
+    b_message(bt('Username: ' . $default_options['account-name']));
+    b_message(bt('Password: ' . $default_options['account-pass']));
     return TRUE;
   }
   catch (Exception $e) {
     echo $e->getMessage();
-    b_set_message(bt("An error occurred. Output of installation attempt is as follows: !error", array('!error' => $e->getMessage())), 'error');
+    b_message(bt("An error occurred. Output of installation attempt is as follows: !error", array('!error' => $e->getMessage())), 'error');
     return FALSE;
   }
 }

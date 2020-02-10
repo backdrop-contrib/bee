@@ -8,75 +8,76 @@
  * Initialize Backdrop Console.
  */
 function b_init() {
-  global $options, $installed, $root, $site, $multisites;
+  global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites;
+
+  // Set global server variables.
+  b_init_server();
 
   // Separate the input into the command, options and arguments, and store them
   // for later use.
-  b_command_parse_input();
-
-  // Set global server variables.
-  b_init_globals();
+  b_parse_input();
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($options['root'])) {
-    $root = b_find_root($options['root'], FALSE);
+    $backdrop_root = b_find_root($options['root'], FALSE);
   }
   else {
-    $root = b_find_root(getcwd());
+    $backdrop_root = b_find_root(getcwd());
   }
 
-  if ($root) {
-    if ($multisites = b_is_multisite($root)) {
+  if ($backdrop_root) {
+    if ($multisites = b_is_multisite($backdrop_root)) {
       // Get the site directory of the Backdrop multisite to use.
       if (isset($options['url'])) {
-        $site = b_find_site_by_url($options['url'], $root);
+        $backdrop_site = b_find_site_by_url($options['url'], $backdrop_root);
       }
       elseif (!isset($options['root'])) {
-        $site = b_find_site_by_path(getcwd(), $root);
+        $backdrop_site = b_find_site_by_path(getcwd(), $backdrop_root);
       }
     }
 
-    chdir($root);
-    $root = getcwd();
-    $_SERVER['HTTP_HOST'] = basename($root);
-    if ($site) {
-      $_SERVER['HTTP_HOST'] = $site;
+    chdir($backdrop_root);
+    $backdrop_root = getcwd();
+    define('BACKDROP_ROOT', $backdrop_root);
+    $_SERVER['HTTP_HOST'] = basename($backdrop_root);
+    if ($backdrop_site) {
+      $_SERVER['HTTP_HOST'] = $backdrop_site;
     }
 
     // Determine if Backdrop is installed or not.
-    require_once $root . '/core/includes/bootstrap.inc';
+    require_once $backdrop_root . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();
 
       if (backdrop_bootstrap_is_installed()) {
-        $installed = TRUE;
+        $backdrop_installed = TRUE;
       }
       else {
-        if (!$site && !empty($multisites)) {
-          b_set_message(bt('The Backdrop site within the multisite installation could not be determined.'), 'log');
+        if (!$backdrop_site && !empty($multisites)) {
+          b_message(bt('The Backdrop site within the multisite installation could not be determined.'), 'log');
         }
         else {
-          b_set_message(bt('Backdrop has not yet been installed.'), 'log');
+          b_message(bt('Backdrop has not yet been installed.'), 'log');
         }
       }
     }
   }
 
   // Turn on various 'modes' as appropriate.
-  if (isset($options['yes']) || isset($options['y'])) {
+  if (!empty($options['yes']) || !empty($options['y'])) {
     $yes_mode = TRUE;
-    b_set_message(bt('`Yes` mode enabled.'), 'log');
+    b_message(bt('`Yes` mode enabled.'), 'log');
   }
-  if (isset($options['debug']) || isset($options['d'])) {
+  if (!empty($options['debug']) || !empty($options['d'])) {
     $debug_mode = TRUE;
-    b_set_message(bt('`Debug` mode enabled.'), 'log');
+    b_message(bt('`Debug` mode enabled.'), 'log');
   }
 }
 
 /**
  * Initialize $_SERVER environment variables.
  */
-function b_init_globals() {
+function b_init_server() {
   $_SERVER['HTTP_HOST'] = 'localhost';
   // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
@@ -107,13 +108,13 @@ function b_init_globals() {
  *   TRUE if Backdrop is bootstrapped to the desired level, FALSE if not.
  */
 function b_bootstrap($level) {
-  global $installed, $root;
+  global $backdrop_installed, $backdrop_root;
 
-  if (!$installed && $level > B_BOOTSTRAP_PAGE_CACHE) {
+  if (!$backdrop_installed && $level > B_BOOTSTRAP_PAGE_CACHE) {
     return FALSE;
   }
 
-  if (!empty($root) && function_exists('backdrop_bootstrap')) {
+  if (!empty($backdrop_root) && function_exists('backdrop_bootstrap')) {
     backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
@@ -126,9 +127,24 @@ function b_bootstrap($level) {
 }
 
 /**
- * Allow a string to be translated into other languages.
+ * Display a message to the user.
  *
- * @see t()
+ * @param string $message
+ *   The translated message to display.
+ * @param string $type
+ *   The type of message to display (this determines the formatting used). One
+ *   of: status, success, warning, error, log. Defaults to 'status'.
+ *   Note that 'log' messages are only displayed when `debug` mode is enabled.
+ */
+function b_message($message, $type = 'status') {
+  global $messages;
+
+  // Append the message to the `$messages` array.
+  $messages[$type][] = $message;
+}
+
+/**
+ * Allow a string to be translated into other languages.
  *
  * @param string $string
  *   String to process, possibly with replacement items.
@@ -137,6 +153,8 @@ function b_bootstrap($level) {
  *
  * @return string
  *   The processed string.
+ *
+ * @see t()
  */
 function bt($string, $args = array()) {
   if (function_exists('t')) {

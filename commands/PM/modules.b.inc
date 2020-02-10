@@ -195,7 +195,7 @@ function modules_b_list_callback($arguments, $options) {
  */
 function modules_b_enable_callback($arguments, $options) {
   if (!isset($arguments['extensions'])) {
-    b_set_message('Please provide module name(s)', 'error');
+    b_message('Please provide module name(s)', 'error');
     return;
   }
 
@@ -234,7 +234,7 @@ function _enable_project($project) {
   }
 
   if ($module['status']) {
-    b_set_message("Failed to enable module " . $module['name'] . ": it is enabled already", 'error');
+    b_message("Failed to enable module " . $module['name'] . ": it is enabled already", 'error');
     return FALSE;
   }
 
@@ -270,15 +270,15 @@ function _enable_project($project) {
   b_render($output);
 
   if (!b_confirm(bt('Do you want to enable?'))) {
-    b_set_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
+    b_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
     return;
   }
 
   if (module_enable(array($module['name']), FALSE)) {
-    b_set_message("Module " . $module['name'] . " enabled", 'success');
+    b_message("Module " . $module['name'] . " enabled", 'success');
     return TRUE;
   }
-  b_set_message("Failed to enable module " . $module['name'], 'error');
+  b_message("Failed to enable module " . $module['name'], 'error');
   return FALSE;
 }
 
@@ -293,7 +293,7 @@ function _enable_project($project) {
 function modules_b_disable_callback($arguments, $options) {
 
   if (!isset($arguments['extensions'])) {
-    b_set_message('Please provide project name(s)', 'error');
+    b_message('Please provide project name(s)', 'error');
     return;
   }
 
@@ -326,7 +326,7 @@ function _disable_project($project) {
   }
 
   if (!$module['status']) {
-    b_set_message("Failed to disable module " . $module['name'] . ": it is disabled already", 'error');
+    b_message("Failed to disable module " . $module['name'] . ": it is disabled already", 'error');
     return FALSE;
   }
 
@@ -362,12 +362,12 @@ function _disable_project($project) {
   b_render($output);
 
   if (!b_confirm(bt('Do you want to disable?'))) {
-    b_set_message(bt('Cancelled to disable !name', array('!name' => $module['name'])));
+    b_message(bt('Cancelled to disable !name', array('!name' => $module['name'])));
     return;
   }
 
   module_disable(array($module['name']), FALSE);
-  b_set_message("Module " . $module['name'] . " disabled", 'success');
+  b_message("Module " . $module['name'] . " disabled", 'success');
   return TRUE;
 }
 
@@ -381,7 +381,7 @@ function _disable_project($project) {
  */
 function modules_b_uninstall_callback($arguments, $options) {
   if (!isset($arguments['modules'])) {
-    b_set_message('Please provide project name(s)', 'error');
+    b_message('Please provide project name(s)', 'error');
     return;
   }
 
@@ -411,12 +411,12 @@ function _uninstall_project($project) {
 
   $module = $query->execute()->fetchAssoc();
   if (!$module) {
-    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
+    b_message(bt("Module !name not found", array('!name' => $project)), 'error');
     return FALSE;
   }
 
   if ($module['status']) {
-    b_set_message("Failed to uninstall module " . $module['name'] . ": it is need to be disabled first", 'error');
+    b_message("Failed to uninstall module " . $module['name'] . ": it is need to be disabled first", 'error');
     return FALSE;
   }
 
@@ -452,18 +452,18 @@ function _uninstall_project($project) {
   b_render($output);
 
   if (!b_confirm(bt('Do you want to uninstall?'))) {
-    b_set_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
+    b_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
     return;
   }
 
   include_once BACKDROP_ROOT . '/core/includes/install.inc';
 
   if (backdrop_uninstall_modules(array($module['name']), FALSE)) {
-    b_set_message("Module " . $module['name'] . " uninstalled", 'success');
+    b_message("Module " . $module['name'] . " uninstalled", 'success');
     return TRUE;
   }
   else {
-    b_set_message("Failed to uninstall module " . $module['name'], 'error');
+    b_message("Failed to uninstall module " . $module['name'], 'error');
   }
 }
 
@@ -477,7 +477,7 @@ function _uninstall_project($project) {
  */
 function modules_b_info_callback($arguments, $options) {
   if (!isset($arguments['modules'])) {
-    b_set_message('Please provide project name(s)', 'error');
+    b_message('Please provide project name(s)', 'error');
     return;
   }
   foreach ($arguments['modules'] as $project) {
@@ -499,7 +499,7 @@ function _info_project($project) {
 
   $module = $query->execute()->fetchAssoc();
   if (!$module) {
-    b_set_message(bt("Module !name not found", array('!name' => $project)), 'error');
+    b_message(bt("Module !name not found", array('!name' => $project)), 'error');
   }
   else {
     $rows = array();

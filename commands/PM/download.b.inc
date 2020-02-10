@@ -38,7 +38,7 @@ function download_b_command() {
  */
 function download_b_callback($arguments, $options) {
   if (!isset($arguments['packages'])) {
-    b_set_message('Please provide package name(s)', 'error');
+    b_message('Please provide package name(s)', 'error');
     return;
   }
   foreach ($arguments['packages'] as $package) {
@@ -66,7 +66,7 @@ function _download_project($project, $options) {
   }
 
   if (!$tmp_folder = b_tmp_folder()) {
-    b_set_message('Failed to generate temp directory!', 'error');
+    b_message('Failed to generate temp directory!', 'error');
     return;
   }
 
@@ -85,7 +85,7 @@ function _download_project($project, $options) {
       if (!realpath($options['dir'])) {
         // Create the folder if it doesn't exist.
         if (!mkdir($options['dir'], 0755)) {
-          b_set_message("Folder " . $options['dir'] . " doesn't exist and attempts to create it failed.", 'error');
+          b_message("Folder " . $options['dir'] . " doesn't exist and attempts to create it failed.", 'error');
           b_file_unmanaged_delete_recursive($tmp_folder);
           return FALSE;
         }
@@ -95,7 +95,7 @@ function _download_project($project, $options) {
 
     // Cannot download Backdrop into an existing installation.
     if (b_find_root($download_target)) {
-      b_set_message('Downloading Backdrop into an existing Backdrop installation is not allowed. Please run the command outside of the installation or use the `--dir` option to specify a different destination.', 'error');
+      b_message('Downloading Backdrop into an existing Backdrop installation is not allowed. Please run the command outside of the installation or use the `--dir` option to specify a different destination.', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
@@ -105,7 +105,7 @@ function _download_project($project, $options) {
     }
 
     if (file_exists($download_target . '/index.php')) {
-      b_set_message('There is already a Backdrop installation in ' . $download_target . '.', 'error');
+      b_message('There is already a Backdrop installation in ' . $download_target . '.', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
@@ -114,13 +114,13 @@ function _download_project($project, $options) {
     $download_target = download_get_target($project, $tmp_folder . '/' . $project, $options);
 
     if (!$download_target) {
-      b_set_message('Failed to detect destination directory.', 'error');
+      b_message('Failed to detect destination directory.', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
 
     if (file_exists($download_target . '/' . $project)) {
-      b_set_message('Folder ' . $download_target . '/' . $project . ' already exists', 'error');
+      b_message('Folder ' . $download_target . '/' . $project . ' already exists', 'error');
       b_file_unmanaged_delete_recursive($tmp_folder);
       return FALSE;
     }
@@ -128,7 +128,7 @@ function _download_project($project, $options) {
     // Create the folder if it doesn't exist.
     if (!file_exists($download_target)) {
       if (!mkdir($download_target, 0755)) {
-        b_set_message("Folder " . $download_target . " doesn't exist and attempts to create it failed.", 'error');
+        b_message("Folder " . $download_target . " doesn't exist and attempts to create it failed.", 'error');
         b_file_unmanaged_delete_recursive($tmp_folder);
         return FALSE;
       }
@@ -138,7 +138,7 @@ function _download_project($project, $options) {
   }
 
   b_recursive_copy($tmp_folder . '/' . $project, $download_target);
-  b_set_message($project . ' downloaded to ' . $download_target . '!', 'success');
+  b_message($project . ' downloaded to ' . $download_target . '!', 'success');
   b_file_unmanaged_delete_recursive($tmp_folder);
 }
 
@@ -165,7 +165,7 @@ function download_get_target($project, $folder, $options) {
     $download_target = BACKDROP_ROOT;
   }
   if (!$download_target) {
-    b_set_message('Please change directory to BackdropCMS root or specify --root option.', 'error');
+    b_message('Please change directory to BackdropCMS root or specify --root option.', 'error');
     return FALSE;
   }
   $type = download_get_type($folder);
@@ -186,7 +186,7 @@ function download_get_target($project, $folder, $options) {
       break;
 
     default:
-      b_set_message(bt('!project does not have type.', array('!project' => $project)), 'error');
+      b_message(bt('!project does not have type.', array('!project' => $project)), 'error');
       return FALSE;
   }
   if (file_exists($download_target . '/contrib')) {
@@ -241,7 +241,7 @@ function get_project_link($owner, $repo) {
   $header_parts = explode(' ', $headers[0]);
   $response = $header_parts[1];
   if ($response[0] == '4' || $response[0] == '5') {
-    b_set_message(bt('!owner/!repo not found', $message_variables), 'error');
+    b_message(bt('!owner/!repo not found', $message_variables), 'error');
     return FALSE;
   }
 
@@ -252,7 +252,7 @@ function get_project_link($owner, $repo) {
   $response = $header_parts[1];
   if ($response[0] == '4' || $response[0] == '5') {
     if (!b_confirm(bt("There is no release for !owner/!repo\nDo you you want to download the *git* version instead?", $message_variables))) {
-      b_set_message(bt('Cancelled *git* version download for !owner/!repo.', $message_variables));
+      b_message(bt('Cancelled *git* version download for !owner/!repo.', $message_variables));
       return FALSE;
     }
     return DOWNLOAD_VIA_GIT;

@@ -44,7 +44,7 @@ function themes_b_command() {
  */
 function themes_b_enable_callback($arguments, $options) {
   if (!isset($arguments['extensions'])) {
-    b_set_message('Please provide theme name(s)', 'error');
+    b_message('Please provide theme name(s)', 'error');
     return;
   }
 
@@ -92,7 +92,7 @@ function _enable_theme($project) {
   }
 
   if ($theme['status']) {
-    b_set_message("Failed to enable theme " . $theme['name'] . ": it is enabled already", 'error');
+    b_message("Failed to enable theme " . $theme['name'] . ": it is enabled already", 'error');
     return FALSE;
   }
 
@@ -125,12 +125,12 @@ function _enable_theme($project) {
   b_render($output);
 
   if (!b_confirm(bt('Do you want to enable?'))) {
-    b_set_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
+    b_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
     return;
   }
 
   theme_enable(array($theme['name']));
-  b_set_message("Theme " . $theme['name'] . " enabled", 'success');
+  b_message("Theme " . $theme['name'] . " enabled", 'success');
   return TRUE;
 }
 
@@ -140,7 +140,7 @@ function _enable_theme($project) {
 function themes_b_disable_callback($arguments, $options) {
 
   if (!isset($arguments['extensions'])) {
-    b_set_message('Please provide theme name(s)', 'error');
+    b_message('Please provide theme name(s)', 'error');
     return;
   }
 
@@ -171,7 +171,7 @@ function _disable_theme($project) {
   }
 
   if (!$theme['status']) {
-    b_set_message("Failed to disable theme " . $theme['name'] . ": it is disabled already", 'error');
+    b_message("Failed to disable theme " . $theme['name'] . ": it is disabled already", 'error');
     return FALSE;
   }
 
@@ -204,11 +204,11 @@ function _disable_theme($project) {
   b_render($output);
 
   if (!b_confirm(bt('Do you want to enable?'))) {
-    b_set_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
+    b_message(bt('Cancelled to enable !name', array('!name' => $theme['name'])));
     return;
   }
 
   theme_disable(array($theme['name']));
-  b_set_message("Theme " . $theme['name'] . " disabled", 'success');
+  b_message("Theme " . $theme['name'] . " disabled", 'success');
   return TRUE;
 }

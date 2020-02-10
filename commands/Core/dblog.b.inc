@@ -63,7 +63,7 @@ function dblog_show_many($options) {
       $query->condition('severity', $key);
     }
     else {
-      b_set_message(bt('There is no Severity !name', array('!name' => $options['severity'])), 'warning');
+      b_message(bt('There is no Severity !name', array('!name' => $options['severity'])), 'warning');
     }
   }
 
@@ -177,7 +177,7 @@ function dblog_show_one($wid) {
     ->fetchObject();
 
   if (!$message) {
-    b_set_message(bt('Resent log message #!wid not found.', array('!wid' => $wid)), 'error');
+    b_message(bt('Resent log message #!wid not found.', array('!wid' => $wid)), 'error');
     return FALSE;
   }
 

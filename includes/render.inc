@@ -5,31 +5,95 @@
  */
 
 /**
+ * Format and display all messages to the user.
+ */
+function b_print_messages() {
+  global $messages, $debug_mode;
+  $rows = array();
+
+  // Exit if there are no messages.
+  if (empty($messages)) {
+    return;
+  }
+
+  // Style each type of message differently.
+  foreach ($messages as $type => $type_messages) {
+    // Skip 'log' messages if `debug` mode is disabled.
+    if ($type == 'log' && !$debug_mode) {
+      continue;
+    }
+
+    $bold = FALSE;
+    switch ($type) {
+      case 'success':
+        $symbol = '[v]';
+        $color = 'green';
+        break;
+
+      case 'warning':
+        $symbol = '[!]';
+        $color = 'yellow';
+        break;
+
+      case 'error':
+        $symbol = '[x]';
+        $color = 'red';
+        break;
+
+      case 'log':
+        $symbol = ' - ';
+        $color = 'red';
+        break;
+
+      case 'status':
+      default:
+        $symbol = '[o]';
+        $color = 'blue';
+        $bold = TRUE;
+    }
+
+    // Prepare `$rows` array for table output.
+    foreach ($type_messages as $message) {
+      $rows[] = array(
+        array(
+          'value' => $symbol,
+          '#color' => $color,
+          '#bold' => $bold,
+        ),
+        $message,
+      );
+    }
+  }
+
+  // Render messages in a table.
+  b_render(array(
+    '#type' => 'table',
+    'rows' => $rows,
+    'delimiter' => '   ',
+    'delimiter_left' => ' ',
+    'delimiter_right' => ' ',
+  ));
+}
+
+/**
  * Process an array of elements for rendering.
  *
  * @param array $elements
  *   An associative array which may contain:
  *   - #type: A string that determines which render function to call for
- *     formatting and displaying the element. One of: 'text', 'table'.
- *     See the appropriate render function for other key => value requirements.
+ *     formatting and displaying the element. One of: text, table.
+ *     See the appropriate render function for other `key => value`
+ *     requirements.
  *   If there is no `#type` key, or if there is an `elements` key, sub-elements
  *   will be processed recursively.
+ * @param bool $newline
+ *   Whether or not to add a newline character (`\n`) to the end of the output.
+ *   Defaults to TRUE.
  */
-function b_render($elements) {
-  // Ignore empty elements.
-  if (empty($elements)) {
+function b_render($elements, $newline = TRUE) {
+  // Ignore empty elements and non-arrays.
+  if (empty($elements) || !is_array($elements)) {
     return;
-  }
-
-  // For non-arrays, convert objects to arrays and print anything else as-is.
-  if (!is_array($elements)) {
-    if (is_object($elements)) {
-      $elements = (array) $elements;
-    }
-    else {
-      b_render_text($elements);
-      return;
-    }
   }
 
   // Recurse through the array to find the elements to render.
@@ -38,16 +102,16 @@ function b_render($elements) {
     $function = 'b_render_' . $type;
 
     if (function_exists($function)) {
-      $function($elements);
+      $function($elements, $newline);
     }
 
     if (isset($elements['elements'])) {
-      b_render($elements['elements']);
+      b_render($elements['elements'], $newline);
     }
   }
   else {
     foreach ($elements as $element) {
-      b_render($element);
+      b_render($element, $newline);
     }
   }
 }
@@ -64,22 +128,12 @@ function b_render($elements) {
  * @param bool $newline
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
- *
- * @see b_format_text()
  */
 function b_render_text($variables, $newline = TRUE) {
-  $color = FALSE;
-  $bold = FALSE;
-
   // Get the text and format options.
-  if (is_array($variables)) {
-    $text = isset($variables['value']) ? $variables['value'] : '';
-    $color = isset($variables['#color']) ? $variables['#color'] : FALSE;
-    $bold = isset($variables['#bold']) ? $variables['#bold'] : FALSE;
-  }
-  else {
-    $text = (string) $variables;
-  }
+  $text = $variables['value'];
+  $color = isset($variables['#color']) ? $variables['#color'] : FALSE;
+  $bold = isset($variables['#bold']) ? $variables['#bold'] : FALSE;
 
   // Format and output the text.
   echo b_format_text($text, $color, $bold);
@@ -89,9 +143,94 @@ function b_render_text($variables, $newline = TRUE) {
 }
 
 /**
+ * Output a table of information.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - rows: An array of rows that make up the table, each of which is an array
+ *     of columns. Each column is an associative array containing:
+ *     - value: The text to format and output.
+ *     - #color: (optional) The name or code of the color to use for the text.
+ *     - #bold: (optional) A boolean indicating whether or not to format the
+ *       text as bold.
+ *   - header: (optional) An array of columns to display as the first row of the
+ *     table. Each column is an associative array as described in `rows` above.
+ *   - delimiter: (optional) The character(s) used to separate columns.
+ *   - delimiter_left: (optional) The character(s) displayed on the left of the
+ *     table.
+ *   - delimiter_right: (optional) The character(s) displayed on the right of the
+ *     table.
+ * @param bool $newline
+ *   Whether or not to add a newline character (`\n`) to the end of the output.
+ *   Defaults to TRUE.
+ */
+function b_render_table($variables, $newline = TRUE) {
+  // Get variables and set default values.
+  $rows = $variables['rows'];
+  $header = isset($variables['header']) ? $variables['header'] : array();
+  $delimiter = isset($variables['delimiter']) ? $variables['delimiter'] : ' | ';
+  $delimiter_left = isset($variables['delimiter_left']) ? $variables['delimiter_left'] : '| ';
+  $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : ' |';
+
+  // Get the width of each column.
+  $column_widths = b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
+
+  // Print the header.
+  if (!empty($header)) {
+    $rendered_row = array();
+
+    foreach ($header as $index => $column) {
+      $rendered_row[] = b_format_column($column, $column_widths[$index]);
+    }
+
+    // Invert the colors of the header.
+    b_render_text(array(
+      'value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right,
+      '#color' => '7',
+    ));
+  }
+
+  // Print each row.
+  foreach ($rows as $row) {
+    $rendered_row = array();
+    $remaining = FALSE;
+
+    foreach ($row as $index => $column) {
+      // Allow for text that is wider than the column width.
+      if (mb_strlen($column['value']) > $column_widths[$index]) {
+        $remaining = $column;
+        $remaining['index'] = $index;
+        $remaining['value'] = mb_substr($column['value'], $column_widths[$index]);
+
+        $column['value'] = mb_substr($column['value'], 0, $column_widths[$index]);
+      }
+
+      $rendered_row[] = b_format_column($column, $column_widths[$index]);
+    }
+
+    b_render_text(array(
+      'value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right,
+    ));
+
+    if ($remaining) {
+      $remaining_rows = b_get_remaining_rows($remaining, $column_widths);
+      foreach ($remaining_rows as $remaining_row) {
+        b_render_text(array(
+          'value' => $delimiter_left . implode($delimiter, $remaining_row) . $delimiter_right,
+        ));
+      }
+    }
+  }
+
+  if ($newline) {
+    echo "\n";
+  }
+}
+
+/**
  * Format text to be displayed in the terminal.
  *
- * @param string|int|false $color
+ * @param string|false $color
  *   The name or code of the color to use, or FALSE to use the default color.
  * @param bool $bold
  *   Whether or not to format the text as bold. Defaults to FALSE.
@@ -101,6 +240,7 @@ function b_render_text($variables, $newline = TRUE) {
  */
 function b_format_text($text, $color = FALSE, $bold = FALSE) {
   // Get color codes.
+  // @see https://en.wikipedia.org/wiki/ANSI_escape_code#3/4_bit
   $colors = array(
     'black' => '30',
     'red' => '31',
@@ -119,11 +259,11 @@ function b_format_text($text, $color = FALSE, $bold = FALSE) {
     $code[] = '1';
   }
   if (!empty($color)) {
-    if (is_string($color) && isset($colors[$color])) {
-      $code[] = $colors[$color];
-    }
-    elseif (is_int($color)) {
+    if (is_numeric($color)) {
       $code[] = $color;
+    }
+    elseif (isset($colors[$color])) {
+      $code[] = $colors[$color];
     }
   }
 
@@ -136,193 +276,124 @@ function b_format_text($text, $color = FALSE, $bold = FALSE) {
   }
 }
 
-
-
-
-
-
-
 /**
- * Count column width to fit screen width.
- */
-function _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
-  $cols_length = array();
-
-  if (is_array($header)) {
-    $index = 0;
-    foreach ($header as $col) {
-      if (is_array($col) && isset($col['data'])) {
-        $length = mb_strlen($col['data']);
-      }
-      else {
-        $length = mb_strlen($col);
-      }
-      if (!isset($cols_length[$index]) or $cols_length[$index] < $length) {
-        $cols_length[$index] = $length;
-      }
-      $index++;
-    }
-  }
-  foreach ($rows as $row) {
-    $index = 0;
-    foreach ($row as $col) {
-      if (is_array($col) && isset($col['data'])) {
-        $length = mb_strlen($col['data']);
-      }
-      else {
-        $length = mb_strlen($col);
-      }
-      if (!isset($cols_length[$index]) or $cols_length[$index] < $length) {
-        $cols_length[$index] = $length;
-      }
-      $index++;
-    }
-  }
-
-  $max_size_index = 0;
-  $max_length = 0;
-  $total_table_width = 0;
-  foreach ($cols_length as $index => $length) {
-    if ($length > $max_length) {
-      $max_size_index = $index;
-      $max_length = $length;
-    }
-    $total_table_width += $length;
-  }
-
-  $total_table_width += mb_strlen($delimiter_left);
-  $total_table_width += mb_strlen($delimiter_right);
-  $total_table_width += mb_strlen($delimiter) * count($cols_length) - 1;
-
-  $max_width = exec('tput cols');
-  if ($max_width && $total_table_width > $max_width) {
-    $diff = $total_table_width - $max_width;
-    $cols_length[$max_size_index] = $cols_length[$max_size_index] - $diff;
-  }
-  return $cols_length;
-}
-
-/**
- * Return column text based on width.
- */
-function _render_print_col($col, $width) {
-  $color_width = 0;
-  if (is_array($col) && isset($col['data'])) {
-    $data = b_format_text($col['data'], $col['#color'], $col['#bold']);
-    $color_width = mb_strlen($data) - mb_strlen($col['data']);
-  }
-  else {
-    $data = $col;
-  }
-  return sprintf('%-' . ($width + $color_width) . 's', $data);
-}
-
-/**
- * Display a table of information.
+ * Calculate a table's column widths and make sure they fit in the terminal.
  *
- * @param array $variables
+ * @see b_render_table() for description of parameters.
+ *
+ * @return array
+ *   An associative array of column widths, where the keys are column indexes
+ *   (numbered from 0) and the values are widths (in characters).
+ */
+function b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
+  $widths = array();
+
+  // Calculate the width of each column in the header.
+  if (!empty($header)) {
+    foreach ($header as $index => $column) {
+      $widths[$index] = mb_strlen($column['value']);
+    }
+  }
+
+  // Calculate the width of each column in each row.
+  foreach ($rows as $row) {
+    foreach ($row as $index => $column) {
+      $width = mb_strlen($column['value']);
+      if (!isset($widths[$index]) || $widths[$index] < $width) {
+        $widths[$index] = $width;
+      }
+    }
+  }
+
+  // Get the widest column, and calculate the width of the table.
+  $widest_column = 0;
+  $table_width = 0;
+  foreach ($widths as $index => $width) {
+    if ($width > $widths[$widest_column]) {
+      $widest_column = $index;
+    }
+    $table_width += $width;
+  }
+  $table_width += mb_strlen($delimiter_left);
+  $table_width += mb_strlen($delimiter_right);
+  $table_width += (count($widths) - 1) * mb_strlen($delimiter);
+
+  // Adjust the width of the widest column to fit in the terminal.
+  $terminal_width = exec('tput cols');
+  if ($terminal_width && $table_width > $terminal_width) {
+    $diff = $table_width - $terminal_width;
+    $widths[$widest_column] -= $diff;
+  }
+
+  return $widths;
+}
+
+/**
+ * Format a column ready to insert in a table row.
+ *
+ * @param array $column
  *   An associative array containing:
- *   - rows: An array of columns. Each column is either text to output or an
- *     associative array containing:
- *     - data: The text to output.
- *     - #color: (optional) The name or code of the color to use for the text.
- *     - #bold: (optional) A boolean indicating whether or not to format the
- *       text as bold.
- *  - delimiter: The character(s) used to separate columns.
- *  - delimiter_left: The character(s) displayed on the left of the table.
- *  - delimiter_right: The character(s) displayed on the right of the table.
+ *   - value: The text to format and output in the column.
+ *   - #color: (optional) The name or code of the color to use for the text.
+ *   - #bold: (optional) A boolean indicating whether or not to format the text
+ *     as bold.
+ * @param int $width
+ *   The width to set for the column.
+ *
+ * @return string
+ *   The formatted string for the column.
  */
-function b_render_table($variables) {
-  $header = FALSE;
-  if (isset($variables['header'])) {
-    $header = $variables['header'];
-  }
-  $rows = $variables['rows'];
-  $delimiter = isset($variables['delimiter']) ? $variables['delimiter'] : " | ";
-  $delimiter_left = isset($variables['delimiter_left']) ? $variables['delimiter_left'] : "| ";
-  $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : " |";
+function b_format_column($column, $width) {
+  $text = b_render_text($column);
+  $color_width = mb_strlen($text) - mb_strlen($column['value']);
 
-  $cols_length = _render_table_count_columns_width($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
-
-  if ($header) {
-    $row_rendered = array();
-    foreach ($header as $index => $col) {
-      $row_rendered[] = _render_print_col($col, $cols_length[$index]);
-    }
-    // Flip background and foreground colors for table header.
-    $text = $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right;
-    echo b_format_text($text, 7) . "\n";
-  }
-
-  foreach ($rows as $row) {
-    $print_args = array();
-    $repeat = FALSE;
-    $row_rendered = array();
-    foreach ($row as $index => $col) {
-
-      $data = '';
-      $col_len = 0;
-      if (is_array($col) && isset($col['data'])) {
-        if (mb_strlen($col['data']) > $cols_length[$index]) {
-          $repeat = $col;
-          $repeat['index'] = $index;
-          $repeat['data'] = mb_substr($col['data'], $cols_length[$index]);
-          $col['data'] = mb_substr($col['data'], 0, $cols_length[$index]);
-        }
-      }
-      else {
-        if (mb_strlen($col) > $cols_length[$index]) {
-          $repeat = array(
-            'index' => $index,
-            'data' => mb_substr($col, $cols_length[$index]),
-          );
-          $col = mb_substr($col, 0, $cols_length[$index]);
-        }
-      }
-      $row_rendered[] = _render_print_col($col, $cols_length[$index]);
-    }
-    echo $delimiter_left . implode($delimiter, $row_rendered) . $delimiter_right . "\n";
-    if ($repeat) {
-      $rows_return = _row_next_line_value($repeat, $cols_length, $delimiter);
-      foreach ($rows_return as $row_return) {
-        echo $delimiter_left . implode($delimiter, $row_return) . $delimiter_right . "\n";
-      }
-    }
-  }
+  return sprintf('%-' . ($width + $color_width) . 's', $text);
 }
 
 /**
- * Output next value line to fit column size.
+ * Get the remaining rows yet to be output when a column is too long to fit in
+ * the terminal.
  *
- * If column does not fit screen size and column size, we use this function to
- * properly output next value line to fit column size.
+ * @param array $row
+ *   The remains of the row to be output.
+ * @param array $column_widths
+ *   An associative array of column widths keyed by index.
+ *   @see b_get_column_widths()
+ *
+ * @return array
+ *   An array of rows to add to the table.
  */
-function _row_next_line_value($repeat, $cols_length) {
+function b_get_remaining_rows($row, $column_widths) {
+  $rows = array();
   $row_rendered = array();
-  $rows_return = array();
-  foreach ($cols_length as $index => $length) {
-    if ($index == $repeat['index']) {
-      $col = $repeat;
-      if (mb_strlen($col['data']) > $length) {
-        $col['data'] = mb_substr($col['data'], 0, $length);
-        $repeat['data'] = mb_substr($repeat['data'], $length);
+
+  foreach ($column_widths as $index => $width) {
+    if ($index == $row['index']) {
+      $column = $row;
+
+      if (mb_strlen($column['value']) > $width) {
+        $row['value'] = mb_substr($row['value'], $width);
+        $column['value'] = mb_substr($column['value'], 0, $width);
       }
       else {
-        $repeat = FALSE;
+        $row = FALSE;
       }
-      $row_rendered[$index] = _render_print_col($col, $length);
+
+      $row_rendered[$index] = b_format_column($column, $width);
     }
     else {
-      $row_rendered[$index] = _render_print_col('', $length);
-    }
-  }
-  $rows_return[] = $row_rendered;
-  if ($repeat) {
-    $tmp = _row_next_line_value($repeat, $cols_length);
-    foreach ($tmp as $tmp_row) {
-      $rows_return[] = $tmp_row;
+      $row_rendered[$index] = b_format_column('', $width);
     }
   }
 
-  return $rows_return;
+  $rows[] = $row_rendered;
+
+  if ($row) {
+    $remaining_rows = b_get_remaining_rows($row, $column_widths);
+    foreach ($remaining_rows as $remaining_row) {
+      $rows[] = $remaining_row;
+    }
+  }
+
+  return $rows;
 }

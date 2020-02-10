@@ -23,13 +23,13 @@ function test_b_command() {
 function test_b_callback($arguments, $options) {
   if (defined('BACKDROP_ROOT') && file_exists(BACKDROP_ROOT . '/index.php')) {
     if (b_is_multisite(BACKDROP_ROOT)) {
-      b_set_message('Backdrop multisite installation detected.', 'status');
+      b_message('Backdrop multisite installation detected.', 'status');
     }
     else {
-      b_set_message('Backdrop installation detected.', 'status');
+      b_message('Backdrop installation detected.', 'status');
     }
   }
   else {
-    b_set_message('Backdrop installation not found.', 'warning');
+    b_message('Backdrop installation not found.', 'warning');
   }
 }

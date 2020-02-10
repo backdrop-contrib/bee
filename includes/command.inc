@@ -7,7 +7,7 @@
 /**
  * Parse the input to extract the command, options and arguments.
  */
-function b_command_parse_input() {
+function b_parse_input() {
   global $argv, $command, $options, $arguments;
 
   foreach ($argv as $id => $arg) {
@@ -52,18 +52,23 @@ function b_command_parse_input() {
 /**
  * Get the callback function for the command and process it.
  */
-function b_command_process() {
-  global $command, $elements;
+function b_process_command() {
+  global $command, $options, $arguments, $command_aliases, $elements;
 
   // Display help text if no command is given.
   if (empty($command)) {
     $command = 'help';
   }
 
-  // Get all commands and make sure the given command is valid.
-  $commands = b_command_all_commands();
+  // Get all commands and convert any aliases.
+  $commands = b_all_commands();
+  if (isset($command_aliases[$command])) {
+    $command = $command_aliases[$command];
+  }
+
+  // Make sure the given command exists.
   if (!isset($commands[$command])) {
-    b_set_message(bt('There is no `@command` command.', array(
+    b_message(bt('There is no `@command` command.', array(
       '@command' => $command,
     )), 'error');
     return;
@@ -72,20 +77,17 @@ function b_command_process() {
   // Process the command.
   $descriptor = $commands[$command];
   $callback = $descriptor['callback'];
-  if (function_exists($callback)) {
+  if (function_exists($callback) && b_validate_command($descriptor)) {
     $ready = TRUE;
     if (isset($descriptor['bootstrap'])) {
       $ready = b_bootstrap($descriptor['bootstrap']);
     }
 
     if ($ready) {
-      if (b_command_validate($descriptor)) {
-        $elements[] = $callback(b_storage('arguments'), b_storage('options'));
-        b_storage('elements', $elements);
-      }
+      $elements[] = $callback($arguments, $options);
     }
     else {
-      b_set_message(bt('Required bootstrap level for @module is not ready.', array(
+      b_message(bt('Required bootstrap level for @module is not ready.', array(
         '@module' => $descriptor['module'],
       )), 'error');
     }
@@ -98,8 +100,10 @@ function b_command_process() {
  * @return array
  *   Associative array of command descriptors.
  */
-function b_command_all_commands() {
+function b_all_commands() {
+  global $command_aliases;
   $all_commands = array();
+
   if (function_exists('backdrop_static')) {
     $all_commands = &backdrop_static(__FUNCTION__);
   }
@@ -114,7 +118,7 @@ function b_command_all_commands() {
       // Make sure the command file's hook function exists.
       $function = $command_file . '_b_command';
       if (!function_exists($function)) {
-        b_set_message(bt('`@function()` does not exist in @file. Skipping.', array(
+        b_message(bt('`@function()` does not exist in @file. Skipping.', array(
           '@function' => $function,
           '@file' => $path,
         )), 'log');
@@ -123,16 +127,14 @@ function b_command_all_commands() {
       }
 
       // Get the command descriptor(s) from the hook function.
-      $result = $function();
-      foreach ((array) $result as $command => $descriptor) {
+      foreach ((array) $function() as $command => $descriptor) {
         $descriptor['module'] = $command_file;
         $all_commands[$command] = $descriptor;
 
-        // For each alias, store a copy of the descriptor.
-        if (!empty($command['aliases'])) {
-          foreach ($command['aliases'] as $alias) {
-            $descriptor['is_alias'] = TRUE;
-            $all_commands[$alias] = $descriptor;
+        // Map aliases to their commands.
+        if (!empty($descriptor['aliases'])) {
+          foreach ($descriptor['aliases'] as $alias) {
+            $command_aliases[$alias] = $command;
           }
         }
       }
@@ -145,9 +147,8 @@ function b_command_all_commands() {
 /**
  * Compile a list of all available `b` command files.
  *
- * A `b` command file is a file that matches: `*.b.inc`.
- *
- * The following places are searched for command files:
+ * A `b` command file is a file that matches `*.b.inc`. They are searched for
+ * in the following places:
  * - The `commands` directory within the `b` installation.
  * - The `.b` folder in the user's HOME directory.
  * - Enabled modules in the current Backdrop site.
@@ -164,7 +165,7 @@ function b_command_file_list() {
 
   if (empty($list)) {
     // Get list of paths to search.
-    $search_paths = b_command_file_search_paths();
+    $search_paths = b_command_file_paths();
 
     foreach ($search_paths as $path) {
       // Find all `.b.inc` files.
@@ -185,9 +186,11 @@ function b_command_file_list() {
  *
  * @return array
  *   A list of paths to directories where command files can be found.
+ *
+ * @see b_command_file_list()
  */
-function b_command_file_search_paths() {
-  global $installed;
+function b_command_file_paths() {
+  global $backdrop_installed;
   $search_paths = array();
   $home = getenv('HOME') . '/.b';
 
@@ -200,7 +203,7 @@ function b_command_file_search_paths() {
   }
 
   // Add enabled modules' directories.
-  if ($installed) {
+  if ($backdrop_installed) {
     $filenames = db_query('SELECT filename FROM {system} WHERE type = :type AND status = :status', array(
       ':type' => 'module',
       ':status' => 1,
@@ -216,7 +219,8 @@ function b_command_file_search_paths() {
 
 /**
  * Validate the command input (e.g. make sure required arguments and options
- * have been given).
+ * have been given, and remove any arguments/options that aren't part of the
+ * given command).
  *
  * @param array $descriptor
  *   An associative array describing a command, its arguments and options.
@@ -224,37 +228,68 @@ function b_command_file_search_paths() {
  * @return bool
  *   Whether or not the command input is valid.
  */
-function b_command_validate($descriptor) {
+function b_validate_command($descriptor) {
   global $options, $arguments;
 
-  // Check for required options.
   if (isset($descriptor['options'])) {
-    foreach ($descriptor['options'] as $name => $option) {
-      if (isset($option['required']) && $option['required'] == TRUE) {
-        if (!isset($options[$name])) {
-          b_set_message(bt('Option @name is required.', array(
-            '@name' => $name,
-          )), 'error');
+    // Remove any provided options that aren't used by the command.
+    foreach ($options as $name => $value) {
+      if (!isset($descriptor['options'][$name])) {
+        unset($options[$name]);
+      }
+    }
 
-          return FALSE;
-        }
+    // Make sure required options have been provided.
+    foreach ($descriptor['options'] as $name => $option) {
+      if (!empty($option['required']) && !isset($options[$name])) {
+        b_message(bt('Option `@name` is required.', array(
+          '@name' => $name,
+        )), 'error');
+
+        return FALSE;
       }
     }
   }
+  else {
+    $options = array();
+  }
 
-  // Check for required arguments.
   if (isset($descriptor['arguments'])) {
-    foreach ($descriptor['arguments'] as $name => $argument) {
-      if (isset($argument['required']) && $argument['required'] == TRUE) {
-        if (!isset($arguments[$name])) {
-          b_set_message(bt('Argument @name is required.', array(
-            '@name' => $name,
-          )), 'error');
+    // List provided arguments by their argument name.
+    $new_arguments = array();
+    $name = '';
+    $multiple = FALSE;
+    $argument_names = array_keys($descriptor['arguments']);
+    foreach ($arguments as $argument) {
+      if (!empty($argument_names)) {
+        if (!$multiple) {
+          $name = array_shift($argument_names);
+        }
 
-          return FALSE;
+        if (!empty($descriptor['arguments'][$name]['multiple'])) {
+          $new_arguments[$name][] = $argument;
+          $multiple = TRUE;
+        }
+        else {
+          $new_arguments[$name] = $argument;
         }
       }
     }
+    $arguments = $new_arguments;
+
+    // Make sure required arguments have been provided.
+    foreach ($descriptor['arguments'] as $name => $argument) {
+      if (!empty($argument['required']) && !isset($arguments[$name])) {
+        b_message(bt('Argument `@name` is required.', array(
+          '@name' => $name,
+        )), 'error');
+
+        return FALSE;
+      }
+    }
+  }
+  else {
+    $arguments = array();
   }
 
   return TRUE;

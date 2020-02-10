@@ -64,7 +64,7 @@ function status_b_callback($arguments, $options) {
     }
   }
   else {
-    b_set_message('No database connection', 'warning');
+    b_message('No database connection', 'warning');
   }
 
   return array(

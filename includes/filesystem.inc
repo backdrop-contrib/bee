@@ -131,7 +131,7 @@ function b_find_tmp() {
       $temporary_directory = getcwd() . '/tmp';
       mkdir($temporary_directory, TRUE);
       if (!is_dir($temporary_directory)) {
-        b_set_message('Unable to create a temporary directory.', 'error');
+        b_message('Unable to create a temporary directory.', 'error');
         return FALSE;
       }
     }
@@ -196,7 +196,7 @@ function b_file_unmanaged_delete_recursive($path) {
  */
 function b_file_unmanaged_delete($path) {
   if (is_dir($path)) {
-    b_set_message($path . ' is a directory and cannot be removed using file_unmanaged_delete().', 'error');
+    b_message($path . ' is a directory and cannot be removed using file_unmanaged_delete().', 'error');
     return FALSE;
   }
   if (is_file($path)) {
@@ -205,12 +205,12 @@ function b_file_unmanaged_delete($path) {
   // Return TRUE for non-existent file, but log that nothing was actually
   // deleted, as the current state is the intended result.
   if (!file_exists($path)) {
-    b_set_message('The file ' . $path . '  was not deleted because it does not exist.', 'warning');
+    b_message('The file ' . $path . '  was not deleted because it does not exist.', 'warning');
     return TRUE;
   }
   // We cannot handle anything other than files and directories. Log an error
   // for everything else (sockets, symbolic links, etc).
-  b_set_message('The file ' . $path . ' is not of a recognized type so it was not deleted.', 'error');
+  b_message('The file ' . $path . ' is not of a recognized type so it was not deleted.', 'error');
   return FALSE;
 }
 
@@ -303,7 +303,7 @@ function b_find_root($path, $recursive = TRUE) {
     }
   }
   else {
-    b_set_message("$path is not a valid directory.", 'error');
+    b_message("$path is not a valid directory.", 'error');
   }
 
   return FALSE;
@@ -320,11 +320,11 @@ function b_find_site_by_url($url, $root) {
       return $sites[$url];
     }
     else {
-      b_set_message("$url could not be found in $root/sites/sites.php.", 'error');
+      b_message("$url could not be found in $root/sites/sites.php.", 'error');
     }
   }
   else {
-    b_set_message("$root/sites/sites.php could not be found or is empty.", 'error');
+    b_message("$root/sites/sites.php could not be found or is empty.", 'error');
   }
 
   return FALSE;
@@ -355,7 +355,7 @@ function b_find_site_by_path($path, $root) {
     }
   }
   else {
-    b_set_message("$path is not a valid directory.", 'error');
+    b_message("$path is not a valid directory.", 'error');
   }
 
   return FALSE;

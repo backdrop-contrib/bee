@@ -36,14 +36,17 @@ $options = array();
 // A list of arguments given to the command.
 $arguments = array();
 
+// A list that maps command aliases to their commands.
+$command_aliases = array();
+
 // A boolean indicating whether or not Backdrop is installed.
-$installed = FALSE;
+$backdrop_installed = FALSE;
 
 // The root directory of the Backdrop installation to use.
-$root = '';
+$backdrop_root = '';
 
 // The site directory of the Backdrop multisite to use.
-$site = FALSE;
+$backdrop_site = FALSE;
 
 // A list of multisites populated from `sites.php`.
 $multisites = array();
@@ -53,6 +56,9 @@ $yes_mode = FALSE;
 
 // A boolean indicating whether or not `Debug` mode is enabled.
 $debug_mode = FALSE;
+
+// A list of messages to display to the user, grouped by type.
+$messages = array();
 
 // A collection of elements to render and display as a result of processing
 // the given command.

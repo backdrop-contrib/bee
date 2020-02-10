@@ -1,111 +1,14 @@
 <?php
 /**
  * @file
- * Functions for dealing with terminal input & output.
+ * Functions for dealing with user input from the terminal.
  */
 
-/**
- * Add a message to the `$messages` array.
- *
- * @param string $message
- *   The message to be displayed.
- * @param string $type
- *   The type of message to be displayed. One of: status, success, warning,
- *   error, log.
- *
- * @return array
- *   An array of messages to be displayed, grouped by type.
- */
-function b_messages($message = FALSE, $type = FALSE) {
-  static $messages = array();
 
-  if ($message) {
-    if (!isset($messages[$type])) {
-      $messages[$type] = array();
-    }
-    $messages[$type][] = $message;
-  }
 
-  return $messages;
-}
 
-/**
- * An alias for `b_messages()`, defaulting to 'status' type messages.
- *
- * @see b_messages()
- */
-function b_set_message($message = FALSE, $type = 'status') {
-  b_messages($message, $type);
-}
 
-/**
- * Format and display all messages to the user.
- */
-function b_print_messages() {
-  global $debug_mode;
-  $rows = array();
 
-  // Get all messages.
-  if (empty($messages = b_messages())) {
-    return;
-  }
-
-  // Style each type of message.
-  foreach ($messages as $type => $type_messages) {
-    if ($type == 'log' && !$debug_mode) {
-      continue;
-    }
-
-    switch ($type) {
-      case 'success':
-        $color = 'green';
-        $symbol = '[v]';
-        break;
-
-      case 'warning':
-        $color = 'yellow';
-        $symbol = '[!]';
-        break;
-
-      case 'error':
-        $color = 'red';
-        $symbol = '[x]';
-        break;
-
-      case 'log':
-        $color = 'red';
-        $symbol = ' - ';
-        break;
-
-      case 'status':
-      default:
-        $color = 'blue';
-        $bold = TRUE;
-        $symbol = '[o]';
-    }
-
-    foreach ($type_messages as $message) {
-      $rows[] = array(
-        array(
-          'data' => $symbol,
-          '#color' => $color,
-          '#bold' => $bold,
-        ),
-        $message,
-      );
-    }
-  }
-
-  // Render messages in a table.
-  b_render(array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => '   ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  ));
-  echo "\n";
-}
 
 
 

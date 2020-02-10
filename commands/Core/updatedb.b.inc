@@ -40,7 +40,7 @@ function updatedb_status_callback() {
   $pending = update_get_update_list();
 
   if (empty($pending)) {
-    b_set_message(bt("No database updates required"));
+    b_message(bt("No database updates required"));
     return;
   }
 
@@ -65,7 +65,7 @@ function updatedb_callback($arguments, $options) {
   $pending = update_get_update_list();
 
   if (empty($pending)) {
-    b_set_message(bt("No database updates required"));
+    b_message(bt("No database updates required"));
     return;
   }
 
@@ -73,7 +73,7 @@ function updatedb_callback($arguments, $options) {
   b_render(update_table($update));
 
   if (!b_confirm(bt('Do you wish to run all pending updates?'))) {
-    b_set_message(bt('Cancelled'));
+    b_message(bt('Cancelled'));
     return;
   }
 
@@ -81,7 +81,7 @@ function updatedb_callback($arguments, $options) {
   $batch = &batch_get();
   $batch['progressive'] = 0;
   update_batch($start, NULL, NULL, array('progressive' => 0));
-  b_set_message(bt('All updates processed'), 'success');
+  b_message(bt('All updates processed'), 'success');
 }
 
 /**

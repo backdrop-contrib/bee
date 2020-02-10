@@ -46,7 +46,7 @@ function cache_command_clear($arguments) {
 
   if (!isset($arguments['type'])) {
     if (!$choice = b_choice($caches, bt('Enter a number to choose which cache to clear'))) {
-      b_set_message(bt('Cancelled.'));
+      b_message(bt('Cancelled.'));
       return FALSE;
     }
   }
@@ -108,7 +108,7 @@ function cache_command_clear($arguments) {
       break;
 
     default:
-      b_set_message(bt('Unsupported option !name!', array('!name' => $choice)), 'error');
+      b_message(bt('Unsupported option !name!', array('!name' => $choice)), 'error');
       $rows = array();
       foreach ($caches as $key => $value) {
         $rows[] = array(
@@ -126,5 +126,5 @@ function cache_command_clear($arguments) {
       );
   }
 
-  b_set_message(bt("!type cache cleared.", array('!type' => $caches[$choice])), 'success');
+  b_message(bt("!type cache cleared.", array('!type' => $caches[$choice])), 'success');
 }

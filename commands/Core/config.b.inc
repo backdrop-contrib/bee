@@ -59,15 +59,15 @@ function config_set_callback($arguments, $options) {
   if ($config = $config_storage->read($arguments['config_name'])) {
     if (isset($config[$arguments['name']])) {
       if (is_array($config[$arguments['name']])) {
-        b_set_message(bt('Value is array. We do not support it yet.'), 'error');
+        b_message(bt('Value is array. We do not support it yet.'), 'error');
         return FALSE;
       }
       config_set($arguments['config_name'], $arguments['name'], $arguments['value']);
-      b_set_message(bt('Config updated'), 'success');
+      b_message(bt('Config updated'), 'success');
     }
   }
   else {
-    b_set_message(bt('There is no config !name', array('!name' => $arguments['config_name'])), 'error');
+    b_message(bt('There is no config !name', array('!name' => $arguments['config_name'])), 'error');
   }
 }
 

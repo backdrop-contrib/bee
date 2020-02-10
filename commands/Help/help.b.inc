@@ -32,14 +32,14 @@ function help_b_callback($arguments) {
   if (defined('BACKDROP_ROOT')) {
     b_bootstrap(B_BOOTSTRAP_FULL);
   }
-  $commands = b_command_all_commands();
+  $commands = b_all_commands();
   ksort($commands);
   $rows = array();
   $answer = array();
   if (isset($arguments['command'])) {
     $cmd = $arguments['command'];
     if (!isset($commands[$cmd])) {
-      b_set_message('There is no ' . $cmd, 'error');
+      b_message('There is no ' . $cmd, 'error');
       return;
     }
     $output = display_help_by_cmd($commands[$cmd]);
