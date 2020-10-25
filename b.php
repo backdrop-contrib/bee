@@ -21,6 +21,12 @@ b_init();
 b_process_command();
 b_print_messages();
 // b_render($elements);
+$answer = b_choice(array(
+  'one' => 'One',
+  'two' => 'Two',
+  'three' => 'Three',
+), "Pick one", 'three');
+// print_r("You said $answer.\n");
 exit();
 
 /**

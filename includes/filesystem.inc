@@ -5,6 +5,144 @@
  */
 
 /**
+ * Find Backdrop's root directory.
+ *
+ * @param string $path
+ *   The path to check for an installation of Backdrop.
+ * @param bool $recursive
+ *   Whether or not to recurse backwards/up through the filesystem from the
+ *   given `$path`. Defaults to TRUE.
+ *
+ * @return string|false
+ *   The path to the root directory of Backdrop, or FALSE if no Backdrop
+ *   installation was found.
+ */
+function b_find_root($path, $recursive = TRUE) {
+  // Make sure we have a valid dir path.
+  if (!empty($path) && is_dir($path)) {
+    // Check if this is Backdrop's root dir.
+    if (file_exists($path . '/index.php') && file_exists($path . '/core/misc/backdrop.js')) {
+      return $path;
+    }
+    elseif ($recursive) {
+      // Get the path of the parent dir.
+      $path = dirname($path);
+      if ($path != '/') {
+        // Check the parent path.
+        return b_find_root($path);
+      }
+    }
+  }
+  else {
+    b_message(bt('@path is not a valid directory.', array(
+      '@path' => $path,
+    )), 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Find Backdrop's site directory from the given `$url`.
+ *
+ * @param string $url
+ *   The URL of the site to find, as defined in `sites.php`.
+ *
+ * @return string|false
+ *   The site directory, as defined in `sites.php`, or FALSE if no site was
+ *   found.
+ */
+function b_find_site_by_url($url) {
+  global $backdrop_root;
+  $sites = b_is_multisite($backdrop_root);
+
+  if ($sites) {
+    if (isset($sites[$url])) {
+      return $sites[$url];
+    }
+    else {
+      b_message(bt('@url could not be found in $root/sites/sites.php.', array(
+        '@url' => $url,
+        '@root' => $backdrop_root,
+      )), 'error');
+    }
+  }
+  else {
+    b_message(bt('@root/sites/sites.php could not be found or is empty.', array(
+      '@root' => $backdrop_root,
+    )), 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Find Backdrop's site directory from the given `$path`.
+ *
+ * @param string $path
+ *   The path to check for the current site.
+ *
+ * @return string|false
+ *   The site directory, or FALSE if no site was found.
+ */
+function b_find_site_by_path($path) {
+  global $backdrop_root;
+
+  // Make sure we have a valid dir path.
+  if (!empty($path) && is_dir($path)) {
+    // Check if this is Backdrop's current site dir.
+    if (file_exists($path . '/settings.php')) {
+      if ($path != $backdrop_root) {
+        // Return the last part of the path (the site dir name).
+        return basename($path);
+      }
+    }
+    else {
+      // Get the path of the parent dir.
+      $path = dirname($path);
+      if ($path != '/') {
+        // Check the parent path.
+        return b_find_site_by_path($path);
+      }
+    }
+  }
+  else {
+    b_message(bt('@path is not a valid directory.', array(
+      '@path' => $path,
+    )), 'error');
+  }
+
+  return FALSE;
+}
+
+/**
+ * Check if this is a multisite installation, based on the presence of a
+ * populated `sites.php` file.
+ *
+ * @return array|false
+ *   Returns an array of sites (as defined in `sites.php`) if this is a
+ *   multisite installation, or FALSE if it's a regular (non-multisite)
+ *   installation.
+ */
+function b_is_multisite() {
+  global $backdrop_root;
+  $sites_php = $backdrop_root . '/sites/sites.php';
+
+  if (file_exists($sites_php)) {
+    $sites = array();
+
+    // Populate the $sites array.
+    include $sites_php;
+
+    if (!empty($sites)) {
+      return $sites;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
  * Finds all files that match a given mask in a given directory.
  *
  * @see file_scan_directory()
@@ -67,323 +205,121 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
   return $files;
 }
 
-
-
-
-
-/**
- * Generate temporary directory and return path to it.
- */
-function b_tmp_folder() {
-  if ($tmp = b_find_tmp()) {
-    $tmp = $tmp . '/' . hash('sha256', mt_rand());
-    mkdir($tmp);
-    return $tmp;
-  }
-
-  return FALSE;
-}
-
 /**
  * Returns the path to a temporary directory.
  *
- * This is a custom version of Drupal's file_directory_path().
- * We can't directly rely on sys_get_temp_dir() as this
- * path is not valid in some setups for Mac, and we want to honor
- * an environment variable (used by tests).
- *
- * Copied from drush_find_tmp();
+ * @return string|false
+ *   The path to the first matching temporary directory, or FALSE if none was
+ *   found.
  */
-function b_find_tmp() {
+function b_find_temp() {
   static $temporary_directory;
+
   if (!isset($temporary_directory)) {
-    $directories = array();
-    // Get user specific and operating system temp folders from system
-    // environment variables.
-    $tempdir = getenv('TEMP');
-    if (!empty($tempdir)) {
-      $directories[] = $tempdir;
-    }
-    $tmpdir = getenv('TMP');
-    if (!empty($tmpdir)) {
-      $directories[] = $tmpdir;
-    }
-    // Operating system specific dirs.
-    $windir = getenv('WINDIR');
-    if (isset($windir)) {
-      // WINDIR itself is not writable, but it always contains a /Temp dir,
-      // which is the system-wide temporary directory on older versions. Newer
-      // versions only allow system processes to use it.
-      $directories[] = $windir . '/Temp';
-    }
-    else {
-      $directories[] = '/tmp';
-    }
-    $directories[] = sys_get_temp_dir();
+    $temporary_directory = FALSE;
+
+    // Various possible paths to check, in order of preference.
+    $directories = array(
+      sys_get_temp_dir(),
+      getenv('TEMP'),
+      getenv('TMP'),
+      '/tmp',
+    );
+
+    // Get the first directory that's writable.
     foreach ($directories as $directory) {
       if (is_dir($directory) && is_writable($directory)) {
         $temporary_directory = $directory;
         break;
       }
     }
-    if (empty($temporary_directory)) {
-      // If no directory has been found, create one in cwd.
-      $temporary_directory = getcwd() . '/tmp';
-      mkdir($temporary_directory, TRUE);
-      if (!is_dir($temporary_directory)) {
-        b_message('Unable to create a temporary directory.', 'error');
-        return FALSE;
-      }
-    }
   }
+
   return $temporary_directory;
 }
 
 /**
- * Deletes all files and directories in the specified filepath recursively.
+ * Deletes a file or directory.
  *
- * If the specified path is a directory then the function will call itself
- * recursively to process the contents. Once the contents have been removed the
- * directory will also be removed.
- *
- * If the specified path is a file then it will be passed to
- * file_unmanaged_delete().
- *
- * Note that this only deletes visible files with write permission.
+ * If the path is a directory, all files and folders within that directory will
+ * be deleted first, then the directory itself will be deleted.
  *
  * @param string $path
- *   A string containing either an URI or a file or directory path.
+ *   The file or directory to be deleted.
  *
  * @return bool
- *   TRUE for success or if path does not exist, FALSE in the event of an
- *   error.
- *
- * @see file_unmanaged_delete()
+ *   TRUE for success or if the path doesn't exist (since that's the desired
+ *   result), or FALSE in the event of an error.
  */
-function b_file_unmanaged_delete_recursive($path) {
-  if (is_dir($path)) {
-    // @codingStandardsIgnoreLine -- The recommendation is outdated (https://github.com/serundeputy/coder/issues/3)
-    $dir = dir($path);
-    while (($entry = $dir->read()) !== FALSE) {
-      if ($entry == '.' || $entry == '..') {
-        continue;
-      }
-      $entry_path = $path . '/' . $entry;
-      b_file_unmanaged_delete_recursive($entry_path);
-    }
-    $dir->close();
-
-    return b_rmdir($path);
-  }
-  return b_file_unmanaged_delete($path);
-}
-
-/**
- * Deletes a file without database changes or hook invocations.
- *
- * This function should be used when the file to be deleted does not have an
- * entry recorded in the files table.
- *
- * @param string $path
- *   A string containing a file path or (streamwrapper) URI.
- *
- * @return bool
- *   TRUE for success or path does not exist, or FALSE in the event of an
- *   error.
- *
- * @see file_delete()
- * @see file_unmanaged_delete_recursive()
- */
-function b_file_unmanaged_delete($path) {
-  if (is_dir($path)) {
-    b_message($path . ' is a directory and cannot be removed using file_unmanaged_delete().', 'error');
-    return FALSE;
-  }
+function b_delete($path) {
+  // Delete files.
   if (is_file($path)) {
-    return b_unlink($path);
+    return unlink($path);
   }
-  // Return TRUE for non-existent file, but log that nothing was actually
-  // deleted, as the current state is the intended result.
+  // Delete directories.
+  elseif (is_dir($path)) {
+    $iterator = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST);
+
+    // Delete all sub-files/directories first.
+    foreach ($files as $file) {
+      $realpath = $file->getRealPath();
+
+      if ($file->isDir()) {
+        rmdir($realpath);
+      } else {
+        unlink($realpath);
+      }
+    }
+
+    // Delete the directory itself last.
+    return rmdir($path);
+  }
+
+  // Log a message if the file/directory doesn't exist (but return TRUE anyway).
   if (!file_exists($path)) {
-    b_message('The file ' . $path . '  was not deleted because it does not exist.', 'warning');
+    b_message(bt("`@path` was not deleted because it doesn't exist.", array(
+      '@path' => $path,
+    )), 'log');
     return TRUE;
   }
-  // We cannot handle anything other than files and directories. Log an error
-  // for everything else (sockets, symbolic links, etc).
-  b_message('The file ' . $path . ' is not of a recognized type so it was not deleted.', 'error');
+
+  // Display an error for non-files/directories.
+  b_message(bt("`@path` was not deleted because it is not a recognized type.", array(
+    '@path' => $path,
+  )), 'error');
   return FALSE;
 }
 
 /**
- * Removes a directory.
+ * Copies a file or directory to another directory.
  *
- * PHP's rmdir() is broken on Windows, as it can fail to remove a directory
- * when it has a read-only flag set.
+ * If the source is a directory, all files and folders within that directory
+ * will be copied recursively.
  *
- * @param string $uri
- *   A URI or pathname.
- *
- * @return bool
- *   TRUE on success, or FALSE on failure.
- *
- * @see rmdir()
- * @ingroup php_wrappers
+ * @param string $source
+ *   The file or directory to be copied.
+ * @param string $destination
+ *   The directory to put the copy into.
  */
-function b_rmdir($uri) {
-  if (substr(PHP_OS, 0, 3) == 'WIN') {
-    chmod($uri, 0700);
+function b_copy($source, $destination) {
+  // Create the destination directory if it doesn't already exist.
+  if (!file_exists($destination)) {
+    mkdir($destination);
   }
-  return rmdir($uri);
-}
 
-/**
- * Deletes a file.
- *
- * PHP's unlink() is broken on Windows, as it can fail to remove a file
- * when it has a read-only flag set.
- *
- * @param string $uri
- *   A URI or pathname.
- *
- * @return bool
- *   TRUE on success, or FALSE on failure.
- *
- * @see unlink()
- * @ingroup php_wrappers
- */
-function b_unlink($uri) {
-  if (substr(PHP_OS, 0, 3) == 'WIN') {
-    chmod($uri, 0600);
-  }
-  return unlink($uri);
-}
+  // Copy sub-files/directories recursively.
+  $iterator = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
+  $files = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
 
-/**
- * Recursively copy one directory to another.
- */
-function b_recursive_copy($src, $dst) {
-  $dir = opendir($src);
-  if (!file_exists($dst)) {
-    mkdir($dst);
-  }
-  while (($file = readdir($dir)) !== FALSE) {
-    if (($file != '.') && ($file != '..')) {
-      if (is_dir($src . '/' . $file)) {
-        b_recursive_copy($src . '/' . $file, $dst . '/' . $file);
-      }
-      else {
-        copy($src . '/' . $file, $dst . '/' . $file);
-      }
-    }
-  }
-  closedir($dir);
-}
+  foreach ($files as $file) {
+    $subpath = $destination . '/' . $iterator->getSubPathname();
 
-/**
- * Find Backdrop's root directory.
- *
- * Optionally recurse backwards through the filesystem from the given $path.
- */
-function b_find_root($path, $recursive = TRUE) {
-  // Make sure we have a valid dir path.
-  if (!empty($path) && is_dir($path)) {
-    // Check if this is Backdrop's root dir.
-    if (file_exists($path . '/index.php') && file_exists($path . '/core/misc/backdrop.js')) {
-      return $path;
+    if ($file->isDir()) {
+      mkdir($subpath);
     }
     else {
-      if ($recursive) {
-        // Get the path of the parent dir.
-        $path = dirname($path);
-        if ($path != '/') {
-          // Check the parent path.
-          return b_find_root($path);
-        }
-      }
+      copy($file, $subpath);
     }
   }
-  else {
-    b_message("$path is not a valid directory.", 'error');
-  }
-
-  return FALSE;
-}
-
-/**
- * Find Backdrop's site directory from the given $url.
- */
-function b_find_site_by_url($url, $root) {
-  $sites = b_is_multisite($root);
-
-  if ($sites) {
-    if (isset($sites[$url])) {
-      return $sites[$url];
-    }
-    else {
-      b_message("$url could not be found in $root/sites/sites.php.", 'error');
-    }
-  }
-  else {
-    b_message("$root/sites/sites.php could not be found or is empty.", 'error');
-  }
-
-  return FALSE;
-}
-
-/**
- * Find Backdrop's current site directory.
- *
- * Recurse backwards through the filesystem from the given $path.
- */
-function b_find_site_by_path($path, $root) {
-  // Make sure we have a valid dir path.
-  if (!empty($path) && is_dir($path)) {
-    // Check if this is Backdrop's current site dir.
-    if (file_exists($path . '/settings.php')) {
-      if ($path != $root) {
-        // Return the last part of the path (the site dir name).
-        return basename($path);
-      }
-    }
-    else {
-      // Get the path of the parent dir.
-      $path = dirname($path);
-      if ($path != '/') {
-        // Check the parent path.
-        return b_find_site_by_path($path, $root);
-      }
-    }
-  }
-  else {
-    b_message("$path is not a valid directory.", 'error');
-  }
-
-  return FALSE;
-}
-
-/**
- * Check if this is a multisite installation.
- *
- * @param string $root
- *   The path to the root dir of the Backdrop installation to check.
- *
- * @return array|boolean
- *   Returns an array of sites (as per sites.php) if this is a multisite
- *   installation, or FALSE if it's a regular (non-multisite) installation.
- */
-function b_is_multisite($root) {
-  $sites_php = $root . '/sites/sites.php';
-
-  if (file_exists($sites_php)) {
-    $sites = array();
-
-    // Populate the $sites array.
-    include $sites_php;
-
-    if (!empty($sites)) {
-      return $sites;
-    }
-  }
-
-  return FALSE;
 }

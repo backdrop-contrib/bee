@@ -4,138 +4,159 @@
  * Functions for dealing with user input from the terminal.
  */
 
-
-
-
-
-
-
-
-
-
-
 /**
- * Asks the user a basic yes/no question.
+ * Asks the user the confirm a choice (i.e. a yes/no question).
  *
- * @param string $msg
- *   The question to ask.
+ * @param string $question
+ *   The question to ask the user.
+ * @param bool $default
+ *   The default answer (shown to the user in uppercase). Defaults to FALSE.
  *
  * @return bool
- *   TRUE if the user enters "y" or FALSE if "n".
+ *   TRUE if the user enters "y", FALSE if "n".
  */
-function b_confirm($msg) {
+function b_confirm($question, $default = FALSE) {
   global $yes_mode;
 
-  $text = array(
-    '#color' => 'red',
-    'value' => $msg . " (y/N): ",
-  );
-  render_text($text, FALSE);
+  // Set the default option.
+  if ($default) {
+    $options = ' (Y/n): ';
+  }
+  else {
+    $options = ' (y/N): ';
+  }
 
-  // Automatically accept confirmations if the --yes argument was supplied.
+  // Display the question.
+  b_render_text(array(
+    'value' => $question . $options,
+    '#color' => 'magenta',
+  ), FALSE);
+
+  // Return TRUE if `yes_mode` is enabled.
   if ($yes_mode) {
-    b_render_text("y");
+    b_render_text(array(
+      'value' => 'y',
+    ));
     return TRUE;
   }
 
-  // See http://drupal.org/node/499758 before changing this.
-  $stdin = fopen("php://stdin", "r");
+  // Get answer from user.
+  $answer = strtolower(trim(fgets(STDIN)));
 
-  while ($line = fgets($stdin)) {
-    $line = trim($line);
-    if (strtolower($line) == 'y') {
+  switch ($answer) {
+    case 'y':
       return TRUE;
-    }
-    if ($line == "") {
+      break;
+    case 'n':
       return FALSE;
-    }
-    if ($line == 'n') {
-      return FALSE;
-    }
-    b_render_text($msg . " (y/N): ", FALSE);
+      break;
+    case '':
+      return $default;
+      break;
+    default:
+      b_render_text(array(
+        'value' => bt("Invalid input. Please enter either 'y' or 'n', or press Enter to accept the default."),
+        '#color' => 'red',
+      ));
+      b_confirm($question, $default);
   }
 }
 
 /**
- * Ask the user to select an item from a list.
- *
- * From a provided associative array, drush_choice will
- * display all of the questions, numbered from 1 to N,
- * and return the item the user selected. "0" is always
- * cancel; entering a blank line is also interpreted
- * as cancelling.
+ * Asks the user to select an option from a list.
  *
  * @param array $options
- *   A list of questions to display to the user.  The
- *   KEYS of the array are the result codes to return to the
- *   caller; the VALUES are the messages to display on
- *   each line. Special keys of the form '-- something --' can be
- *   provided as separator between choices groups. Separator keys
- *    don't alter the numbering.
- * @param string $title
- *   The message to display to the user prompting for input.
+ *   An associative array of choices to display to the user, where keys are
+ *   return values (that will be sent back to the calling function) and values
+ *   are translated choice names. When displayed to the user, each choice will
+ *   be assigned a number from 1 to N, with 0 reserved for 'Cancel'.
+ * @param string $message
+ *   The message to display to the user, prompting for input.
+ * @param mixed $default
+ *   The default answer (shown to the user in brackets). Defaults to 'Cancel'.
+ *
+ * @return mixed
+ *   The key (return value) of the selected choice.
  */
-function b_choice($options, $title) {
+function b_choice($options, $message, $default = 0) {
   global $yes_mode;
-
-  $text = array(
-    '#color' => 'blue',
-    'value' => $title . ": ",
-  );
   $keys = array_keys($options);
-
   $rows = array();
-  // Default Cancel option.
-  $rows[] = array(
-    array('data' => '[0]', '#color' => 'red'),
-    bt('Cancel'),
+
+  // Set the 'Cancel' option.
+  $cancel_option = array(
+    array(
+      'value' => ' 0 ',
+      '#color' => 'red',
+    ),
+    array(
+      'value' => bt('Cancel'),
+    ),
   );
-  foreach ($keys as $num => $value) {
-    $rows[] = array(
-      array('data' => '[' . ($num + 1) . ']', '#color' => 'bold_blue'),
-      $options[$value],
+  if ($default === 0) {
+    $cancel_option[0]['value'] = '[0]';
+  }
+  $rows[] = $cancel_option;
+
+  // Set all other options.
+  foreach ($keys as $number => $key) {
+    $row = array(
+      array(
+        'value' => ' ' . ($number + 1) . ' ',
+        '#color' => 'blue',
+        '#bold' => TRUE,
+      ),
+      array(
+        'value' => $options[$key],
+      ),
     );
+    if ($default === $key) {
+      $row[0]['value'] = '[' . ($number + 1) . ']';
+    }
+    $rows[] = $row;
   }
 
-  // Automatically accept confirmations if the --yes argument was supplied.
-  if ($yes_mode) {
-    b_render_text("y");
-    return $keys[0];
-  }
-
+  // Display the options and message.
   b_render(array(
     '#type' => 'table',
     'rows' => $rows,
-    'delimiter' => '  :  ',
+    'delimiter' => ' ',
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
-  ));
+  ), TRUE);
+  b_render_text(array(
+    'value' => $message . ': ',
+    '#color' => 'magenta',
+  ), FALSE);
 
-  render_text("");
-  render_text($text, FALSE);
-
-  $stdin = fopen("php://stdin", "r");
-
-  while ($line = fgets($stdin)) {
-    $line = trim($line);
-    $num = (int) $line;
-
-    if ($num == "") {
-      return FALSE;
-    }
-    if ($num == 'n') {
-      return FALSE;
-    }
-    if ($num == 0) {
-      return FALSE;
-    }
-
-    if (isset($keys[$num - 1])) {
-      return $keys[$num - 1];
-    }
-
-    render_text($text, FALSE);
-  }
+  // Automatically accept confirmations if the --yes argument was supplied.
+  // if ($yes_mode) {
+  //   b_render_text("y");
+  //   return $keys[0];
+  // }
+  //
+  // $stdin = fopen("php://stdin", "r");
+  //
+  // while ($line = fgets($stdin)) {
+  //   $line = trim($line);
+  //   $num = (int) $line;
+  //
+  //   if ($num == "") {
+  //     return FALSE;
+  //   }
+  //   if ($num == 'n') {
+  //     return FALSE;
+  //   }
+  //   if ($num == 0) {
+  //     return FALSE;
+  //   }
+  //
+  //   if (isset($keys[$num - 1])) {
+  //     return $keys[$num - 1];
+  //   }
+  //
+  //   render_text($text, FALSE);
+  // }
 }
 
 /**

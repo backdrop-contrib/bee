@@ -65,7 +65,11 @@ function _download_project($project, $options) {
     return FALSE;
   }
 
-  if (!$tmp_folder = b_tmp_folder()) {
+  if ($tmp_folder = b_find_temp()) {
+    $tmp_folder .= '/' . hash('sha256', mt_rand());
+    mkdir($tmp_folder);
+  }
+  else {
     b_message('Failed to generate temp directory!', 'error');
     return;
   }
@@ -86,7 +90,7 @@ function _download_project($project, $options) {
         // Create the folder if it doesn't exist.
         if (!mkdir($options['dir'], 0755)) {
           b_message("Folder " . $options['dir'] . " doesn't exist and attempts to create it failed.", 'error');
-          b_file_unmanaged_delete_recursive($tmp_folder);
+          b_delete($tmp_folder);
           return FALSE;
         }
       }
@@ -96,7 +100,7 @@ function _download_project($project, $options) {
     // Cannot download Backdrop into an existing installation.
     if (b_find_root($download_target)) {
       b_message('Downloading Backdrop into an existing Backdrop installation is not allowed. Please run the command outside of the installation or use the `--dir` option to specify a different destination.', 'error');
-      b_file_unmanaged_delete_recursive($tmp_folder);
+      b_delete($tmp_folder);
       return FALSE;
     }
 
@@ -106,7 +110,7 @@ function _download_project($project, $options) {
 
     if (file_exists($download_target . '/index.php')) {
       b_message('There is already a Backdrop installation in ' . $download_target . '.', 'error');
-      b_file_unmanaged_delete_recursive($tmp_folder);
+      b_delete($tmp_folder);
       return FALSE;
     }
   }
@@ -115,13 +119,13 @@ function _download_project($project, $options) {
 
     if (!$download_target) {
       b_message('Failed to detect destination directory.', 'error');
-      b_file_unmanaged_delete_recursive($tmp_folder);
+      b_delete($tmp_folder);
       return FALSE;
     }
 
     if (file_exists($download_target . '/' . $project)) {
       b_message('Folder ' . $download_target . '/' . $project . ' already exists', 'error');
-      b_file_unmanaged_delete_recursive($tmp_folder);
+      b_delete($tmp_folder);
       return FALSE;
     }
 
@@ -129,7 +133,7 @@ function _download_project($project, $options) {
     if (!file_exists($download_target)) {
       if (!mkdir($download_target, 0755)) {
         b_message("Folder " . $download_target . " doesn't exist and attempts to create it failed.", 'error');
-        b_file_unmanaged_delete_recursive($tmp_folder);
+        b_delete($tmp_folder);
         return FALSE;
       }
     }
@@ -137,9 +141,9 @@ function _download_project($project, $options) {
     $download_target = $download_target . '/' . $project;
   }
 
-  b_recursive_copy($tmp_folder . '/' . $project, $download_target);
+  b_copy($tmp_folder . '/' . $project, $download_target);
   b_message($project . ' downloaded to ' . $download_target . '!', 'success');
-  b_file_unmanaged_delete_recursive($tmp_folder);
+  b_delete($tmp_folder);
 }
 
 /**

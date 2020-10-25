@@ -344,10 +344,15 @@ function b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delim
  *   The formatted string for the column.
  */
 function b_format_column($column, $width) {
-  $text = b_render_text($column);
-  $color_width = mb_strlen($text) - mb_strlen($column['value']);
+  // Get the text and format options.
+  $text = $column['value'];
+  $color = isset($column['#color']) ? $column['#color'] : FALSE;
+  $bold = isset($column['#bold']) ? $column['#bold'] : FALSE;
 
-  return sprintf('%-' . ($width + $color_width) . 's', $text);
+  $formatted_text = b_format_text($text, $color, $bold);
+  $color_width = mb_strlen($formatted_text) - mb_strlen($column['value']);
+
+  return sprintf('%-' . ($width + $color_width) . 's', $formatted_text);
 }
 
 /**
