@@ -29,7 +29,7 @@ function b_init() {
     if ($multisites = b_is_multisite($backdrop_root)) {
       // Get the site directory of the Backdrop multisite to use.
       if (isset($options['url'])) {
-        $backdrop_site = b_find_site_by_url($options['url'], $backdrop_root);
+        $backdrop_site = b_find_site_by_url($options['url']);
       }
       elseif (!isset($options['root'])) {
         $backdrop_site = b_find_site_by_path(getcwd(), $backdrop_root);
@@ -39,10 +39,7 @@ function b_init() {
     chdir($backdrop_root);
     $backdrop_root = getcwd();
     define('BACKDROP_ROOT', $backdrop_root);
-    $_SERVER['HTTP_HOST'] = basename($backdrop_root);
-    if ($backdrop_site) {
-      $_SERVER['HTTP_HOST'] = $backdrop_site;
-    }
+    $_SERVER['HTTP_HOST'] = isset($backdrop_site) ? $backdrop_site : basename($backdrop_root);
 
     // Determine if Backdrop is installed or not.
     require_once $backdrop_root . '/core/includes/bootstrap.inc';

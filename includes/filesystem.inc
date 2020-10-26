@@ -43,6 +43,33 @@ function b_find_root($path, $recursive = TRUE) {
 }
 
 /**
+ * Check if this is a multisite installation, based on the presence of a
+ * populated `sites.php` file.
+ *
+ * @return array|false
+ *   Returns an array of sites (as defined in `sites.php`) if this is a
+ *   multisite installation, or FALSE if it's a regular (non-multisite)
+ *   installation.
+ */
+function b_is_multisite() {
+  global $backdrop_root;
+  $sites_php = $backdrop_root . '/sites/sites.php';
+
+  if (file_exists($sites_php)) {
+    $sites = array();
+
+    // Populate the $sites array.
+    include $sites_php;
+
+    if (!empty($sites)) {
+      return $sites;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
  * Find Backdrop's site directory from the given `$url`.
  *
  * @param string $url
@@ -53,12 +80,11 @@ function b_find_root($path, $recursive = TRUE) {
  *   found.
  */
 function b_find_site_by_url($url) {
-  global $backdrop_root;
-  $sites = b_is_multisite($backdrop_root);
+  global $backdrop_root, $multisites;
 
-  if ($sites) {
-    if (isset($sites[$url])) {
-      return $sites[$url];
+  if ($multisites) {
+    if (isset($multisites[$url])) {
+      return $multisites[$url];
     }
     else {
       b_message(bt('@url could not be found in $root/sites/sites.php.', array(
@@ -116,33 +142,6 @@ function b_find_site_by_path($path) {
 }
 
 /**
- * Check if this is a multisite installation, based on the presence of a
- * populated `sites.php` file.
- *
- * @return array|false
- *   Returns an array of sites (as defined in `sites.php`) if this is a
- *   multisite installation, or FALSE if it's a regular (non-multisite)
- *   installation.
- */
-function b_is_multisite() {
-  global $backdrop_root;
-  $sites_php = $backdrop_root . '/sites/sites.php';
-
-  if (file_exists($sites_php)) {
-    $sites = array();
-
-    // Populate the $sites array.
-    include $sites_php;
-
-    if (!empty($sites)) {
-      return $sites;
-    }
-  }
-
-  return FALSE;
-}
-
-/**
  * Finds all files that match a given mask in a given directory.
  *
  * @see file_scan_directory()
@@ -153,7 +152,7 @@ function b_is_multisite() {
  *   commented out since `file_stream_wrapper_uri_normalize()` is a Backdrop
  *   function and it calls other Backdrop functions.
  * - The recursive call to `file_scan_directory()` has been changed to this `b`
- *   specific version (obviously).
+ *   specific version.
  */
 function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
   // By default, do not check for files in common special-purpose directories.

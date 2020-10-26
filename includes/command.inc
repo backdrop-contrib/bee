@@ -127,7 +127,8 @@ function b_all_commands() {
       }
 
       // Get the command descriptor(s) from the hook function.
-      foreach ((array) $function() as $command => $descriptor) {
+      $descriptors = (array) $function();
+      foreach ($descriptors as $command => $descriptor) {
         $descriptor['module'] = $command_file;
         $all_commands[$command] = $descriptor;
 
@@ -147,11 +148,8 @@ function b_all_commands() {
 /**
  * Compile a list of all available `b` command files.
  *
- * A `b` command file is a file that matches `*.b.inc`. They are searched for
- * in the following places:
- * - The `commands` directory within the `b` installation.
- * - The `.b` folder in the user's HOME directory.
- * - Enabled modules in the current Backdrop site.
+ * A `b` command file is a file that matches `*.b.inc` in one of the supported
+ * paths (@see b_command_file_paths()).
  *
  * @return array
  *   An associative array whose keys are the name of the command file and whose
@@ -159,6 +157,7 @@ function b_all_commands() {
  */
 function b_command_file_list() {
   $list = array();
+
   if (function_exists('backdrop_static')) {
     $list = &backdrop_static(__FUNCTION__);
   }
@@ -184,33 +183,42 @@ function b_command_file_list() {
 /**
  * Get a list of paths to search for command files.
  *
+ * The following places are searched:
+ * - The `commands` directory within the `b` installation.
+ * - The `.b` folder in the user's HOME directory.
+ * - Enabled modules in the current Backdrop site.
+ *
  * @return array
  *   A list of paths to directories where command files can be found.
- *
- * @see b_command_file_list()
  */
 function b_command_file_paths() {
   global $backdrop_installed;
   $search_paths = array();
-  $home = getenv('HOME') . '/.b';
 
-  // Add `b/commands` directory.
-  $search_paths[] = dirname(__DIR__) . '/commands';
-
-  // Add `.b` folder in user's HOME directory.
-  if (is_dir($home)) {
-    $search_paths[] = $home;
+  if (function_exists('backdrop_static')) {
+    $search_paths = &backdrop_static(__FUNCTION__);
   }
 
-  // Add enabled modules' directories.
-  if ($backdrop_installed) {
-    $filenames = db_query('SELECT filename FROM {system} WHERE type = :type AND status = :status', array(
-      ':type' => 'module',
-      ':status' => 1,
-    ))->fetchCol();
+  if (empty($search_paths)) {
+    // Add `b/commands` directory.
+    $search_paths[] = dirname(__DIR__) . '/commands';
 
-    foreach ($filenames as $filename) {
-      $search_paths[] = dirname($filename);
+    // Add `.b` folder in user's HOME directory.
+    $home = getenv('HOME') . '/.b';
+    if (is_dir($home)) {
+      $search_paths[] = $home;
+    }
+
+    // Add enabled modules' directories.
+    if ($backdrop_installed) {
+      $filenames = db_query('SELECT filename FROM {system} WHERE type = :type AND status = :status', array(
+        ':type' => 'module',
+        ':status' => 1,
+      ))->fetchCol();
+
+      foreach ($filenames as $filename) {
+        $search_paths[] = dirname($filename);
+      }
     }
   }
 
@@ -260,8 +268,8 @@ function b_validate_command($descriptor) {
     $name = '';
     $multiple = FALSE;
     $argument_names = array_keys($descriptor['arguments']);
-    foreach ($arguments as $argument) {
-      if (!empty($argument_names)) {
+    if (!empty($argument_names)) {
+      foreach ($arguments as $argument) {
         if (!$multiple) {
           $name = array_shift($argument_names);
         }
