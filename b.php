@@ -25,8 +25,8 @@ $answer = b_choice(array(
   'one' => 'One',
   'two' => 'Two',
   'three' => 'Three',
-), "Pick one", 'three');
-// print_r("You said $answer.\n");
+), "Pick one:", 'three');
+echo "You said $answer.\n";
 exit();
 
 /**

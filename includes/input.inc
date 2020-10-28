@@ -5,7 +5,7 @@
  */
 
 /**
- * Asks the user the confirm a choice (i.e. a yes/no question).
+ * Ask the user the confirm a choice (i.e. a yes/no question).
  *
  * @param string $question
  *   The question to ask the user.
@@ -29,7 +29,8 @@ function b_confirm($question, $default = FALSE) {
   // Display the question.
   b_render_text(array(
     'value' => $question . $options,
-    '#color' => 'magenta',
+    '#color' => 'cyan',
+    '#bold' => TRUE,
   ), FALSE);
 
   // Return TRUE if `yes_mode` is enabled.
@@ -43,27 +44,25 @@ function b_confirm($question, $default = FALSE) {
   // Get answer from user.
   $answer = strtolower(trim(fgets(STDIN)));
 
+  // Process user input.
   switch ($answer) {
     case 'y':
       return TRUE;
-      break;
     case 'n':
       return FALSE;
-      break;
     case '':
       return $default;
-      break;
     default:
       b_render_text(array(
         'value' => bt("Invalid input. Please enter either 'y' or 'n', or press Enter to accept the default."),
         '#color' => 'red',
       ));
-      b_confirm($question, $default);
+      return b_confirm($question, $default);
   }
 }
 
 /**
- * Asks the user to select an option from a list.
+ * Ask the user to select an option from a list.
  *
  * @param array $options
  *   An associative array of choices to display to the user, where keys are
@@ -78,22 +77,22 @@ function b_confirm($question, $default = FALSE) {
  * @return mixed
  *   The key (return value) of the selected choice.
  */
-function b_choice($options, $message, $default = 0) {
+function b_choice($options, $message, $default = NULL) {
   global $yes_mode;
   $keys = array_keys($options);
   $rows = array();
+  $default_answer = bt('Cancel');
 
   // Set the 'Cancel' option.
   $cancel_option = array(
     array(
       'value' => ' 0 ',
-      '#color' => 'red',
     ),
     array(
       'value' => bt('Cancel'),
     ),
   );
-  if ($default === 0) {
+  if ($default === NULL) {
     $cancel_option[0]['value'] = '[0]';
   }
   $rows[] = $cancel_option;
@@ -103,8 +102,6 @@ function b_choice($options, $message, $default = 0) {
     $row = array(
       array(
         'value' => ' ' . ($number + 1) . ' ',
-        '#color' => 'blue',
-        '#bold' => TRUE,
       ),
       array(
         'value' => $options[$key],
@@ -112,11 +109,18 @@ function b_choice($options, $message, $default = 0) {
     );
     if ($default === $key) {
       $row[0]['value'] = '[' . ($number + 1) . ']';
+      $default_answer = $options[$key];
     }
     $rows[] = $row;
   }
 
-  // Display the options and message.
+  // Display the message and options.
+  b_render_text(array(
+    'value' => $message,
+    '#color' => 'cyan',
+    '#bold' => TRUE,
+  ), TRUE);
+  echo "\n";
   b_render(array(
     '#type' => 'table',
     'rows' => $rows,
@@ -125,38 +129,40 @@ function b_choice($options, $message, $default = 0) {
     'delimiter_right' => ' ',
   ), TRUE);
   b_render_text(array(
-    'value' => $message . ': ',
-    '#color' => 'magenta',
+    'value' => bt('Enter a number: '),
   ), FALSE);
 
-  // Automatically accept confirmations if the --yes argument was supplied.
-  // if ($yes_mode) {
-  //   b_render_text("y");
-  //   return $keys[0];
-  // }
-  //
-  // $stdin = fopen("php://stdin", "r");
-  //
-  // while ($line = fgets($stdin)) {
-  //   $line = trim($line);
-  //   $num = (int) $line;
-  //
-  //   if ($num == "") {
-  //     return FALSE;
-  //   }
-  //   if ($num == 'n') {
-  //     return FALSE;
-  //   }
-  //   if ($num == 0) {
-  //     return FALSE;
-  //   }
-  //
-  //   if (isset($keys[$num - 1])) {
-  //     return $keys[$num - 1];
-  //   }
-  //
-  //   render_text($text, FALSE);
-  // }
+  // Return the default answer if `yes_mode` is enabled.
+  if ($yes_mode) {
+    b_render_text(array(
+      'value' => $default_answer,
+    ));
+    return $default;
+  }
+
+  // Get answer from user.
+  $answer = trim(fgets(STDIN));
+
+  // Process user input.
+  if (is_numeric($answer)) {
+    if (isset($keys[$answer - 1])) {
+      return $keys[$answer - 1];
+    }
+    elseif ($answer == 0) {
+      return NULL;
+    }
+  }
+  elseif (empty($answer)) {
+    return $default;
+  }
+
+  // Prompt the user for input again.
+  b_render_text(array(
+    'value' => bt("Invalid input. Please enter a number corresponding to the options above, or press Enter to accept the [default] option."),
+    '#color' => 'red',
+  ));
+  echo "\n";
+  return b_choice($options, $message, $default);
 }
 
 /**

@@ -124,7 +124,7 @@ function b_bootstrap($level) {
 }
 
 /**
- * Display a message to the user.
+ * Add a message for the user to the messages list (to be displayed later).
  *
  * @param string $message
  *   The translated message to display.

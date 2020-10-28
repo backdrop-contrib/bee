@@ -212,10 +212,10 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
  *   found.
  */
 function b_find_temp() {
-  static $temporary_directory;
+  static $temp;
 
-  if (!isset($temporary_directory)) {
-    $temporary_directory = FALSE;
+  if (!isset($temp)) {
+    $temp = FALSE;
 
     // Various possible paths to check, in order of preference.
     $directories = array(
@@ -228,13 +228,13 @@ function b_find_temp() {
     // Get the first directory that's writable.
     foreach ($directories as $directory) {
       if (is_dir($directory) && is_writable($directory)) {
-        $temporary_directory = $directory;
+        $temp = $directory;
         break;
       }
     }
   }
 
-  return $temporary_directory;
+  return $temp;
 }
 
 /**

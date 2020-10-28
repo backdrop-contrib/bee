@@ -122,7 +122,6 @@ function b_all_commands() {
           '@function' => $function,
           '@file' => $path,
         )), 'log');
-
         continue;
       }
 
@@ -253,7 +252,6 @@ function b_validate_command($descriptor) {
         b_message(bt('Option `@name` is required.', array(
           '@name' => $name,
         )), 'error');
-
         return FALSE;
       }
     }

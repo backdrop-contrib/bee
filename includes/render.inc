@@ -23,10 +23,9 @@ function b_print_messages() {
       continue;
     }
 
-    $bold = FALSE;
     switch ($type) {
       case 'success':
-        $symbol = '[v]';
+        $symbol = '[✔]';
         $color = 'green';
         break;
 
@@ -36,20 +35,19 @@ function b_print_messages() {
         break;
 
       case 'error':
-        $symbol = '[x]';
+        $symbol = '[✘]';
         $color = 'red';
         break;
 
       case 'log':
-        $symbol = ' - ';
-        $color = 'red';
+        $symbol = '[-]';
+        $color = 'magenta';
         break;
 
       case 'status':
       default:
-        $symbol = '[o]';
+        $symbol = '[i]';
         $color = 'blue';
-        $bold = TRUE;
     }
 
     // Prepare `$rows` array for table output.
@@ -58,18 +56,21 @@ function b_print_messages() {
         array(
           'value' => $symbol,
           '#color' => $color,
-          '#bold' => $bold,
+          '#bold' => TRUE,
         ),
-        $message,
+        array(
+          'value' => $message,
+        ),
       );
     }
   }
 
   // Render messages in a table.
+  echo "\n";
   b_render(array(
     '#type' => 'table',
     'rows' => $rows,
-    'delimiter' => '   ',
+    'delimiter' => ' ',
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
   ));
@@ -98,8 +99,7 @@ function b_render($elements, $newline = TRUE) {
 
   // Recurse through the array to find the elements to render.
   if (isset($elements['#type'])) {
-    $type = $elements['#type'];
-    $function = 'b_render_' . $type;
+    $function = 'b_render_' . $elements['#type'];
 
     if (function_exists($function)) {
       $function($elements, $newline);
@@ -143,6 +143,57 @@ function b_render_text($variables, $newline = TRUE) {
 }
 
 /**
+ * Format text to be displayed in the terminal.
+ *
+ * @param string $text
+ *   The text to be formatted.
+ * @param string|false $color
+ *   The name or code of the color to use, or FALSE to use the default color.
+ * @param bool $bold
+ *   Whether or not to format the text as bold. Defaults to FALSE.
+ *
+ * @return string
+ *   The formatted text.
+ */
+function b_format_text($text, $color = FALSE, $bold = FALSE) {
+  // Get color codes.
+  // @see https://en.wikipedia.org/wiki/ANSI_escape_code#3/4_bit
+  $colors = array(
+    'black' => '30',
+    'red' => '31',
+    'green' => '32',
+    'yellow' => '33',
+    'blue' => '34',
+    'magenta' => '35',
+    'cyan' => '36',
+    'gray' => '37',
+    'white' => '97',
+  );
+
+  // Generate format code.
+  $code = array();
+  if ($bold) {
+    $code[] = '1';
+  }
+  if (!empty($color)) {
+    if (is_numeric($color)) {
+      $code[] = $color;
+    }
+    elseif (isset($colors[$color])) {
+      $code[] = $colors[$color];
+    }
+  }
+
+  // Return formatted text.
+  if (!empty($code)) {
+    return "\033[" . implode(';', $code) . 'm' . $text . "\033[0m";
+  }
+  else {
+    return $text;
+  }
+}
+
+/**
  * Output a table of information.
  *
  * @param array $variables
@@ -158,8 +209,8 @@ function b_render_text($variables, $newline = TRUE) {
  *   - delimiter: (optional) The character(s) used to separate columns.
  *   - delimiter_left: (optional) The character(s) displayed on the left of the
  *     table.
- *   - delimiter_right: (optional) The character(s) displayed on the right of the
- *     table.
+ *   - delimiter_right: (optional) The character(s) displayed on the right of
+ *     the table.
  * @param bool $newline
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
@@ -228,62 +279,13 @@ function b_render_table($variables, $newline = TRUE) {
 }
 
 /**
- * Format text to be displayed in the terminal.
- *
- * @param string|false $color
- *   The name or code of the color to use, or FALSE to use the default color.
- * @param bool $bold
- *   Whether or not to format the text as bold. Defaults to FALSE.
- *
- * @return string
- *   The formatted text.
- */
-function b_format_text($text, $color = FALSE, $bold = FALSE) {
-  // Get color codes.
-  // @see https://en.wikipedia.org/wiki/ANSI_escape_code#3/4_bit
-  $colors = array(
-    'black' => '30',
-    'red' => '31',
-    'green' => '32',
-    'yellow' => '33',
-    'blue' => '34',
-    'magenta' => '35',
-    'cyan' => '36',
-    'gray' => '37',
-    'white' => '97',
-  );
-
-  // Generate format code.
-  $code = array();
-  if ($bold) {
-    $code[] = '1';
-  }
-  if (!empty($color)) {
-    if (is_numeric($color)) {
-      $code[] = $color;
-    }
-    elseif (isset($colors[$color])) {
-      $code[] = $colors[$color];
-    }
-  }
-
-  // Return formatted text.
-  if (!empty($code)) {
-    return "\033[" . implode(';', $code) . 'm' . $text . "\033[0m";
-  }
-  else {
-    return $text;
-  }
-}
-
-/**
  * Calculate a table's column widths and make sure they fit in the terminal.
  *
  * @see b_render_table() for description of parameters.
  *
  * @return array
  *   An associative array of column widths, where the keys are column indexes
- *   (numbered from 0) and the values are widths (in characters).
+ *   (numbered from 0) and the values are widths (in number of characters).
  */
 function b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
   $widths = array();
