@@ -35,9 +35,7 @@ function b_confirm($question, $default = FALSE) {
 
   // Return TRUE if `yes_mode` is enabled.
   if ($yes_mode) {
-    b_render_text(array(
-      'value' => 'y',
-    ));
+    b_render_text(array('value' => 'y'));
     return TRUE;
   }
 
@@ -47,8 +45,10 @@ function b_confirm($question, $default = FALSE) {
   // Process user input.
   switch ($answer) {
     case 'y':
+    case 'yes':
       return TRUE;
     case 'n':
+    case 'no':
       return FALSE;
     case '':
       return $default;
@@ -67,92 +67,65 @@ function b_confirm($question, $default = FALSE) {
  * @param array $options
  *   An associative array of choices to display to the user, where keys are
  *   return values (that will be sent back to the calling function) and values
- *   are translated choice names. When displayed to the user, each choice will
- *   be assigned a number from 1 to N, with 0 reserved for 'Cancel'.
+ *   are translated choice names. The first option should generally be a special
+ *   one (e.g. Cancel or All).
  * @param string $message
  *   The message to display to the user, prompting for input.
  * @param mixed $default
- *   The default answer (shown to the user in brackets). Defaults to 'Cancel'.
+ *   The array key of the default answer (shown to the user in brackets).
+ * @param boolean $repeat
+ *   Whether this choice is being reapeated (because of an invalid answer).
+ *   Repeated choices just ask for input, ranther than displaying the full list
+ *   of options again. Defaults to FALSE.
  *
  * @return mixed
- *   The key (return value) of the selected choice.
+ *   The array key of the selected option.
  */
-function b_choice($options, $message, $default = NULL) {
-  global $yes_mode;
+function b_choice($options, $message, $default, $repeat = FALSE) {
   $keys = array_keys($options);
   $rows = array();
-  $default_answer = bt('Cancel');
 
-  // Set the 'Cancel' option.
-  $cancel_option = array(
-    array(
-      'value' => ' 0 ',
-    ),
-    array(
-      'value' => bt('Cancel'),
-    ),
-  );
-  if ($default === NULL) {
-    $cancel_option[0]['value'] = '[0]';
-  }
-  $rows[] = $cancel_option;
-
-  // Set all other options.
+  // Set the options.
   foreach ($keys as $number => $key) {
     $row = array(
-      array(
-        'value' => ' ' . ($number + 1) . ' ',
-      ),
-      array(
-        'value' => $options[$key],
-      ),
+      array('value' => " $number "),
+      array('value' => $options[$key]),
     );
     if ($default === $key) {
-      $row[0]['value'] = '[' . ($number + 1) . ']';
-      $default_answer = $options[$key];
+      $row[0]['value'] = "[$number]";
     }
     $rows[] = $row;
   }
 
   // Display the message and options.
-  b_render_text(array(
-    'value' => $message,
-    '#color' => 'cyan',
-    '#bold' => TRUE,
-  ), TRUE);
-  echo "\n";
-  b_render(array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => ' ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  ), TRUE);
-  b_render_text(array(
-    'value' => bt('Enter a number: '),
-  ), FALSE);
-
-  // Return the default answer if `yes_mode` is enabled.
-  if ($yes_mode) {
+  if (!$repeat) {
     b_render_text(array(
-      'value' => $default_answer,
-    ));
-    return $default;
+      'value' => $message,
+      '#color' => 'cyan',
+      '#bold' => TRUE,
+    ), TRUE);
+    echo "\n";
+    b_render(array(
+      '#type' => 'table',
+      'rows' => $rows,
+      'delimiter' => ' ',
+      'delimiter_left' => ' ',
+      'delimiter_right' => ' ',
+    ), TRUE);
   }
+  b_render_text(array('value' => bt('Enter a number: ')), FALSE);
 
   // Get answer from user.
   $answer = trim(fgets(STDIN));
 
   // Process user input.
   if (is_numeric($answer)) {
-    if (isset($keys[$answer - 1])) {
-      return $keys[$answer - 1];
-    }
-    elseif ($answer == 0) {
-      return NULL;
+    $answer = (int) $answer;
+    if (isset($keys[$answer])) {
+      return $keys[$answer];
     }
   }
-  elseif (empty($answer)) {
+  elseif ($answer == '') {
     return $default;
   }
 
@@ -161,39 +134,46 @@ function b_choice($options, $message, $default = NULL) {
     'value' => bt("Invalid input. Please enter a number corresponding to the options above, or press Enter to accept the [default] option."),
     '#color' => 'red',
   ));
-  echo "\n";
-  return b_choice($options, $message, $default);
+  return b_choice($options, $message, $default, TRUE);
 }
 
 /**
- * Prompt user for input.
+ * Ask the user to enter a string of data (e.g. their name or email address).
  *
- * @param string $prompt
- *   The prompt for user input.
- *
+ * @param string $message
+ *   The message to display to the user, prompting for input. A colon ':' will
+ *   be automatically appended to the end of this string.
  * @param string $default
- *   The defualt if the user just hits enter.
+ *   The default answer (shown to the user in brackets). Defaults to an empty
+ *   string (i.e. no default value shown) - users can still just press Enter
+ *   which will return an empty string.
+ *
+ * @return string
+ *   The user's raw input. NOTE: it is the calling functions job to sanitize
+ *   this text appropriately prior to using it.
  */
-function b_prompt($prompt, $default) {
-  if (isset($default)) {
-    $prompt .= " [" . $default . "]";
+function b_input($message, $default = '') {
+  // Add the default value in brackets (if any).
+  if (!empty($default)) {
+    $message .= " [$default]";
   }
-  $prompt .= ": ";
+  $message .= ': ';
 
-  echo "\t\e[38;5;62m$prompt\e[0m";
+  // Display the message.
+  b_render_text(array(
+    'value' => $message,
+    '#color' => 'cyan',
+    '#bold' => TRUE,
+  ), FALSE);
 
-  $stdin = fopen('php://stdin', 'r');
+  // Get answer from user.
+  $answer = trim(fgets(STDIN));
 
-  while (($line = fgets($stdin)) !== FALSE) {
-    $line = trim($line);
-    if ($line === "") {
-      $line = $default;
-    }
-    if ($line) {
-      break;
-    }
+  // Process user input.
+  if ($answer == '') {
+    return $default;
   }
-  fclose($stdin);
-
-  return $line;
+  else {
+    return $answer;
+  }
 }

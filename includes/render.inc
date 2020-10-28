@@ -58,9 +58,7 @@ function b_print_messages() {
           '#color' => $color,
           '#bold' => TRUE,
         ),
-        array(
-          'value' => $message,
-        ),
+        array('value' => $message),
       );
     }
   }
@@ -259,16 +257,12 @@ function b_render_table($variables, $newline = TRUE) {
       $rendered_row[] = b_format_column($column, $column_widths[$index]);
     }
 
-    b_render_text(array(
-      'value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right,
-    ));
+    b_render_text(array('value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right));
 
     if ($remaining) {
       $remaining_rows = b_get_remaining_rows($remaining, $column_widths);
       foreach ($remaining_rows as $remaining_row) {
-        b_render_text(array(
-          'value' => $delimiter_left . implode($delimiter, $remaining_row) . $delimiter_right,
-        ));
+        b_render_text(array('value' => $delimiter_left . implode($delimiter, $remaining_row) . $delimiter_right));
       }
     }
   }

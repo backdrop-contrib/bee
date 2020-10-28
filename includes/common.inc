@@ -8,7 +8,7 @@
  * Initialize Backdrop Console.
  */
 function b_init() {
-  global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites;
+  global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites, $yes_mode, $debug_mode;
 
   // Set global server variables.
   b_init_server();

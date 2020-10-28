@@ -20,13 +20,7 @@ require_once __DIR__ . '/includes/globals.inc';
 b_init();
 b_process_command();
 b_print_messages();
-// b_render($elements);
-$answer = b_choice(array(
-  'one' => 'One',
-  'two' => 'Two',
-  'three' => 'Three',
-), "Pick one:", 'three');
-echo "You said $answer.\n";
+b_render($elements);
 exit();
 
 /**
