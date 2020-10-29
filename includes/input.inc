@@ -105,8 +105,7 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
       '#bold' => TRUE,
     ), TRUE);
     echo "\n";
-    b_render(array(
-      '#type' => 'table',
+    b_render_table(array(
       'rows' => $rows,
       'delimiter' => ' ',
       'delimiter_left' => ' ',

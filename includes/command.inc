@@ -8,7 +8,7 @@
  * Parse the input to extract the command, options and arguments.
  */
 function b_parse_input() {
-  global $argv, $command, $options, $arguments;
+  global $argv, $command, $arguments, $options;
 
   foreach ($argv as $id => $arg) {
     // Skip the first argument (the script name).
@@ -21,7 +21,7 @@ function b_parse_input() {
       $opt_name = $matches[1];
       $opt_value = TRUE;
 
-      // Get the value, if given.
+      // Get the value, if any.
       if (strpos($opt_name, '=') !== FALSE) {
         list($opt_name, $opt_value) = explode('=', $opt_name);
       }
@@ -53,7 +53,7 @@ function b_parse_input() {
  * Get the callback function for the command and process it.
  */
 function b_process_command() {
-  global $command, $options, $arguments, $command_aliases, $elements;
+  global $command, $arguments, $options, $command_aliases, $elements;
 
   // Display help text if no command is given.
   if (empty($command)) {
@@ -76,20 +76,22 @@ function b_process_command() {
 
   // Process the command.
   $descriptor = $commands[$command];
-  $callback = $descriptor['callback'];
-  if (function_exists($callback) && b_validate_command($descriptor)) {
-    $ready = TRUE;
-    if (isset($descriptor['bootstrap'])) {
-      $ready = b_bootstrap($descriptor['bootstrap']);
-    }
+  if (b_validate_command($descriptor)) {
+    $callback = $descriptor['callback'];
+    if (function_exists($callback)) {
+      $ready = TRUE;
+      if (isset($descriptor['bootstrap'])) {
+        $ready = b_bootstrap($descriptor['bootstrap']);
+      }
 
-    if ($ready) {
-      $elements[] = $callback($arguments, $options);
-    }
-    else {
-      b_message(bt('Required bootstrap level for @module is not ready.', array(
-        '@module' => $descriptor['module'],
-      )), 'error');
+      if ($ready) {
+        $elements = $callback($arguments, $options);
+      }
+      else {
+        b_message(bt('The required bootstrap level for @module is not ready.', array(
+          '@module' => $descriptor['module'],
+        )), 'error');
+      }
     }
   }
 }
@@ -225,9 +227,9 @@ function b_command_file_paths() {
 }
 
 /**
- * Validate the command input (e.g. make sure required arguments and options
- * have been given, and remove any arguments/options that aren't part of the
- * given command).
+ * Validate the command input (e.g. make sure required arguments have been
+ * given, and remove any arguments/options that aren't part of the given
+ * command).
  *
  * @param array $descriptor
  *   An associative array describing a command, its arguments and options.
@@ -236,8 +238,45 @@ function b_command_file_paths() {
  *   Whether or not the command input is valid.
  */
 function b_validate_command($descriptor) {
-  global $options, $arguments;
+  global $arguments, $options;
 
+  // Validate arguments.
+  if (isset($descriptor['arguments'])) {
+    $grouped = array();
+    $multiple = NULL;
+
+    // Get argument names, and note which one allows multiple values (if any).
+    $argument_names = array_keys($descriptor['arguments']);
+    if (($key = array_search('#multiple', $argument_names)) !== FALSE) {
+      unset($argument_names[$key]);
+      $multiple = $descriptor['arguments']['#multiple'];
+    }
+
+    // Group provided arguments by their argument name.
+    foreach ($argument_names as $name) {
+      if ($name != $multiple) {
+        $grouped[$name] = array_shift($arguments);
+      }
+      else {
+        $grouped[$name] = $arguments;
+        unset($arguments);
+      }
+
+      // Make sure all arguments have a value.
+      if (empty($grouped[$name])) {
+        b_message(bt('Argument `@name` is required.', array(
+          '@name' => $name,
+        )), 'error');
+        return FALSE;
+      }
+    }
+    $arguments = $grouped;
+  }
+  else {
+    $arguments = array();
+  }
+
+  // Validate options.
   if (isset($descriptor['options'])) {
     // Remove any provided options that aren't used by the command.
     foreach ($options as $name => $value) {
@@ -245,57 +284,9 @@ function b_validate_command($descriptor) {
         unset($options[$name]);
       }
     }
-
-    // Make sure required options have been provided.
-    foreach ($descriptor['options'] as $name => $option) {
-      if (!empty($option['required']) && !isset($options[$name])) {
-        b_message(bt('Option `@name` is required.', array(
-          '@name' => $name,
-        )), 'error');
-        return FALSE;
-      }
-    }
   }
   else {
     $options = array();
-  }
-
-  if (isset($descriptor['arguments'])) {
-    // List provided arguments by their argument name.
-    $new_arguments = array();
-    $name = '';
-    $multiple = FALSE;
-    $argument_names = array_keys($descriptor['arguments']);
-    if (!empty($argument_names)) {
-      foreach ($arguments as $argument) {
-        if (!$multiple) {
-          $name = array_shift($argument_names);
-        }
-
-        if (!empty($descriptor['arguments'][$name]['multiple'])) {
-          $new_arguments[$name][] = $argument;
-          $multiple = TRUE;
-        }
-        else {
-          $new_arguments[$name] = $argument;
-        }
-      }
-    }
-    $arguments = $new_arguments;
-
-    // Make sure required arguments have been provided.
-    foreach ($descriptor['arguments'] as $name => $argument) {
-      if (!empty($argument['required']) && !isset($arguments[$name])) {
-        b_message(bt('Argument `@name` is required.', array(
-          '@name' => $name,
-        )), 'error');
-
-        return FALSE;
-      }
-    }
-  }
-  else {
-    $arguments = array();
   }
 
   return TRUE;

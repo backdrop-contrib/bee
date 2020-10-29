@@ -29,12 +29,12 @@ $global_options = array(
 // The command that was given (e.g. `core-status`).
 $command = '';
 
-// A list of given options (this can include global and command-specific
-// options).
-$options = array();
-
 // A list of arguments given to the command.
 $arguments = array();
+
+// A list of given options (this includes both global and command-specific
+// options).
+$options = array();
 
 // A list that maps command aliases to their commands.
 $command_aliases = array();

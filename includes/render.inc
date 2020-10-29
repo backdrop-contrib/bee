@@ -65,8 +65,7 @@ function b_print_messages() {
 
   // Render messages in a table.
   echo "\n";
-  b_render(array(
-    '#type' => 'table',
+  b_render_table(array(
     'rows' => $rows,
     'delimiter' => ' ',
     'delimiter_left' => ' ',
@@ -78,38 +77,30 @@ function b_print_messages() {
  * Process an array of elements for rendering.
  *
  * @param array $elements
- *   An associative array which may contain:
- *   - #type: A string that determines which render function to call for
+ *   An array of renderable elements, where each item of the array is an
+ *   associative array, containing:
+ *   - type: A string that determines which render function to call for
  *     formatting and displaying the element. One of: text, table.
- *     See the appropriate render function for other `key => value`
- *     requirements.
- *   If there is no `#type` key, or if there is an `elements` key, sub-elements
- *   will be processed recursively.
- * @param bool $newline
- *   Whether or not to add a newline character (`\n`) to the end of the output.
- *   Defaults to TRUE.
+ *   - variables: An array of key/value pairs for the specific render function.
+ *   - $newline: Whether or not to add a newline character (`\n`) to the end of
+ *     the output. Defaults to TRUE.
  */
-function b_render($elements, $newline = TRUE) {
-  // Ignore empty elements and non-arrays.
-  if (empty($elements) || !is_array($elements)) {
+function b_render($elements) {
+  if (!is_array($elements)) {
     return;
   }
 
-  // Recurse through the array to find the elements to render.
-  if (isset($elements['#type'])) {
-    $function = 'b_render_' . $elements['#type'];
+  // Process each element.
+  foreach ($elements as $element) {
+    if (empty($type = $element['type']) || empty($variables = $element['variables'])) {
+      continue;
+    }
+    $newline = isset($element['newline']) ? $element['newline'] : TRUE;
 
+    // Call element's render function.
+    $function = "b_render_$type";
     if (function_exists($function)) {
-      $function($elements, $newline);
-    }
-
-    if (isset($elements['elements'])) {
-      b_render($elements['elements'], $newline);
-    }
-  }
-  else {
-    foreach ($elements as $element) {
-      b_render($element, $newline);
+      $function($variables, $newline);
     }
   }
 }
