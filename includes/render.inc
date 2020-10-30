@@ -74,30 +74,22 @@ function b_print_messages() {
 }
 
 /**
- * Process an array of elements for rendering.
- *
- * @param array $elements
- *   An array of renderable elements, where each item of the array is an
- *   associative array, containing:
- *   - type: A string that determines which render function to call for
- *     formatting and displaying the element. One of: text, table.
- *   - variables: An array of key/value pairs for the specific render function.
- *   - $newline: Whether or not to add a newline character (`\n`) to the end of
- *     the output. Defaults to TRUE.
+ * Display the output of the given command.
  */
-function b_render($elements) {
-  if (!is_array($elements)) {
+function b_display_output() {
+  global $output;
+  if (!is_array($output)) {
     return;
   }
 
-  // Process each element.
-  foreach ($elements as $element) {
+  // Process each element in the output.
+  foreach ($output as $element) {
     if (empty($type = $element['type']) || empty($variables = $element['variables'])) {
       continue;
     }
     $newline = isset($element['newline']) ? $element['newline'] : TRUE;
 
-    // Call element's render function.
+    // Call the element's render function.
     $function = "b_render_$type";
     if (function_exists($function)) {
       $function($variables, $newline);

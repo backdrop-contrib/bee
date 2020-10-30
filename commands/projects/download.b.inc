@@ -65,7 +65,7 @@ function _download_project($project, $options) {
     return FALSE;
   }
 
-  if ($tmp_folder = b_find_temp()) {
+  if ($tmp_folder = b_get_temp()) {
     $tmp_folder .= '/' . hash('sha256', mt_rand());
     mkdir($tmp_folder);
   }

@@ -9,7 +9,7 @@
 set_error_handler('b_error_handler');
 
 // Include files.
-require_once __DIR__ . '/includes/common.inc';
+require_once __DIR__ . '/includes/miscellaneous.inc';
 require_once __DIR__ . '/includes/command.inc';
 require_once __DIR__ . '/includes/render.inc';
 require_once __DIR__ . '/includes/filesystem.inc';
@@ -17,10 +17,12 @@ require_once __DIR__ . '/includes/input.inc';
 require_once __DIR__ . '/includes/globals.inc';
 
 // Main execution code.
-b_init();
+b_initialize_server();
+b_parse_input();
+b_initialize_console();
 b_process_command();
 b_print_messages();
-b_render($elements);
+b_display_output();
 exit();
 
 /**

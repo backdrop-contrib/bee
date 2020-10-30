@@ -53,7 +53,7 @@ function b_parse_input() {
  * Get the callback function for the command and process it.
  */
 function b_process_command() {
-  global $command, $arguments, $options, $command_aliases, $elements;
+  global $command, $arguments, $options, $command_aliases, $output;
 
   // Display help text if no command is given.
   if (empty($command)) {
@@ -85,7 +85,7 @@ function b_process_command() {
       }
 
       if ($ready) {
-        $elements = $callback($arguments, $options);
+        $output = $callback($arguments, $options);
       }
       else {
         b_message(bt('The required bootstrap level for @module is not ready.', array(

@@ -1,21 +1,38 @@
 <?php
 /**
  * @file
- * Common/miscellaneous functions.
+ * Miscellaneous functions.
  */
+
+/**
+ * Initialize $_SERVER environment variables.
+ */
+function b_initialize_server() {
+  $_SERVER['HTTP_HOST'] = 'localhost';
+  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
+  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_NAME'] = 'localhost';
+  $_SERVER['REQUEST_URI'] = '/';
+  $_SERVER['REQUEST_METHOD'] = 'GET';
+  $_SERVER['SCRIPT_NAME'] = '/index.php';
+  $_SERVER['PHP_SELF'] = '/index.php';
+  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
+
+  // If applicable, ensure any appropriate variables are changed to `https`.
+  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+    foreach ($_SERVER as $key => $value) {
+      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
+    }
+  }
+}
 
 /**
  * Initialize Backdrop Console.
  */
-function b_init() {
+function b_initialize_console() {
   global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites, $yes_mode, $debug_mode;
-
-  // Set global server variables.
-  b_init_server();
-
-  // Separate the input into the command, options and arguments, and store them
-  // for later use.
-  b_parse_input();
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($options['root'])) {
@@ -68,30 +85,6 @@ function b_init() {
   if (!empty($options['debug']) || !empty($options['d'])) {
     $debug_mode = TRUE;
     b_message(bt('`Debug` mode enabled.'), 'log');
-  }
-}
-
-/**
- * Initialize $_SERVER environment variables.
- */
-function b_init_server() {
-  $_SERVER['HTTP_HOST'] = 'localhost';
-  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
-  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
-  $_SERVER['SERVER_NAME'] = 'localhost';
-  $_SERVER['REQUEST_URI'] = '/';
-  $_SERVER['REQUEST_METHOD'] = 'GET';
-  $_SERVER['SCRIPT_NAME'] = '/index.php';
-  $_SERVER['PHP_SELF'] = '/index.php';
-  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
-
-  // If applicable, ensure any appropriate variables are changed to `https`.
-  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-    foreach ($_SERVER as $key => $value) {
-      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
-    }
   }
 }
 

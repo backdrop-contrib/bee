@@ -211,7 +211,7 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
  *   The path to the first matching temporary directory, or FALSE if none was
  *   found.
  */
-function b_find_temp() {
+function b_get_temp() {
   static $temp;
 
   if (!isset($temp)) {

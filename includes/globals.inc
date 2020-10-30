@@ -17,7 +17,7 @@ $global_options = array(
     'description' => bt('Specify the URL of the Backdrop site to use (as defined in `sites.php`). If not set, will try to find the Backdrop site automatically based on the current directory.'),
   ),
   'yes' => array(
-    'description' => bt('Answer `yes` automatically to all questions without prompting.'),
+    'description' => bt('Answer `yes` to questions without prompting.'),
     'short' => 'y',
   ),
   'debug' => array(
@@ -62,7 +62,7 @@ $messages = array();
 
 // A collection of elements to render and display as a result of processing
 // the given command.
-$elements = array();
+$output = array();
 
 /**
  * Define constants for bootstrap phases.
