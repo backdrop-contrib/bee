@@ -10,20 +10,25 @@ Implementations of this hook should return an associative array of command
 descriptors, where the keys are unique command names and the values are
 associative arrays, containing:
 - **description**: The translated description of the command.
-- **callback**: The name of the function that runs the command.
+- **callback**: The name of the function that runs the command. Should be of the
+  form `COMMAND_b_callback`.
 - **arguments**: (optional) An array of required arguments for the command,
   where the keys are argument names and the values are translated argument
-  descriptions. In addition, the key `#multiple` can be used with a value
-  specifying an argument name that accepts multiple values. For example, set
-  `'#multiple' => 'modules'` to specify that the 'modules' argument accepts
+  descriptions.
+- **multiple_argument**: (optional) The argument name that accepts multiple
+  values. Note the singular form of this key - only a single argument can have
   multiple values.
+- **optional_arguments**: (optional) Generally, arguments are required
+  parameters and options are optional ones, but on the rare occasion that
+  optional argument(s) are needed, an array of argument names can be specified
+  here.
 - **options**: (optional) An array of options for the command, where the keys
   are option names (these will be prepended with '--' when displayed to the
   user) and the values are associative arrays containing:
   - **description**: The translated option description.
   - **value**: (optional) A translated word describing the value a user needs to
-    provide for this option. This will be displayed to the user underlined and
-    in uppercase after the option name.
+    provide for this option. This will be displayed to the user in uppercase
+    after the option name.
 - **aliases**: (optional) An array of alternate command names.
 - **bootstrap**: (optional) The bootstrap level required to run this command.
   See `includes/globals.inc` for possible values.
@@ -37,11 +42,9 @@ function poetry_b_command() {
   return array(
     'poem' => array(
       'description' => bt('Displays a customised poem.'),
-      'callback' => 'poem_callback',
+      'callback' => 'poem_b_callback',
       'arguments' => array(
         'name' => bt('The name to use in the poem.'),
-        // None of these arguments accept multiple values.
-        //'#multiple' => 'modules',
       ),
       'options' => array(
         'roses' => array(
@@ -53,8 +56,6 @@ function poetry_b_command() {
         ),
       ),
       'aliases' => array('p'),
-      // Backdrop is not actually needed for this command.
-      //'bootstrap' => B_BOOTSTRAP_CONFIGURATION,
       'examples' => array(
         'b poem HAL' => bt('Display a poem about HAL.'),
         'b poem --roses=Yellow Sarah' => bt('Display a poem about Sarah with yellow roses.'),
@@ -65,11 +66,12 @@ function poetry_b_command() {
 }
 ```
 
-COMMAND_callback()
-------------------
+COMMAND_b_callback()
+--------------------
 This function is called when the user runs the given command (see
-`HOOK_b_command()`). While it can technically be named anything at all, it is
-recommended to adhere to the suggested `COMMAND_callback()` format.
+`HOOK_b_command()`). It is highly recommended to adhere to the suggested
+`COMMAND_b_callback()` format to avoid collisions with other Backdrop function
+names.
 
 This callback function will receive two parameters:
 - **$arguments**: An associative array where the keys are argument names and the
@@ -91,7 +93,7 @@ element is an associative array, containing:
 
 Example:
 ```php
-function poem_callback($arguments, $options) {
+function poem_b_callback($arguments, $options) {
   // Get variables.
   $name = $arguments['name'];
   $colour = !empty($options['roses']) ? strtolower($options['roses']) : 'red';

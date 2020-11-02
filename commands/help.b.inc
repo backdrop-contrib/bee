@@ -8,119 +8,245 @@
  * Implements hook_b_command().
  */
 function help_b_command() {
-  $items['help'] = array(
-    'description' => 'Display help.',
-    'arguments' => array(
-      'command' => 'Command to print help',
+  return array(
+    'help' => array(
+      'description' => bt('Provide help and examples for `b` and its commands.'),
+      'callback' => 'help_b_callback',
+      'arguments' => array(
+        'command' => bt ('The command to display help for. Leave blank to display help for `b` itself.'),
+      ),
+      'optional_arguments' => array('command'),
+      'examples' => array(
+        'b help status' => bt('Display help for the `status` command.'),
+        'b help' => bt('Display help for `b` itself.'),
+      ),
     ),
-    'callback' => 'help_b_callback',
   );
-
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
- *
- * @param array $arguments
- *   An array of user-provided arguments to the command.
- *
- * @return array
- *   Table of help info for the command.
+ * Command callback: Provide help and examples for `b` and its commands.
  */
-function help_b_callback($arguments) {
-  if (defined('BACKDROP_ROOT')) {
-    b_bootstrap(B_BOOTSTRAP_FULL);
-  }
+function help_b_callback($arguments, $options) {
+  global $command_aliases;
+
+  // Get all commands and sort them alphabetically.
   $commands = b_all_commands();
   ksort($commands);
-  $rows = array();
-  $answer = array();
+
+  // Display help for the given command.
   if (isset($arguments['command'])) {
-    $cmd = $arguments['command'];
-    if (!isset($commands[$cmd])) {
-      b_message('There is no ' . $cmd, 'error');
+    $command = $arguments['command'];
+
+    // If the given command is an alias, get the actual command name.
+    if (isset($command_aliases[$command])) {
+      $command = $command_aliases[$command];
+    }
+
+    // Make sure the command exists.
+    if (!isset($commands[$command])) {
+      b_message(bt("Cannot display help for `@command` as it doesn't exist.", array(
+        '@command' => $command,
+      )), 'error');
       return;
     }
-    $output = display_help_by_cmd($commands[$cmd]);
+
+    // Add the name of the command so it can be retrieved later.
+    $commands[$command]['command'] = $command;
+
+    return help_b_command_help($commands[$command]);
+  }
+
+  // Otherwise display help for `b` itself.
+  $rows = array();
+  foreach ($commands as $command => $descriptor) {
+    $rows[] = array(
+      array(
+        'value' => $command,
+        '#color' => 'blue',
+        '#bold' => TRUE,
+      ),
+      array('value' => $descriptor['description']),
+    );
+
+    $aliases = array_keys($command_aliases, $command);
+    if (!empty($aliases)) {
+      $rows[] = array(
+        array(
+          'value' => implode(', ', $aliases),
+          '#color' => 'magenta',
+          '#bold' => TRUE,
+        ),
+        array('value' => ''),
+      );
+    }
+
+    $rows[] = array();
+  }
+
+  return array(
+    array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Backdrop Console'),
+        '#bold' => TRUE,
+      ),
+    ),
+    array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Usage: b [global-options] <command> [options] [arguments]') . "\n",
+      ),
+    ),
+    array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Commands:'),
+        '#bold' => TRUE,
+      ),
+    ),
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
+    ),
+  );
+}
+
+/**
+ * Parse a command descriptor to provide help information about the command.
+ *
+ * @param array $descriptor
+ *   A command descriptor. See the documentation for the return value of
+ *   HOOK_b_command() for more details.
+ */
+function help_b_command_help($descriptor) {
+  global $command_aliases;
+  $aliases = array_keys($command_aliases, $descriptor['command']);
+
+  // Command name.
+  $output = array(
+    array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => $descriptor['command'],
+        '#bold' => TRUE,
+      ),
+      'newline' => FALSE,
+    ),
+  );
+  if (empty($aliases)) {
+    $output[0]['newline'] = TRUE;
   }
   else {
-    foreach ($commands as $cmd => $callbacks) {
-      $first = TRUE;
-      $aliases = array();
-      foreach ($callbacks as $callback) {
-        if (isset($callback['is_alias'])) {
-          continue;
-        }
-        if (isset($callback['aliases'])) {
-          $aliases += $callback['aliases'];
-        }
-        if ($first) {
-          $rows[] = array(
-            array('data' => $cmd, '#color' => 'bold_blue'),
-            array('data' => $callback['description']),
-          );
-          $first = FALSE;
-        }
-        else {
-          $rows[] = array(
-            '',
-            array('data' => $callback['description']),
-          );
-        }
+    // Aliases.
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => ', ' . implode(', ', $aliases),
+      ),
+    );
+  }
+
+  // Description.
+  $output[] = array(
+    'type' => 'text',
+    'variables' => array(
+      'value' => $descriptor['description'] . "\n",
+    ),
+  );
+
+  // Arguments.
+  if (!empty($descriptor['arguments'])) {
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Arguments:'),
+        '#bold' => TRUE,
+      ),
+    );
+
+    $rows = array();
+    foreach ($descriptor['arguments'] as $argument_name => $argument_description) {
+      if (!empty($descriptor['optional_arguments']) && in_array($argument_name, $descriptor['optional_arguments'])) {
+        $argument_description = bt('(optional) ') . $argument_description;
       }
-      if ($aliases) {
-        $rows[] = array(
-          '',
-          array(
-            'data' => 'aliases: ' . implode(", ", $aliases),
-            '#color' => 'purple',
-          ),
-        );
-      }
+
+      $rows[] = array(
+        array(
+          'value' => $argument_name,
+          '#color' => 'blue',
+          '#bold' => TRUE,
+        ),
+        array('value' => $argument_description),
+      );
     }
-    $output[] = array(
-      '#type' => 'text',
-      'value' => "\nBackdrop Console commands:\n",
-    );
 
     $output[] = array(
-      '#type' => 'table',
-      'rows' => $rows,
-      'delimiter' => '    ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => '',
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
     );
   }
+
+  // Options.
+  if (!empty($descriptor['options'])) {
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Options:'),
+        '#bold' => TRUE,
+      ),
+    );
+
+    $rows = array();
+    foreach ($descriptor['options'] as $option_name => $option) {
+      $value = !empty($option['value']) ? '=' . strtoupper($option['value']) : '';
+
+      $rows[] = array(
+        array(
+          'value' => '--' . $option_name . $value,
+          '#color' => 'blue',
+          '#bold' => TRUE,
+        ),
+        array('value' => $option['description']),
+      );
+    }
+
+    $output[] = array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
+    );
+  }
+
   return $output;
 }
 
-/**
- * Display help info for each callback of the provided command.
- *
- * @param array $commands
- *   An array of command info.
- *
- * @return array
- *   Formatted help info on each command to the stdout.
- */
-function display_help_by_cmd($commands) {
-  $output = array();
-  foreach ($commands as $cmd => $callback) {
-    $output[] = help_display_one_callback($callback);
-  }
-  return $output;
-}
 
-/**
- * Display help info for the provided command.
- *
- * @param string $callback
- *   Backdrop command to return help info about.
- *
- * @return array
- *   Array of help info for the Backdrop command.
- */
+
+
+
+
+
+
+
+
+
+
+
 function help_display_one_callback($callback) {
   $output = array();
 

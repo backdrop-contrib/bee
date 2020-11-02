@@ -88,8 +88,8 @@ function b_process_command() {
         $output = $callback($arguments, $options);
       }
       else {
-        b_message(bt('The required bootstrap level for @module is not ready.', array(
-          '@module' => $descriptor['module'],
+        b_message(bt('The required bootstrap level for `@command` is not ready.', array(
+          '@command' => $command,
         )), 'error');
       }
     }
@@ -130,7 +130,6 @@ function b_all_commands() {
       // Get the command descriptor(s) from the hook function.
       $descriptors = (array) $function();
       foreach ($descriptors as $command => $descriptor) {
-        $descriptor['module'] = $command_file;
         $all_commands[$command] = $descriptor;
 
         // Map aliases to their commands.
@@ -243,14 +242,9 @@ function b_validate_command($descriptor) {
   // Validate arguments.
   if (isset($descriptor['arguments'])) {
     $grouped = array();
-    $multiple = NULL;
-
-    // Get argument names, and note which one allows multiple values (if any).
     $argument_names = array_keys($descriptor['arguments']);
-    if (($key = array_search('#multiple', $argument_names)) !== FALSE) {
-      unset($argument_names[$key]);
-      $multiple = $descriptor['arguments']['#multiple'];
-    }
+    $multiple = isset($descriptor['multiple_argument']) ? $descriptor['multiple_argument'] : NULL;
+    $optional = isset($descriptor['optional_arguments']) ? $descriptor['optional_arguments'] : array();
 
     // Group provided arguments by their argument name.
     foreach ($argument_names as $name) {
@@ -262,8 +256,8 @@ function b_validate_command($descriptor) {
         unset($arguments);
       }
 
-      // Make sure all arguments have a value.
-      if (empty($grouped[$name])) {
+      // Make sure all required arguments have a value.
+      if (empty($grouped[$name]) && !in_array($name, $optional)) {
         b_message(bt('Argument `@name` is required.', array(
           '@name' => $name,
         )), 'error');

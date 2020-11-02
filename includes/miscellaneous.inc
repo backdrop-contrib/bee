@@ -56,7 +56,7 @@ function b_initialize_console() {
     chdir($backdrop_root);
     $backdrop_root = getcwd();
     define('BACKDROP_ROOT', $backdrop_root);
-    $_SERVER['HTTP_HOST'] = isset($backdrop_site) ? $backdrop_site : basename($backdrop_root);
+    $_SERVER['HTTP_HOST'] = !empty($backdrop_site) ? $backdrop_site : basename($backdrop_root);
 
     // Determine if Backdrop is installed or not.
     require_once $backdrop_root . '/core/includes/bootstrap.inc';
