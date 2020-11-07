@@ -136,14 +136,12 @@ function help_b_command_help($descriptor) {
         'value' => $descriptor['command'],
         '#bold' => TRUE,
       ),
-      'newline' => FALSE,
+      'newline' => TRUE,
     ),
   );
-  if (empty($aliases)) {
-    $output[0]['newline'] = TRUE;
-  }
-  else {
+  if (!empty($aliases)) {
     // Aliases.
+    $output[0]['newline'] = FALSE;
     $output[] = array(
       'type' => 'text',
       'variables' => array(
@@ -232,136 +230,38 @@ function help_b_command_help($descriptor) {
     );
   }
 
-  return $output;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-function help_display_one_callback($callback) {
-  $output = array();
-
-  if (isset($callback['module'])) {
+  // Examples.
+  if (!empty($descriptor['examples'])) {
     $output[] = array(
-      '#type' => 'text',
-      '#color' => 'bold_blue',
-      'value' => bt('Extension !name', array('!name' => $callback['module'])),
+      'type' => 'text',
+      'variables' => array(
+        'value' => bt('Examples:'),
+        '#bold' => TRUE,
+      ),
     );
-  }
-  if (isset($callback['description'])) {
-    $output[] = array(
-      '#type' => 'text',
-      '#color' => 'purple',
-      'value' => $callback['description'],
-    );
-  }
 
-  $examples = array();
-  if (isset($callback['examples'])) {
-    foreach ($callback['examples'] as $example => $description) {
-      $examples[] = array(
-        $example,
-        $description,
+    $rows = array();
+    foreach ($descriptor['examples'] as $example => $description) {
+      $rows[] = array(
+        array(
+          'value' => $example,
+          '#color' => 'blue',
+          '#bold' => TRUE,
+        ),
+        array('value' => $description),
       );
     }
-  }
-  if (!empty($examples)) {
+
     $output[] = array(
-      '#type' => 'text',
-      '#color' => 'bold_blue',
-      'value' => "\nExamples:",
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
     );
-    $output[] = array(
-      '#type' => 'table',
-      'rows' => $examples,
-      'delimiter' => ' : ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => '',
-    );
-  }
-  $available_options = array();
-  if (isset($callback['options'])) {
-    foreach ($callback['options'] as $option => $description) {
-      if (is_array($description)) {
-        $available_options[] = array(
-          '--' . $option,
-          $description['description'],
-        );
-        if (isset($description['example-value'])) {
-          $available_options[] = array(
-            '',
-            array('data' => 'example: ' . $description['example-value'], '#color' => 'purple'),
-          );
-        }
-      }
-      else {
-        $available_options[] = array(
-          '--' . $option,
-          $description,
-        );
-      }
-    }
   }
 
-  if (!empty($available_options)) {
-    $output[] = array(
-      '#type' => 'text',
-      '#color' => 'bold_blue',
-      'value' => "\nOptions:",
-    );
-    $output[] = array(
-      '#type' => 'table',
-      'rows' => $available_options,
-      'delimiter' => ' : ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => '',
-    );
-  }
-  $available_arguments = array();
-  if (isset($callback['arguments'])) {
-    foreach ($callback['arguments'] as $argument => $description) {
-      if (is_array($description)) {
-        $available_arguments[] = array(
-          $argument,
-          $description['description'],
-        );
-      }
-      else {
-        $available_arguments[] = array(
-          $argument,
-          $description,
-        );
-      }
-    }
-  }
-  if (!empty($available_arguments)) {
-    $output[] = array(
-      '#type' => 'text',
-      '#color' => 'bold_blue',
-      'value' => "\nArguments:",
-    );
-    $output[] = array(
-      '#type' => 'table',
-      'rows' => $available_arguments,
-      'delimiter' => ' : ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => '',
-    );
-  }
-  if (isset($callback['aliases'])) {
-    $output[] = array(
-      '#type' => 'text',
-      'value' => "\n" . 'Aliases: ' . implode(", ", $callback['aliases']),
-    );
-  }
   return $output;
 }
