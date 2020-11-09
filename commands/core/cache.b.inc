@@ -8,73 +8,58 @@
  * Implements hook_b_command().
  */
 function cache_b_command() {
-  $items = array();
-
-  $items['cache-clear'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Clear a specific cache, or all Backdrop caches.',
-    'arguments' => array(
-      'type' => 'The particular cache to clear. Omit this argument to choose from available caches.',
+  return array(
+    'cache-clear' => array(
+      'description' => bt('Clear a specific cache, or all Backdrop caches.'),
+      'callback' => 'cache_clear_b_command',
+      'arguments' => array(
+        'cache' => bt('The name of the cache to clear. Leave blank to see a list of available caches.'),
+      ),
+      'optional_arguments' => array('cache'),
+      'aliases' => array('cc'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b cache-clear menu' => bt('Clear the menu cache.'),
+        'b cache-clear all' => bt('Clear all caches.'),
+        'b cache-clear' => bt('Select the cache to clear from a list of available ones.'),
+      ),
     ),
-    'callback' => 'cache_command_clear',
-    'aliases' => array('cc'),
   );
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
- *
- * @param array $arguments
- *   An array of user-provided arguments to the command.
- *
- * @return array
- *   Success message to user.
+ * Command callback: Clear a specific cache, or all Backdrop caches.
  */
-function cache_command_clear($arguments) {
-  $caches = array(
-    'all' => t('All'),
-    'assets' => t('CSS and JavaScript'),
-    'cache' => t('Page and else'),
-    'layout' => t('Layout'),
-    'menu' => t('Menu'),
-    'theme' => t('Theme registry'),
-    'token' => t('Token registry'),
-    'admin_bar' => t('Administration bar'),
-    'update' => t('Update data'),
+function cache_clear_b_command($arguments, $options) {
+  // Get a list of all caches.
+  $cache_list = array(
+    'all' => bt('All'),
+    'core' => bt('Core (page, admin bar, etc.)'),
+    'css_js' => bt('CSS & JS'),
+    'entity' => bt('Entity'),
+    'layout' => bt('Layout'),
+    'menu' => bt('Menu'),
+    'module' => bt('Module'),
+    'theme' => bt('Theme'),
+    'token' => bt('Token'),
+    'update' => bt('Update'),
   );
 
-  if (!isset($arguments['type'])) {
-    if (!$choice = b_choice($caches, bt('Enter a number to choose which cache to clear'))) {
-      b_message(bt('Cancelled.'));
-      return FALSE;
-    }
+  // Get the cache to clear.
+  if (isset($arguments['cache'])) {
+    $cache = $arguments['cache'];
   }
   else {
-    $choice = $arguments['type'];
+    $cache = b_choice($cache_list, bt('Select a cache to clear.'), 'all');
   }
 
-  switch ($choice) {
+  // Clear the cache.
+  switch ($cache) {
     case 'all':
       backdrop_flush_all_caches();
       break;
 
-    case 'update':
-      _update_cache_clear();
-      break;
-
-    case 'admin_bar':
-      cache('admin_bar')->flush();
-      break;
-
-    case 'menu':
-      menu_rebuild();
-      break;
-
-    case 'cache':
-      // Don't clear cache_form - in-progress form submissions may break.
-      // Ordered so clearing the page cache will always be the last action.
-      // @see backdrop_flush_all_caches()
+    case 'core':
       $core = array('cache', 'path', 'filter', 'bootstrap', 'token', 'page');
       $cache_bins = array_merge(module_invoke_all('flush_caches'), $core);
       foreach ($cache_bins as $bin) {
@@ -82,16 +67,28 @@ function cache_command_clear($arguments) {
       }
       break;
 
-    case 'assets':
-      // Change query-strings on css/js files to enforce reload for all users.
+    case 'css_js':
       _backdrop_flush_css_js();
-
       backdrop_clear_css_cache();
       backdrop_clear_js_cache();
+      cache_flush('cache_page');
+      break;
 
-      // Clear the page cache, since cached HTML pages might link to old CSS and
-      // JS aggregates.
-      cache_clear_all('*', 'cache_page', TRUE);
+    case 'entity':
+      entity_info_cache_clear();
+      break;
+
+    case 'layout':
+      layout_reset_caches();
+      break;
+
+    case 'menu':
+      menu_rebuild();
+      break;
+
+    case 'module':
+      system_rebuild_module_data();
+      _system_update_bootstrap_status();
       break;
 
     case 'theme':
@@ -103,28 +100,13 @@ function cache_command_clear($arguments) {
       token_cache_clear();
       break;
 
-    case 'layout':
-      layout_reset_caches();
+    case 'update':
+      _update_cache_clear();
       break;
-
-    default:
-      b_message(bt('Unsupported option !name!', array('!name' => $choice)), 'error');
-      $rows = array();
-      foreach ($caches as $key => $value) {
-        $rows[] = array(
-          array('data' => $key, '#color' => 'bold_blue'),
-          $value,
-        );
-      }
-
-      return array(
-        '#type' => 'table',
-        'rows' => $rows,
-        'delimiter' => ' : ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      );
   }
 
-  b_message(bt("!type cache cleared.", array('!type' => $caches[$choice])), 'success');
+  // Display success message.
+  b_message(bt('Cache(s) cleared: @cache', array(
+    '@cache' => $cache_list[$cache],
+  )), 'success');
 }
