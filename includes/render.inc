@@ -366,7 +366,7 @@ function b_get_remaining_rows($row, $column_widths) {
       $row_rendered[$index] = b_format_column($column, $width);
     }
     else {
-      $row_rendered[$index] = b_format_column('', $width);
+      $row_rendered[$index] = b_format_column(array('value' => ''), $width);
     }
   }
 

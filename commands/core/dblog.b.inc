@@ -1,218 +1,173 @@
 <?php
 /**
  * @file
- * Command(s) for displaying watchdog (log) information.
+ * Command(s) for displaying database log information.
  */
 
 /**
  * Implements hook_b_command().
  */
 function dblog_b_command() {
-  $items['watchdog-show'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Show dblog messages.',
-    'arguments' => array(
-      'wid' => 'Optional id of a watchdog message to show in detail. If not provided, a listing of most recent 10 messages will be displayed.',
+  return array(
+    'log-show' => array(
+      'description' => bt('Show database log messages.'),
+      'callback' => 'log_show_b_callback',
+      'arguments' => array(
+        'id' => bt('The ID of a log message to display in detail. When provided, options do not have any effect. Leave blank to list summaries of the most recent log messages.'),
+      ),
+      'optional_arguments' => array('id'),
+      'options' => array(
+        'count' => array(
+          'description' => bt('The number of log messages to show. Default is 10.'),
+          'value' => bt('Number'),
+        ),
+        'severity' => array(
+          'description' => bt('Restrict to messages of a given severity level.'),
+          'value' => bt('Value'),
+        ),
+        'type' => array(
+          'description' => bt('Restrict to messages of a given type.'),
+          'value' => bt('Type'),
+        ),
+      ),
+      'aliases' => array('watchdog-show', 'ws'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b log-show 3551' => bt('Show details about the log message with ID `3551`.'),
+        'b log-show --count=25 --severity=WATCHDOG_ERROR --type=php' => bt('Show the 25 latest PHP errors.'),
+        'b log-show' => bt('Show the latest 10 log messages.'),
+      ),
     ),
-    'options' => array(
-      'count' => 'The number of messages to show. Defaults to 10.',
-      'severity' => 'Restrict to messages of a given severity level.',
-      'type' => 'Restrict to messages of a given type.',
-      'tail' => 'Continuously show new watchdog messages until interrupted.',
-      'sleep-delay' => 'To be used in conjunction with --tail. This is the number of seconds to wait between each poll to the database. Delay is 1 second by default.',
-    ),
-    'callback' => 'dblog_command_show',
-    'aliases' => array('wd-show', 'ws'),
   );
-
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
+ * Command callback: Show database log messages.
  */
-function dblog_command_show($arguments, $options) {
-  if (isset($arguments['wid'])) {
-    return dblog_show_one($arguments['wid']);
+function log_show_b_callback($arguments, $options) {
+  if (empty($arguments['id'])) {
+    // Show multiple log messages.
+    return dblog_b_show_messages($options);
   }
+  else {
+    // Show one log message.
+    $message = db_query('SELECT * FROM {watchdog} WHERE wid = :wid', array(
+      ':wid' => $arguments['id'],
+    ))->fetchAssoc();
 
-  return dblog_show_many($options);
+    if (!$message) {
+      b_message(bt('Log message #@idcould not be found.', array(
+        '@id' => $arguments['id'],
+      )), 'error');
+      return;
+    }
+
+    $severity_levels = watchdog_severity_levels();
+    $rows = array(
+      array(
+        array('value' => bt('Date')),
+        array('value' => format_date($message['timestamp'], 'medium')),
+      ),
+      array(
+        array('value' => bt('Type')),
+        array('value' => $message['type']),
+      ),
+      array(
+        array('value' => bt('Severity')),
+        array('value' => backdrop_ucfirst($severity_levels[$message['severity']])),
+      ),
+      array(
+        array('value' => bt('Message')),
+        array('value' => dblog_b_get_message($message)),
+      ),
+    );
+
+    echo "\n";
+    return array(
+      array(
+        'type' => 'table',
+        'variables' => array(
+          'rows' => $rows,
+          'delimiter' => '   ',
+          'delimiter_left' => ' ',
+          'delimiter_right' => ' ',
+        ),
+      ),
+    );
+  }
 }
 
 /**
- * Print a table of watchdog messages.
- *
- * @param array $options
- *   An array of user-provided options to the command.
+ * Display a list of the latest log messages.
  */
-function dblog_show_many($options) {
+function dblog_b_show_messages($options) {
+  $severity_levels = watchdog_severity_levels();
+
+  // Set default value.
   if (!isset($options['count'])) {
     $options['count'] = 10;
   }
-  $query = db_select('watchdog', 'wd')->extend('PagerDefault')
+
+  // Get messages.
+  $query = db_select('watchdog', 'wd')
     ->fields('wd')
     ->orderBy('wid', 'DESC');
-
   if (isset($options['type'])) {
     $query->condition('type', $options['type']);
   }
-
   if (isset($options['severity'])) {
-    $severities = dblog_get_severities();
-    if ($key = array_search($options['severity'], $severities)) {
-      $query->condition('severity', $key);
-    }
-    else {
-      b_message(bt('There is no Severity !name', array('!name' => $options['severity'])), 'warning');
-    }
+    $query->condition('severity', $options['severity']);
   }
+  $messages = $query->range(0, $options['count'])
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
 
-  $messages = $query->limit($options['count'])->execute()->fetchAll();
-
+  // Get table rows.
   $rows = array();
   foreach ($messages as $message) {
     $rows[] = array(
-      $message->wid,
-      format_date($message->timestamp, 'custom', 'd/M H:i'),
-      $message->type,
-      dblog_colored_severities_output($message->severity),
-      dblog_return_message($message),
+      array('value' => $message['wid']),
+      array('value' => format_date($message['timestamp'], 'short')),
+      array('value' => $message['type']),
+      array('value' => backdrop_ucfirst($severity_levels[$message['severity']])),
+      array('value' => dblog_b_get_message($message)),
     );
   }
 
+  // Get table header.
   $header = array(
-    'ID',
-    'Date',
-    'Type',
-    'Severity',
-    'Message',
+    array('value' => bt('ID')),
+    array('value' => bt('Date')),
+    array('value' => bt('Type')),
+    array('value' => bt('Severity')),
+    array('value' => bt('Message')),
   );
 
   return array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'header' => $header,
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'header' => $header,
+      ),
+    ),
   );
-
 }
 
 /**
- * Return message with already replaced variables and made plain.
+ * Prepare a log message for output.
  */
-function dblog_return_message($message) {
-  $variables = $message->variables;
+function dblog_b_get_message($data) {
+  $variables = $data['variables'];
+  $message = $data['message'];
+
   if (is_string($variables)) {
     $variables = unserialize($variables);
   }
   if (is_array($variables)) {
-    $message->message = bt($message->message, $variables);
-  }
-  $message->message = str_replace("\n", " ", $message->message);
-  return strip_tags($message->message);
-}
-
-/**
- * Return array of human readable severities.
- */
-function dblog_get_severities($severity = FALSE) {
-  $severities = array(
-    WATCHDOG_DEBUG => 'debug',
-    WATCHDOG_INFO => 'info',
-    WATCHDOG_NOTICE => 'notice',
-    WATCHDOG_WARNING => 'warning',
-    WATCHDOG_ERROR => 'error',
-    WATCHDOG_CRITICAL => 'critical',
-    WATCHDOG_ALERT => 'alert',
-    WATCHDOG_EMERGENCY => 'emergency',
-  );
-
-  if ($severity) {
-    return $severities[$severity];
-  }
-  return $severities;
-}
-
-/**
- * Get the name and color of a severity.
- */
-function dblog_colored_severities_output($severity) {
-  $title = dblog_get_severities($severity);
-  $color = 'cyan';
-  switch ($title) {
-    case 'debug':
-    case 'error':
-    case 'critical':
-    case 'alert':
-    case 'emergency':
-      $color = 'bold_red';
-      break;
-
-    case 'notice':
-    case 'info':
-      $color = 'green';
-      break;
-
-    case 'warning':
-      $color = 'yellow';
-      break;
+    $message = bt($message, $variables);
   }
 
-  return array(
-    'data' => $title,
-    '#color' => $color,
-  );
-}
-
-/**
- * Print a watchdog message.
- *
- * @param int $wid
- *   The id of the message to show.
- */
-function dblog_show_one($wid) {
-  $message = db_select('watchdog', 'wd')
-    ->fields('wd')
-    ->condition('wid', $wid)
-    ->execute()
-    ->fetchObject();
-
-  if (!$message) {
-    b_message(bt('Resent log message #!wid not found.', array('!wid' => $wid)), 'error');
-    return FALSE;
-  }
-
-  $rows = array();
-
-  $rows[] = array(
-    'ID',
-    $message->wid,
-  );
-
-  $rows[] = array(
-    'Date',
-    format_date($message->timestamp, 'custom', 'd/M H:i'),
-  );
-
-  $rows[] = array(
-    'Type',
-    $message->type,
-  );
-
-  $rows[] = array(
-    'Severity',
-    dblog_colored_severities_output($message->severity),
-  );
-
-  $rows[] = array(
-    'Message',
-    dblog_return_message($message),
-  );
-
-  return array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => ' : ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  );
+  $message = str_replace("\n", ' ', $message);
+  return strip_tags($message);
 }

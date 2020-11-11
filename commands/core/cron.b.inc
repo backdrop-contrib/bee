@@ -8,24 +8,30 @@
  * Implements hook_b_command().
  */
 function cron_b_command() {
-  $items['cron'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Process cron.',
-    'callback' => 'cron_command_process',
+  return array(
+    'cron' => array(
+      'description' => bt('Run cron.'),
+      'callback' => 'cron_b_callback',
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b cron' => bt('Initiate a cron run.'),
+      ),
+    ),
   );
-
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
+ * Command callback: Run cron.
  */
-function cron_command_process($arguments, $options) {
-  $success = backdrop_cron_run();
-  if ($success) {
-    b_message('Cron processed.', 'success');
+function cron_b_callback($arguments, $options) {
+  // Run cron.
+  $result = backdrop_cron_run();
+
+  // Display appropriate message.
+  if ($result) {
+    b_message(bt('Cron ran successfully.'), 'success');
   }
   else {
-    b_message('Cron is already running.', 'error');
+    b_message(bt('Cron is already running.'), 'error');
   }
 }
