@@ -7,39 +7,47 @@
 /**
  * Implements hook_b_command().
  */
-function site_install_b_command() {
-  $items['site-install'] = array(
-    'description' => bt('Install Backdrop along with modules/themes/configuration using the specified install profile.'),
-    'arguments' => array(
-      'profile' => bt('The install profile you wish to run. Default is "standard"'),
-      'key=value' => array(
-        'description' => bt('Any additional settings you wish to pass to the profile. The key is in the form [form name].[parameter name]'),
-        'multiple' => TRUE,
+function install_b_command() {
+  return array(
+    'install' => array(
+      'description' => bt('Install Backdrop/setup a new site.'),
+      'callback' => 'install_b_callback',
+      'options' => array(
+        'profile' => array(
+          'description' => bt("The machine name of the install profile to use. Default is 'standard'."),
+          'value' => bt('Profile-Name'),
+        ),
+        'db-url' => array(
+          'description' => 'A Drupal 6 style database URL. Only required for initial install - not re-install.',
+        ),
+        'db-prefix' => array(
+          'description' => 'An optional table prefix to use for initial install.  Can be a key-value array of tables/prefixes in a drushrc file (not the command line).',
+        ),
+        'account-name' => array(
+          'description' => 'uid1 name. Defaults to admin',
+        ),
+        'account-pass' => array(
+          'description' => 'uid1 pass. Defaults to a randomly generated password. If desired, set a fixed password in drushrc.php.',
+        ),
+        'account-mail' => array(
+          'description' => 'uid1 email. Defaults to admin@example.com',
+        ),
+        'locale' => array(
+          'description' => 'A short language code. Sets the default site language. Language files must already be present. You may use download command to get them.',
+        ),
+        'clean-url' => array(
+          'description' => 'Defaults to 1',
+        ),
+        'site-name' => array(
+          'description' => 'Defaults to Site-Install',
+        ),
+        'site-mail' => array(
+          'description' => 'From: for system mailings. Defaults to admin@example.com',
+        ),
       ),
+      'aliases' => array('site-install', 'si'),
     ),
-    'options' => array(
-      'root' => 'Set the working directory for the script to the specified path. Required if running this script from a directory other than the Backdrop root.',
-      'db-url' => array(
-        'description' => 'A Drupal 6 style database URL. Only required for initial install - not re-install.',
-        'example-value' => 'mysql://root:pass@host/db',
-        'required' => FALSE,
-      ),
-      'db-prefix' => 'An optional table prefix to use for initial install.  Can be a key-value array of tables/prefixes in a drushrc file (not the command line).',
-      'account-name' => 'uid1 name. Defaults to admin',
-      'account-pass' => 'uid1 pass. Defaults to a randomly generated password. If desired, set a fixed password in drushrc.php.',
-      'account-mail' => 'uid1 email. Defaults to admin@example.com',
-      'locale' => array(
-        'description' => 'A short language code. Sets the default site language. Language files must already be present. You may use download command to get them.',
-        'example-value' => 'en-GB',
-      ),
-      'clean-url' => 'Defaults to 1',
-      'site-name' => 'Defaults to Site-Install',
-      'site-mail' => 'From: for system mailings. Defaults to admin@example.com',
-    ),
-    'callback' => 'site_install_b_callback',
-    'aliases' => array('si'),
   );
-  return $items;
 }
 
 /**
@@ -53,7 +61,7 @@ function site_install_b_command() {
  * @return bool
  *   Whether or not Backdrop was installed successfully.
  */
-function site_install_b_callback($arguments, $options) {
+function install_b_callback($arguments, $options) {
 
   $additional_form_options = array();
   if (isset($arguments['key=value']) && !empty($arguments['key=value'])) {

@@ -8,70 +8,100 @@
  * Implements hook_b_command().
  */
 function status_b_command() {
-  $items = array();
-  // We specify command callbacks here because the defaults would collide with
-  // the drush cache api functions.
-  $items['core-status'] = array(
-    'description' => 'Provides a birds-eye view of the current Backdrop installation, if any.',
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'aliases' => array('status', 'st'),
-    'examples' => array(
-      'b core-status ' => 'Show status.',
-      'b core-status --show-passwords' => 'Show status include password.',
+  return array(
+    'status' => array(
+      'description' => bt('Provides an overview of the current Backdrop installation/site.'),
+      'callback' => 'status_b_callback',
+      'options' => array(
+        'show-password' => array(
+          'description' => bt('Show the database password.'),
+        ),
+      ),
+      // 'bootstrap' => B_BOOTSTRAP_FULL,
+      'aliases' => array('core-status', 'st'),
+      'examples' => array(
+        'b status' => bt('Get an overview of the Backdrop installation.'),
+        'b status --show-password' => bt('Include the database password in the overview.'),
+      ),
     ),
-    'options' => array(
-      'show-passwords' => 'Show database password.',
-    ),
-    'callback' => 'status_b_callback',
   );
-
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
+ * Command callback: Provides an overview of the current Backdrop
+ * installation/site.
  */
 function status_b_callback($arguments, $options) {
+  global $backdrop_root, $backdrop_site, $multisites;
   $rows = array();
+
+  // Backdrop core.
   if (defined('BACKDROP_VERSION')) {
-    $color = 'green';
     $rows[] = array(
-      'Backdrop CMS',
-      array('data' => BACKDROP_VERSION, '#color' => $color),
+      array('value' => bt('Backdrop CMS')),
+      array('value' => BACKDROP_VERSION),
+    );
+  }
+  if (!empty($backdrop_root)) {
+    $rows[] = array(
+      array('value' => bt('Root directory')),
+      array('value' => $backdrop_root),
     );
   }
 
-  if (defined('BACKDROP_ROOT')) {
-    $rows[] = array('Backdrop root', BACKDROP_ROOT);
+  // Multisite.
+  $rows[] = array(
+    array('value' => bt('Site type')),
+    array('value' => empty($multisites) ? bt('Single') : bt('Multisite')),
+  );
+  if (!empty($backdrop_site)) {
+    $rows[] = array(
+      array('value' => bt('Site directory')),
+      array('value' => $backdrop_site),
+    );
   }
-  if (defined('BACKDROP_SITE')) {
-    $rows[] = array('Backdrop site', BACKDROP_SITE);
-  }
-  if (class_exists('Database')) {
-    if ($connection = Database::getConnection('default', 'default')) {
-      $conn = $connection->getConnectionOptions();
-      $rows[] = array('Database driver', $conn['driver']);
-      $rows[] = array('Database host', $conn['host']);
 
-      $rows[] = array('Database name', $conn['database']);
-      $rows[] = array('Database username', $conn['username']);
-      if (isset($options['show-passwords']) or isset($options['full'])) {
-        $rows[] = array(
-          'Database password',
-          array('data' => $conn['password'], '#color' => 'red'),
-        );
-      }
+  // Database.
+  if (class_exists('Database')) {
+    $db_connection = Database::getConnectionInfo();
+    if (!empty($info = $db_connection['default'])) {
+      $rows[] = array(
+        array('value' => bt('Database')),
+        array('value' => $info['driver']),
+      );
+      $rows[] = array(
+        array('value' => bt('Database name')),
+        array('value' => $info['database']),
+      );
+      $rows[] = array(
+        array('value' => bt('Database username')),
+        array('value' => $info['username']),
+      );
+      $rows[] = array(
+        array('value' => bt('Database password')),
+        array('value' => isset($options['show-password']) ? $info['password'] : '**********'),
+      );
+      $rows[] = array(
+        array('value' => bt('Database host')),
+        array('value' => $info['host']),
+      );
+      $rows[] = array(
+        array('value' => bt('Database port')),
+        array('value' => $info['port']),
+      );
     }
   }
-  else {
-    b_message('No database connection', 'warning');
-  }
 
+  echo "\n";
   return array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => '  :  ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
+    ),
   );
 }
