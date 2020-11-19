@@ -1,24 +1,24 @@
 <?php
 /**
  * @file
- * Command(s) for updating the database.
+ * Command(s) for Backdrop/project updates.
  */
 
 /**
  * Implements hook_b_command().
  */
-function updatedb_b_command() {
-  $items['updatedb-status'] = array(
+function update_b_command() {
+  $items['update-status'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => bt('Show a list of updates.'),
     'callback' => 'updatedb_status_callback',
-    'aliases' => array('updbst'),
+    'aliases' => array('updatedb-status', 'updbst'),
   );
-  $items['updatedb'] = array(
+  $items['update'] = array(
     'bootstrap' => B_BOOTSTRAP_FULL,
     'description' => bt('Apply any database updates required (as with running update.php).'),
     'callback' => 'updatedb_callback',
-    'aliases' => array('updb'),
+    'aliases' => array('updatedb', 'updb'),
   );
 
   return $items;

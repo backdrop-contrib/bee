@@ -27,7 +27,7 @@ function b_find_root($path, $recursive = TRUE) {
     elseif ($recursive) {
       // Get the path of the parent dir.
       $path = dirname($path);
-      if ($path != '/') {
+      if (!in_array($path, array('/', '.'))) {
         // Check the parent path.
         return b_find_root($path);
       }
@@ -126,7 +126,7 @@ function b_find_site_by_path($path) {
     else {
       // Get the path of the parent dir.
       $path = dirname($path);
-      if ($path != '/') {
+      if (!in_array($path, array('/', '.'))) {
         // Check the parent path.
         return b_find_site_by_path($path);
       }
@@ -207,11 +207,14 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
 /**
  * Returns the path to a temporary directory.
  *
+ * @param string $prefix
+ *   A prefix to use for the subfolder.
+ *
  * @return string|false
- *   The path to the first matching temporary directory, or FALSE if none was
- *   found.
+ *   The path to a subfolder in the first matching temporary directory, or FALSE
+ *   if the folder could not be found/created.
  */
-function b_get_temp() {
+function b_get_temp($prefix = '') {
   static $temp;
 
   if (!isset($temp)) {
@@ -234,14 +237,17 @@ function b_get_temp() {
     }
   }
 
-  return $temp;
+  // Create a prefixed subfolder.
+  $subfolder = $temp . '/' . uniqid($prefix);
+  if (!mkdir($subfolder)) {
+    return FALSE;
+  }
+
+  return $subfolder;
 }
 
 /**
  * Deletes a file or directory.
- *
- * If the path is a directory, all files and folders within that directory will
- * be deleted first, then the directory itself will be deleted.
  *
  * @param string $path
  *   The file or directory to be deleted.
@@ -249,6 +255,8 @@ function b_get_temp() {
  * @return bool
  *   TRUE for success or if the path doesn't exist (since that's the desired
  *   result), or FALSE in the event of an error.
+ *
+ * @see https://stackoverflow.com/a/3349792/4168619
  */
 function b_delete($path) {
   // Delete files.
@@ -284,41 +292,78 @@ function b_delete($path) {
   }
 
   // Display an error for non-files/directories.
-  b_message(bt("`@path` was not deleted because it is not a recognized type.", array(
+  b_message(bt('`@path` was not deleted because it is not a recognized type.', array(
     '@path' => $path,
   )), 'error');
   return FALSE;
 }
 
 /**
- * Copies a file or directory to another directory.
- *
- * If the source is a directory, all files and folders within that directory
- * will be copied recursively.
+ * Copies a file or directory to another location.
  *
  * @param string $source
  *   The file or directory to be copied.
  * @param string $destination
- *   The directory to put the copy into.
+ *   The directory to put the copied files/folders into. It will be created if
+ *   it doesn't exist.
+ * @param boolean $self
+ *   When TRUE, the source directory will be copied along with its children.
+ *   When FALSE, only the children will be copied. Has no effect if $source is a
+ *   file.
+ *
+ * @return boolean
+ *   Whether or not the copy completed successfully.
+ *
+ * @see https://stackoverflow.com/a/2050909/4168619
  */
-function b_copy($source, $destination) {
-  // Create the destination directory if it doesn't already exist.
+function b_copy($source, $destination, $self = TRUE) {
+  // Copy source directory too.
+  if (is_dir($source) && $self) {
+    $destination .= '/' . basename(realpath($source));
+  }
+
+  // Create the destination directory.
   if (!file_exists($destination)) {
-    mkdir($destination);
-  }
-
-  // Copy sub-files/directories recursively.
-  $iterator = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
-  $files = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
-
-  foreach ($files as $file) {
-    $subpath = $destination . '/' . $iterator->getSubPathname();
-
-    if ($file->isDir()) {
-      mkdir($subpath);
-    }
-    else {
-      copy($file, $subpath);
+    if (!mkdir($destination)) {
+      b_message(bt("The destination `@destination` doesn't exist and could not be created.", array(
+        '@destination' => $destination,
+      )), 'error');
+      return FALSE;
     }
   }
+  // Make sure the destination is actually a directory.
+  elseif (!is_dir($destination)) {
+    b_message(bt("The destination `@destination` is not a directory.", array(
+      '@destination' => $destination,
+    )), 'error');
+    return FALSE;
+  }
+
+  if (is_dir($source)) {
+    // Copy sub-files/directories recursively.
+    $directory = opendir($source);
+    while (($file = readdir($directory)) !== FALSE) {
+      if ($file != '.' && $file != '..') {
+        if (is_dir("$source/$file")) {
+          b_copy("$source/$file", "$destination/$file", FALSE);
+        }
+        else {
+          copy("$source/$file", "$destination/$file");
+        }
+      }
+    }
+    closedir($directory);
+  }
+  else {
+    // Copy a single file.
+    if (!copy($source, $destination)) {
+      b_message(bt("Failed to copy `@source` to `@destination`.", array(
+        '@source' => $source,
+        '@destination' => $destination,
+      )), 'error');
+      return FALSE;
+    }
+  }
+
+  return TRUE;
 }
