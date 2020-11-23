@@ -9,7 +9,7 @@
  */
 function dblog_b_command() {
   return array(
-    'log-show' => array(
+    'log' => array(
       'description' => bt('Show database log messages.'),
       'callback' => 'log_show_b_callback',
       'arguments' => array(
@@ -33,9 +33,9 @@ function dblog_b_command() {
       'aliases' => array('watchdog-show', 'ws'),
       'bootstrap' => B_BOOTSTRAP_FULL,
       'examples' => array(
-        'b log-show 3551' => bt('Show details about the log message with ID `3551`.'),
-        'b log-show --count=25 --severity=WATCHDOG_ERROR --type=php' => bt('Show the 25 latest PHP errors.'),
-        'b log-show' => bt('Show the latest 10 log messages.'),
+        'b log 3551' => bt('Show details about the log message with ID `3551`.'),
+        'b log --count=25 --severity=WATCHDOG_ERROR --type=php' => bt('Show the 25 latest PHP errors.'),
+        'b log' => bt('Show the latest 10 log messages.'),
       ),
     ),
   );
@@ -56,7 +56,7 @@ function log_show_b_callback($arguments, $options) {
     ))->fetchAssoc();
 
     if (!$message) {
-      b_message(bt('Log message #@idcould not be found.', array(
+      b_message(bt('Log message #@id could not be found.', array(
         '@id' => $arguments['id'],
       )), 'error');
       return;

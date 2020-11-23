@@ -53,6 +53,10 @@ function download_b_callback($arguments, $options) {
       )), 'error');
       return;
     }
+    else {
+      // Add an 's' to the end of the type name.
+      $info['type'] .= 's';
+    }
 
     // Get the directory to download the project into.
     if (!empty($backdrop_site)) {
@@ -158,7 +162,7 @@ function download_b_git_info($project) {
 
     if ($answer) {
       // Get the download URL of the dev version.
-      $repo_info = shell_exec("curl $api_url/$organisation/$project");
+      $repo_info = shell_exec("curl -sS $api_url/$organisation/$project");
       $repo_info = json_decode($repo_info, TRUE);
       $branch = $repo_info['default_branch'];
       $url = "https://github.com/$organisation/$project/archive/$branch.zip";
@@ -173,12 +177,12 @@ function download_b_git_info($project) {
 
   // Get the 'type' of project.
   if ($project != 'backdrop') {
-    $files = shell_exec("curl $api_url/$organisation/$project/contents");
+    $files = shell_exec("curl -sS $api_url/$organisation/$project/contents");
     $files = json_decode($files, TRUE);
     foreach ($files as $file) {
       if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
-        $info = shell_exec("curl -H 'Accept: application/vnd.github.v3.raw' $api_url/$organisation/$project/contents/" . $file['name']);
-        $lines = explode("\n", $info);
+        $info_file = shell_exec("curl -sSH 'Accept: application/vnd.github.v3.raw' $api_url/$organisation/$project/contents/" . $file['name']);
+        $lines = explode("\n", $info_file);
         foreach ($lines as $line) {
           $values = explode('=', $line);
           if (trim($values[0]) == 'type') {

@@ -253,7 +253,7 @@ function b_validate_command($descriptor) {
       }
       else {
         $grouped[$name] = $arguments;
-        unset($arguments);
+        $arguments = array();
       }
 
       // Make sure all required arguments have a value.
