@@ -13,7 +13,7 @@ function dblog_b_command() {
       'description' => bt('Show database log messages.'),
       'callback' => 'log_show_b_callback',
       'arguments' => array(
-        'id' => bt('The ID of a log message to display in detail. When provided, options do not have any effect. Leave blank to list summaries of the most recent log messages.'),
+        'id' => bt('The ID of a log message to display in detail. Leave blank to list summaries of the most recent log messages.'),
       ),
       'optional_arguments' => array('id'),
       'options' => array(
@@ -22,11 +22,11 @@ function dblog_b_command() {
           'value' => bt('Number'),
         ),
         'severity' => array(
-          'description' => bt('Restrict to messages of a given severity level.'),
+          'description' => bt('Restrict list to messages of a given severity level.'),
           'value' => bt('Value'),
         ),
         'type' => array(
-          'description' => bt('Restrict to messages of a given type.'),
+          'description' => bt('Restrict list to messages of a given type.'),
           'value' => bt('Type'),
         ),
       ),

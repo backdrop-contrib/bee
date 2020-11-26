@@ -1,86 +1,91 @@
 <?php
 /**
  * @file
- * Module management commands.
+ * Command(s) for working with Backdrop projects.
  */
 
 /**
  * Implements hook_b_command().
  */
-function modules_b_command() {
-  $items['pm-list'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Show a list of available extensions (modules, layouts or themes).',
-    'options' => array(
-      'type' => 'Filter by extension type. Choices: module, theme, layout.',
-    ),
-    'callback' => 'modules_b_list_callback',
-    'aliases' => array('pml'),
-  );
-  $items['pm-enable'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Enable one or more modules.',
-    'arguments' => array(
-      'extensions' => array(
-        'description' => 'List of modules.',
-        'multiple' => TRUE,
+function projects_b_command() {
+  return array(
+    'projects' => array(
+      'description' => bt('Display information about available projects (modules, themes, layouts).'),
+      'callback' => 'projects_b_callback',
+      'arguments' => array(
+        'project' => bt('The name of a project to display information for. Leave blank to list information about all projects.'),
+      ),
+      'optional_arguments' => array('project'),
+      'options' => array(
+        'type' => array(
+          'description' => bt('Restrict list to projects of a given type: `module`, `theme` or `layout`.'),
+          'value' => bt('Type'),
+        ),
+      ),
+      'aliases' => array('pm-list', 'pml'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b projects webform' => bt('Show information about the Webform module.'),
+        'b projects --type=layout' => bt('Show information about all available layouts.'),
+        'b projects' => bt('Show information about all available projects.'),
       ),
     ),
-    'callback' => 'modules_b_enable_callback',
-    'aliases' => array('en'),
+    // 'pm-enable' => array(
+    //   'bootstrap' => B_BOOTSTRAP_FULL,
+    //   'description' => 'Enable one or more modules.',
+    //   'arguments' => array(
+    //     'extensions' => array(
+    //       'description' => 'List of modules.',
+    //       'multiple' => TRUE,
+    //     ),
+    //   ),
+    //   'callback' => 'modules_b_enable_callback',
+    //   'aliases' => array('en'),
+    // ),
+    // 'pm-disable' => array(
+    //   'bootstrap' => B_BOOTSTRAP_FULL,
+    //   'description' => 'Disable one or more modules.',
+    //   'arguments' => array(
+    //     'extensions' => array(
+    //       'description' => 'List of modules.',
+    //       'multiple' => TRUE,
+    //     ),
+    //   ),
+    //   'aliases' => array('dis'),
+    //   'callback' => 'modules_b_disable_callback',
+    // ),
+    // 'pm-uninstall' => array(
+    //   'bootstrap' => B_BOOTSTRAP_FULL,
+    //   'description' => 'Uninstall one or more modules.',
+    //   'arguments' => array(
+    //     'modules' => array(
+    //       'description' => 'List of modules.',
+    //       'multiple' => TRUE,
+    //     ),
+    //   ),
+    //   'aliases' => array('pmu'),
+    //   'callback' => 'modules_b_uninstall_callback',
+    // ),
+    // 'pm-info' => array(
+    //   'bootstrap' => B_BOOTSTRAP_FULL,
+    //   'description' => 'Show detailed info for one or more extensions (modules or themes).',
+    //   'arguments' => array(
+    //     'modules' => array(
+    //       'description' => 'List of modules.',
+    //       'multiple' => TRUE,
+    //     ),
+    //   ),
+    //   'aliases' => array('pmi'),
+    //   'callback' => 'modules_b_info_callback',
+    // ),
   );
-  $items['pm-disable'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Disable one or more modules.',
-    'arguments' => array(
-      'extensions' => array(
-        'description' => 'List of modules.',
-        'multiple' => TRUE,
-      ),
-    ),
-    'aliases' => array('dis'),
-    'callback' => 'modules_b_disable_callback',
-  );
-  $items['pm-uninstall'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Uninstall one or more modules.',
-    'arguments' => array(
-      'modules' => array(
-        'description' => 'List of modules.',
-        'multiple' => TRUE,
-      ),
-    ),
-    'aliases' => array('pmu'),
-    'callback' => 'modules_b_uninstall_callback',
-  );
-  $items['pm-info'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => 'Show detailed info for one or more extensions (modules or themes).',
-    'arguments' => array(
-      'modules' => array(
-        'description' => 'List of modules.',
-        'multiple' => TRUE,
-      ),
-    ),
-    'aliases' => array('pmi'),
-    'callback' => 'modules_b_info_callback',
-  );
-  return $items;
 }
 
 /**
- * Callback for pm-list. Display list of modules, themes and layouts.
- *
- * @param array $arguments
- *   Arguments for the Pm-list commnand.
- * @param array $options
- *   Options for the pm-list command.
- *
- * @return array
- *   Array of pm-list info.
+ * Command callback: Display information about available projects (modules,
+ * themes, layouts).
  */
-function modules_b_list_callback($arguments, $options) {
-
+function projects_b_callback($arguments, $options) {
   if (!isset($options['type']) or $options['type'] != 'layout') {
 
     // Rescan for new modules.

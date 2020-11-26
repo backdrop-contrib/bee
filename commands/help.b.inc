@@ -13,7 +13,7 @@ function help_b_command() {
       'description' => bt('Provide help and examples for `b` and its commands.'),
       'callback' => 'help_b_callback',
       'arguments' => array(
-        'command' => bt ('The command to display help for. Leave blank to display help for `b` itself.'),
+        'command' => bt('The command to display help for. Leave blank to display help for `b` itself.'),
       ),
       'optional_arguments' => array('command'),
       'examples' => array(
