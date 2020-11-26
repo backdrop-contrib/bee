@@ -86,107 +86,83 @@ function projects_b_command() {
  * themes, layouts).
  */
 function projects_b_callback($arguments, $options) {
-  if (!isset($options['type']) or $options['type'] != 'layout') {
+  $rows = array();
+  $modules = !isset($options['type']) ? TRUE : $options['type'] == 'module';
+  $themes = !isset($options['type']) ? TRUE : $options['type'] == 'theme';
+  $layouts = !isset($options['type']) ? TRUE : $options['type'] == 'layout';
 
-    // Rescan for new modules.
-    system_rebuild_module_data();
+  // Get module data.
+  if ($modules) {
+    $module_data = system_rebuild_module_data();
 
-    // Rescan for new themes.
-    system_rebuild_theme_data();
-
-    $query = db_select('system', 's')
-      ->fields('s');
-
-    if (isset($options['type']) && in_array($options['type'], array('module', 'theme'))) {
-      $query->condition('type', $options['type']);
-    }
-
-    $projects = $query->execute()->fetchAll();
-
-    $rows = array();
-
-    foreach ($projects as $project) {
-      $project->info = unserialize($project->info);
-      if (isset($project->info['hidden']) && $project->info['hidden']) {
+    foreach ($module_data as $module) {
+      if (!empty($module->info['hidden'])) {
         continue;
       }
 
-      $status = array(
-        'data' => '  [ ]  ',
-        '#color' => 'bold_gray',
-      );
-      if ($project->status) {
-        $status = array(
-          'data' => '  [v]  ',
-          '#color' => 'green',
-        );
-      }
-
-      $name = array(
-        'data' => $project->name,
-        '#color' => 'bold_blue',
-      );
       $rows[] = array(
-        $name,
-        $project->info['name'],
-        $project->type,
-        $status,
-        isset($project->info['version']) ? $project->info['version'] : bt('Unknown'),
+        array('value' => $module->name),
+        array('value' => $module->info['name']),
+        array('value' => $module->type),
+        array('value' => $module->status ? bt('Enabled') : bt('Disabled')),
+        array('value' => $module->info['version']),
       );
-
     }
   }
 
-  if (!isset($options['type']) or $options['type'] == 'layout') {
-    $used_layouts = layout_load_all();
+  // Get theme data.
+  if ($themes) {
+    $theme_data = system_rebuild_theme_data();
 
-    $layouts = layout_get_layout_template_info();
-    foreach ($layouts as $layout) {
-      $name = array(
-        'data' => $layout['name'],
-        '#color' => 'bold_blue',
-      );
-
-      $status = FALSE;
-      foreach ($used_layouts as $used_layout) {
-        if ($used_layout->layout_template == $layout['name']) {
-          $status = array(
-            'data' => '  [v]  ',
-            '#color' => 'green',
-          );
-        }
-      }
-      if (!$status) {
-        $status = array(
-          'data' => '  [ ]  ',
-          '#color' => 'bold_gray',
-        );
+    foreach ($theme_data as $theme) {
+      if (!empty($theme->info['hidden'])) {
+        continue;
       }
 
       $rows[] = array(
-        $name,
-        $layout['title'],
-        'layout',
-        $status,
-        $layout['version'],
+        array('value' => $theme->name),
+        array('value' => $theme->info['name']),
+        array('value' => $theme->type),
+        array('value' => $theme->status ? bt('Enabled') : bt('Disabled')),
+        array('value' => $theme->info['version']),
       );
     }
   }
-  $header = array(
-    'Project',
-    'Name',
-    'Type',
-    'Status',
-    'Version',
-  );
+
+  // Get layout data.
+  if ($layouts) {
+    $layout_data = layout_get_layout_template_info(NULL, TRUE);
+    $disabled_layouts = config_get('layout.settings', 'excluded_templates');
+
+    foreach ($layout_data as $layout) {
+      if (!empty($layout['hidden'])) {
+        continue;
+      }
+
+      $rows[] = array(
+        array('value' => $layout['name']),
+        array('value' => $layout['title']),
+        array('value' => $layout['type']),
+        array('value' => !in_array($layout['name'], $disabled_layouts) ? bt('Enabled') : bt('Disabled')),
+        array('value' => $layout['version']),
+      );
+    }
+  }
 
   return array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'header' => $header,
-    'delimiter' => '  ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'header' => array(
+          array('value' => bt('Project')),
+          array('value' => bt('Name')),
+          array('value' => bt('Type')),
+          array('value' => bt('Status')),
+          array('value' => bt('Version')),
+        ),
+      ),
+    ),
   );
 }
 
