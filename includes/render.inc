@@ -44,7 +44,7 @@ function b_print_messages() {
         $color = 'magenta';
         break;
 
-      case 'status':
+      case 'info':
       default:
         $symbol = '[i]';
         $color = 'blue';

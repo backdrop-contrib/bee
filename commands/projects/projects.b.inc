@@ -22,7 +22,7 @@ function projects_b_command() {
           'value' => bt('Type'),
         ),
       ),
-      'aliases' => array('pm-list', 'pml'),
+      'aliases' => array('pml', 'pmi', 'project', 'pm-list', 'pm-info'),
       'bootstrap' => B_BOOTSTRAP_FULL,
       'examples' => array(
         'b projects webform' => bt('Show information about the Webform module.'),
@@ -30,54 +30,90 @@ function projects_b_command() {
         'b projects' => bt('Show information about all available projects.'),
       ),
     ),
-    // 'pm-enable' => array(
-    //   'bootstrap' => B_BOOTSTRAP_FULL,
-    //   'description' => 'Enable one or more modules.',
-    //   'arguments' => array(
-    //     'extensions' => array(
-    //       'description' => 'List of modules.',
-    //       'multiple' => TRUE,
-    //     ),
-    //   ),
-    //   'callback' => 'modules_b_enable_callback',
-    //   'aliases' => array('en'),
-    // ),
-    // 'pm-disable' => array(
-    //   'bootstrap' => B_BOOTSTRAP_FULL,
-    //   'description' => 'Disable one or more modules.',
-    //   'arguments' => array(
-    //     'extensions' => array(
-    //       'description' => 'List of modules.',
-    //       'multiple' => TRUE,
-    //     ),
-    //   ),
-    //   'aliases' => array('dis'),
-    //   'callback' => 'modules_b_disable_callback',
-    // ),
-    // 'pm-uninstall' => array(
-    //   'bootstrap' => B_BOOTSTRAP_FULL,
-    //   'description' => 'Uninstall one or more modules.',
-    //   'arguments' => array(
-    //     'modules' => array(
-    //       'description' => 'List of modules.',
-    //       'multiple' => TRUE,
-    //     ),
-    //   ),
-    //   'aliases' => array('pmu'),
-    //   'callback' => 'modules_b_uninstall_callback',
-    // ),
-    // 'pm-info' => array(
-    //   'bootstrap' => B_BOOTSTRAP_FULL,
-    //   'description' => 'Show detailed info for one or more extensions (modules or themes).',
-    //   'arguments' => array(
-    //     'modules' => array(
-    //       'description' => 'List of modules.',
-    //       'multiple' => TRUE,
-    //     ),
-    //   ),
-    //   'aliases' => array('pmi'),
-    //   'callback' => 'modules_b_info_callback',
-    // ),
+    'enable' => array(
+      'description' => bt('Enable one or more projects (modules, themes, layouts).'),
+      'callback' => 'enable_b_callback',
+      'arguments' => array(
+        'projects' => bt('One or more projects to enable.'),
+      ),
+      'multiple_argument' => 'projects',
+      'options' => array(
+        'no-dependency-checking' => array(
+          'description' => bt('Disable dependency-checking and enable module(s) regardless. This could cause problems if there are missing dependencies. Use with caution.'),
+        ),
+      ),
+      'aliases' => array('en', 'pm-enable'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b enable webform' => bt('Enable the Webform module.'),
+        'b enable --no-dependency-checking rules' => bt('Enable the Rules module, regardless of whether or not its dependencies are available.'),
+        'b enable simplify thesis bamboo' => bt('Enable the Simplify module, Thesis theme, and Bamboo layout.'),
+      ),
+    ),
+    'disable' => array(
+      'description' => bt('Disable one or more projects (modules, themes, layouts).'),
+      'callback' => 'disable_b_callback',
+      'arguments' => array(
+        'projects' => bt('One or more projects to disable.'),
+      ),
+      'multiple_argument' => 'projects',
+      'options' => array(
+        'no-dependency-checking' => array(
+          'description' => bt('Disable dependency-checking and disable module(s) regardless. This could cause problems if there are other enabled modules that depend on this one. Use with caution.'),
+        ),
+      ),
+      'aliases' => array('dis', 'pm-disable'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b disable webform' => bt('Disable the Webform module.'),
+        'b disable --no-dependency-checking rules' => bt('Disable the Rules module, regardless of whether or not other modules depend on it.'),
+        'b disable simplify thesis bamboo' => bt('Disable the Simplify module, Thesis theme, and Bamboo layout.'),
+      ),
+    ),
+    'uninstall' => array(
+      'description' => bt('Uninstall one or more modules.'),
+      'callback' => 'uninstall_b_callback',
+      'arguments' => array(
+        'modules' => bt('One or more modules to uninstall.'),
+      ),
+      'multiple_argument' => 'modules',
+      'options' => array(
+        'no-dependency-checking' => array(
+          'description' => bt('Disable dependency-checking and uninstall module(s) regardless. This could cause problems if there are other installed modules that depend on this one. Use with caution.'),
+        ),
+      ),
+      'aliases' => array('pmu', 'pm-uninstall'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b uninstall webform' => bt('Uninstall the Webform module.'),
+        'b uninstall --no-dependency-checking rules' => bt('Uninstall the Rules module, regardless of whether or not other modules depend on it.'),
+        'b uninstall simplify thesis bamboo' => bt('Uninstall the Simplify module, Thesis theme, and Bamboo layout.'),
+      ),
+    ),
+    'theme-default' => array(
+      'description' => bt('Set the default theme.'),
+      'callback' => 'theme_default_b_callback',
+      'arguments' => array(
+        'theme' => bt('The theme to set as the default theme. It will be enabled, if not already.'),
+      ),
+      'aliases' => array('default-theme'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b theme-default bartik' => bt('Set Bartik as the default theme.'),
+      ),
+    ),
+    'theme-admin' => array(
+      'description' => bt('Set the admin theme.'),
+      'callback' => 'theme_admin_b_callback',
+      'arguments' => array(
+        'theme' => bt('The theme to set as the admin theme. It will be enabled, if not already.'),
+      ),
+      'aliases' => array('admin-theme'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b theme-admin basis' => bt('Set Basis as the admin theme.'),
+      ),
+    ),
   );
 }
 
@@ -87,15 +123,17 @@ function projects_b_command() {
  */
 function projects_b_callback($arguments, $options) {
   $rows = array();
-  $modules = !isset($options['type']) ? TRUE : $options['type'] == 'module';
-  $themes = !isset($options['type']) ? TRUE : $options['type'] == 'theme';
-  $layouts = !isset($options['type']) ? TRUE : $options['type'] == 'layout';
+
+  // Show information about a single project.
+  if (!empty($arguments['project'])) {
+    return projects_b_show_project($arguments['project']);
+  }
 
   // Get module data.
-  if ($modules) {
-    $module_data = system_rebuild_module_data();
+  if ($options['type'] == 'module' || !isset($options['type'])) {
+    $modules = system_rebuild_module_data();
 
-    foreach ($module_data as $module) {
+    foreach ($modules as $module) {
       if (!empty($module->info['hidden'])) {
         continue;
       }
@@ -111,10 +149,10 @@ function projects_b_callback($arguments, $options) {
   }
 
   // Get theme data.
-  if ($themes) {
-    $theme_data = system_rebuild_theme_data();
+  if ($options['type'] == 'theme' || !isset($options['type'])) {
+    $themes = system_rebuild_theme_data();
 
-    foreach ($theme_data as $theme) {
+    foreach ($themes as $theme) {
       if (!empty($theme->info['hidden'])) {
         continue;
       }
@@ -130,11 +168,11 @@ function projects_b_callback($arguments, $options) {
   }
 
   // Get layout data.
-  if ($layouts) {
-    $layout_data = layout_get_layout_template_info(NULL, TRUE);
+  if ($options['type'] == 'layout' || !isset($options['type'])) {
+    $layouts = layout_get_layout_template_info();
     $disabled_layouts = config_get('layout.settings', 'excluded_templates');
 
-    foreach ($layout_data as $layout) {
+    foreach ($layouts as $layout) {
       if (!empty($layout['hidden'])) {
         continue;
       }
@@ -167,390 +205,526 @@ function projects_b_callback($arguments, $options) {
 }
 
 /**
- * Callback for pm-enable. Enable module.
- *
- * @param array $arguments
- *   Arguments fro pm-enable command.
- * @param array $options
- *   Options for pm-enable command.
+ * Command callback: Enable projects (modules, themes, layouts).
  */
-function modules_b_enable_callback($arguments, $options) {
-  if (!isset($arguments['extensions'])) {
-    b_message('Please provide module name(s)', 'error');
-    return;
-  }
+function enable_b_callback($arguments, $options) {
+  $modules = array();
+  $themes = array();
+  $layouts = array();
+  $disabled_layouts = array();
+  $enable_dependencies = !isset($options['no-dependency-checking']);
+  $flush_caches = FALSE;
 
-  $clean_cache = FALSE;
-  foreach ($arguments['extensions'] as $project) {
-    if (_enable_project($project)) {
-      $clean_cache = TRUE;
+  foreach ($arguments['projects'] as $project) {
+    $already_enabled = FALSE;
+    $success = FALSE;
+
+    // Get project type.
+    if (!$type = projects_b_get_type($project)) {
+      b_message(bt('Project `@name` could not be found.', array(
+        '@name' => $project,
+      )), 'error');
+      continue;
+    }
+
+    switch ($type) {
+      case 'module':
+        if (empty($modules)) {
+          $modules = system_rebuild_module_data();
+        }
+
+        // Get module info.
+        $module = $modules[$project];
+        $name = $module->info['name'];
+
+        // Check if already enabled.
+        if ($module->status) {
+          $already_enabled = TRUE;
+          break;
+        }
+
+        // Enable module.
+        if (module_enable(array($project), $enable_dependencies)) {
+          $success = TRUE;
+        }
+        else {
+          b_message(bt('The `@name` module could not be enabled due to missing dependencies.', array(
+            '@name' => $name,
+          )), 'error');
+        }
+
+        break;
+      case 'theme':
+        if (empty($themes)) {
+          $themes = system_rebuild_theme_data();
+        }
+
+        // Get theme info.
+        $theme = $themes[$project];
+        $name = $theme->info['name'];
+
+        // Check if already enabled.
+        if ($theme->status) {
+          $already_enabled = TRUE;
+          break;
+        }
+
+        // Enable theme.
+        theme_enable(array($project));
+        $success = TRUE;
+
+        break;
+      case 'layout':
+        $config = config('layout.settings');
+
+        if (empty($layouts)) {
+          $layouts = layout_get_layout_template_info();
+          $disabled_layouts = $config->get('excluded_templates');
+        }
+
+        // Get layout info.
+        $layout = $layouts[$project];
+        $name = $layout->title;
+
+        // Check if already enabled.
+        if (!in_array($project, $disabled_layouts)) {
+          $already_enabled = TRUE;
+          break;
+        }
+
+        // Enable layout (i.e. remove it from the disabled list).
+        $key = array_search($project, $disabled_layouts);
+        unset($disabled_layouts[$key]);
+        $config->set('excluded_templates', $disabled_layouts);
+        $config->save();
+        $success = TRUE;
+
+        break;
+    }
+
+    // Display a message if the project was already enabled.
+    if ($already_enabled) {
+      b_message(bt('The `@name` @type is already enabled.', array(
+        '@name' => $name,
+        '@type' => $type,
+      )), 'info');
+    }
+
+    // Display a message if the project was successfully enabled.
+    if ($success) {
+      b_message(bt('The `@name` @type was enabled.', array(
+        '@name' => $name,
+        '@type' => $type,
+      )), 'success');
+
+      $flush_caches = TRUE;
     }
   }
 
-  if ($clean_cache) {
+  // Flush caches once after all projects have been enabled.
+  if ($flush_caches) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
- * Internal function to enable module or theme.
- *
- * @param string $project
- *   The project machine name to be enabled.
- *
- * @return bool
- *   True if enabled otherwise False.
+ * Command callback: Disable projects (modules, themes, layouts).
  */
-function _enable_project($project) {
-  // Rescan for new modules.
-  system_rebuild_module_data();
+function disable_b_callback($arguments, $options) {
+  $modules = array();
+  $themes = array();
+  $layouts = array();
+  $disabled_layouts = array();
+  $disable_dependents = !isset($options['no-dependency-checking']);
+  $flush_caches = FALSE;
 
-  $query = db_select('system', 's')
-      ->fields('s');
-  $query->condition('name', $project);
-  $query->condition('type', 'module');
-  $module = $query->execute()->fetchAssoc();
-  if (!$module) {
-    return FALSE;
-  }
+  foreach ($arguments['projects'] as $project) {
+    $already_disabled = FALSE;
+    $success = FALSE;
 
-  if ($module['status']) {
-    b_message("Failed to enable module " . $module['name'] . ": it is enabled already", 'error');
-    return FALSE;
-  }
+    // Get project type.
+    if (!$type = projects_b_get_type($project)) {
+      b_message(bt('Project `@name` could not be found.', array(
+        '@name' => $project,
+      )), 'error');
+      continue;
+    }
 
-  $rows = array();
+    switch ($type) {
+      case 'module':
+        if (empty($modules)) {
+          $modules = system_rebuild_module_data();
+        }
 
-  $info = unserialize($module['info']);
+        // Get module info.
+        $module = $modules[$project];
+        $name = $module->info['name'];
 
-  $rows[] = array(
-    array('data' => bt('Name'), '#color' => 'bold_blue'),
-    $info['name'],
-  );
-  $rows[] = array(
-    array('data' => bt('Description'), '#color' => 'bold_blue'),
-    $info['description'],
-  );
-  $rows[] = array(
-    array('data' => bt('Package'), '#color' => 'bold_blue'),
-    $info['package'],
-  );
-  $rows[] = array(
-    array('data' => bt('Version'), '#color' => 'bold_blue'),
-    $info['version'],
-  );
+        // Check if already disabled.
+        if (!$module->status) {
+          $already_disabled = TRUE;
+          break;
+        }
 
-  $output[] = array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => ' : ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  );
+        // Disable module.
+        module_disable(array($project), $disable_dependents);
+        $success = TRUE;
 
-  b_render($output);
+        break;
+      case 'theme':
+        if (empty($themes)) {
+          $themes = system_rebuild_theme_data();
+        }
 
-  if (!b_confirm(bt('Do you want to enable?'))) {
-    b_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
-    return;
-  }
+        // Get theme info.
+        $theme = $themes[$project];
+        $name = $theme->info['name'];
 
-  if (module_enable(array($module['name']), FALSE)) {
-    b_message("Module " . $module['name'] . " enabled", 'success');
-    return TRUE;
-  }
-  b_message("Failed to enable module " . $module['name'], 'error');
-  return FALSE;
-}
+        // Check if already disabled.
+        if ($theme->status) {
+          $already_disabled = TRUE;
+          break;
+        }
 
-/**
- * Callback for pm-disable. Disable module or theme.
- *
- * @param array $arguments
- *   Arguments for pm-disable command.
- * @param array $options
- *   Options for pm-disable command.
- */
-function modules_b_disable_callback($arguments, $options) {
+        // Disable theme.
+        theme_disable(array($project));
+        $success = TRUE;
 
-  if (!isset($arguments['extensions'])) {
-    b_message('Please provide project name(s)', 'error');
-    return;
-  }
+        break;
+      case 'layout':
+        $config = config('layout.settings');
 
-  $clean_cache = FALSE;
-  foreach ($arguments['extensions'] as $project) {
-    if (_disable_project($project)) {
-      $clean_cache = TRUE;
+        if (empty($layouts)) {
+          $layouts = layout_get_layout_template_info();
+          $disabled_layouts = $config->get('excluded_templates');
+        }
+
+        // Get layout info.
+        $layout = $layouts[$project];
+        $name = $layout->title;
+
+        // Check if already disabled.
+        if (in_array($project, $disabled_layouts)) {
+          $already_disabled = TRUE;
+          break;
+        }
+
+        // Disable layout (i.e. add it to the disabled list).
+        $disabled_layouts[] = $project;
+        $config->set('excluded_templates', $disabled_layouts);
+        $config->save();
+        $success = TRUE;
+
+        break;
+    }
+
+    // Display a message if the project was already disabled.
+    if ($already_disabled) {
+      b_message(bt('The `@name` @type is already disabled.', array(
+        '@name' => $name,
+        '@type' => $type,
+      )), 'info');
+    }
+
+    // Display a message if the project was successfully disabled.
+    if ($success) {
+      b_message(bt('The `@name` @type was disabled.', array(
+        '@name' => $name,
+        '@type' => $type,
+      )), 'success');
+
+      $flush_caches = TRUE;
     }
   }
 
-  if ($clean_cache) {
+  // Flush caches once after all projects have been disabled.
+  if ($flush_caches) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
- * Internal function to disable module or theme.
- *
- * @param sring $project
- *   Project machine name to be disabled.
+ * Command callback: Uninstall modules.
  */
-function _disable_project($project) {
-  $query = db_select('system', 's')
-      ->fields('s');
-  $query->condition('name', $project);
-  $query->condition('type', 'module');
-  $module = $query->execute()->fetchAssoc();
-  if (!$module) {
-    return FALSE;
-  }
+function uninstall_b_callback($arguments, $options) {
+  $modules = array();
+  $uninstall_dependents = !isset($options['no-dependency-checking']);
+  $flush_caches = FALSE;
 
-  if (!$module['status']) {
-    b_message("Failed to disable module " . $module['name'] . ": it is disabled already", 'error');
-    return FALSE;
-  }
+  foreach ($arguments['modules'] as $module_name) {
+    // Get module info.
+    if (empty($modules)) {
+      $modules = system_rebuild_module_data();
+    }
+    if (!isset($modules[$module_name])) {
+      b_message(bt('The `@name` module could not be found.', array(
+        '@name' => $module_name,
+      )), 'error');
+      continue;
+    }
+    $module = $modules[$module_name];
 
-  $rows = array();
+    // Make sure module is disabled.
+    if ($module->status) {
+      b_message(bt('The `@name` module is still enabled and so cannot be uninstalled. Disable it and try again.', array(
+        '@name' => $module->info['name'],
+      )), 'error');
+      break;
+    }
 
-  $info = unserialize($module['info']);
+    // Check if already uninstalled.
+    if ($module->schema_version == SCHEMA_UNINSTALLED) {
+      b_message(bt('The `@name` module is already uninstalled.', array(
+        '@name' => $module->info['name'],
+      )), 'info');
+      break;
+    }
 
-  $rows[] = array(
-    array('data' => bt('Name'), '#color' => 'bold_blue'),
-    $info['name'],
-  );
-  $rows[] = array(
-    array('data' => bt('Description'), '#color' => 'bold_blue'),
-    $info['description'],
-  );
-  $rows[] = array(
-    array('data' => bt('Package'), '#color' => 'bold_blue'),
-    $info['package'],
-  );
-  $rows[] = array(
-    array('data' => bt('Version'), '#color' => 'bold_blue'),
-    $info['version'],
-  );
+    // Uninstall module.
+    if (backdrop_uninstall_modules(array($module), $uninstall_dependents)) {
+      b_message(bt('The `@name` module was uninstalled.', array(
+        '@name' => $module->info['name'],
+      )), 'success');
 
-  $output[] = array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => ' : ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  );
-
-  b_render($output);
-
-  if (!b_confirm(bt('Do you want to disable?'))) {
-    b_message(bt('Cancelled to disable !name', array('!name' => $module['name'])));
-    return;
-  }
-
-  module_disable(array($module['name']), FALSE);
-  b_message("Module " . $module['name'] . " disabled", 'success');
-  return TRUE;
-}
-
-/**
- * Callback pm-unstall. Uninstall module.
- *
- * @param array $arguments
- *   Arguments for pm-uminstall.
- * @param array $options
- *   Options for pm-uninstall.
- */
-function modules_b_uninstall_callback($arguments, $options) {
-  if (!isset($arguments['modules'])) {
-    b_message('Please provide project name(s)', 'error');
-    return;
-  }
-
-  $clean_cache = FALSE;
-  foreach ($arguments['modules'] as $project) {
-    if (_uninstall_project($project)) {
-      $clean_cache = TRUE;
+      $flush_caches = TRUE;
+    }
+    else {
+      b_message(bt('The `@name` module could not be uninstalled as other enabled modules depend on it.', array(
+        '@name' => $module->info['name'],
+      )), 'error');
     }
   }
 
-  if ($clean_cache) {
+  // Flush caches once after all projects have been disabled.
+  if ($flush_caches) {
     backdrop_flush_all_caches();
   }
 }
 
 /**
- * Internal function to disable module or theme.
- *
- * @param string $project
- *   The machine name of the project to be uninstalled.
+ * Command callback: Set the default theme.
  */
-function _uninstall_project($project) {
-  $query = db_select('system', 's')
-      ->fields('s');
-  $query->condition('name', $project);
-  $query->condition('type', 'module');
+function theme_default_b_callback($arguments, $options) {
+  // Get theme info.
+  $theme_name = $arguments['theme'];
+  $themes = system_rebuild_theme_data();
+  if (!isset($themes[$theme_name])) {
+    b_message(bt('The `@name` theme could not be found.', array(
+      '@name' => $theme_name,
+    )), 'error');
+    return;
+  }
+  $theme = $themes[$theme_name];
 
-  $module = $query->execute()->fetchAssoc();
-  if (!$module) {
-    b_message(bt("Module !name not found", array('!name' => $project)), 'error');
-    return FALSE;
+  // Enable if not already.
+  if (!$theme->status) {
+    theme_enable(array($theme_name));
   }
 
-  if ($module['status']) {
-    b_message("Failed to uninstall module " . $module['name'] . ": it is need to be disabled first", 'error');
-    return FALSE;
+  // Set as default theme.
+  config_set('system.core', 'theme_default', $theme_name);
+
+  // Display success message.
+  b_message(bt('`@name` was set as the default theme.', array(
+    '@name' => $theme->info['name'],
+  )), 'success');
+
+  // Flush caches.
+  backdrop_flush_all_caches();
+}
+
+/**
+ * Command callback: Set the admin theme.
+ */
+function theme_admin_b_callback($arguments, $options) {
+  // Get theme info.
+  $theme_name = $arguments['theme'];
+  $themes = system_rebuild_theme_data();
+  if (!isset($themes[$theme_name])) {
+    b_message(bt('The `@name` theme could not be found.', array(
+      '@name' => $theme_name,
+    )), 'error');
+    return;
+  }
+  $theme = $themes[$theme_name];
+
+  // Enable if not already.
+  if (!$theme->status) {
+    theme_enable(array($theme_name));
   }
 
+  // Set as admin theme.
+  config_set('system.core', 'admin_theme', $theme_name);
+
+  // Display success message.
+  b_message(bt('`@name` was set as the admin theme.', array(
+    '@name' => $theme->info['name'],
+  )), 'success');
+
+  // Flush caches.
+  backdrop_flush_all_caches();
+}
+
+/**
+ * Show information about a single project.
+ */
+function projects_b_show_project($project) {
   $rows = array();
 
-  $info = unserialize($module['info']);
-
-  $rows[] = array(
-    array('data' => bt('Name'), '#color' => 'bold_blue'),
-    $info['name'],
-  );
-  $rows[] = array(
-    array('data' => bt('Description'), '#color' => 'bold_blue'),
-    $info['description'],
-  );
-  $rows[] = array(
-    array('data' => bt('Package'), '#color' => 'bold_blue'),
-    $info['package'],
-  );
-  $rows[] = array(
-    array('data' => bt('Version'), '#color' => 'bold_blue'),
-    $info['version'],
-  );
-
-  $output[] = array(
-    '#type' => 'table',
-    'rows' => $rows,
-    'delimiter' => ' : ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  );
-
-  b_render($output);
-
-  if (!b_confirm(bt('Do you want to uninstall?'))) {
-    b_message(bt('Cancelled to enable !name', array('!name' => $module['name'])));
+  // Get project type.
+  if (!$type = projects_b_get_type($project)) {
+    b_message(bt('Project `@name` could not be found.', array(
+      '@name' => $project,
+    )), 'error');
     return;
   }
 
-  include_once BACKDROP_ROOT . '/core/includes/install.inc';
+  // Get project information.
+  switch ($type) {
+    case 'module':
+      $modules = system_rebuild_module_data();
+      $module = $modules[$project];
 
-  if (backdrop_uninstall_modules(array($module['name']), FALSE)) {
-    b_message("Module " . $module['name'] . " uninstalled", 'success');
-    return TRUE;
-  }
-  else {
-    b_message("Failed to uninstall module " . $module['name'], 'error');
-  }
-}
-
-/**
- * Callback pm-info. Provide info about extention.
- *
- * @param array $arguments
- *   Arguments for pm-info command.
- * @param array $options
- *   Options for pm-info command.
- */
-function modules_b_info_callback($arguments, $options) {
-  if (!isset($arguments['modules'])) {
-    b_message('Please provide project name(s)', 'error');
-    return;
-  }
-  foreach ($arguments['modules'] as $project) {
-    _info_project($project);
-  }
-}
-
-/**
- * Internal function to provide detailed information about module or theme.
- *
- * @param string $project
- *   The machine name of the project about which info is required.
- */
-function _info_project($project) {
-  $query = db_select('system', 's')
-      ->fields('s');
-  $query->condition('name', $project);
-  $query->condition('type', 'module');
-
-  $module = $query->execute()->fetchAssoc();
-  if (!$module) {
-    b_message(bt("Module !name not found", array('!name' => $project)), 'error');
-  }
-  else {
-    $rows = array();
-
-    $info = unserialize($module['info']);
-
-    $rows[] = array(
-      array('data' => bt('Name'), '#color' => 'bold_blue'),
-      $info['name'],
-    );
-    $rows[] = array(
-      array('data' => bt('Type'), '#color' => 'bold_blue'),
-      $info['type'],
-    );
-    if (isset($info['project'])) {
       $rows[] = array(
-        array('data' => bt('Project'), '#color' => 'bold_blue'),
-        $info['project'],
+        array('value' => bt('Name')),
+        array('value' => $module->info['name']),
       );
-    }
-    $rows[] = array(
-      array('data' => bt('Description'), '#color' => 'bold_blue'),
-      $info['description'],
-    );
-    $rows[] = array(
-      array('data' => bt('Package'), '#color' => 'bold_blue'),
-      $info['package'],
-    );
-    $rows[] = array(
-      array('data' => bt('Version'), '#color' => 'bold_blue'),
-      $info['version'],
-    );
-    if (isset($info['timestamp'])) {
       $rows[] = array(
-        array('data' => bt('Date'), '#color' => 'bold_blue'),
-        format_date($info['timestamp'], 'custom', 'Y-m-d'),
+        array('value' => bt('Type')),
+        array('value' => ucfirst($type)),
       );
-    }
-    $rows[] = array(
-      array('data' => bt('PHP'), '#color' => 'bold_blue'),
-      $info['php'],
-    );
-    $rows[] = array(
-      array('data' => bt('Status'), '#color' => 'bold_blue'),
-      $module['status'] == '1' ? 'enabled' : 'disabled',
-    );
-    $rows[] = array(
-      array('data' => bt('Path'), '#color' => 'bold_blue'),
-      substr($module['filename'], 0, strrpos($module['filename'], '/')),
-    );
-    $rows[] = array(
-      array('data' => bt('Files'), '#color' => 'bold_blue'),
-      !empty($info['files']) ? implode(', ', $info['files']) : 'none',
-    );
-    $rows[] = array(
-      array('data' => bt('Requires'), '#color' => 'bold_blue'),
-      !empty($info['dependencies']) ? implode(', ', $info['dependencies']) : 'none',
-    );
-    $rows[] = array(
-      array('data' => bt('Configure'), '#color' => 'bold_blue'),
-      isset($info['configure']) ? $info['configure'] : 'none',
-    );
+      $rows[] = array(
+        array('value' => bt('Project')),
+        array('value' => $module->info['project']),
+      );
+      $rows[] = array(
+        array('value' => bt('Description')),
+        array('value' => $module->info['description']),
+      );
+      $rows[] = array(
+        array('value' => bt('Configure')),
+        array('value' => $module->info['configure']),
+      );
+      $rows[] = array(
+        array('value' => bt('Package')),
+        array('value' => $module->info['package']),
+      );
+      $rows[] = array(
+        array('value' => bt('Tags')),
+        array('value' => !empty($module->info['tags']) ? implode(', ', $module->info['tags']) : ''),
+      );
+      $rows[] = array(
+        array('value' => bt('Version')),
+        array('value' => $module->info['version']),
+      );
+      $rows[] = array(
+        array('value' => bt('Path')),
+        array('value' => dirname($module->uri)),
+      );
+      $rows[] = array(
+        array('value' => bt('Status')),
+        array('value' => $module->status ? bt('Enabled'): bt('Disabled')),
+      );
+      $rows[] = array(
+        array('value' => bt('Requires')),
+        array('value' => !empty($module->requires) ? implode(', ', $module->requires) : ''),
+      );
+      $rows[] = array(
+        array('value' => bt('Required by')),
+        array('value' => !empty($module->required_by) ? implode(', ', $module->required_by) : ''),
+      );
 
-    $output[] = array(
-      '#type' => 'table',
-      'rows' => $rows,
-      'delimiter' => ' : ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => ' ',
-    );
-    b_render($output);
+      break;
+    case 'theme':
+      $themes = system_rebuild_theme_data();
+      $theme = $themes[$project];
+
+      $rows[] = array(
+        array('value' => bt('Name')),
+        array('value' => $theme->info['name']),
+      );
+      $rows[] = array(
+        array('value' => bt('Type')),
+        array('value' => ucfirst($type)),
+      );
+      $rows[] = array(
+        array('value' => bt('Description')),
+        array('value' => $theme->info['description']),
+      );
+      $rows[] = array(
+        array('value' => bt('Version')),
+        array('value' => $theme->info['version']),
+      );
+      $rows[] = array(
+        array('value' => bt('Path')),
+        array('value' => dirname($theme->uri)),
+      );
+      $rows[] = array(
+        array('value' => bt('Status')),
+        array('value' => $theme->status ? bt('Enabled'): bt('Disabled')),
+      );
+
+      break;
+    case 'layout':
+      $layout = layout_get_layout_template_info($project);
+
+      $rows[] = array(
+        array('value' => bt('Name')),
+        array('value' => $layout['title']),
+      );
+      $rows[] = array(
+        array('value' => bt('Type')),
+        array('value' => ucfirst($type)),
+      );
+      $rows[] = array(
+        array('value' => bt('Version')),
+        array('value' => $layout['version']),
+      );
+      $rows[] = array(
+        array('value' => bt('Path')),
+        array('value' => $layout['path']),
+      );
+      $rows[] = array(
+        array('value' => bt('Default region')),
+        array('value' => $layout['default region']),
+      );
+
+      break;
   }
+
+  return array(
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
+    ),
+  );
+}
+
+/**
+ * Get a project's type (i.e. module, theme or layout).
+ */
+function projects_b_get_type($project) {
+  // Get the type from the `system` table.
+  $type = db_query('SELECT type FROM {system} WHERE name = :name;', array(
+    ':name' => $project,
+  ))->fetchField();
+
+  // Because only modules and themes are listed in the `system` table, no type
+  // found means the project is either a layout, or doesn't exist.
+  if (!$type) {
+    if (layout_get_layout_template_info($project)) {
+      $type = 'layout';
+    }
+    else {
+      // Project doesn't appear to be a module, theme or layout.
+      return FALSE;
+    }
+  }
+
+  return $type;
 }

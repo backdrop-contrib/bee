@@ -16,7 +16,7 @@ function download_b_command() {
         'projects' => bt('One or more contrib projects to download.'),
       ),
       'multiple_argument' => 'projects',
-      'aliases' => array('pm-download', 'dl'),
+      'aliases' => array('dl', 'pm-download'),
       'examples' => array(
         'b download webform' => bt('Download the Webform module.'),
         'b download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),

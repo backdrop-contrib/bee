@@ -30,7 +30,7 @@ function dblog_b_command() {
           'value' => bt('Type'),
         ),
       ),
-      'aliases' => array('watchdog-show', 'ws'),
+      'aliases' => array('ws', 'watchdog-show'),
       'bootstrap' => B_BOOTSTRAP_FULL,
       'examples' => array(
         'b log 3551' => bt('Show details about the log message with ID `3551`.'),

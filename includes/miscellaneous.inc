@@ -123,10 +123,10 @@ function b_bootstrap($level) {
  *   The translated message to display.
  * @param string $type
  *   The type of message to display (this determines the formatting used). One
- *   of: status, success, warning, error, log. Defaults to 'status'.
+ *   of: info, success, warning, error, log. Defaults to 'info'.
  *   Note that 'log' messages are only displayed when `debug` mode is enabled.
  */
-function b_message($message, $type = 'status') {
+function b_message($message, $type = 'info') {
   global $messages;
 
   // Append the message to the `$messages` array.
