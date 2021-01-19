@@ -75,7 +75,7 @@ function b_confirm($question, $default = FALSE) {
  *   The array key of the default answer (shown to the user in brackets).
  * @param boolean $repeat
  *   Whether this choice is being reapeated (because of an invalid answer).
- *   Repeated choices just ask for input, ranther than displaying the full list
+ *   Repeated choices just ask for input, rather than displaying the full list
  *   of options again. Defaults to FALSE.
  *
  * @return mixed
@@ -130,7 +130,7 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
 
   // Prompt the user for input again.
   b_render_text(array(
-    'value' => bt("Invalid input. Please enter a number corresponding to the options above, or press Enter to accept the [default] option."),
+    'value' => bt('Invalid input. Please enter a number corresponding to the options above, or press Enter to accept the [default] option.'),
     '#color' => 'red',
   ));
   return b_choice($options, $message, $default, TRUE);
@@ -145,13 +145,19 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
  * @param string $default
  *   The default answer (shown to the user in brackets). Defaults to an empty
  *   string (i.e. no default value shown) - users can still just press Enter
- *   which will return an empty string.
+ *   which will return an empty string (which may or may not be accepted,
+ *   depending on the value of $required).
+ * @param bool $required
+ *   Whether or not the user is required to provide an answer. This is only
+ *   taken into account when $default is also empty. If TRUE, an empty string
+ *   from the user will not be accepted and the user will be prompted again.
+ *   Defaults to FALSE.
  *
  * @return string
- *   The user's raw input. NOTE: it is the calling functions job to sanitize
- *   this text appropriately prior to using it.
+ *   The user's raw input, or the value of $default. NOTE: it is the calling
+ *   functions job to sanitize this text appropriately prior to using it.
  */
-function b_input($message, $default = '') {
+function b_input($message, $default = '', $required = FALSE) {
   // Add the default value in brackets (if any).
   if (!empty($default)) {
     $message .= " [$default]";
@@ -170,9 +176,18 @@ function b_input($message, $default = '') {
 
   // Process user input.
   if ($answer == '') {
-    return $default;
+    if ($default != '' || !$required) {
+      return $default;
+    }
   }
   else {
     return $answer;
   }
+
+  // Prompt the user for input again.
+  b_render_text(array(
+    'value' => bt('Invalid input. This answer is required and cannot be left empty. Please try again.'),
+    '#color' => 'red',
+  ));
+  return b_input($message, $default, TRUE);
 }

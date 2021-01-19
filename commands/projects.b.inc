@@ -205,7 +205,7 @@ function projects_b_callback($arguments, $options) {
 }
 
 /**
- * Command callback: Enable projects (modules, themes, layouts).
+ * Command callback: Enable one or more projects (modules, themes, layouts).
  */
 function enable_b_callback($arguments, $options) {
   $modules = array();
@@ -328,7 +328,7 @@ function enable_b_callback($arguments, $options) {
 }
 
 /**
- * Command callback: Disable projects (modules, themes, layouts).
+ * Command callback: Disable one or more projects (modules, themes, layouts).
  */
 function disable_b_callback($arguments, $options) {
   $modules = array();
@@ -444,7 +444,7 @@ function disable_b_callback($arguments, $options) {
 }
 
 /**
- * Command callback: Uninstall modules.
+ * Command callback: Uninstall one or more modules.
  */
 function uninstall_b_callback($arguments, $options) {
   $modules = array();

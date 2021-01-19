@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Command(s) for Backdrop/project updates.
+ * Command(s) for updating Backdrop projects.
  */
 
 /**
