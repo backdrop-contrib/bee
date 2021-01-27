@@ -78,10 +78,10 @@ function install_b_callback($arguments, $options) {
     $db = $options['db'];
   }
   else {
-    $db_name = check_plain(b_input(bt('Database name'), '', TRUE));
-    $db_username = check_plain(b_input(bt('Database username'), '', TRUE));
-    $db_password = check_plain(b_input(bt('Database password'), '', TRUE));
-    $db_host = check_plain(b_input(bt('Database host'), 'localhost', TRUE));
+    $db_name = b_check_plain(b_input(bt('Database name'), '', TRUE));
+    $db_username = b_check_plain(b_input(bt('Database username'), '', TRUE));
+    $db_password = b_check_plain(b_input(bt('Database password'), '', TRUE));
+    $db_host = b_check_plain(b_input(bt('Database host'), 'localhost', TRUE));
     $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
   $db = "--db-url='$db'";
@@ -91,7 +91,7 @@ function install_b_callback($arguments, $options) {
     $db_prefix = $options['db-prefix'];
   }
   else {
-    $db_prefix = ($prompt) ? check_plain(b_input(bt('Database prefix'), '')) : '';
+    $db_prefix = ($prompt) ? b_check_plain(b_input(bt('Database prefix'), '')) : '';
   }
   $db_prefix = "--db-prefix='$db_prefix'";
 
@@ -100,7 +100,7 @@ function install_b_callback($arguments, $options) {
     $username = $options['username'];
   }
   else {
-    $username = ($prompt) ? check_plain(b_input(bt('Admin username'), 'admin', TRUE)) : 'admin';
+    $username = ($prompt) ? b_check_plain(b_input(bt('Admin username'), 'admin', TRUE)) : 'admin';
   }
   $username = "--account-name='$username'";
 
@@ -110,7 +110,7 @@ function install_b_callback($arguments, $options) {
     $password = $options['password'];
   }
   else {
-    $password = ($prompt) ? check_plain(b_input(bt('Admin password'), $random, TRUE)) : $random;
+    $password = ($prompt) ? b_check_plain(b_input(bt('Admin password'), $random, TRUE)) : $random;
   }
   $show_password = ($password == $random) ? TRUE : FALSE;
   $password = "--account-pass='$password'";
@@ -120,7 +120,7 @@ function install_b_callback($arguments, $options) {
     $email = $options['email'];
   }
   else {
-    $email = ($prompt) ? check_plain(b_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
+    $email = ($prompt) ? b_check_plain(b_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
   $email = "--account-name='$email'";
 
@@ -129,7 +129,7 @@ function install_b_callback($arguments, $options) {
     $site_name = $options['site-name'];
   }
   else {
-    $site_name = ($prompt) ? check_plain(b_input(bt('Site name'), 'My Backdrop Site', TRUE)) : 'My Backdrop Site';
+    $site_name = ($prompt) ? b_check_plain(b_input(bt('Site name'), 'My Backdrop Site', TRUE)) : 'My Backdrop Site';
   }
   $site_name = "--site-name='$site_name'";
 
@@ -138,7 +138,7 @@ function install_b_callback($arguments, $options) {
     $site_mail = $options['site-mail'];
   }
   else {
-    $site_mail = ($prompt) ? check_plain(b_input(bt('Site mail'), 'admin@example.com', TRUE)) : 'admin@example.com';
+    $site_mail = ($prompt) ? b_check_plain(b_input(bt('Site mail'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
   $site_mail = "--site-mail='$site_mail'";
 
@@ -147,7 +147,7 @@ function install_b_callback($arguments, $options) {
     $locale = $options['locale'];
   }
   else {
-    $locale = ($prompt) ? check_plain(b_input(bt('Locale'), 'en', TRUE)) : 'en';
+    $locale = ($prompt) ? b_check_plain(b_input(bt('Locale'), 'en', TRUE)) : 'en';
   }
   $locale = "--locale='$locale'";
 
@@ -160,7 +160,7 @@ function install_b_callback($arguments, $options) {
     $profile = $options['profile'];
   }
   else {
-    $profile = ($prompt) ? check_plain(b_input(bt('Install profile'), 'standard', TRUE)) : 'standard';
+    $profile = ($prompt) ? b_check_plain(b_input(bt('Install profile'), 'standard', TRUE)) : 'standard';
   }
 
   // Run the install script.
@@ -170,4 +170,15 @@ function install_b_callback($arguments, $options) {
   if ($show_password) {
     b_render_text(array('value' => bt('The randomly-generated admin password is: ' . $random)));
   }
+}
+
+/**
+ * Encodes special characters in a plain-text string.
+ *
+ * @see check_plain()
+ *
+ * Copied here so it can be used while the Backdrop site is being installed.
+ */
+function b_check_plain($text) {
+  return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
