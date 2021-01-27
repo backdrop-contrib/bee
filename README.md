@@ -1,5 +1,11 @@
 # Backdrop Console
 
+## TODO
+
+- Update `help_b_command()` with actual command as an example
+
+---
+
 `Backdrop Console` is a command line utility for Backdrop CMS developers. It is
 aimed at speeding up your development cycles.
 

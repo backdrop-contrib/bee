@@ -2,29 +2,31 @@
 <?php
 /**
  * @file
- * A command line utility for Backdrop CMS developers.
+ * A command line utility for Backdrop CMS.
  */
 
-set_error_handler('b_errorHandler');
+// Set custom error handler.
+set_error_handler('b_error_handler');
 
-require_once __DIR__ . '/includes/common.inc';
+// Include files.
+require_once __DIR__ . '/includes/miscellaneous.inc';
 require_once __DIR__ . '/includes/command.inc';
 require_once __DIR__ . '/includes/render.inc';
-require_once __DIR__ . '/includes/output.inc';
 require_once __DIR__ . '/includes/filesystem.inc';
+require_once __DIR__ . '/includes/input.inc';
+require_once __DIR__ . '/includes/globals.inc';
 
-// Global variables.
-$elements = array();
-
-b_init();
-
+// Main execution code.
+b_initialize_server();
+b_parse_input();
+b_initialize_console();
 b_process_command();
-
 b_print_messages();
-b_render($elements);
+b_display_output();
+exit();
 
 /**
- * Setup a custom error handler.
+ * Custom error handler for `b`.
  *
  * @param int $errno
  *   The level of the error.
@@ -36,115 +38,12 @@ b_render($elements);
  *   The line number the error came from.
  * @param array $context
  *   An array of all variables from where the error was triggered.
+ *
+ * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function b_errorHandler($errno, $message, $filename, $line, $context) {
+function b_error_handler($errno, $message, $filename, $line, $context) {
   if (error_reporting() > 0) {
-    echo $message . "\n";
-    echo "\t" . $filename . ':' . $line . "\n";
-  }
-}
-
-exit();
-
-/**
- * Initialize Backdrop Console.
- */
-function b_init() {
-  $arguments = array();
-  $options = array();
-  $command = array(
-    'options' => array(
-      'root' => 'Backdrop root folder',
-      'url' => 'Backdrop site URL (as defined in sites.php)',
-      'y' => 'Force Yes to all Yes/No questions',
-      'yes' => 'Force Yes to all Yes/No questions',
-      'd' => 'Debug mode on',
-      'debug' => 'Debug mode on',
-    ),
-  );
-  b_get_command_args_options($arguments, $options, $command);
-
-  b_init_globals();
-
-  // Get root directory.
-  if (isset($options['root'])) {
-    $_backdrop_root = b_find_root($options['root'], FALSE);
-  }
-  else {
-    $_backdrop_root = b_find_root(getcwd());
-  }
-
-  if ($_backdrop_root) {
-    // Get site directory.
-    $_backdrop_site = FALSE;
-    if (isset($options['url'])) {
-      $_backdrop_site = b_find_site_by_url($options['url'], $_backdrop_root);
-    }
-    elseif (!isset($options['root'])) {
-      $_backdrop_site = b_find_site_by_path(getcwd(), $_backdrop_root);
-    }
-
-    chdir($_backdrop_root);
-    $full_path = getcwd();
-    define('BACKDROP_ROOT', $full_path);
-    $_SERVER['HTTP_HOST'] = basename($full_path);
-    if ($_backdrop_site) {
-      define('BACKDROP_SITE', $_backdrop_site);
-      $_SERVER['HTTP_HOST'] = $_backdrop_site;
-    }
-    require_once BACKDROP_ROOT . '/core/includes/bootstrap.inc';
-
-    if (function_exists('backdrop_bootstrap_is_installed')) {
-      backdrop_settings_initialize();
-
-      if (backdrop_bootstrap_is_installed()) {
-        b_backdrop_installed(TRUE);
-      }
-      else {
-        b_backdrop_installed(FALSE);
-        if (!$_backdrop_site && b_is_multisite($_backdrop_root)) {
-          b_set_message(bt('The Backdrop site within the multisite installation could not be determined. Some functionality may not be available.'), 'warning');
-        }
-        else {
-          b_set_message(bt('Backdrop has not yet been installed.'), 'warning');
-        }
-      }
-    }
-  }
-
-  if (isset($options['y']) or isset($options['yes'])) {
-    b_yes_mode(TRUE);
-    b_set_message('Yes mode on');
-  }
-  if (isset($options['d']) or isset($options['debug'])) {
-    b_is_debug(TRUE);
-    b_set_message('Debug mode on');
-  }
-}
-
-/**
- * Initialize $_SERVER environment variables.
- */
-function b_init_globals() {
-  $host = 'localhost';
-  $path = '';
-
-  $_SERVER['HTTP_HOST'] = $host;
-  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
-  $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
-  $_SERVER['SERVER_NAME'] = 'localhost';
-  $_SERVER['REQUEST_URI'] = $path . '/';
-  $_SERVER['REQUEST_METHOD'] = 'GET';
-  $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
-  $_SERVER['PHP_SELF'] = $path . '/index.php';
-  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
-
-  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-    // Ensure that any and all environment variables are changed to https://.
-    foreach ($_SERVER as $key => $value) {
-      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
-    }
+    echo "$message\n";
+    echo " $filename:$line\n\n";
   }
 }
