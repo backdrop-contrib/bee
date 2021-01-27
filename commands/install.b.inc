@@ -41,7 +41,7 @@ function install_b_command() {
           'description' => bt('The machine-name of the installation profile to use. Defaults to `standard`.'),
           'value' => bt('Profile'),
         ),
-        'locale' => array(
+        'langcode' => array(
           'description' => bt('The short code of the default site language. Language files must already be present. Defaults to `en`.'),
           'value' => bt('Language'),
         ),
@@ -142,14 +142,14 @@ function install_b_callback($arguments, $options) {
   }
   $site_mail = "--site-mail='$site_mail'";
 
-  // Get locale.
-  if (!empty($options['locale'])) {
-    $locale = $options['locale'];
+  // Get language.
+  if (!empty($options['langcode'])) {
+    $langcode = $options['langcode'];
   }
   else {
-    $locale = ($prompt) ? b_check_plain(b_input(bt('Locale'), 'en', TRUE)) : 'en';
+    $langcode = ($prompt) ? b_check_plain(b_input(bt('Language code'), 'en', TRUE)) : 'en';
   }
-  $locale = "--locale='$locale'";
+  $langcode = "--langcode='$langcode'";
 
   // Get clean URLs.
   $clean_urls = (!empty($options['no-clean-urls'])) ? 0 : 1;
@@ -164,7 +164,7 @@ function install_b_callback($arguments, $options) {
   }
 
   // Run the install script.
-  exec("cd $backdrop_root && core/scripts/install.sh $db $db_prefix $username $password $email $site_name $site_mail $locale $clean_urls $profile");
+  exec("cd $backdrop_root && core/scripts/install.sh $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
 
   // Show the randomly-generated password.
   if ($show_password) {
