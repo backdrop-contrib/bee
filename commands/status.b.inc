@@ -17,7 +17,7 @@ function status_b_command() {
           'description' => bt('Show the database password.'),
         ),
       ),
-      'aliases' => array('st', 'core-status'),
+      'aliases' => array('st', 'info', 'core-status'),
       'examples' => array(
         'b status' => bt('Get an overview of the Backdrop installation.'),
         'b status --show-password' => bt('Include the database password in the overview.'),

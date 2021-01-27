@@ -8,163 +8,91 @@
  * Implements hook_b_command().
  */
 function update_b_command() {
-  $items['update-status'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => bt('Show a list of updates.'),
-    'callback' => 'updatedb_status_callback',
-    'aliases' => array('updatedb-status', 'updbst'),
+  return array(
+    'update-db' => array(
+      'description' => bt('Show, and optionally apply, all pending database updates.'),
+      'callback' => 'update_db_b_callback',
+      'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
+      'bootstrap' => B_BOOTSTRAP_FULL,
+      'examples' => array(
+        'b update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
+      ),
+    ),
   );
-  $items['update'] = array(
-    'bootstrap' => B_BOOTSTRAP_FULL,
-    'description' => bt('Apply any database updates required (as with running update.php).'),
-    'callback' => 'updatedb_callback',
-    'aliases' => array('updatedb', 'updb'),
-  );
-
-  return $items;
 }
 
 /**
- * Callback function for hook_b_command().
- *
- * Respond on command 'updatedb-status'.
- *
- * @return array
- *   Table of pending updates.
+ * Command callback: Show, and optionally apply, all pending database updates.
  */
-function updatedb_status_callback() {
-  require_once 'core/includes/install.inc';
-  require_once 'core/includes/update.inc';
-
-  backdrop_load_updates();
-  $pending = update_get_update_list();
-
-  if (empty($pending)) {
-    b_message(bt("No database updates required"));
-    return;
-  }
-
-  list($update, $start) = updatedb_status();
-  return update_table($update);
-}
-
-/**
- * Callback function for hook_b_command().
- *
- * Respond on command 'updatedb'.
- *
- * @return array
- *   Table of pending updates.
- */
-function updatedb_callback($arguments, $options) {
-  require_once 'core/includes/install.inc';
-  require_once 'core/includes/update.inc';
-  require_once 'core/includes/batch.inc';
-
-  backdrop_load_updates();
-  $pending = update_get_update_list();
-
-  if (empty($pending)) {
-    b_message(bt("No database updates required"));
-    return;
-  }
-
-  list($update, $start) = updatedb_status();
-  b_render(update_table($update));
-
-  if (!b_confirm(bt('Do you wish to run all pending updates?'))) {
-    b_message(bt('Cancelled'));
-    return;
-  }
-
-  // Make batch run right away, without background processing.
-  $batch = &batch_get();
-  $batch['progressive'] = 0;
-  update_batch($start, NULL, NULL, array('progressive' => 0));
-  b_message(bt('All updates processed'), 'success');
-}
-
-/**
- * Function to prepare pending updates table.
- *
- * @param array $update
- *   An array of information about pending updates.
- *
- * @return array
- *   Table of pending updates.
- */
-function update_table($update) {
-  $rows = array();
+function update_db_b_callback() {
+  global $backdrop_root;
+  $start = array();
   $modules = array();
 
-  foreach ($update as $line) {
-    $modules[$line['module']][] = $line;
+  require_once $backdrop_root . '/core/includes/install.inc';
+  require_once $backdrop_root . '/core/includes/update.inc';
+
+  // Get list of pending database updates.
+  backdrop_load_updates();
+  $pending = update_get_update_list();
+  if (empty($pending)) {
+    b_message(bt('There are no pending database updates.'), 'info');
+    return;
   }
 
-  $output = array();
+  // Process the list of updates.
+  foreach ($pending as $module => $updates) {
+    if (!isset($updates['start'])) {
+      // Display warning about updates that cannot be run.
+      if (!empty($updates['warning'])) {
+        b_message($updates['warning'], 'warning');
+      }
+      else {
+        b_message(bt('`@module` module can not be updated due to unresolved requirements.'), 'warning');
+      }
+      continue;
+    }
+    else {
+      $start[$module] = $updates['start'];
+    }
+
+    foreach ($updates['pending'] as $update_id => $description) {
+      $description = str_replace("$update_id - ", '', $description);
+      $modules[$module][] = array(
+        'update_id' => $update_id,
+        'description' => $description,
+      );
+    }
+  }
+
+  // Display pending updates.
+  echo "\n";
   foreach ($modules as $module => $updates) {
-    $output[] = array(
-      '#type' => 'text',
-      'value' => bt('Module !name', array('!name' => $module)),
-      '#color' => 'bold_blue',
-    );
+    b_render_text(array(
+      'value' => bt('@module module', array('@module' => $module)),
+      '#color' => 'blue',
+      '#bold' => TRUE,
+    ));
+
     $rows = array();
     foreach ($updates as $update) {
       $rows[] = array(
-        '',
-        array('data' => $update['update_id'], '#color' => 'purple'),
-        $update['description'],
+        array('value' => $update['update_id']),
+        array('value' => $update['description']),
       );
     }
-
-    $output[] = array(
-      '#type' => 'table',
-      'rows' => $rows,
-      'delimiter' => '  ',
-      'delimiter_left' => ' ',
-      'delimiter_right' => ' ',
-    );
-
-    $output[] = array(
-      '#type' => 'text',
-      'value' => "",
-    );
-  }
-  return $output;
-}
-
-/**
- * Get information about pending updates.
- *
- * @return array
- *   A 2-item array with:
- *   - an array where each item is a 3-item associative array describing a
- *     pending update.
- *   - an array listing the first update to run, keyed by module.
- */
-function updatedb_status() {
-  $pending = update_get_update_list();
-
-  $return = array();
-  $start = array();
-
-  // Print a list of pending updates for this module and get confirmation.
-  foreach ($pending as $module => $updates) {
-    if (isset($updates['start'])) {
-      foreach ($updates['pending'] as $update_id => $description) {
-        // Strip cruft from front.
-        $description = str_replace($update_id . ' - ', '', $description);
-        $return[] = array(
-          'module' => ucfirst($module),
-          'update_id' => $update_id,
-          'description' => $description,
-        );
-      }
-      if (isset($updates['start'])) {
-        $start[$module] = $updates['start'];
-      }
-    }
+    b_render_table(array('rows' => $rows));
   }
 
-  return array($return, $start);
+  // Prompt to apply updates.
+  if (!b_confirm(bt('Would you like to apply all pending updates?'))) {
+    return;
+  }
+
+  // Apply the updates, without calling `backdrop_goto()`.
+  // @see batch_process()
+  $batch = &batch_get();
+  $batch['progressive'] = FALSE;
+  update_batch($start);
+  b_message(bt('All pending updates applied.'), 'success');
 }
