@@ -1,110 +1,63 @@
-# Backdrop Console
+Backdrop Console
+================
 
-`Backdrop Console` is a command line utility for Backdrop CMS developers. It is
-aimed at speeding up your development cycles.
+Backdrop Console (a.k.a. `b`) is a command line utility for Backdrop CMS. It
+includes commands that allow developers to interact with Backdrop sites,
+performing actions like:
 
-## Warning
+- Running cron
+- Clearing caches
+- Downloading and installing Backdrop
+- Downloading, enabling and disabling projects
+- Viewing information about a site and/or available projects
 
-- Not Windows compatible
-- Possible API changes
-- Under active development
+Please note that `b` is under active development and, as such, breaking changes
+may occur. Please see the release notes for a list of any major changes between
+versions. Also note that `b` is not (yet?) compatible with Microsoft Windows.
 
-## Installation
+Installation
+------------
 
-* Clone this repo somewhere on your computer (for example, your home directory):
-  * `git clone https://github.com/backdrop-contrib/b.git`
-* Make an alias to `b`:
-  * Open your `.bash_profile` file
-  * Add a line (at the end is fine) like this: `alias b='php /path/to/b/b.php'`
-    (you may need to provide the full path to the `php` executable)
-  * Reload your bash profile: `source ~/.bash_profile`
+- Download (or clone) `b` to your computer/server.  
+  This will create a folder called `b` with lots of files inside. Your home
+  directory is a good location for this folder.
 
-## Usage
+- Make sure `b/b.php` is executable.  
+  It should be by default, but it doesn't hurt to double-check.
 
-Please use `b help` to see full list of available commands.
+- Make it easy to run `b` commands.  
+  There are two ways to do this:
 
-At the moment the following commands are available:
+  1. Put a symlink to `b/b.php` in your `$PATH` (e.g.
+     `sudo ln -s /path/to/b/b.php /usr/local/bin/b`)
 
-```
- cache-clear        Clear a specific cache, or all Backdrop caches.
-                    aliases: cc
- config-get         Show config settings.
- config-list        Show a list of configs.
- config-set         Set config settings.
- core-status        Provides a birds-eye view of the current Backdrop installation, if any.
-                    This is test example how to add your own callback on command.
-                    aliases: status, st
- cron               Process cron.
- help               Display help.
- pm-disable         Disable one or more modules.
-                    Disable one or more themes.
-                    aliases: dis
- pm-download        Download contrib package.
-                    aliases: dl
- pm-enable          Enable one or more modules.
-                    Enable one or more themes.
-                    aliases: en
- pm-list            Show a list of available extensions (modules, layouts or themes).
-                    aliases: pml
- pm-uninstall       Uninstall one or more modules.
-                    aliases: pmu
- site-install       Install Backdrop along with modules/themes/configuration using the specified install profile.
-                    aliases: si
- updatedb           Apply any database updates required (as with running update.php).
-                    aliases: updb
- updatedb-status    Show a list of updates.
-                    aliases: updbst
- watchdog-show      Show dblog messages.
-                    aliases: wd-show, ws
-```
+  2. Make a Bash alias for `b` (e.g. add `alias b='/path/to/b/b.php'` to your
+     `.bash_aliases` file)
 
-To see command details, use `b help command_name`:
+- Test to make sure it works.  
+  Simply type `b` in your terminal and you should see a list of available
+  commands displayed.
 
-```
-# b help site-install
-Extension site_install
-Install Backdrop along with modules/themes/configuration using the specified install profile.
+Issues
+------
 
-Options:
- --root         : Set the working directory for the script to the specified path. Required if running this script from
-                :  a directory other than the Backdrop root.
- --db-url       : A Drupal 6 style database URL. Only required for initial install - not re-install.
-                : example: mysql://root:pass@host/db
- --db-prefix    : An optional table prefix to use for initial install.  Can be a key-value array of tables/prefixes in
-                :  a drushrc file (not the command line).
- --account-name : uid1 name. Defaults to admin
- --account-pass : uid1 pass. Defaults to a randomly generated password. If desired, set a fixed password in drushrc.ph
-                : p.
- --account-mail : uid1 email. Defaults to admin@example.com
- --locale       : A short language code. Sets the default site language. Language files must already be present. You m
-                : ay use download command to get them.
-                : example: en-GB
- --clean-url    : Defaults to 1
- --site-name    : Defaults to Site-Install
- --site-mail    : From: for system mailings. Defaults to admin@example.com
+Bugs and feature requests should be reported in the issue queue:
+https://github.com/backdrop-contrib/b/issues.
 
-Arguments:
- profile   : The install profile you wish to run. Default is "standard"
- key=value : Any additional settings you wish to pass to the profile. The key is in the form [form name].[parameter na
-           : me]
+Current Maintainers
+-------------------
 
-Aliases: si
-```
+- [Peter Anderson](https://github.com/BWPanda)
 
-## Maintainers
+Credits
+-------
 
-  * Gor Martsen (https://github.com/Gormartsen)
-  * Geoff St. Pierre (https://github.com/serundeputy)
-  * John Franklin (https://github.com/jlfranklin)
-  * Peter Anderson (https://github.com/BWPanda)
+- Originally written for Backdrop CMS by
+  [Geoff St. Pierre](https://github.com/serundeputy).
+- Inspired by [Drush](https://github.com/drush-ops/drush).
 
-## Thanks to drush
+License
+-------
 
-This module was inspired by (and some code and logic was copied from)
-[drush](https://github.com/drush-ops/drush).
-
-## License
-
-This project is GPL v2 software. See the LICENSE.txt file in this directory for
-complete text.
-
+This project is GPL v2 software.
+See the LICENSE.txt file in this directory for complete text.

@@ -1,0 +1,24 @@
+language: php
+services: mysql
+
+env:
+  - MULTISITE=false
+  - MULTISITE=true
+
+install:
+  - chmod +x $TRAVIS_BUILD_DIR/b.php
+  - sudo ln -s $TRAVIS_BUILD_DIR/b.php /usr/local/bin/b
+  - cd $TRAVIS_BUILD_DIR && composer install
+
+before_script:
+  - git clone https://github.com/backdrop/backdrop.git $HOME/www
+  - if [ "$MULTISITE" = true ]; then echo '$sites["127.0.0.1"] = "multisite";' >> $HOME/www/sites/sites.php; fi
+  - if [ "$MULTISITE" = true ]; then mkdir $HOME/www/sites/multisite && cp $HOME/www/settings.php $HOME/www/sites/multisite/settings.php; fi
+  - mysql -e 'CREATE DATABASE backdrop'
+  - if [ "$MULTISITE" = false ]; then cd $HOME/www && ./core/scripts/install.sh --db-url=mysql://travis:@127.0.0.1/backdrop; fi
+  - if [ "$MULTISITE" = true ]; then cd $HOME/www && ./core/scripts/install.sh --url=127.0.0.1 --db-url=mysql://travis:@127.0.0.1/backdrop; fi
+
+script:
+  - $TRAVIS_BUILD_DIR/vendor/bin/phpcs --standard=$TRAVIS_BUILD_DIR/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* $TRAVIS_BUILD_DIR
+  - if [ "$MULTISITE" = false ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests --testsuite backdrop; fi
+  - if [ "$MULTISITE" = true ]; then cd $HOME/www && $TRAVIS_BUILD_DIR/vendor/bin/phpunit -c $TRAVIS_BUILD_DIR/tests --testsuite multisite; fi

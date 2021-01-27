@@ -1,0 +1,6 @@
+{
+  "require-dev": {
+    "phpunit/phpunit": "^8.1.0",
+    "backdrop/coder": "^1.0.1"
+  }
+}
