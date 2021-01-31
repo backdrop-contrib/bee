@@ -28,7 +28,7 @@ function help_b_command() {
  * Command callback: Provide help and examples for `b` and its commands.
  */
 function help_b_callback($arguments, $options) {
-  global $command_aliases;
+  global $global_options, $command_aliases;
 
   // Get all commands and sort them alphabetically.
   $commands = b_all_commands();
@@ -58,9 +58,28 @@ function help_b_callback($arguments, $options) {
   }
 
   // Otherwise display help for `b` itself.
-  $rows = array();
+  $option_rows = array();
+  $command_rows = array();
+
+  foreach ($global_options as $option => $descriptor) {
+    $value = '--' . $option;
+    if (isset($descriptor['short'])) {
+      $value .= ', -' . $descriptor['short'];
+    }
+    $option_rows[] = array(
+      array(
+        'value' => $value,
+        '#color' => 'blue',
+        '#bold' => TRUE,
+      ),
+      array('value' => $descriptor['description']),
+    );
+
+    $option_rows[] = array();
+  }
+
   foreach ($commands as $command => $descriptor) {
-    $rows[] = array(
+    $command_rows[] = array(
       array(
         'value' => $command,
         '#color' => 'blue',
@@ -71,7 +90,7 @@ function help_b_callback($arguments, $options) {
 
     $aliases = array_keys($command_aliases, $command);
     if (!empty($aliases)) {
-      $rows[] = array(
+      $command_rows[] = array(
         array(
           'value' => implode(', ', $aliases),
           '#color' => 'magenta',
@@ -81,7 +100,7 @@ function help_b_callback($arguments, $options) {
       );
     }
 
-    $rows[] = array();
+    $command_rows[] = array();
   }
 
   return array(
@@ -101,6 +120,22 @@ function help_b_callback($arguments, $options) {
     array(
       'type' => 'text',
       'variables' => array(
+        'value' => bt('Global Options:'),
+        '#bold' => TRUE,
+      ),
+    ),
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $option_rows,
+        'delimiter' => '   ',
+        'delimiter_left' => ' ',
+        'delimiter_right' => ' ',
+      ),
+    ),
+    array(
+      'type' => 'text',
+      'variables' => array(
         'value' => bt('Commands:'),
         '#bold' => TRUE,
       ),
@@ -108,7 +143,7 @@ function help_b_callback($arguments, $options) {
     array(
       'type' => 'table',
       'variables' => array(
-        'rows' => $rows,
+        'rows' => $command_rows,
         'delimiter' => '   ',
         'delimiter_left' => ' ',
         'delimiter_right' => ' ',
