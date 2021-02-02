@@ -164,11 +164,12 @@ function install_b_callback($arguments, $options) {
   }
 
   // Run the install script.
-  exec("cd $backdrop_root && core/scripts/install.sh $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
+  $result = exec("cd $backdrop_root && core/scripts/install.sh $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
+  b_render_text(array('value' => $result));
 
   // Show the randomly-generated password.
-  if ($show_password) {
-    b_render_text(array('value' => bt('The randomly-generated admin password is: ' . $random)));
+  if (strpos($result, 'successfully') !== FALSE && $show_password) {
+    b_render_text(array('value' => bt('The randomly-generated admin password is: ' . $random)), FALSE);
   }
 }
 
