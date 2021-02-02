@@ -18,7 +18,7 @@ function config_b_command() {
       ),
       'optional_arguments' => array('option'),
       'aliases' => array('cget'),
-      'bootstrap' => B_BOOTSTRAP_PAGE_CACHE,
+      'bootstrap' => B_BOOTSTRAP_CONFIGURATION,
       'examples' => array(
         'b config-get system.core site_name' => bt('Get the value of the `site_name` config option.'),
         'b config-get devel.settings' => bt('See all the config options for the Devel module.'),
@@ -102,7 +102,7 @@ function config_set_b_callback($arguments, $options) {
   $config->set($arguments['option'], $arguments['value']);
   $config->save();
 
-  b_message(bt('`@option` was set to `@value`.', array(
+  b_message(bt("`@option` was set to '@value'.", array(
     '@option' => $arguments['option'],
     '@value' => $arguments['value'],
   )), 'success');

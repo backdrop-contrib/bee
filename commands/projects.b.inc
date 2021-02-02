@@ -130,7 +130,7 @@ function projects_b_callback($arguments, $options) {
   }
 
   // Get module data.
-  if ($options['type'] == 'module' || !isset($options['type'])) {
+  if (!isset($options['type']) || $options['type'] == 'module') {
     $modules = system_rebuild_module_data();
 
     foreach ($modules as $module) {
@@ -149,7 +149,7 @@ function projects_b_callback($arguments, $options) {
   }
 
   // Get theme data.
-  if ($options['type'] == 'theme' || !isset($options['type'])) {
+  if (!isset($options['type']) || $options['type'] == 'theme') {
     $themes = system_rebuild_theme_data();
 
     foreach ($themes as $theme) {
@@ -168,7 +168,7 @@ function projects_b_callback($arguments, $options) {
   }
 
   // Get layout data.
-  if ($options['type'] == 'layout' || !isset($options['type'])) {
+  if (!isset($options['type']) || $options['type'] == 'layout') {
     $layouts = layout_get_layout_template_info();
     $disabled_layouts = config_get('layout.settings', 'excluded_templates');
 

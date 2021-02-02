@@ -50,7 +50,7 @@ function cache_clear_b_command($arguments, $options) {
     $cache = $arguments['cache'];
   }
   else {
-    $cache = b_choice($cache_list, bt('Select a cache to clear.'), 'all');
+    $cache = b_choice($cache_list, bt('Select a cache to clear:'), 'all');
   }
 
   // Clear the cache.
