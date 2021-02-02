@@ -19,13 +19,6 @@ function b_initialize_server() {
   $_SERVER['SCRIPT_NAME'] = '/index.php';
   $_SERVER['PHP_SELF'] = '/index.php';
   $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
-
-  // If applicable, ensure any appropriate variables are changed to `https`.
-  if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-    foreach ($_SERVER as $key => $value) {
-      $_SERVER[$key] = str_replace('http://', 'https://', $_SERVER[$key]);
-    }
-  }
 }
 
 /**
