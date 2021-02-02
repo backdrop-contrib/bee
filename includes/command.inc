@@ -103,14 +103,11 @@ function b_process_command() {
  *   Associative array of command descriptors.
  */
 function b_all_commands() {
-  global $command_aliases;
-  $all_commands = array();
-
-  if (function_exists('backdrop_static')) {
-    $all_commands = &backdrop_static(__FUNCTION__);
-  }
+  static $all_commands = array();
 
   if (empty($all_commands)) {
+    global $command_aliases;
+
     // Get list of command files.
     $list = b_command_file_list();
 
@@ -156,11 +153,7 @@ function b_all_commands() {
  *   values are the path to the command file.
  */
 function b_command_file_list() {
-  $list = array();
-
-  if (function_exists('backdrop_static')) {
-    $list = &backdrop_static(__FUNCTION__);
-  }
+  static $list = array();
 
   if (empty($list)) {
     // Get list of paths to search.
@@ -192,14 +185,11 @@ function b_command_file_list() {
  *   A list of paths to directories where command files can be found.
  */
 function b_command_file_paths() {
-  global $backdrop_installed;
-  $search_paths = array();
-
-  if (function_exists('backdrop_static')) {
-    $search_paths = &backdrop_static(__FUNCTION__);
-  }
+  static $search_paths = array();
 
   if (empty($search_paths)) {
+    global $backdrop_installed;
+
     // Add `b/commands` directory.
     $search_paths[] = dirname(__DIR__) . '/commands';
 

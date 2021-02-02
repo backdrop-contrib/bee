@@ -215,11 +215,9 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
  *   if the folder could not be found/created.
  */
 function b_get_temp($prefix = '') {
-  static $temp;
+  static $temp = FALSE;
 
-  if (!isset($temp)) {
-    $temp = FALSE;
-
+  if (!$temp) {
     // Various possible paths to check, in order of preference.
     $directories = array(
       sys_get_temp_dir(),
@@ -234,6 +232,10 @@ function b_get_temp($prefix = '') {
         $temp = $directory;
         break;
       }
+    }
+
+    if (!$temp) {
+      return FALSE;
     }
   }
 
