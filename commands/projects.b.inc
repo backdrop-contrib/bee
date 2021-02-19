@@ -461,7 +461,7 @@ function uninstall_b_callback($arguments, $options) {
     }
 
     // Uninstall module.
-    if (backdrop_uninstall_modules(array($module), $uninstall_dependents)) {
+    if (backdrop_uninstall_modules(array($module_name), $uninstall_dependents)) {
       b_message(bt('The `@name` module was uninstalled.', array(
         '@name' => $module->info['name'],
       )), 'success');
