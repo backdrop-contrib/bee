@@ -87,7 +87,7 @@ function b_find_site_by_url($url) {
       return $multisites[$url];
     }
     else {
-      b_message(bt('@url could not be found in $root/sites/sites.php.', array(
+      b_message(bt('@url could not be found in @root/sites/sites.php.', array(
         '@url' => $url,
         '@root' => $backdrop_root,
       )), 'error');
