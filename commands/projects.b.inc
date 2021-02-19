@@ -381,7 +381,7 @@ function disable_b_callback($arguments, $options) {
         $name = $theme->info['name'];
 
         // Check if already disabled.
-        if ($theme->status) {
+        if (!$theme->status) {
           $already_disabled = TRUE;
           break;
         }
