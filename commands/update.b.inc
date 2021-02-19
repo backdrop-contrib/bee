@@ -48,7 +48,7 @@ function update_db_b_callback() {
         b_message($updates['warning'], 'warning');
       }
       else {
-        b_message(bt('`@module` module can not be updated due to unresolved requirements.'), 'warning');
+        b_message(bt("'@module' module can not be updated due to unresolved requirements."), 'warning');
       }
       continue;
     }

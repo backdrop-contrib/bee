@@ -14,11 +14,11 @@ function install_b_command() {
       'callback' => 'install_b_callback',
       'options' => array(
         'db' => array(
-          'description' => bt('A database connection string of the form: `mysql://user:pass@localhost/database_name`. See https://api.backdropcms.org/database-configuration for more details.'),
+          'description' => bt("A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://api.backdropcms.org/database-configuration for more details."),
           'value' => bt('String'),
         ),
         'username' => array(
-          'description' => bt('The username for the primary administrator account. Defaults to `admin`.'),
+          'description' => bt("The username for the primary administrator account. Defaults to 'admin'."),
           'value' => bt('Username'),
         ),
         'password' => array(
@@ -26,23 +26,23 @@ function install_b_command() {
           'value' => bt('Password'),
         ),
         'email' => array(
-          'description' => bt('The email address for the primary administrator account. Defaults to `admin@example.com`.'),
+          'description' => bt("The email address for the primary administrator account. Defaults to 'admin@example.com'."),
           'value' => bt('Email'),
         ),
         'site-name' => array(
-          'description' => bt('The name of the site. Defaults to `My Backdrop Site`.'),
+          'description' => bt("The name of the site. Defaults to 'My Backdrop Site'."),
           'value' => bt('Name'),
         ),
         'site-mail' => array(
-          'description' => bt("The 'From' address used in automated site emails. Defaults to `admin@example.com`."),
+          'description' => bt("The 'From' address used in automated site emails. Defaults to 'admin@example.com'."),
           'value' => bt('Email'),
         ),
         'profile' => array(
-          'description' => bt('The machine-name of the installation profile to use. Defaults to `standard`.'),
+          'description' => bt("The machine-name of the installation profile to use. Defaults to 'standard'."),
           'value' => bt('Profile'),
         ),
         'langcode' => array(
-          'description' => bt('The short code of the default site language. Language files must already be present. Defaults to `en`.'),
+          'description' => bt("The short code of the default site language. Language files must already be present. Defaults to 'en'."),
           'value' => bt('Language'),
         ),
         'db-prefix' => array(

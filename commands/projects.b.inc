@@ -18,7 +18,7 @@ function projects_b_command() {
       'optional_arguments' => array('project'),
       'options' => array(
         'type' => array(
-          'description' => bt('Restrict list to projects of a given type: `module`, `theme` or `layout`.'),
+          'description' => bt("Restrict list to projects of a given type: 'module', 'theme' or 'layout'."),
           'value' => bt('Type'),
         ),
       ),
@@ -221,7 +221,7 @@ function enable_b_callback($arguments, $options) {
 
     // Get project type.
     if (!$type = projects_b_get_type($project)) {
-      b_message(bt('Project `@name` could not be found.', array(
+      b_message(bt("Project '@name' could not be found.", array(
         '@name' => $project,
       )), 'error');
       continue;
@@ -248,7 +248,7 @@ function enable_b_callback($arguments, $options) {
           $success = TRUE;
         }
         else {
-          b_message(bt('The `@name` module could not be enabled due to missing dependencies.', array(
+          b_message(bt("The '@name' module could not be enabled due to missing dependencies.", array(
             '@name' => $name,
           )), 'error');
         }
@@ -304,7 +304,7 @@ function enable_b_callback($arguments, $options) {
 
     // Display a message if the project was already enabled.
     if ($already_enabled) {
-      b_message(bt('The `@name` @type is already enabled.', array(
+      b_message(bt("The '@name' @type is already enabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'info');
@@ -312,7 +312,7 @@ function enable_b_callback($arguments, $options) {
 
     // Display a message if the project was successfully enabled.
     if ($success) {
-      b_message(bt('The `@name` @type was enabled.', array(
+      b_message(bt("The '@name' @type was enabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'success');
@@ -344,7 +344,7 @@ function disable_b_callback($arguments, $options) {
 
     // Get project type.
     if (!$type = projects_b_get_type($project)) {
-      b_message(bt('Project `@name` could not be found.', array(
+      b_message(bt("Project '@name' could not be found.", array(
         '@name' => $project,
       )), 'error');
       continue;
@@ -420,7 +420,7 @@ function disable_b_callback($arguments, $options) {
 
     // Display a message if the project was already disabled.
     if ($already_disabled) {
-      b_message(bt('The `@name` @type is already disabled.', array(
+      b_message(bt("The '@name' @type is already disabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'info');
@@ -428,7 +428,7 @@ function disable_b_callback($arguments, $options) {
 
     // Display a message if the project was successfully disabled.
     if ($success) {
-      b_message(bt('The `@name` @type was disabled.', array(
+      b_message(bt("The '@name' @type was disabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'success');
@@ -457,7 +457,7 @@ function uninstall_b_callback($arguments, $options) {
       $modules = system_rebuild_module_data();
     }
     if (!isset($modules[$module_name])) {
-      b_message(bt('The `@name` module could not be found.', array(
+      b_message(bt("The '@name' module could not be found.", array(
         '@name' => $module_name,
       )), 'error');
       continue;
@@ -466,7 +466,7 @@ function uninstall_b_callback($arguments, $options) {
 
     // Make sure module is disabled.
     if ($module->status) {
-      b_message(bt('The `@name` module is still enabled and so cannot be uninstalled. Disable it and try again.', array(
+      b_message(bt("The '@name' module is still enabled and so cannot be uninstalled. Disable it and try again.", array(
         '@name' => $module->info['name'],
       )), 'error');
       break;
@@ -474,7 +474,7 @@ function uninstall_b_callback($arguments, $options) {
 
     // Check if already uninstalled.
     if ($module->schema_version == SCHEMA_UNINSTALLED) {
-      b_message(bt('The `@name` module is already uninstalled.', array(
+      b_message(bt("The '@name' module is already uninstalled.", array(
         '@name' => $module->info['name'],
       )), 'info');
       break;
@@ -482,14 +482,14 @@ function uninstall_b_callback($arguments, $options) {
 
     // Uninstall module.
     if (backdrop_uninstall_modules(array($module), $uninstall_dependents)) {
-      b_message(bt('The `@name` module was uninstalled.', array(
+      b_message(bt("The '@name' module was uninstalled.", array(
         '@name' => $module->info['name'],
       )), 'success');
 
       $flush_caches = TRUE;
     }
     else {
-      b_message(bt('The `@name` module could not be uninstalled as other enabled modules depend on it.', array(
+      b_message(bt("The '@name' module could not be uninstalled as other enabled modules depend on it.", array(
         '@name' => $module->info['name'],
       )), 'error');
     }
@@ -509,7 +509,7 @@ function theme_default_b_callback($arguments, $options) {
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    b_message(bt('The `@name` theme could not be found.', array(
+    b_message(bt("The '@name' theme could not be found.", array(
       '@name' => $theme_name,
     )), 'error');
     return;
@@ -525,7 +525,7 @@ function theme_default_b_callback($arguments, $options) {
   config_set('system.core', 'theme_default', $theme_name);
 
   // Display success message.
-  b_message(bt('`@name` was set as the default theme.', array(
+  b_message(bt("'@name' was set as the default theme.", array(
     '@name' => $theme->info['name'],
   )), 'success');
 
@@ -541,7 +541,7 @@ function theme_admin_b_callback($arguments, $options) {
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    b_message(bt('The `@name` theme could not be found.', array(
+    b_message(bt("The '@name' theme could not be found.", array(
       '@name' => $theme_name,
     )), 'error');
     return;
@@ -557,7 +557,7 @@ function theme_admin_b_callback($arguments, $options) {
   config_set('system.core', 'admin_theme', $theme_name);
 
   // Display success message.
-  b_message(bt('`@name` was set as the admin theme.', array(
+  b_message(bt("'@name' was set as the admin theme.", array(
     '@name' => $theme->info['name'],
   )), 'success');
 
@@ -573,7 +573,7 @@ function projects_b_show_project($project) {
 
   // Get project type.
   if (!$type = projects_b_get_type($project)) {
-    b_message(bt('Project `@name` could not be found.', array(
+    b_message(bt("Project '@name' could not be found.", array(
       '@name' => $project,
     )), 'error');
     return;

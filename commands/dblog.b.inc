@@ -33,7 +33,7 @@ function dblog_b_command() {
       'aliases' => array('ws', 'watchdog-show'),
       'bootstrap' => B_BOOTSTRAP_FULL,
       'examples' => array(
-        'b log 3551' => bt('Show details about the log message with ID `3551`.'),
+        'b log 3551' => bt("Show details about the log message with ID '3551'."),
         'b log --count=25 --severity=WATCHDOG_ERROR --type=php' => bt('Show the 25 latest PHP errors.'),
         'b log' => bt('Show the latest 10 log messages.'),
       ),

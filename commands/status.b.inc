@@ -105,6 +105,6 @@ function status_b_callback($arguments, $options) {
   }
   else {
     // No Backdrop root found.
-    b_message(bt('No Backdrop installation found. Run this command again from within a Backdrop installation, or use the `--root` global option.'), 'warning');
+    b_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'warning');
   }
 }

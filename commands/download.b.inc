@@ -31,7 +31,7 @@ function download_b_command() {
       'optional_arguments' => array('directory'),
       'aliases' => array('dl-core'),
       'examples' => array(
-        'b download-core ../backdrop' => bt('Download Backdrop into a `backdrop` directory in the parent folder.'),
+        'b download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
       ),
     ),
   );
@@ -48,7 +48,7 @@ function download_b_callback($arguments, $options) {
 
     // Get the project type.
     if (empty($info['type'])) {
-      b_message(bt("The 'type' of project `@project` could not be determined.", array(
+      b_message(bt("The 'type' of project '@project' could not be determined.", array(
         '@project' => $project,
       )), 'error');
       return;
@@ -66,7 +66,7 @@ function download_b_callback($arguments, $options) {
       $destination = "$backdrop_root/" . $info['type'];
     }
     else {
-      b_message(bt('The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global `--root`/`--url` options.'), 'error');
+      b_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--url' options."), 'error');
       return;
     }
     if (file_exists("$destination/contrib")) {
@@ -74,14 +74,14 @@ function download_b_callback($arguments, $options) {
     }
     $destination .= "/$project";
     if (file_exists($destination)) {
-      b_message(bt('`@project` already exists in `@destination`.', array(
+      b_message(bt("'@project' already exists in '@destination'.", array(
         '@project' => $project,
         '@destination' => $destination,
       )), 'error');
       return;
     }
     elseif (!mkdir($destination, 0755)) {
-      b_message(bt("The destination directory `@directory` doesn't exist and couldn't be created.", array(
+      b_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
       return;
@@ -89,7 +89,7 @@ function download_b_callback($arguments, $options) {
 
     // Download the project.
     if (download_b_download_project($project, $info, $destination)) {
-      b_message(bt('`@project` was downloaded into `@directory`.', array(
+      b_message(bt("'@project' was downloaded into '@directory'.", array(
         '@project' => $project,
         '@directory' => $destination,
       )), 'success');
@@ -107,7 +107,7 @@ function download_core_b_callback($arguments, $options) {
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
   if (!realpath($destination)) {
     if (!mkdir($destination, 0755)) {
-      b_message(bt("The destination directory `@directory` doesn't exist and couldn't be created.", array(
+      b_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
       return;
@@ -117,13 +117,13 @@ function download_core_b_callback($arguments, $options) {
 
   // Make sure the directory isn't an existing Backdrop installation.
   if (b_find_root($destination)) {
-    b_message(bt('Backdrop cannot be downloaded into an existing installation. Re-run the command from outside the Backdrop installation, or set the download directory using the `directory` argument.'), 'error');
+    b_message(bt("Backdrop cannot be downloaded into an existing installation. Re-run the command from outside the Backdrop installation, or set the download directory using the 'directory' argument."), 'error');
     return;
   }
 
   // Download Backdrop.
   if (download_b_download_project('backdrop', $info, $destination)) {
-    b_message(bt('Backdrop was downloaded into `@directory`.', array(
+    b_message(bt("Backdrop was downloaded into '@directory'.", array(
       '@directory' => $destination,
     )), 'success');
   }
@@ -155,7 +155,7 @@ function download_b_git_info($project) {
   }
   else {
     // Offer to get the dev version instead.
-    $answer = b_confirm(bt('There is no release for `@organisation/@project`. Do you you want to download the dev version instead?', array(
+    $answer = b_confirm(bt("There is no release for '@organisation/@project'. Do you you want to download the dev version instead?", array(
       '@organisation' => $organisation,
       '@project' => $project,
     )));
@@ -225,7 +225,7 @@ function download_b_download_project($project, $info, $destination) {
 
   // Get the download URL.
   if (empty($url = $info['url'])) {
-    b_message(bt('The download URL for `@project` could not be found.', array(
+    b_message(bt("The download URL for '@project' could not be found.", array(
       '@project' => $project,
     )), 'error');
     return FALSE;
