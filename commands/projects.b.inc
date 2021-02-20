@@ -208,9 +208,9 @@ function projects_b_callback($arguments, $options) {
  * Command callback: Enable one or more projects (modules, themes, layouts).
  */
 function enable_b_callback($arguments, $options) {
-  $modules = array();
-  $themes = array();
-  $layouts = array();
+  $modules = system_rebuild_module_data();
+  $themes = system_rebuild_theme_data();
+  $layouts = layout_get_layout_template_info();
   $disabled_layouts = array();
   $enable_dependencies = !isset($options['no-dependency-checking']);
   $flush_caches = FALSE;
@@ -229,10 +229,6 @@ function enable_b_callback($arguments, $options) {
 
     switch ($type) {
       case 'module':
-        if (empty($modules)) {
-          $modules = system_rebuild_module_data();
-        }
-
         // Get module info.
         $module = $modules[$project];
         $name = $module->info['name'];
@@ -255,10 +251,6 @@ function enable_b_callback($arguments, $options) {
 
         break;
       case 'theme':
-        if (empty($themes)) {
-          $themes = system_rebuild_theme_data();
-        }
-
         // Get theme info.
         $theme = $themes[$project];
         $name = $theme->info['name'];
@@ -276,9 +268,7 @@ function enable_b_callback($arguments, $options) {
         break;
       case 'layout':
         $config = config('layout.settings');
-
-        if (empty($layouts)) {
-          $layouts = layout_get_layout_template_info();
+        if (empty($disabled_layouts)) {
           $disabled_layouts = $config->get('excluded_templates');
         }
 
@@ -331,9 +321,9 @@ function enable_b_callback($arguments, $options) {
  * Command callback: Disable one or more projects (modules, themes, layouts).
  */
 function disable_b_callback($arguments, $options) {
-  $modules = array();
-  $themes = array();
-  $layouts = array();
+  $modules = system_rebuild_module_data();
+  $themes = system_rebuild_theme_data();
+  $layouts = layout_get_layout_template_info();
   $disabled_layouts = array();
   $disable_dependents = !isset($options['no-dependency-checking']);
   $flush_caches = FALSE;
@@ -352,10 +342,6 @@ function disable_b_callback($arguments, $options) {
 
     switch ($type) {
       case 'module':
-        if (empty($modules)) {
-          $modules = system_rebuild_module_data();
-        }
-
         // Get module info.
         $module = $modules[$project];
         $name = $module->info['name'];
@@ -372,16 +358,12 @@ function disable_b_callback($arguments, $options) {
 
         break;
       case 'theme':
-        if (empty($themes)) {
-          $themes = system_rebuild_theme_data();
-        }
-
         // Get theme info.
         $theme = $themes[$project];
         $name = $theme->info['name'];
 
         // Check if already disabled.
-        if ($theme->status) {
+        if (!$theme->status) {
           $already_disabled = TRUE;
           break;
         }
@@ -393,9 +375,7 @@ function disable_b_callback($arguments, $options) {
         break;
       case 'layout':
         $config = config('layout.settings');
-
-        if (empty($layouts)) {
-          $layouts = layout_get_layout_template_info();
+        if (empty($disabled_layouts)) {
           $disabled_layouts = $config->get('excluded_templates');
         }
 
@@ -481,7 +461,7 @@ function uninstall_b_callback($arguments, $options) {
     }
 
     // Uninstall module.
-    if (backdrop_uninstall_modules(array($module), $uninstall_dependents)) {
+    if (backdrop_uninstall_modules(array($module_name), $uninstall_dependents)) {
       b_message(bt('The `@name` module was uninstalled.', array(
         '@name' => $module->info['name'],
       )), 'success');
@@ -569,6 +549,9 @@ function theme_admin_b_callback($arguments, $options) {
  * Show information about a single project.
  */
 function projects_b_show_project($project) {
+  $modules = system_rebuild_module_data();
+  $themes = system_rebuild_theme_data();
+  $layouts = layout_get_layout_template_info();
   $rows = array();
 
   // Get project type.
@@ -582,7 +565,6 @@ function projects_b_show_project($project) {
   // Get project information.
   switch ($type) {
     case 'module':
-      $modules = system_rebuild_module_data();
       $module = $modules[$project];
 
       $rows[] = array(
@@ -636,7 +618,6 @@ function projects_b_show_project($project) {
 
       break;
     case 'theme':
-      $themes = system_rebuild_theme_data();
       $theme = $themes[$project];
 
       $rows[] = array(
@@ -666,7 +647,7 @@ function projects_b_show_project($project) {
 
       break;
     case 'layout':
-      $layout = layout_get_layout_template_info($project);
+      $layout = $layouts[$project];
 
       $rows[] = array(
         array('value' => bt('Name')),
