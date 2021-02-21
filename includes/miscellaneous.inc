@@ -73,11 +73,11 @@ function b_initialize_console() {
   // Turn on various 'modes' as appropriate.
   if (!empty($options['yes']) || !empty($options['y'])) {
     $yes_mode = TRUE;
-    b_message(bt('`Yes` mode enabled.'), 'log');
+    b_message(bt("'Yes' mode enabled."), 'log');
   }
   if (!empty($options['debug']) || !empty($options['d'])) {
     $debug_mode = TRUE;
-    b_message(bt('`Debug` mode enabled.'), 'log');
+    b_message(bt("'Debug' mode enabled."), 'log');
   }
 }
 

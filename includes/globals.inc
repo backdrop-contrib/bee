@@ -14,14 +14,14 @@ $global_options = array(
     'description' => bt('Specify the root directory of the Backdrop installation to use. If not set, will try to find the Backdrop installation automatically based on the current directory.'),
   ),
   'url' => array(
-    'description' => bt('Specify the URL of the Backdrop site to use (as defined in `sites.php`). If not set, will try to find the Backdrop site automatically based on the current directory.'),
+    'description' => bt("Specify the URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory."),
   ),
   'yes' => array(
-    'description' => bt('Answer `yes` to questions without prompting.'),
+    'description' => bt("Answer 'yes' to questions without prompting."),
     'short' => 'y',
   ),
   'debug' => array(
-    'description' => bt("Enables `debug` mode, in which 'log' type messages will be displayed (in addition to all other messages)."),
+    'description' => bt("Enables 'debug' mode, in which 'log' type messages will be displayed (in addition to all other messages)."),
     'short' => 'd',
   ),
 );

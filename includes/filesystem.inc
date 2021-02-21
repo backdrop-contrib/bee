@@ -287,14 +287,14 @@ function b_delete($path) {
 
   // Log a message if the file/directory doesn't exist (but return TRUE anyway).
   if (!file_exists($path)) {
-    b_message(bt("`@path` was not deleted because it doesn't exist.", array(
+    b_message(bt("'@path' was not deleted because it doesn't exist.", array(
       '@path' => $path,
     )), 'log');
     return TRUE;
   }
 
   // Display an error for non-files/directories.
-  b_message(bt('`@path` was not deleted because it is not a recognized type.', array(
+  b_message(bt("'@path' was not deleted because it is not a recognized type.", array(
     '@path' => $path,
   )), 'error');
   return FALSE;
@@ -327,7 +327,7 @@ function b_copy($source, $destination, $self = TRUE) {
   // Create the destination directory.
   if (!file_exists($destination)) {
     if (!mkdir($destination)) {
-      b_message(bt("The destination `@destination` doesn't exist and could not be created.", array(
+      b_message(bt("The destination '@destination' doesn't exist and could not be created.", array(
         '@destination' => $destination,
       )), 'error');
       return FALSE;
@@ -335,7 +335,7 @@ function b_copy($source, $destination, $self = TRUE) {
   }
   // Make sure the destination is actually a directory.
   elseif (!is_dir($destination)) {
-    b_message(bt("The destination `@destination` is not a directory.", array(
+    b_message(bt("The destination '@destination' is not a directory.", array(
       '@destination' => $destination,
     )), 'error');
     return FALSE;
@@ -359,7 +359,7 @@ function b_copy($source, $destination, $self = TRUE) {
   else {
     // Copy a single file.
     if (!copy($source, $destination)) {
-      b_message(bt("Failed to copy `@source` to `@destination`.", array(
+      b_message(bt("Failed to copy '@source' to '@destination'.", array(
         '@source' => $source,
         '@destination' => $destination,
       )), 'error');

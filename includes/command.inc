@@ -68,7 +68,7 @@ function b_process_command() {
 
   // Make sure the given command exists.
   if (!isset($commands[$command])) {
-    b_message(bt('There is no `@command` command.', array(
+    b_message(bt("There is no '@command' command.", array(
       '@command' => $command,
     )), 'error');
     return;
@@ -88,7 +88,7 @@ function b_process_command() {
         $output = $callback($arguments, $options);
       }
       else {
-        b_message(bt('The required bootstrap level for `@command` is not ready.', array(
+        b_message(bt("The required bootstrap level for '@command' is not ready.", array(
           '@command' => $command,
         )), 'error');
       }
@@ -117,7 +117,7 @@ function b_all_commands() {
       // Make sure the command file's hook function exists.
       $function = $command_file . '_b_command';
       if (!function_exists($function)) {
-        b_message(bt('`@function()` does not exist in @file. Skipping.', array(
+        b_message(bt("'@function()' does not exist in @file. Skipping.", array(
           '@function' => $function,
           '@file' => $path,
         )), 'log');
@@ -248,7 +248,7 @@ function b_validate_command($descriptor) {
 
       // Make sure all required arguments have a value.
       if (empty($grouped[$name]) && !in_array($name, $optional)) {
-        b_message(bt('Argument `@name` is required.', array(
+        b_message(bt("Argument '@name' is required.", array(
           '@name' => $name,
         )), 'error');
         return FALSE;

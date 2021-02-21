@@ -10,22 +10,22 @@
 function help_b_command() {
   return array(
     'help' => array(
-      'description' => bt('Provide help and examples for `b` and its commands.'),
+      'description' => bt("Provide help and examples for 'b' and its commands."),
       'callback' => 'help_b_callback',
       'arguments' => array(
-        'command' => bt('The command to display help for. Leave blank to display help for `b` itself.'),
+        'command' => bt("The command to display help for. Leave blank to display help for 'b' itself."),
       ),
       'optional_arguments' => array('command'),
       'examples' => array(
-        'b help status' => bt('Display help for the `status` command.'),
-        'b help' => bt('Display help for `b` itself.'),
+        'b help status' => bt("Display help for the 'status' command."),
+        'b help' => bt("Display help for 'b' itself."),
       ),
     ),
   );
 }
 
 /**
- * Command callback: Provide help and examples for `b` and its commands.
+ * Command callback: Provide help and examples for 'b' and its commands.
  */
 function help_b_callback($arguments, $options) {
   global $global_options, $command_aliases;
@@ -45,7 +45,7 @@ function help_b_callback($arguments, $options) {
 
     // Make sure the command exists.
     if (!isset($commands[$command])) {
-      b_message(bt("Cannot display help for `@command` as it doesn't exist.", array(
+      b_message(bt("Cannot display help for '@command' as it doesn't exist.", array(
         '@command' => $command,
       )), 'error');
       return;
@@ -57,7 +57,7 @@ function help_b_callback($arguments, $options) {
     return help_b_command_help($commands[$command]);
   }
 
-  // Otherwise display help for `b` itself.
+  // Otherwise display help for 'b' itself.
   $option_rows = array();
   $command_rows = array();
 
