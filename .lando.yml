@@ -1,0 +1,27 @@
+name: b
+recipe: backdrop
+config:
+  webroot: backdrop
+  database: mariadb
+services:
+  appserver:
+    build_as_root:
+      # Make symlink for `b` (used when running PHPUnit tests).
+      - ln -s /app/b.php /usr/local/bin/b
+      # Setup Backdrop installations.
+      - wget https://github.com/backdrop/backdrop/archive/1.x.zip
+      - unzip -q 1.x.zip && rm 1.x.zip
+      - mv backdrop-1.x backdrop && cp -r backdrop multisite
+      # Download PHPUnit.
+      - wget -O phpunit https://phar.phpunit.de/phpunit-8.5.phar
+      - chmod +x phpunit
+tooling:
+  b:
+    service: appserver
+    cmd: b
+  run-tests:
+    service: appserver
+    cmd: cd /app/backdrop && /app/phpunit --testdox --colors /app/tests
+  # check-code:
+  #   service: appserver
+  #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
