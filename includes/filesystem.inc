@@ -70,25 +70,28 @@ function b_is_multisite() {
 }
 
 /**
- * Find Backdrop's site directory from the given `$url`.
+ * Find Backdrop's site directory from the given site directory or URL.
  *
- * @param string $url
- *   The URL of the site to find, as defined in `sites.php`.
+ * @param string $site
+ *   The directory name or URL of the site to find, as defined in `sites.php`.
  *
  * @return string|false
  *   The site directory, as defined in `sites.php`, or FALSE if no site was
  *   found.
  */
-function b_find_site_by_url($url) {
+function b_find_site_by_site($site) {
   global $backdrop_root, $multisites;
 
   if ($multisites) {
-    if (isset($multisites[$url])) {
-      return $multisites[$url];
+    if (isset($multisites[$site])) {
+      return $multisites[$site];
+    }
+    elseif (in_array($site, $multisites)) {
+      return $site;
     }
     else {
-      b_message(bt('@url could not be found in @root/sites/sites.php.', array(
-        '@url' => $url,
+      b_message(bt('@site could not be found in @root/sites/sites.php.', array(
+        '@site' => $site,
         '@root' => $backdrop_root,
       )), 'error');
     }

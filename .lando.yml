@@ -29,7 +29,7 @@ services:
       - mkdir multisite/sites/multisite && cp multisite/settings.php multisite/sites/multisite/settings.php
     run:
       # Install Backdrop multisite.
-      - cd multisite && ./core/scripts/install.sh --url=b-multi.lndo.site --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
+      - cd multisite && ./core/scripts/install.sh --site=multisite --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
   database:
     type: mariadb
     run_as_root:

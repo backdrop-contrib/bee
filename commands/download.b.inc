@@ -66,7 +66,7 @@ function download_b_callback($arguments, $options) {
       $destination = "$backdrop_root/" . $info['type'];
     }
     else {
-      b_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--url' options."), 'error');
+      b_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
       return;
     }
     if (file_exists("$destination/contrib")) {
