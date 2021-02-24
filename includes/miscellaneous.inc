@@ -38,8 +38,8 @@ function b_initialize_console() {
   if ($backdrop_root) {
     if ($multisites = b_is_multisite($backdrop_root)) {
       // Get the site directory of the Backdrop multisite to use.
-      if (isset($options['url'])) {
-        $backdrop_site = b_find_site_by_url($options['url']);
+      if (isset($options['site'])) {
+        $backdrop_site = b_find_site_by_site($options['site']);
       }
       elseif (!isset($options['root'])) {
         $backdrop_site = b_find_site_by_path(getcwd(), $backdrop_root);
