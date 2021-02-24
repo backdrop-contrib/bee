@@ -1,0 +1,52 @@
+name: b
+recipe: backdrop
+services:
+  appserver:
+    type: php:7.2
+    webroot: backdrop
+    build_as_root:
+      # Make symlink for `b`.
+      - ln -s /app/b.php /usr/local/bin/b
+      # Setup Backdrop installations.
+      - wget -q --show-progress https://github.com/backdrop/backdrop/archive/1.x.zip
+      - unzip -q 1.x.zip && rm 1.x.zip
+      - mv backdrop-1.x backdrop
+      - cd backdrop && wget -q https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/3537.patch && patch -p1 < 3537.patch && rm 3537.patch
+      - echo '$settings["override_server_settings"] = TRUE;' >> backdrop/settings.php
+      - cp -r backdrop multisite
+      # Download PHPUnit.
+      - wget -q --show-progress -O phpunit https://phar.phpunit.de/phpunit-8.5.phar
+      - chmod +x phpunit
+    run:
+      # Install normal Backdrop site.
+      - cd backdrop && ./core/scripts/install.sh --account-pass=password --db-url=mysql://backdrop:backdrop@database/backdrop
+  multisite:
+    type: php:7.2
+    webroot: multisite
+    build_as_root:
+      # Configure multisite installation.
+      - echo '$sites["b-multi.lndo.site"] = "multisite";' >> multisite/sites/sites.php
+      - mkdir multisite/sites/multisite && cp multisite/settings.php multisite/sites/multisite/settings.php
+    run:
+      # Install Backdrop multisite.
+      - cd multisite && ./core/scripts/install.sh --url=b-multi.lndo.site --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
+  database:
+    type: mariadb
+    run_as_root:
+      # Create additional database (for multisite).
+      - mysql -u root -e "CREATE DATABASE IF NOT EXISTS multi; GRANT ALL PRIVILEGES ON multi.* TO 'backdrop'@'%' IDENTIFIED by 'backdrop';"
+tooling:
+  b:
+    service: appserver
+    cmd: b
+  run-tests:
+    service: appserver
+    cmd: cd backdrop && /app/phpunit --testdox --colors /app/tests
+  # check-code:
+  #   service: appserver
+  #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
+proxy:
+  appserver:
+    - b.lndo.site
+  multisite:
+    - b-multi.lndo.site
