@@ -41,7 +41,9 @@ tooling:
     cmd: b
   run-tests:
     service: appserver
-    cmd: cd backdrop && /app/phpunit --testdox --colors /app/tests
+    cmd:
+      - cd backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
+      # - cd multisite && /app/phpunit --testsuite multisite --configuration /app/tests
   # check-code:
   #   service: appserver
   #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
