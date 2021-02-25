@@ -78,10 +78,10 @@ class bCoreTest extends TestCase {
     $this->assertStringContainsString("'$option' was set to '$value'.", $output_yes);
 
     // Cleanup config files.
-    $config_file = config($file);
-    $config_file->delete();
-    $config_file2 = config($file2);
-    $config_file2->delete();
+    // Using `find` allows us to find and delete the necessary files without
+    // knowing the name of the config directory.
+    exec("find files -type f -iname '$file.json' -delete");
+    exec("find files -type f -iname '$file2.json' -delete");
   }
 
 }
