@@ -60,28 +60,39 @@ class bCoreTest extends TestCase {
   }
 
   /**
-   * Make sure that the `--y/--yes` options work.
+   * Make sure that the `--yes/--y` options work.
    */
   public function test_yes_global_option_works() {
     $file = 'backdrop.console';
     $option = 'foo';
     $value = 'bar';
 
-    $output_y = shell_exec("b config-set --y $file $option $value");
-    $this->assertStringContainsString("The '$file' config file doesn't exist.", $output_y);
-    $this->assertStringContainsString("'$option' was set to '$value'.", $output_y);
+    $output_yes = shell_exec("b config-set --yes $file $option $value");
+    $this->assertStringContainsString("The '$file' config file doesn't exist.", $output_yes);
+    $this->assertStringContainsString("'$option' was set to '$value'.", $output_yes);
 
     $file2 = $file . '2';
 
-    $output_yes = shell_exec("b config-set --yes $file2 $option $value");
-    $this->assertStringContainsString("The '$file2' config file doesn't exist.", $output_yes);
-    $this->assertStringContainsString("'$option' was set to '$value'.", $output_yes);
+    $output_y = shell_exec("b config-set --y $file2 $option $value");
+    $this->assertStringContainsString("The '$file2' config file doesn't exist.", $output_y);
+    $this->assertStringContainsString("'$option' was set to '$value'.", $output_y);
 
     // Cleanup config files.
     // Using `find` allows us to find and delete the necessary files without
     // knowing the name of the config directory.
     exec("find files -type f -iname '$file.json' -delete");
     exec("find files -type f -iname '$file2.json' -delete");
+  }
+
+  /**
+   * Make sure that the `--debug/--d` options work.
+   */
+  public function test_debug_global_option_works() {
+    $output_debug = shell_exec("b status --debug");
+    $this->assertStringContainsString("'Debug' mode enabled.", $output_debug);
+
+    $output_d = shell_exec("b status --d");
+    $this->assertStringContainsString("'Debug' mode enabled.", $output_d);
   }
 
 }

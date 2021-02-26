@@ -1,7 +1,5 @@
 .DS_Store
-.idea
-*/.idea
-phpunit
+/phpunit
 .phpunit.result.cache
 /backdrop/
 /multisite/

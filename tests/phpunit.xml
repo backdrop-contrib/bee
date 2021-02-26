@@ -1,14 +1,14 @@
 <phpunit colors="true" testdox="true">
   <testsuites>
     <testsuite name="backdrop">
-      <file>bCoreTest.php</file>
-      <!-- <file>BackdropCommandsCoreTest.php</file>
-      <file>BackdropCommandsHelpTest.php</file>
-      <file>BackdropCommandsPMTest.php</file> -->
+      <file>bTest.php</file>
+      <file>CacheCommandsTest.php</file>
+      <file>ConfigCommandsTest.php</file>
+      <file>HelpCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
       <file>MultisiteTest.php</file>
-      <file>MultisiteCommandsPMTest.php</file>
+      <!-- <file>MultisiteCommandsPMTest.php</file> -->
     </testsuite>
   </testsuites>
 </phpunit>

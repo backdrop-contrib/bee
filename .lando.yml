@@ -11,8 +11,7 @@ services:
       - wget -q --show-progress https://github.com/backdrop/backdrop/archive/1.x.zip
       - unzip -q 1.x.zip && rm 1.x.zip
       - mv backdrop-1.x backdrop
-      - cd backdrop && wget -q https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/3537.patch && patch -p1 < 3537.patch && rm 3537.patch
-      - echo '$settings["override_server_settings"] = TRUE;' >> backdrop/settings.php
+      - echo 'if (isset($_SERVER["BACKDROP_SETTINGS"])) unset($_SERVER["BACKDROP_SETTINGS"]);' >> backdrop/settings.php
       - cp -r backdrop multisite
       # Download PHPUnit.
       - wget -q --show-progress -O phpunit https://phar.phpunit.de/phpunit-8.5.phar
@@ -29,7 +28,7 @@ services:
       - mkdir multisite/sites/multisite && cp multisite/settings.php multisite/sites/multisite/settings.php
     run:
       # Install Backdrop multisite.
-      - cd multisite && ./core/scripts/install.sh --site=multisite --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
+      - cd multisite && ./core/scripts/install.sh --url=b-multi.lndo.site --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
   database:
     type: mariadb
     run_as_root:
@@ -42,8 +41,8 @@ tooling:
   run-tests:
     service: appserver
     cmd:
-      - cd backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
-      # - cd multisite && /app/phpunit --testsuite multisite --configuration /app/tests
+      - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
+      - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
   # check-code:
   #   service: appserver
   #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
