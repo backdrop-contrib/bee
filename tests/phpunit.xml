@@ -4,6 +4,8 @@
       <file>bTest.php</file>
       <file>CacheCommandsTest.php</file>
       <file>ConfigCommandsTest.php</file>
+      <file>CronCommandsTest.php</file>
+      <file>DBLogCommandsTest.php</file>
       <file>HelpCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
