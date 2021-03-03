@@ -20,13 +20,16 @@ class DBLogCommandsTest extends TestCase {
     $this->assertStringContainsString('dblog module installed.', $output_one);
 
     exec('b log --count=2', $output_count);
-    $this->assertEquals(3, count($output_count));
+    // The header and trailing newline add 2 extra rows to the output.
+    $this->assertEquals(4, count($output_count));
 
     $output_severity = shell_exec('b log --severity=info');
-    $this->assertStringNotContainsString('notice', $output_severity);
+    $this->assertStringContainsString(' | Info', $output_severity);
+    $this->assertStringNotContainsString(' | Notice', $output_severity);
 
-    $output_type = shell_exec('b ws --type=cron');
-    $this->assertStringNotContainsString('system', $output_type);
+    $output_type = shell_exec('b log --type=cron');
+    $this->assertStringContainsString(' | cron', $output_type);
+    $this->assertStringNotContainsString(' | system', $output_type);
   }
 
 }

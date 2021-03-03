@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * PHPUnit tests for Backdrop Console Update commands.
+ */
+
+use PHPUnit\Framework\TestCase;
+
+class UpdateCommandsTest extends TestCase {
+
+  /**
+   * Make sure that the update-db command works.
+   */
+  public function test_update_db_command_works() {
+    // Install an older version of Devel.
+    exec('cd modules && wget -q https://github.com/backdrop-contrib/devel/releases/download/1.x-1.5.5/devel.zip');
+    exec('cd modules && unzip devel.zip && rm devel.zip');
+    exec('b en --y devel');
+
+    // Make sure there are no database updates.
+    $output_clean = shell_exec('b update-db');
+    $this->assertStringContainsString('There are no pending database updates.', $output_clean);
+
+    // Update Devel to a newer version.
+    exec('cd modules && rm -rf devel && wget -q https://github.com/backdrop-contrib/devel/releases/download/1.x-1.6.0/devel.zip');
+    exec('cd modules && unzip devel.zip && rm devel.zip');
+
+    // Perform database updates.
+    $output_updates = shell_exec('b update-db --y');
+    $this->assertStringContainsString('Remove option for Krumo skin.', $output_updates);
+    $this->assertStringContainsString('Would you like to apply all pending updates?', $output_updates);
+    $this->assertStringContainsString('All pending updates applied.', $output_updates);
+
+    // Cleanup Devel.
+    exec('b disable --y devel');
+    exec('b uninstall --y devel');
+    exec('rm -rf modules/devel');
+  }
+
+}

@@ -66,33 +66,35 @@ function update_db_b_callback() {
   }
 
   // Display pending updates.
-  echo "\n";
-  foreach ($modules as $module => $updates) {
-    b_render_text(array(
-      'value' => bt('@module module', array('@module' => $module)),
-      '#color' => 'blue',
-      '#bold' => TRUE,
-    ));
+  if (!empty($modules)) {
+    echo "\n";
+    foreach ($modules as $module => $updates) {
+      b_render_text(array(
+        'value' => bt('@module module', array('@module' => $module)),
+        '#color' => 'blue',
+        '#bold' => TRUE,
+      ));
 
-    $rows = array();
-    foreach ($updates as $update) {
-      $rows[] = array(
-        array('value' => $update['update_id']),
-        array('value' => $update['description']),
-      );
+      $rows = array();
+      foreach ($updates as $update) {
+        $rows[] = array(
+          array('value' => $update['update_id']),
+          array('value' => $update['description']),
+        );
+      }
+      b_render_table(array('rows' => $rows));
     }
-    b_render_table(array('rows' => $rows));
-  }
 
-  // Prompt to apply updates.
-  if (!b_confirm(bt('Would you like to apply all pending updates?'))) {
-    return;
-  }
+    // Prompt to apply updates.
+    if (!b_confirm(bt('Would you like to apply all pending updates?'))) {
+      return;
+    }
 
-  // Apply the updates, without calling `backdrop_goto()`.
-  // @see batch_process()
-  $batch = &batch_get();
-  $batch['progressive'] = FALSE;
-  update_batch($start);
-  b_message(bt('All pending updates applied.'), 'success');
+    // Apply the updates, without calling `backdrop_goto()`.
+    // @see batch_process()
+    $batch = &batch_get();
+    $batch['progressive'] = FALSE;
+    update_batch($start);
+    b_message(bt('All pending updates applied.'), 'success');
+  }
 }
