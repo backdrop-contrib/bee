@@ -31,7 +31,7 @@ function eval_b_command() {
  */
 function php_eval_b_command($arguments, $options) {
   try {
-    eval($arguments['code']);
+    eval($arguments['code'] . ';');
   }
   catch(ParseError $e) {
     // This is more readable than the default error we would get from PHP.
