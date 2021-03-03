@@ -4,7 +4,7 @@ API Information
 `HOOK_b_command()`
 ------------------
 This hook can be invoked to provide additional commands to Backdrop Console. It
-should reside in a `b` command file: `HOOK.b.inc`.
+should reside in a `b` command file: *HOOK.b.inc*.
 
 Implementations of this hook should return an associative array of command
 descriptors, where the keys are unique command names and the values are
@@ -32,7 +32,7 @@ associative arrays, containing:
     after the option name.
 - **aliases**: (optional) An array of alternate command names.
 - **bootstrap**: (optional) The bootstrap level required to run this command.
-  See `includes/globals.inc` for possible values.
+  See *includes/globals.inc* for possible values.
 - **examples**: (optional) An array of example use-cases for the command, where
   the keys are command strings (including `b`, options, arguments, etc.) and the
   values are translated explanations of the command string.
@@ -90,7 +90,7 @@ element is an associative array, containing:
 - **type**: A string that determines which render function to call for
   formatting and displaying the element. It should be one of: 'text', 'table'.
 - **variables**: An array of variables to pass to the specific render function.
-  See the individual `b_render_TYPE()` functions in `includes/render.inc` for
+  See the individual `b_render_TYPE()` functions in *includes/render.inc* for
   details about their individual parameters.
 - **newline**: (optional) A boolean that determines whether or not to add a
   newline character (`\n`) to the end of the output. Defaults to TRUE.
