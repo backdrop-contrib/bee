@@ -569,7 +569,7 @@ function projects_bee_show_project($project) {
 
       $rows[] = array(
         array('value' => bt('Name')),
-        array('value' => $module->info['name']),
+        array('value' => !empty($module->info['name']) ? $module->info['name'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Type')),
@@ -581,15 +581,15 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Description')),
-        array('value' => $module->info['description']),
+        array('value' => !empty($module->info['description']) ? $module->info['description'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Configure')),
-        array('value' => $module->info['configure']),
-      );
+        array('value' => empty($module->info['configure']) ? $module->info['configure'] : ''),
+      );!
       $rows[] = array(
         array('value' => bt('Package')),
-        array('value' => $module->info['package']),
+        array('value' => !empty($module->info['package']) ? $module->info['package'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Tags')),
@@ -597,7 +597,7 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Version')),
-        array('value' => $module->info['version']),
+        array('value' => !empty($module->info['version']) ? $module->info['version'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Path')),
@@ -609,11 +609,11 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Requires')),
-        array('value' => !empty($module->requires) ? implode(', ', $module->requires) : ''),
+        array('value' => !empty($module->requires) ? implode(', ', array_keys($module->requires)) : ''),
       );
       $rows[] = array(
         array('value' => bt('Required by')),
-        array('value' => !empty($module->required_by) ? implode(', ', $module->required_by) : ''),
+        array('value' => !empty($module->required_by) ? implode(', ', array_keys($module->required_by)) : ''),
       );
 
       break;
@@ -622,7 +622,7 @@ function projects_bee_show_project($project) {
 
       $rows[] = array(
         array('value' => bt('Name')),
-        array('value' => $theme->info['name']),
+        array('value' => !empty($theme->info['name']) ? $theme->info['name'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Type')),
@@ -630,11 +630,11 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Description')),
-        array('value' => $theme->info['description']),
+        array('value' => !empty($theme->info['description']) ? $theme->info['description'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Version')),
-        array('value' => $theme->info['version']),
+        array('value' => !empty($theme->info['version']) ? $theme->info['version'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Path')),
