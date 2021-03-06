@@ -569,7 +569,7 @@ function projects_b_show_project($project) {
 
       $rows[] = array(
         array('value' => bt('Name')),
-        array('value' => !empty($module->info['name']) ? $module->info['name'] : ''),
+        array('value' => $module->info['name']),
       );
       $rows[] = array(
         array('value' => bt('Type')),
@@ -622,7 +622,7 @@ function projects_b_show_project($project) {
 
       $rows[] = array(
         array('value' => bt('Name')),
-        array('value' => !empty($theme->info['name']) ? $theme->info['name'] : ''),
+        array('value' => $theme->info['name']),
       );
       $rows[] = array(
         array('value' => bt('Type')),
