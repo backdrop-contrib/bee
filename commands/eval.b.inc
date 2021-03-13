@@ -29,7 +29,7 @@ function eval_b_command() {
 /**
  * Command callback: Execute specified PHP code.
  */
-function php_eval_b_command($arguments, $options) {
+function php_eval_b_callback($arguments, $options) {
   try {
     eval($arguments['code'] . ';');
   }
