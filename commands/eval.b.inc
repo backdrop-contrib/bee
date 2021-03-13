@@ -35,7 +35,10 @@ function php_eval_b_callback($arguments, $options) {
   }
   catch(ParseError $e) {
     // This is more readable than the default error we would get from PHP.
-    $err_msg = $e->getMessage() . ' ' . bt('in:') . ' ' . $arguments['code'];
+    $err_msg = bt('@error in: @code', array(
+      '@error' => $e->getMessage(),
+      '@code' => $arguments['code'],
+    ));
     b_message($err_msg, 'error');
   }
 }
