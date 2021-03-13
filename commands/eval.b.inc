@@ -11,7 +11,7 @@ function eval_b_command() {
   return array(
     'php-eval' => array(
       'description' => bt('Evaluate arbitrary PHP code after bootstrapping Backdrop.'),
-      'callback' => 'php_eval_b_command',
+      'callback' => 'php_eval_b_callback',
       'arguments' => array(
         'code' => bt('The PHP code to evaluate.'),
       ),
