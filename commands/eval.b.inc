@@ -27,7 +27,8 @@ function eval_b_command() {
 }
 
 /**
- * Command callback: Evaluate (run/execute) arbitrary PHP code after bootstrapping Backdrop.
+ * Command callback: Evaluate (run/execute) arbitrary PHP code after
+ * bootstrapping Backdrop.
  */
 function php_eval_b_callback($arguments, $options) {
   try {
