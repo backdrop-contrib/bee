@@ -10,7 +10,7 @@
 function eval_b_command() {
   return array(
     'php-eval' => array(
-      'description' => bt('Evaluate arbitrary PHP code after bootstrapping Backdrop.'),
+      'description' => bt('Evaluate (run/execute) arbitrary PHP code after bootstrapping Backdrop.'),
       'callback' => 'php_eval_b_callback',
       'arguments' => array(
         'code' => bt('The PHP code to evaluate.'),
@@ -27,7 +27,7 @@ function eval_b_command() {
 }
 
 /**
- * Command callback: Evaluate arbitrary PHP code after bootstrapping Backdrop.
+ * Command callback: Evaluate (run/execute) arbitrary PHP code after bootstrapping Backdrop.
  */
 function php_eval_b_callback($arguments, $options) {
   try {
