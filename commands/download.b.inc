@@ -16,10 +16,16 @@ function download_b_command() {
         'projects' => bt('One or more contrib projects to download.'),
       ),
       'multiple_argument' => 'projects',
+      'options' => array(
+        'hide-progress' => array(
+          'description' => bt('Hide the download progress bar.'),
+        ),
+      ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
         'b download webform' => bt('Download the Webform module.'),
         'b download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
+        'b download devel --hide-progress' => bt("Download the Devel module, and don't show the download progress bar."),
       ),
     ),
     'download-core' => array(
@@ -29,9 +35,15 @@ function download_b_command() {
         'directory' => bt('The directory to download and extract Backdrop into. Leave blank to use the current directory.'),
       ),
       'optional_arguments' => array('directory'),
+      'options' => array(
+        'hide-progress' => array(
+          'description' => bt('Hide the download progress bar.'),
+        ),
+      ),
       'aliases' => array('dl-core'),
       'examples' => array(
         'b download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
+        'b download-core --hide-progress' => bt("Download Backdrop into the current directory, and don't show the download progress bar."),
       ),
     ),
   );
@@ -42,6 +54,8 @@ function download_b_command() {
  */
 function download_b_callback($arguments, $options) {
   global $backdrop_site, $backdrop_root;
+
+  $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   foreach ($arguments['projects'] as $project) {
     $info = download_b_git_info($project);
@@ -88,7 +102,7 @@ function download_b_callback($arguments, $options) {
     }
 
     // Download the project.
-    if (download_b_download_project($project, $info, $destination)) {
+    if (download_b_download_project($project, $info, $destination, $progress)) {
       b_message(bt("'@project' was downloaded into '@directory'.", array(
         '@project' => $project,
         '@directory' => $destination,
@@ -102,6 +116,7 @@ function download_b_callback($arguments, $options) {
  */
 function download_core_b_callback($arguments, $options) {
   $info = download_b_git_info('backdrop');
+  $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
@@ -122,7 +137,7 @@ function download_core_b_callback($arguments, $options) {
   }
 
   // Download Backdrop.
-  if (download_b_download_project('backdrop', $info, $destination)) {
+  if (download_b_download_project('backdrop', $info, $destination, $progress)) {
     b_message(bt("Backdrop was downloaded into '@directory'.", array(
       '@directory' => $destination,
     )), 'success');
@@ -212,11 +227,14 @@ function download_b_git_info($project) {
  *     contrib projects.
  * @param string $destination
  *   The path to the destination directory.
+ * @param boolean $progress
+ *   Whether or not the download progress bar should be displayed. Defaults to
+ *   TRUE.
  *
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
-function download_b_download_project($project, $info, $destination) {
+function download_b_download_project($project, $info, $destination, $progress = TRUE) {
   // Get a temp directory.
   if (!$temp = b_get_temp($project)) {
     b_message(bt('Failed to get temp directory.'), 'error');
@@ -234,7 +252,12 @@ function download_b_download_project($project, $info, $destination) {
   // Download & extract the project.
   $file = "$temp/$project.zip";
   $directory = !empty($info['branch']) ? "$project-$branch" : $project;
-  exec("wget --show-progress -qO $file $url");
+  $wget = "wget";
+  if ($progress) {
+    $wget .= " --show-progress";
+  }
+  $wget .= " -qO $file $url";
+  exec($wget);
   exec("unzip $file -d $temp");
   b_copy("$temp/$directory", $destination, FALSE);
   b_delete($temp);

@@ -6,13 +6,15 @@
       <file>ConfigCommandsTest.php</file>
       <file>CronCommandsTest.php</file>
       <file>DBLogCommandsTest.php</file>
+      <file>DownloadCommandsTest.php</file>
       <file>HelpCommandsTest.php</file>
+      <file>ProjectsCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
       <file>UpdateCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
       <file>MultisiteTest.php</file>
-      <!-- <file>InstallCommandsTest.php</file> -->
+      <file>InstallCommandsTest.php</file>
       <!-- <file>MultisiteCommandsPMTest.php</file> -->
     </testsuite>
   </testsuites>

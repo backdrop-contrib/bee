@@ -577,7 +577,7 @@ function projects_b_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Project')),
-        array('value' => $module->info['project']),
+        array('value' => !empty($module->info['project']) ? $module->info['project'] : ''),
       );
       $rows[] = array(
         array('value' => bt('Description')),

@@ -9,19 +9,21 @@ use PHPUnit\Framework\TestCase;
 class InstallCommandsTest extends TestCase {
 
   /**
-   * Download Backdrop.
-   *
-   * This code is run *once* before any of the following tests.
-   */
-  public static function setUpBeforeClass(): void {
-    exec('mysql -u root -e "CREATE DATABASE IF NOT EXISTS install_test; GRANT ALL PRIVILEGES ON install_test.* TO \'backdrop\'@\'%\' IDENTIFIED by \'backdrop\';"');
-  }
-
-  /**
    * Make sure that the install command works.
    */
   public function test_install_command_works() {
+    // Check site status before install.
+    $output_before = shell_exec('b status --site=install_test');
+    print_r($output_before);
+    // $this->assertStringContainsString('', $output);
 
+    // Install the site.
+    $output_install = shell_exec('b install --site=install_test --auto --db=mysql://backdrop:backdrop@database/install_test');
+    print_r($output_install);
+
+    // Check site status after install.
+    $output_after = shell_exec('b status --site=install_test');
+    print_r($output_after);
   }
 
 }
