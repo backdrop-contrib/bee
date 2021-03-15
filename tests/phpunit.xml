@@ -14,8 +14,8 @@
     </testsuite>
     <testsuite name="multisite">
       <file>MultisiteTest.php</file>
-      <file>InstallCommandsTest.php</file>
-      <!-- <file>MultisiteCommandsPMTest.php</file> -->
+      <file>MultisiteInstallCommandsTest.php</file>
+      <file>MultisiteDownloadCommandsTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>

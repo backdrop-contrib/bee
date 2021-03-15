@@ -90,7 +90,7 @@ function install_b_callback($arguments, $options) {
     $db_host = b_check_plain(b_input(bt('Database host'), 'localhost', TRUE));
     $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
-  $db = "--db-url='$db'";
+  $db = "--db-url=$db";
 
   // Get database prefix.
   if (!empty($options['db-prefix'])) {
@@ -99,7 +99,7 @@ function install_b_callback($arguments, $options) {
   else {
     $db_prefix = ($prompt) ? b_check_plain(b_input(bt('Database prefix'), '')) : '';
   }
-  $db_prefix = "--db-prefix='$db_prefix'";
+  $db_prefix = "--db-prefix=$db_prefix";
 
   // Get admin username.
   if (!empty($options['username'])) {
@@ -119,7 +119,7 @@ function install_b_callback($arguments, $options) {
     $password = ($prompt) ? b_check_plain(b_input(bt('Admin password'), $random, TRUE)) : $random;
   }
   $show_password = ($password == $random) ? TRUE : FALSE;
-  $password = "--account-pass='$password'";
+  $password = "--account-pass=$password";
 
   // Get admin email.
   if (!empty($options['email'])) {
@@ -128,7 +128,7 @@ function install_b_callback($arguments, $options) {
   else {
     $email = ($prompt) ? b_check_plain(b_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
-  $email = "--account-name='$email'";
+  $email = "--account-name=$email";
 
   // Get site name.
   if (!empty($options['site-name'])) {
@@ -146,7 +146,7 @@ function install_b_callback($arguments, $options) {
   else {
     $site_mail = ($prompt) ? b_check_plain(b_input(bt('Site mail'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
-  $site_mail = "--site-mail='$site_mail'";
+  $site_mail = "--site-mail=$site_mail";
 
   // Get language.
   if (!empty($options['langcode'])) {
@@ -155,7 +155,7 @@ function install_b_callback($arguments, $options) {
   else {
     $langcode = ($prompt) ? b_check_plain(b_input(bt('Language code'), 'en', TRUE)) : 'en';
   }
-  $langcode = "--langcode='$langcode'";
+  $langcode = "--langcode=$langcode";
 
   // Get clean URLs.
   $clean_urls = (!empty($options['no-clean-urls'])) ? 0 : 1;
@@ -172,11 +172,11 @@ function install_b_callback($arguments, $options) {
   // Get multisite site URL.
   $url = '';
   if ($backdrop_site) {
-    $url = "--url='" . array_search($backdrop_site, $multisites) . "'";
+    $url = '--url=' . array_search($backdrop_site, $multisites);
   }
 
   // Run the install script.
-  $result = exec("cd $backdrop_root && core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
+  $result = exec("cd $backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
   b_render_text(array('value' => $result));
 
   // Show the randomly-generated password.
