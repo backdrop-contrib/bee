@@ -23,12 +23,12 @@ class MultisiteDownloadCommandsTest extends TestCase {
     $this->assertTrue(file_exists('/app/multisite/sites/multi_one/themes/lumi/lumi.info'));
 
     // Site directory.
-    $output_site = shell_exec('cd sites/multi_two && b download --hide_progress bamboo');
+    $output_site = shell_exec('cd sites/multi_two && b download --hide-progress bamboo');
     $this->assertStringContainsString("'bamboo' was downloaded into '/app/multisite/sites/multi_two/layouts/bamboo'.", $output_site);
     $this->assertTrue(file_exists('/app/multisite/sites/multi_two/layouts/bamboo/bamboo.info'));
 
     // Cleanup downloads.
-    exec('rm -fr /app/multisite/modules/simplify /app/multisite/sites/multi_one/themes/lumi /app/multisite/sites/multi_two/layouts/bamboo');
+    exec('rm -fr /app/multisite/modules/simplify /app/multisite/sites/multi_one/themes /app/multisite/sites/multi_two/layouts');
   }
 
 }
