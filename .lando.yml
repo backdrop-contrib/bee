@@ -1,47 +1,52 @@
 name: b
 recipe: backdrop
+config:
+  php: 7.2
+  webroot: backdrop
+  database: mariadb
+  # Although Drush isn't needed/used, the version that Lando includes by default
+  # has a bug that causes all build steps to fail. We therefore need to update
+  # Drush to the latest version just to make sure that build steps run properly.
+  backdrush: 1.x-1.x
 services:
   appserver:
-    type: php:7.2
-    webroot: backdrop
-    build_as_root:
+    build:
       # Make symlink for `b`.
       - ln -s /app/b.php /usr/local/bin/b
-      # Setup Backdrop installations.
-      - wget -q --show-progress https://github.com/backdrop/backdrop/archive/1.x.zip
-      - unzip -q 1.x.zip && rm 1.x.zip
-      - mv backdrop-1.x backdrop
-      - cd backdrop && wget -q https://patch-diff.githubusercontent.com/raw/backdrop/backdrop/pull/3537.patch && patch -p1 < 3537.patch && rm 3537.patch
-      - echo '$settings["override_server_settings"] = TRUE;' >> backdrop/settings.php
-      - cp -r backdrop multisite
+      # Download Backdrop.
+      - wget -q --show-progress -O /app/backdrop.zip https://github.com/backdrop/backdrop/archive/1.x.zip
       # Download PHPUnit.
-      - wget -q --show-progress -O phpunit https://phar.phpunit.de/phpunit-8.5.phar
-      - chmod +x phpunit
+      - wget -q --show-progress -O /app/phpunit https://phar.phpunit.de/phpunit-8.5.phar
+      - chmod +x /app/phpunit
     run:
-      # Install normal Backdrop site.
-      - cd backdrop && ./core/scripts/install.sh --account-pass=password --db-url=mysql://backdrop:backdrop@database/backdrop
+      # Run setup tasks.
+      - /app/.lando/setup.sh setup
   multisite:
     type: php:7.2
     webroot: multisite
-    build_as_root:
-      # Configure multisite installation.
-      - echo '$sites["b-multi.lndo.site"] = "multisite";' >> multisite/sites/sites.php
-      - mkdir multisite/sites/multisite && cp multisite/settings.php multisite/sites/multisite/settings.php
-    run:
-      # Install Backdrop multisite.
-      - cd multisite && ./core/scripts/install.sh --site=multisite --account-pass=password --db-url=mysql://backdrop:backdrop@database/multi
-  database:
-    type: mariadb
-    run_as_root:
-      # Create additional database (for multisite).
-      - mysql -u root -e "CREATE DATABASE IF NOT EXISTS multi; GRANT ALL PRIVILEGES ON multi.* TO 'backdrop'@'%' IDENTIFIED by 'backdrop';"
+events:
+  pre-rebuild:
+    # Run clean-up tasks.
+    - /app/.lando/setup.sh clean
+    # Remove `b` symlink, Backdrop and PHPUnit.
+    - rm -f /usr/local/bin/b /app/backdrop.zip /app/phpunit
+  pre-destroy:
+    # Run clean-up tasks.
+    - /app/.lando/setup.sh clean
+    # Remove `b` symlink, Backdrop and PHPUnit.
+    - rm -f /usr/local/bin/b /app/backdrop.zip /app/phpunit
 tooling:
   b:
     service: appserver
     cmd: b
+  reset:
+    service: appserver
+    cmd: /app/.lando/setup.sh
   run-tests:
     service: appserver
-    cmd: cd backdrop && /app/phpunit --testdox --colors /app/tests
+    cmd:
+      - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
+      - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
   # check-code:
   #   service: appserver
   #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
@@ -49,4 +54,6 @@ proxy:
   appserver:
     - b.lndo.site
   multisite:
-    - b-multi.lndo.site
+    - multi-1.lndo.site
+    - multi-2.lndo.site
+    - install-test.lndo.site

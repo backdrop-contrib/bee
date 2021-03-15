@@ -30,11 +30,11 @@ function dblog_b_command() {
           'value' => bt('Type'),
         ),
       ),
-      'aliases' => array('ws', 'watchdog-show'),
+      'aliases' => array('ws', 'dblog', 'watchdog-show'),
       'bootstrap' => B_BOOTSTRAP_FULL,
       'examples' => array(
         'b log 3551' => bt("Show details about the log message with ID '3551'."),
-        'b log --count=25 --severity=WATCHDOG_ERROR --type=php' => bt('Show the 25 latest PHP errors.'),
+        'b log --count=25 --severity=error --type=php' => bt('Show the 25 latest PHP errors.'),
         'b log' => bt('Show the latest 10 log messages.'),
       ),
     ),
@@ -116,7 +116,9 @@ function dblog_b_show_messages($options) {
     $query->condition('type', $options['type']);
   }
   if (isset($options['severity'])) {
-    $query->condition('severity', $options['severity']);
+    $severity = backdrop_strtolower($options['severity']);
+    $severity = array_search($severity, $severity_levels);
+    $query->condition('severity', $severity);
   }
   $messages = $query->range(0, $options['count'])
     ->execute()

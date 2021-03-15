@@ -1,14 +1,21 @@
 <phpunit colors="true" testdox="true">
   <testsuites>
     <testsuite name="backdrop">
-      <file>BackdropTest.php</file>
-      <file>BackdropCommandsCoreTest.php</file>
-      <file>BackdropCommandsHelpTest.php</file>
-      <file>BackdropCommandsPMTest.php</file>
+      <file>backdrop/bCoreTest.php</file>
+      <file>backdrop/CacheCommandsTest.php</file>
+      <file>backdrop/ConfigCommandsTest.php</file>
+      <file>backdrop/CronCommandsTest.php</file>
+      <file>backdrop/DBLogCommandsTest.php</file>
+      <file>backdrop/DownloadCommandsTest.php</file>
+      <file>backdrop/HelpCommandsTest.php</file>
+      <file>backdrop/ProjectsCommandsTest.php</file>
+      <!-- There's no Status command test, since that command is used in other tests already. -->
+      <file>backdrop/UpdateCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
-      <file>MultisiteTest.php</file>
-      <file>MultisiteCommandsPMTest.php</file>
+      <file>multisite/MultisiteTest.php</file>
+      <file>multisite/MultisiteInstallCommandsTest.php</file>
+      <file>multisite/MultisiteDownloadCommandsTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
