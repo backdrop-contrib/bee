@@ -121,7 +121,7 @@ function download_core_b_callback($arguments, $options) {
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
   if (!realpath($destination)) {
-    if (!mkdir($destination, 0755)) {
+    if (!mkdir($destination, 0755, TRUE)) {
       b_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
