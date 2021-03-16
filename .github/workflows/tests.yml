@@ -15,13 +15,13 @@ jobs:
       # Installs and starts Lando.
       - name: Lando
         run: |
-          wget https://files.devwithlando.io/lando-stable.deb
-          sudo dpkg -i --ignore-depends=docker-ce lando-stable.deb
+          time wget https://files.devwithlando.io/lando-stable.deb
+          time sudo dpkg -i --ignore-depends=docker-ce lando-stable.deb
           cd $GITHUB_WORKSPACE
-          lando start
+          time lando start
 
       # Runs PHPUnit tests.
       - name: PHPUnit
         run: |
           cd $GITHUB_WORKSPACE
-          lando run-tests
+          time lando run-tests
