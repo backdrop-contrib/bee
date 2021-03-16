@@ -15,7 +15,9 @@ jobs:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v2
       
-      - name: Install software
+      - name: Lando
         run: |
           wget https://files.devwithlando.io/lando-stable.deb
           sudo dpkg -i --ignore-depends=docker-ce lando-stable.deb
+          cd $GITHUB_WORKSPACE
+          lando start
