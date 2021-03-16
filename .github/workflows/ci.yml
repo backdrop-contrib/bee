@@ -10,7 +10,7 @@ on:
 jobs:
   # Run PHPUnit tests in Lando.
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v2
