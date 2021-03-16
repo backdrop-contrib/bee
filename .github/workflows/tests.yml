@@ -1,0 +1,27 @@
+on:
+  # Trigger on push or pull request events, but only for the 1.x-1.x branch.
+  push:
+    branches: [ 1.x-1.x ]
+  pull_request:
+    branches: [ 1.x-1.x ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out repo under $GITHUB_WORKSPACE.
+      - uses: actions/checkout@v2
+
+      # Installs and starts Lando.
+      - name: Lando
+        run: |
+          wget https://files.devwithlando.io/lando-stable.deb
+          sudo dpkg -i --ignore-depends=docker-ce lando-stable.deb
+          cd $GITHUB_WORKSPACE
+          lando start
+
+      # Runs PHPUnit tests.
+      - name: PHPUnit
+        run: |
+          cd $GITHUB_WORKSPACE
+          lando run-tests
