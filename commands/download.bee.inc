@@ -94,7 +94,7 @@ function download_bee_callback($arguments, $options) {
       )), 'error');
       return;
     }
-    elseif (!mkdir($destination, 0755, TRUE)) {
+    elseif (!mkdir($destination, 0755)) {
       bee_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
