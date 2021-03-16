@@ -3,9 +3,9 @@ name: CI
 on:
   # Trigger on push or pull request events, but only for the 1.x-1.x branch.
   push:
-    branches: [ 1.x-1.x ]
+    branches: [ ci ]
   pull_request:
-    branches: [ 1.x-1.x ]
+    branches: [ ci ]
 
 jobs:
   # Run PHPUnit tests in Lando.
