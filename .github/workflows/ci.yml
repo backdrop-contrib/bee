@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  # Trigger on push or pull request events, but only for the 1.x-1.x branch.
+  push:
+    branches: [ 1.x-1.x ]
+  pull_request:
+    branches: [ 1.x-1.x ]
+
+jobs:
+  # Run PHPUnit tests in Lando.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out repo under $GITHUB_WORKSPACE.
+      - uses: actions/checkout@v2
+      
+      - name: Setup & start Lando.
+        run: |
+          curl -Ls https://github.com/lando/hyperdrive/releases/download/v0.6.1/hyperdrive > /tmp/hyperdrive && chmod +x /tmp/hyperdrive && /tmp/hyperdrive -y
