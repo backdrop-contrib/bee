@@ -17,7 +17,7 @@ jobs:
       
       - name: Install software
         run: |
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
+          docker version
+          echo '############################################'
           curl -fsSL https://files.devwithlando.io/lando-stable.deb
           sudo dpkg -i lando-stable.deb
