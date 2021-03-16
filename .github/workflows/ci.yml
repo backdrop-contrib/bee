@@ -15,6 +15,9 @@ jobs:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v2
       
-      - name: Setup & start Lando.
+      - name: Install software
         run: |
-          curl -Ls https://github.com/lando/hyperdrive/releases/download/v0.6.1/hyperdrive > /tmp/hyperdrive && chmod +x /tmp/hyperdrive && /tmp/hyperdrive -y
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          curl -fsSL https://files.devwithlando.io/lando-stable.deb
+          sudo dpkg -i lando-stable.deb
