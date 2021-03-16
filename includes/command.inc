@@ -7,7 +7,7 @@
 /**
  * Parse the input to extract the command, options and arguments.
  */
-function b_parse_input() {
+function bee_parse_input() {
   global $argv, $command, $arguments, $options;
 
   foreach ($argv as $id => $arg) {
@@ -52,7 +52,7 @@ function b_parse_input() {
 /**
  * Get the callback function for the command and process it.
  */
-function b_process_command() {
+function bee_process_command() {
   global $command, $arguments, $options, $command_aliases, $output;
 
   // Display help text if no command is given.
@@ -61,14 +61,14 @@ function b_process_command() {
   }
 
   // Get all commands and convert any aliases.
-  $commands = b_all_commands();
+  $commands = bee_all_commands();
   if (isset($command_aliases[$command])) {
     $command = $command_aliases[$command];
   }
 
   // Make sure the given command exists.
   if (!isset($commands[$command])) {
-    b_message(bt("There is no '@command' command.", array(
+    bee_message(bt("There is no '@command' command.", array(
       '@command' => $command,
     )), 'error');
     return;
@@ -76,19 +76,19 @@ function b_process_command() {
 
   // Process the command.
   $descriptor = $commands[$command];
-  if (b_validate_command($descriptor)) {
+  if (bee_validate_command($descriptor)) {
     $callback = $descriptor['callback'];
     if (function_exists($callback)) {
       $ready = TRUE;
       if (isset($descriptor['bootstrap'])) {
-        $ready = b_bootstrap($descriptor['bootstrap']);
+        $ready = bee_bootstrap($descriptor['bootstrap']);
       }
 
       if ($ready) {
         $output = $callback($arguments, $options);
       }
       else {
-        b_message(bt("The required bootstrap level for '@command' is not ready.", array(
+        bee_message(bt("The required bootstrap level for '@command' is not ready.", array(
           '@command' => $command,
         )), 'error');
       }
@@ -102,22 +102,22 @@ function b_process_command() {
  * @return array
  *   Associative array of command descriptors.
  */
-function b_all_commands() {
+function bee_all_commands() {
   static $all_commands = array();
 
   if (empty($all_commands)) {
     global $command_aliases;
 
     // Get list of command files.
-    $list = b_command_file_list();
+    $list = bee_command_file_list();
 
     foreach ($list as $command_file => $path) {
       require_once $path;
 
       // Make sure the command file's hook function exists.
-      $function = $command_file . '_b_command';
+      $function = $command_file . '_bee_command';
       if (!function_exists($function)) {
-        b_message(bt("'@function()' does not exist in @file. Skipping.", array(
+        bee_message(bt("'@function()' does not exist in @file. Skipping.", array(
           '@function' => $function,
           '@file' => $path,
         )), 'log');
@@ -143,28 +143,28 @@ function b_all_commands() {
 }
 
 /**
- * Compile a list of all available `b` command files.
+ * Compile a list of all available `bee` command files.
  *
- * A `b` command file is a file that matches `*.b.inc` in one of the supported
- * paths (@see b_command_file_paths()).
+ * A `bee` command file is a file that matches `*.bee.inc` in one of the
+ * supported paths (@see bee_command_file_paths()).
  *
  * @return array
  *   An associative array whose keys are the name of the command file and whose
  *   values are the path to the command file.
  */
-function b_command_file_list() {
+function bee_command_file_list() {
   static $list = array();
 
   if (empty($list)) {
     // Get list of paths to search.
-    $search_paths = b_command_file_paths();
+    $search_paths = bee_command_file_paths();
 
     foreach ($search_paths as $path) {
-      // Find all `.b.inc` files.
-      $files = b_file_scan_directory($path, '#\.b\.inc$#');
+      // Find all `.bee.inc` files.
+      $files = bee_file_scan_directory($path, '#\.bee\.inc$#');
 
       foreach ($files as $file) {
-        $command_file = basename($file->filename, '.b.inc');
+        $command_file = basename($file->filename, '.bee.inc');
         $list[$command_file] = $file->uri;
       }
     }
@@ -177,24 +177,24 @@ function b_command_file_list() {
  * Get a list of paths to search for command files.
  *
  * The following places are searched:
- * - The `commands` directory within the `b` installation.
- * - The `.b` folder in the user's HOME directory.
+ * - The `commands` directory within the `bee` installation.
+ * - The `.bee` folder in the user's HOME directory.
  * - Enabled modules in the current Backdrop site.
  *
  * @return array
  *   A list of paths to directories where command files can be found.
  */
-function b_command_file_paths() {
+function bee_command_file_paths() {
   static $search_paths = array();
 
   if (empty($search_paths)) {
     global $backdrop_installed;
 
-    // Add `b/commands` directory.
+    // Add `bee/commands` directory.
     $search_paths[] = dirname(__DIR__) . '/commands';
 
-    // Add `.b` folder in user's HOME directory.
-    $home = getenv('HOME') . '/.b';
+    // Add `.bee` folder in user's HOME directory.
+    $home = getenv('HOME') . '/.bee';
     if (is_dir($home)) {
       $search_paths[] = $home;
     }
@@ -226,7 +226,7 @@ function b_command_file_paths() {
  * @return bool
  *   Whether or not the command input is valid.
  */
-function b_validate_command($descriptor) {
+function bee_validate_command($descriptor) {
   global $arguments, $options;
 
   // Validate arguments.
@@ -248,7 +248,7 @@ function b_validate_command($descriptor) {
 
       // Make sure all required arguments have a value.
       if (empty($grouped[$name]) && !in_array($name, $optional)) {
-        b_message(bt("Argument '@name' is required.", array(
+        bee_message(bt("Argument '@name' is required.", array(
           '@name' => $name,
         )), 'error');
         return FALSE;

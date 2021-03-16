@@ -7,7 +7,7 @@
 /**
  * Format and display all messages to the user.
  */
-function b_print_messages() {
+function bee_print_messages() {
   global $messages, $debug_mode;
   $rows = array();
 
@@ -65,7 +65,7 @@ function b_print_messages() {
 
   // Render messages in a table.
   echo "\n";
-  b_render_table(array(
+  bee_render_table(array(
     'rows' => $rows,
     'delimiter' => ' ',
     'delimiter_left' => ' ',
@@ -76,7 +76,7 @@ function b_print_messages() {
 /**
  * Display the output of the given command.
  */
-function b_display_output() {
+function bee_display_output() {
   global $output;
   if (!is_array($output)) {
     return;
@@ -90,7 +90,7 @@ function b_display_output() {
     $newline = isset($element['newline']) ? $element['newline'] : TRUE;
 
     // Call the element's render function.
-    $function = "b_render_$type";
+    $function = "bee_render_$type";
     if (function_exists($function)) {
       $function($variables, $newline);
     }
@@ -110,14 +110,14 @@ function b_display_output() {
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
  */
-function b_render_text($variables, $newline = TRUE) {
+function bee_render_text($variables, $newline = TRUE) {
   // Get the text and format options.
   $text = $variables['value'];
   $color = isset($variables['#color']) ? $variables['#color'] : FALSE;
   $bold = isset($variables['#bold']) ? $variables['#bold'] : FALSE;
 
   // Format and output the text.
-  echo b_format_text($text, $color, $bold);
+  echo bee_format_text($text, $color, $bold);
   if ($newline) {
     echo "\n";
   }
@@ -136,7 +136,7 @@ function b_render_text($variables, $newline = TRUE) {
  * @return string
  *   The formatted text.
  */
-function b_format_text($text, $color = FALSE, $bold = FALSE) {
+function bee_format_text($text, $color = FALSE, $bold = FALSE) {
   // Get color codes.
   // @see https://en.wikipedia.org/wiki/ANSI_escape_code#3/4_bit
   $colors = array(
@@ -196,7 +196,7 @@ function b_format_text($text, $color = FALSE, $bold = FALSE) {
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
  */
-function b_render_table($variables, $newline = TRUE) {
+function bee_render_table($variables, $newline = TRUE) {
   // Get variables and set default values.
   $rows = $variables['rows'];
   $header = isset($variables['header']) ? $variables['header'] : array();
@@ -205,18 +205,18 @@ function b_render_table($variables, $newline = TRUE) {
   $delimiter_right = isset($variables['delimiter_right']) ? $variables['delimiter_right'] : ' |';
 
   // Get the width of each column.
-  $column_widths = b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
+  $column_widths = bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right);
 
   // Print the header.
   if (!empty($header)) {
     $rendered_row = array();
 
     foreach ($header as $index => $column) {
-      $rendered_row[] = b_format_column($column, $column_widths[$index]);
+      $rendered_row[] = bee_format_column($column, $column_widths[$index]);
     }
 
     // Invert the colors of the header.
-    b_render_text(array(
+    bee_render_text(array(
       'value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right,
       '#color' => '7',
     ));
@@ -237,15 +237,15 @@ function b_render_table($variables, $newline = TRUE) {
         $column['value'] = mb_substr($column['value'], 0, $column_widths[$index]);
       }
 
-      $rendered_row[] = b_format_column($column, $column_widths[$index]);
+      $rendered_row[] = bee_format_column($column, $column_widths[$index]);
     }
 
-    b_render_text(array('value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right));
+    bee_render_text(array('value' => $delimiter_left . implode($delimiter, $rendered_row) . $delimiter_right));
 
     if ($remaining) {
-      $remaining_rows = b_get_remaining_rows($remaining, $column_widths);
+      $remaining_rows = bee_get_remaining_rows($remaining, $column_widths);
       foreach ($remaining_rows as $remaining_row) {
-        b_render_text(array('value' => $delimiter_left . implode($delimiter, $remaining_row) . $delimiter_right));
+        bee_render_text(array('value' => $delimiter_left . implode($delimiter, $remaining_row) . $delimiter_right));
       }
     }
   }
@@ -258,13 +258,13 @@ function b_render_table($variables, $newline = TRUE) {
 /**
  * Calculate a table's column widths and make sure they fit in the terminal.
  *
- * @see b_render_table() for description of parameters.
+ * @see bee_render_table() for description of parameters.
  *
  * @return array
  *   An associative array of column widths, where the keys are column indexes
  *   (numbered from 0) and the values are widths (in number of characters).
  */
-function b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
+function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delimiter_right) {
   $widths = array();
 
   // Calculate the width of each column in the header.
@@ -322,13 +322,13 @@ function b_get_column_widths($rows, $header, $delimiter, $delimiter_left, $delim
  * @return string
  *   The formatted string for the column.
  */
-function b_format_column($column, $width) {
+function bee_format_column($column, $width) {
   // Get the text and format options.
   $text = $column['value'];
   $color = isset($column['#color']) ? $column['#color'] : FALSE;
   $bold = isset($column['#bold']) ? $column['#bold'] : FALSE;
 
-  $formatted_text = b_format_text($text, $color, $bold);
+  $formatted_text = bee_format_text($text, $color, $bold);
   $color_width = mb_strlen($formatted_text) - mb_strlen($column['value']);
 
   return sprintf('%-' . ($width + $color_width) . 's', $formatted_text);
@@ -342,12 +342,12 @@ function b_format_column($column, $width) {
  *   The remains of the row to be output.
  * @param array $column_widths
  *   An associative array of column widths keyed by index.
- *   @see b_get_column_widths()
+ *   @see bee_get_column_widths()
  *
  * @return array
  *   An array of rows to add to the table.
  */
-function b_get_remaining_rows($row, $column_widths) {
+function bee_get_remaining_rows($row, $column_widths) {
   $rows = array();
   $row_rendered = array();
 
@@ -363,17 +363,17 @@ function b_get_remaining_rows($row, $column_widths) {
         $row = FALSE;
       }
 
-      $row_rendered[$index] = b_format_column($column, $width);
+      $row_rendered[$index] = bee_format_column($column, $width);
     }
     else {
-      $row_rendered[$index] = b_format_column(array('value' => ''), $width);
+      $row_rendered[$index] = bee_format_column(array('value' => ''), $width);
     }
   }
 
   $rows[] = $row_rendered;
 
   if ($row) {
-    $remaining_rows = b_get_remaining_rows($row, $column_widths);
+    $remaining_rows = bee_get_remaining_rows($row, $column_widths);
     foreach ($remaining_rows as $remaining_row) {
       $rows[] = $remaining_row;
     }

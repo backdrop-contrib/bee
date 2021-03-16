@@ -1,6 +1,6 @@
 #!/bin/sh
 ###
-## Shell script to setup Backdrop Console's testing environment.
+## Shell script to setup Bee's testing environment.
 ###
 
 ### Clean-up tasks that get the system back to a clean slate.
@@ -47,7 +47,7 @@ set_up() {
   cd ../multisite
   ./core/scripts/install.sh --url=multi-1.lndo.site --account-pass=password --site-name="Multisite 1" --db-url=mysql://backdrop:backdrop@database/multi_one
   ./core/scripts/install.sh --url=multi-2.lndo.site --account-pass=password --site-name="Multisite 2" --db-url=mysql://backdrop:backdrop@database/multi_two
-  # The `install_test` site isn't installed here, but during a test run.
+  # The `install_test` site is only installed during test runs, not here.
 }
 
 ### Run different tasks depending on any arguments passed to the script.

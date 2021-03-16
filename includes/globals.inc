@@ -7,7 +7,7 @@
 /**
  * Define global variables for storing data needed in various files/functions.
  */
-// A list of all available global options for `b` (e.g. not specific to a
+// A list of all available global options for `bee` (e.g. not specific to a
 // certain command).
 $global_options = array(
   'root' => array(
@@ -68,28 +68,28 @@ $output = array();
  * Define constants for bootstrap phases.
  */
 // 1st phase: Initialize configuration.
-define('B_BOOTSTRAP_CONFIGURATION', 0);
+define('BEE_BOOTSTRAP_CONFIGURATION', 0);
 
 // 2nd phase: Try to serve a cached page.
-define('B_BOOTSTRAP_PAGE_CACHE', 1);
+define('BEE_BOOTSTRAP_PAGE_CACHE', 1);
 
 // 3rd phase: Initialize database layer.
-define('B_BOOTSTRAP_DATABASE', 2);
+define('BEE_BOOTSTRAP_DATABASE', 2);
 
 // 4th phase: Initialize the lock system.
-define('B_BOOTSTRAP_LOCK', 3);
+define('BEE_BOOTSTRAP_LOCK', 3);
 
 // 5th phase: Initialize the variable system.
-define('B_BOOTSTRAP_VARIABLES', 4);
+define('BEE_BOOTSTRAP_VARIABLES', 4);
 
 // 6th phase: Initialize session handling.
-define('B_BOOTSTRAP_SESSION', 5);
+define('BEE_BOOTSTRAP_SESSION', 5);
 
 // 7th phase: Set up the page header.
-define('B_BOOTSTRAP_PAGE_HEADER', 6);
+define('BEE_BOOTSTRAP_PAGE_HEADER', 6);
 
 // 8th phase: Get page language.
-define('B_BOOTSTRAP_LANGUAGE', 7);
+define('BEE_BOOTSTRAP_LANGUAGE', 7);
 
 // 9th phase: Backdrop is fully loaded; validate and fix input data.
-define('B_BOOTSTRAP_FULL', 8);
+define('BEE_BOOTSTRAP_FULL', 8);

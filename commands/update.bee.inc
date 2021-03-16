@@ -5,17 +5,17 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function update_b_command() {
+function update_bee_command() {
   return array(
     'update-db' => array(
       'description' => bt('Show, and optionally apply, all pending database updates.'),
-      'callback' => 'update_db_b_callback',
+      'callback' => 'update_db_bee_callback',
       'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
+        'bee update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
       ),
     ),
   );
@@ -24,7 +24,7 @@ function update_b_command() {
 /**
  * Command callback: Show, and optionally apply, all pending database updates.
  */
-function update_db_b_callback() {
+function update_db_bee_callback() {
   global $backdrop_root;
   $start = array();
   $modules = array();
@@ -36,7 +36,7 @@ function update_db_b_callback() {
   backdrop_load_updates();
   $pending = update_get_update_list();
   if (empty($pending)) {
-    b_message(bt('There are no pending database updates.'), 'info');
+    bee_message(bt('There are no pending database updates.'), 'info');
     return;
   }
 
@@ -45,10 +45,10 @@ function update_db_b_callback() {
     if (!isset($updates['start'])) {
       // Display warning about updates that cannot be run.
       if (!empty($updates['warning'])) {
-        b_message($updates['warning'], 'warning');
+        bee_message($updates['warning'], 'warning');
       }
       else {
-        b_message(bt("'@module' module can not be updated due to unresolved requirements."), 'warning');
+        bee_message(bt("'@module' module can not be updated due to unresolved requirements."), 'warning');
       }
       continue;
     }
@@ -69,7 +69,7 @@ function update_db_b_callback() {
   if (!empty($modules)) {
     echo "\n";
     foreach ($modules as $module => $updates) {
-      b_render_text(array(
+      bee_render_text(array(
         'value' => bt('@module module', array('@module' => $module)),
         '#color' => 'blue',
         '#bold' => TRUE,
@@ -82,11 +82,11 @@ function update_db_b_callback() {
           array('value' => $update['description']),
         );
       }
-      b_render_table(array('rows' => $rows));
+      bee_render_table(array('rows' => $rows));
     }
 
     // Prompt to apply updates.
-    if (!b_confirm(bt('Would you like to apply all pending updates?'))) {
+    if (!bee_confirm(bt('Would you like to apply all pending updates?'))) {
       return;
     }
 
@@ -95,6 +95,6 @@ function update_db_b_callback() {
     $batch = &batch_get();
     $batch['progressive'] = FALSE;
     update_batch($start);
-    b_message(bt('All pending updates applied.'), 'success');
+    bee_message(bt('All pending updates applied.'), 'success');
   }
 }

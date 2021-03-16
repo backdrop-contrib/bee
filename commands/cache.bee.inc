@@ -5,23 +5,23 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function cache_b_command() {
+function cache_bee_command() {
   return array(
     'cache-clear' => array(
       'description' => bt('Clear a specific cache, or all Backdrop caches.'),
-      'callback' => 'cache_clear_b_command',
+      'callback' => 'cache_clear_bee_command',
       'arguments' => array(
         'cache' => bt('The name of the cache to clear. Leave blank to see a list of available caches.'),
       ),
       'optional_arguments' => array('cache'),
       'aliases' => array('cc'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b cache-clear menu' => bt('Clear the menu cache.'),
-        'b cache-clear all' => bt('Clear all caches.'),
-        'b cache-clear' => bt('Select the cache to clear from a list of available ones.'),
+        'bee cache-clear menu' => bt('Clear the menu cache.'),
+        'bee cache-clear all' => bt('Clear all caches.'),
+        'bee cache-clear' => bt('Select the cache to clear from a list of available ones.'),
       ),
     ),
   );
@@ -30,7 +30,7 @@ function cache_b_command() {
 /**
  * Command callback: Clear a specific cache, or all Backdrop caches.
  */
-function cache_clear_b_command($arguments, $options) {
+function cache_clear_bee_command($arguments, $options) {
   // Get a list of all caches.
   $cache_list = array(
     'all' => bt('All'),
@@ -50,7 +50,7 @@ function cache_clear_b_command($arguments, $options) {
     $cache = $arguments['cache'];
   }
   else {
-    $cache = b_choice($cache_list, bt('Select a cache to clear:'), 'all');
+    $cache = bee_choice($cache_list, bt('Select a cache to clear:'), 'all');
   }
 
   // Clear the cache.
@@ -106,7 +106,7 @@ function cache_clear_b_command($arguments, $options) {
   }
 
   // Display success message.
-  b_message(bt('Cache(s) cleared: @cache', array(
+  bee_message(bt('Cache(s) cleared: @cache', array(
     '@cache' => $cache_list[$cache],
   )), 'success');
 }

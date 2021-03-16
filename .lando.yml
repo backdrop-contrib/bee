@@ -1,4 +1,4 @@
-name: b
+name: bee
 recipe: backdrop
 config:
   php: 7.2
@@ -11,8 +11,8 @@ config:
 services:
   appserver:
     build:
-      # Make symlink for `b`.
-      - ln -s /app/b.php /usr/local/bin/b
+      # Make symlink for `bee`.
+      - ln -s /app/bee.php /usr/local/bin/bee
       # Download Backdrop.
       - wget -q --show-progress -O /app/backdrop.zip https://github.com/backdrop/backdrop/archive/1.x.zip
       # Download PHPUnit.
@@ -28,17 +28,17 @@ events:
   pre-rebuild:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
-    # Remove `b` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/b /app/backdrop.zip /app/phpunit
+    # Remove `bee` symlink, Backdrop and PHPUnit.
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
-    # Remove `b` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/b /app/backdrop.zip /app/phpunit
+    # Remove `bee` symlink, Backdrop and PHPUnit.
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
 tooling:
-  b:
+  bee:
     service: appserver
-    cmd: b
+    cmd: bee
   reset:
     service: appserver
     cmd: /app/.lando/setup.sh
@@ -52,7 +52,7 @@ tooling:
   #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
 proxy:
   appserver:
-    - b.lndo.site
+    - bee.lndo.site
   multisite:
     - multi-1.lndo.site
     - multi-2.lndo.site

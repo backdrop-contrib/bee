@@ -5,13 +5,13 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function projects_b_command() {
+function projects_bee_command() {
   return array(
     'projects' => array(
       'description' => bt('Display information about available projects (modules, themes, layouts).'),
-      'callback' => 'projects_b_callback',
+      'callback' => 'projects_bee_callback',
       'arguments' => array(
         'project' => bt('The name of a project to display information for. Leave blank to list information about all projects.'),
       ),
@@ -23,16 +23,16 @@ function projects_b_command() {
         ),
       ),
       'aliases' => array('pml', 'pmi', 'project', 'pm-list', 'pm-info'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b projects webform' => bt('Show information about the Webform module.'),
-        'b projects --type=layout' => bt('Show information about all available layouts.'),
-        'b projects' => bt('Show information about all available projects.'),
+        'bee projects webform' => bt('Show information about the Webform module.'),
+        'bee projects --type=layout' => bt('Show information about all available layouts.'),
+        'bee projects' => bt('Show information about all available projects.'),
       ),
     ),
     'enable' => array(
       'description' => bt('Enable one or more projects (modules, themes, layouts).'),
-      'callback' => 'enable_b_callback',
+      'callback' => 'enable_bee_callback',
       'arguments' => array(
         'projects' => bt('One or more projects to enable.'),
       ),
@@ -43,16 +43,16 @@ function projects_b_command() {
         ),
       ),
       'aliases' => array('en', 'pm-enable'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b enable webform' => bt('Enable the Webform module.'),
-        'b enable --no-dependency-checking rules' => bt('Enable the Rules module, regardless of whether or not its dependencies are available.'),
-        'b enable simplify thesis bamboo' => bt('Enable the Simplify module, Thesis theme, and Bamboo layout.'),
+        'bee enable webform' => bt('Enable the Webform module.'),
+        'bee enable --no-dependency-checking rules' => bt('Enable the Rules module, regardless of whether or not its dependencies are available.'),
+        'bee enable simplify thesis bamboo' => bt('Enable the Simplify module, Thesis theme, and Bamboo layout.'),
       ),
     ),
     'disable' => array(
       'description' => bt('Disable one or more projects (modules, themes, layouts).'),
-      'callback' => 'disable_b_callback',
+      'callback' => 'disable_bee_callback',
       'arguments' => array(
         'projects' => bt('One or more projects to disable.'),
       ),
@@ -63,16 +63,16 @@ function projects_b_command() {
         ),
       ),
       'aliases' => array('dis', 'pm-disable'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b disable webform' => bt('Disable the Webform module.'),
-        'b disable --no-dependency-checking rules' => bt('Disable the Rules module, regardless of whether or not other modules depend on it.'),
-        'b disable simplify thesis bamboo' => bt('Disable the Simplify module, Thesis theme, and Bamboo layout.'),
+        'bee disable webform' => bt('Disable the Webform module.'),
+        'bee disable --no-dependency-checking rules' => bt('Disable the Rules module, regardless of whether or not other modules depend on it.'),
+        'bee disable simplify thesis bamboo' => bt('Disable the Simplify module, Thesis theme, and Bamboo layout.'),
       ),
     ),
     'uninstall' => array(
       'description' => bt('Uninstall one or more modules.'),
-      'callback' => 'uninstall_b_callback',
+      'callback' => 'uninstall_bee_callback',
       'arguments' => array(
         'modules' => bt('One or more modules to uninstall.'),
       ),
@@ -83,35 +83,35 @@ function projects_b_command() {
         ),
       ),
       'aliases' => array('pmu', 'pm-uninstall'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b uninstall webform' => bt('Uninstall the Webform module.'),
-        'b uninstall --no-dependency-checking rules' => bt('Uninstall the Rules module, regardless of whether or not other modules depend on it.'),
-        'b uninstall simplify thesis bamboo' => bt('Uninstall the Simplify module, Thesis theme, and Bamboo layout.'),
+        'bee uninstall webform' => bt('Uninstall the Webform module.'),
+        'bee uninstall --no-dependency-checking rules' => bt('Uninstall the Rules module, regardless of whether or not other modules depend on it.'),
+        'bee uninstall simplify thesis bamboo' => bt('Uninstall the Simplify module, Thesis theme, and Bamboo layout.'),
       ),
     ),
     'theme-default' => array(
       'description' => bt('Set the default theme.'),
-      'callback' => 'theme_default_b_callback',
+      'callback' => 'theme_default_bee_callback',
       'arguments' => array(
         'theme' => bt('The theme to set as the default theme. It will be enabled, if not already.'),
       ),
       'aliases' => array('default-theme'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b theme-default bartik' => bt('Set Bartik as the default theme.'),
+        'bee theme-default bartik' => bt('Set Bartik as the default theme.'),
       ),
     ),
     'theme-admin' => array(
       'description' => bt('Set the admin theme.'),
-      'callback' => 'theme_admin_b_callback',
+      'callback' => 'theme_admin_bee_callback',
       'arguments' => array(
         'theme' => bt('The theme to set as the admin theme. It will be enabled, if not already.'),
       ),
       'aliases' => array('admin-theme'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b theme-admin basis' => bt('Set Basis as the admin theme.'),
+        'bee theme-admin basis' => bt('Set Basis as the admin theme.'),
       ),
     ),
   );
@@ -121,12 +121,12 @@ function projects_b_command() {
  * Command callback: Display information about available projects (modules,
  * themes, layouts).
  */
-function projects_b_callback($arguments, $options) {
+function projects_bee_callback($arguments, $options) {
   $rows = array();
 
   // Show information about a single project.
   if (!empty($arguments['project'])) {
-    return projects_b_show_project($arguments['project']);
+    return projects_bee_show_project($arguments['project']);
   }
 
   // Get module data.
@@ -207,7 +207,7 @@ function projects_b_callback($arguments, $options) {
 /**
  * Command callback: Enable one or more projects (modules, themes, layouts).
  */
-function enable_b_callback($arguments, $options) {
+function enable_bee_callback($arguments, $options) {
   $modules = system_rebuild_module_data();
   $themes = system_rebuild_theme_data();
   $layouts = layout_get_layout_template_info();
@@ -220,8 +220,8 @@ function enable_b_callback($arguments, $options) {
     $success = FALSE;
 
     // Get project type.
-    if (!$type = projects_b_get_type($project)) {
-      b_message(bt("Project '@name' could not be found.", array(
+    if (!$type = projects_bee_get_type($project)) {
+      bee_message(bt("Project '@name' could not be found.", array(
         '@name' => $project,
       )), 'error');
       continue;
@@ -244,7 +244,7 @@ function enable_b_callback($arguments, $options) {
           $success = TRUE;
         }
         else {
-          b_message(bt("The '@name' module could not be enabled due to missing dependencies.", array(
+          bee_message(bt("The '@name' module could not be enabled due to missing dependencies.", array(
             '@name' => $name,
           )), 'error');
         }
@@ -294,7 +294,7 @@ function enable_b_callback($arguments, $options) {
 
     // Display a message if the project was already enabled.
     if ($already_enabled) {
-      b_message(bt("The '@name' @type is already enabled.", array(
+      bee_message(bt("The '@name' @type is already enabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'info');
@@ -302,7 +302,7 @@ function enable_b_callback($arguments, $options) {
 
     // Display a message if the project was successfully enabled.
     if ($success) {
-      b_message(bt("The '@name' @type was enabled.", array(
+      bee_message(bt("The '@name' @type was enabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'success');
@@ -320,7 +320,7 @@ function enable_b_callback($arguments, $options) {
 /**
  * Command callback: Disable one or more projects (modules, themes, layouts).
  */
-function disable_b_callback($arguments, $options) {
+function disable_bee_callback($arguments, $options) {
   $modules = system_rebuild_module_data();
   $themes = system_rebuild_theme_data();
   $layouts = layout_get_layout_template_info();
@@ -333,8 +333,8 @@ function disable_b_callback($arguments, $options) {
     $success = FALSE;
 
     // Get project type.
-    if (!$type = projects_b_get_type($project)) {
-      b_message(bt("Project '@name' could not be found.", array(
+    if (!$type = projects_bee_get_type($project)) {
+      bee_message(bt("Project '@name' could not be found.", array(
         '@name' => $project,
       )), 'error');
       continue;
@@ -400,7 +400,7 @@ function disable_b_callback($arguments, $options) {
 
     // Display a message if the project was already disabled.
     if ($already_disabled) {
-      b_message(bt("The '@name' @type is already disabled.", array(
+      bee_message(bt("The '@name' @type is already disabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'info');
@@ -408,7 +408,7 @@ function disable_b_callback($arguments, $options) {
 
     // Display a message if the project was successfully disabled.
     if ($success) {
-      b_message(bt("The '@name' @type was disabled.", array(
+      bee_message(bt("The '@name' @type was disabled.", array(
         '@name' => $name,
         '@type' => $type,
       )), 'success');
@@ -426,7 +426,7 @@ function disable_b_callback($arguments, $options) {
 /**
  * Command callback: Uninstall one or more modules.
  */
-function uninstall_b_callback($arguments, $options) {
+function uninstall_bee_callback($arguments, $options) {
   $modules = array();
   $uninstall_dependents = !isset($options['no-dependency-checking']);
   $flush_caches = FALSE;
@@ -437,7 +437,7 @@ function uninstall_b_callback($arguments, $options) {
       $modules = system_rebuild_module_data();
     }
     if (!isset($modules[$module_name])) {
-      b_message(bt("The '@name' module could not be found.", array(
+      bee_message(bt("The '@name' module could not be found.", array(
         '@name' => $module_name,
       )), 'error');
       continue;
@@ -446,7 +446,7 @@ function uninstall_b_callback($arguments, $options) {
 
     // Make sure module is disabled.
     if ($module->status) {
-      b_message(bt("The '@name' module is still enabled and so cannot be uninstalled. Disable it and try again.", array(
+      bee_message(bt("The '@name' module is still enabled and so cannot be uninstalled. Disable it and try again.", array(
         '@name' => $module->info['name'],
       )), 'error');
       break;
@@ -454,7 +454,7 @@ function uninstall_b_callback($arguments, $options) {
 
     // Check if already uninstalled.
     if ($module->schema_version == SCHEMA_UNINSTALLED) {
-      b_message(bt("The '@name' module is already uninstalled.", array(
+      bee_message(bt("The '@name' module is already uninstalled.", array(
         '@name' => $module->info['name'],
       )), 'info');
       break;
@@ -462,14 +462,14 @@ function uninstall_b_callback($arguments, $options) {
 
     // Uninstall module.
     if (backdrop_uninstall_modules(array($module_name), $uninstall_dependents)) {
-      b_message(bt("The '@name' module was uninstalled.", array(
+      bee_message(bt("The '@name' module was uninstalled.", array(
         '@name' => $module->info['name'],
       )), 'success');
 
       $flush_caches = TRUE;
     }
     else {
-      b_message(bt("The '@name' module could not be uninstalled as other enabled modules depend on it.", array(
+      bee_message(bt("The '@name' module could not be uninstalled as other enabled modules depend on it.", array(
         '@name' => $module->info['name'],
       )), 'error');
     }
@@ -484,12 +484,12 @@ function uninstall_b_callback($arguments, $options) {
 /**
  * Command callback: Set the default theme.
  */
-function theme_default_b_callback($arguments, $options) {
+function theme_default_bee_callback($arguments, $options) {
   // Get theme info.
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    b_message(bt("The '@name' theme could not be found.", array(
+    bee_message(bt("The '@name' theme could not be found.", array(
       '@name' => $theme_name,
     )), 'error');
     return;
@@ -505,7 +505,7 @@ function theme_default_b_callback($arguments, $options) {
   config_set('system.core', 'theme_default', $theme_name);
 
   // Display success message.
-  b_message(bt("'@name' was set as the default theme.", array(
+  bee_message(bt("'@name' was set as the default theme.", array(
     '@name' => $theme->info['name'],
   )), 'success');
 
@@ -516,12 +516,12 @@ function theme_default_b_callback($arguments, $options) {
 /**
  * Command callback: Set the admin theme.
  */
-function theme_admin_b_callback($arguments, $options) {
+function theme_admin_bee_callback($arguments, $options) {
   // Get theme info.
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    b_message(bt("The '@name' theme could not be found.", array(
+    bee_message(bt("The '@name' theme could not be found.", array(
       '@name' => $theme_name,
     )), 'error');
     return;
@@ -537,7 +537,7 @@ function theme_admin_b_callback($arguments, $options) {
   config_set('system.core', 'admin_theme', $theme_name);
 
   // Display success message.
-  b_message(bt("'@name' was set as the admin theme.", array(
+  bee_message(bt("'@name' was set as the admin theme.", array(
     '@name' => $theme->info['name'],
   )), 'success');
 
@@ -548,15 +548,15 @@ function theme_admin_b_callback($arguments, $options) {
 /**
  * Show information about a single project.
  */
-function projects_b_show_project($project) {
+function projects_bee_show_project($project) {
   $modules = system_rebuild_module_data();
   $themes = system_rebuild_theme_data();
   $layouts = layout_get_layout_template_info();
   $rows = array();
 
   // Get project type.
-  if (!$type = projects_b_get_type($project)) {
-    b_message(bt("Project '@name' could not be found.", array(
+  if (!$type = projects_bee_get_type($project)) {
+    bee_message(bt("Project '@name' could not be found.", array(
       '@name' => $project,
     )), 'error');
     return;
@@ -689,7 +689,7 @@ function projects_b_show_project($project) {
 /**
  * Get a project's type (i.e. module, theme or layout).
  */
-function projects_b_get_type($project) {
+function projects_bee_get_type($project) {
   // Get the type from the `system` table.
   $type = db_query('SELECT type FROM {system} WHERE name = :name;', array(
     ':name' => $project,

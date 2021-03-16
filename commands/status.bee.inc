@@ -5,13 +5,13 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function status_b_command() {
+function status_bee_command() {
   return array(
     'status' => array(
       'description' => bt('Provides an overview of the current Backdrop installation/site.'),
-      'callback' => 'status_b_callback',
+      'callback' => 'status_bee_callback',
       'options' => array(
         'show-password' => array(
           'description' => bt('Show the database password.'),
@@ -19,8 +19,8 @@ function status_b_command() {
       ),
       'aliases' => array('st', 'info', 'core-status'),
       'examples' => array(
-        'b status' => bt('Get an overview of the Backdrop installation.'),
-        'b status --show-password' => bt('Include the database password in the overview.'),
+        'bee status' => bt('Get an overview of the Backdrop installation.'),
+        'bee status --show-password' => bt('Include the database password in the overview.'),
       ),
     ),
   );
@@ -30,7 +30,7 @@ function status_b_command() {
  * Command callback: Provides an overview of the current Backdrop
  * installation/site.
  */
-function status_b_callback($arguments, $options) {
+function status_bee_callback($arguments, $options) {
   global $backdrop_root, $backdrop_site, $multisites;
   $rows = array();
 
@@ -105,6 +105,6 @@ function status_b_callback($arguments, $options) {
   }
   else {
     // No Backdrop root found.
-    b_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'warning');
+    bee_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'warning');
   }
 }

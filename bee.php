@@ -6,7 +6,7 @@
  */
 
 // Set custom error handler.
-set_error_handler('b_error_handler');
+set_error_handler('bee_error_handler');
 
 // Include files.
 require_once __DIR__ . '/includes/miscellaneous.inc';
@@ -17,16 +17,16 @@ require_once __DIR__ . '/includes/input.inc';
 require_once __DIR__ . '/includes/globals.inc';
 
 // Main execution code.
-b_initialize_server();
-b_parse_input();
-b_initialize_console();
-b_process_command();
-b_print_messages();
-b_display_output();
+bee_initialize_server();
+bee_parse_input();
+bee_initialize_console();
+bee_process_command();
+bee_print_messages();
+bee_display_output();
 exit();
 
 /**
- * Custom error handler for `b`.
+ * Custom error handler for `bee`.
  *
  * @param int $errno
  *   The level of the error.
@@ -41,7 +41,7 @@ exit();
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function b_error_handler($errno, $message, $filename, $line, $context) {
+function bee_error_handler($errno, $message, $filename, $line, $context) {
   if (error_reporting() > 0) {
     echo "$message\n";
     echo " $filename:$line\n\n";

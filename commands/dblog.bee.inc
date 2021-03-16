@@ -5,13 +5,13 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function dblog_b_command() {
+function dblog_bee_command() {
   return array(
     'log' => array(
       'description' => bt('Show database log messages.'),
-      'callback' => 'log_show_b_callback',
+      'callback' => 'log_show_bee_callback',
       'arguments' => array(
         'id' => bt('The ID of a log message to display in detail. Leave blank to list summaries of the most recent log messages.'),
       ),
@@ -31,11 +31,11 @@ function dblog_b_command() {
         ),
       ),
       'aliases' => array('ws', 'dblog', 'watchdog-show'),
-      'bootstrap' => B_BOOTSTRAP_FULL,
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'b log 3551' => bt("Show details about the log message with ID '3551'."),
-        'b log --count=25 --severity=error --type=php' => bt('Show the 25 latest PHP errors.'),
-        'b log' => bt('Show the latest 10 log messages.'),
+        'bee log 3551' => bt("Show details about the log message with ID '3551'."),
+        'bee log --count=25 --severity=error --type=php' => bt('Show the 25 latest PHP errors.'),
+        'bee log' => bt('Show the latest 10 log messages.'),
       ),
     ),
   );
@@ -44,10 +44,10 @@ function dblog_b_command() {
 /**
  * Command callback: Show database log messages.
  */
-function log_show_b_callback($arguments, $options) {
+function log_show_bee_callback($arguments, $options) {
   if (empty($arguments['id'])) {
     // Show multiple log messages.
-    return dblog_b_show_messages($options);
+    return dblog_bee_show_messages($options);
   }
   else {
     // Show one log message.
@@ -56,7 +56,7 @@ function log_show_b_callback($arguments, $options) {
     ))->fetchAssoc();
 
     if (!$message) {
-      b_message(bt('Log message #@id could not be found.', array(
+      bee_message(bt('Log message #@id could not be found.', array(
         '@id' => $arguments['id'],
       )), 'error');
       return;
@@ -78,7 +78,7 @@ function log_show_b_callback($arguments, $options) {
       ),
       array(
         array('value' => bt('Message')),
-        array('value' => dblog_b_get_message($message)),
+        array('value' => dblog_bee_get_message($message)),
       ),
     );
 
@@ -100,7 +100,7 @@ function log_show_b_callback($arguments, $options) {
 /**
  * Display a list of the latest log messages.
  */
-function dblog_b_show_messages($options) {
+function dblog_bee_show_messages($options) {
   $severity_levels = watchdog_severity_levels();
 
   // Set default value.
@@ -132,7 +132,7 @@ function dblog_b_show_messages($options) {
       array('value' => format_date($message['timestamp'], 'short')),
       array('value' => $message['type']),
       array('value' => backdrop_ucfirst($severity_levels[$message['severity']])),
-      array('value' => dblog_b_get_message($message)),
+      array('value' => dblog_bee_get_message($message)),
     );
   }
 
@@ -159,7 +159,7 @@ function dblog_b_show_messages($options) {
 /**
  * Prepare a log message for output.
  */
-function dblog_b_get_message($data) {
+function dblog_bee_get_message($data) {
   $variables = $data['variables'];
   $message = $data['message'];
 

@@ -15,7 +15,7 @@
  * @return bool
  *   TRUE if the user enters "y", FALSE if "n".
  */
-function b_confirm($question, $default = FALSE) {
+function bee_confirm($question, $default = FALSE) {
   global $yes_mode;
 
   // Set the default option.
@@ -27,7 +27,7 @@ function b_confirm($question, $default = FALSE) {
   }
 
   // Display the question.
-  b_render_text(array(
+  bee_render_text(array(
     'value' => $question . $options,
     '#color' => 'cyan',
     '#bold' => TRUE,
@@ -35,7 +35,7 @@ function b_confirm($question, $default = FALSE) {
 
   // Return TRUE if `yes_mode` is enabled.
   if ($yes_mode) {
-    b_render_text(array('value' => 'y'));
+    bee_render_text(array('value' => 'y'));
     return TRUE;
   }
 
@@ -53,11 +53,11 @@ function b_confirm($question, $default = FALSE) {
     case '':
       return $default;
     default:
-      b_render_text(array(
+      bee_render_text(array(
         'value' => bt("Invalid input. Please enter either 'y' or 'n', or press Enter to accept the default."),
         '#color' => 'red',
       ));
-      return b_confirm($question, $default);
+      return bee_confirm($question, $default);
   }
 }
 
@@ -81,7 +81,7 @@ function b_confirm($question, $default = FALSE) {
  * @return mixed
  *   The array key of the selected option.
  */
-function b_choice($options, $message, $default, $repeat = FALSE) {
+function bee_choice($options, $message, $default, $repeat = FALSE) {
   $keys = array_keys($options);
   $rows = array();
 
@@ -99,20 +99,20 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
 
   // Display the message and options.
   if (!$repeat) {
-    b_render_text(array(
+    bee_render_text(array(
       'value' => $message,
       '#color' => 'cyan',
       '#bold' => TRUE,
     ), TRUE);
     echo "\n";
-    b_render_table(array(
+    bee_render_table(array(
       'rows' => $rows,
       'delimiter' => ' ',
       'delimiter_left' => ' ',
       'delimiter_right' => ' ',
     ), TRUE);
   }
-  b_render_text(array('value' => bt('Enter a number: ')), FALSE);
+  bee_render_text(array('value' => bt('Enter a number: ')), FALSE);
 
   // Get answer from user.
   $answer = trim(fgets(STDIN));
@@ -129,11 +129,11 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
   }
 
   // Prompt the user for input again.
-  b_render_text(array(
+  bee_render_text(array(
     'value' => bt('Invalid input. Please enter a number corresponding to the options above, or press Enter to accept the [default] option.'),
     '#color' => 'red',
   ));
-  return b_choice($options, $message, $default, TRUE);
+  return bee_choice($options, $message, $default, TRUE);
 }
 
 /**
@@ -157,7 +157,7 @@ function b_choice($options, $message, $default, $repeat = FALSE) {
  *   The user's raw input, or the value of $default. NOTE: it is the calling
  *   functions job to sanitize this text appropriately prior to using it.
  */
-function b_input($message, $default = '', $required = FALSE) {
+function bee_input($message, $default = '', $required = FALSE) {
   // Add the default value in brackets (if any).
   if (!empty($default)) {
     $message .= " [$default]";
@@ -165,7 +165,7 @@ function b_input($message, $default = '', $required = FALSE) {
   $message .= ': ';
 
   // Display the message.
-  b_render_text(array(
+  bee_render_text(array(
     'value' => $message,
     '#color' => 'cyan',
     '#bold' => TRUE,
@@ -185,9 +185,9 @@ function b_input($message, $default = '', $required = FALSE) {
   }
 
   // Prompt the user for input again.
-  b_render_text(array(
+  bee_render_text(array(
     'value' => bt('Invalid input. This answer is required and cannot be left empty. Please try again.'),
     '#color' => 'red',
   ));
-  return b_input($message, $default, TRUE);
+  return bee_input($message, $default, TRUE);
 }

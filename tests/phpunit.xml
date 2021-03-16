@@ -1,7 +1,7 @@
 <phpunit colors="true" testdox="true">
   <testsuites>
     <testsuite name="backdrop">
-      <file>backdrop/bCoreTest.php</file>
+      <file>backdrop/BeeCoreTest.php</file>
       <file>backdrop/CacheCommandsTest.php</file>
       <file>backdrop/ConfigCommandsTest.php</file>
       <file>backdrop/CronCommandsTest.php</file>

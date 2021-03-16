@@ -1,19 +1,19 @@
 <?php
 /**
  * @file
- * PHPUnit tests for core Backdrop Console functionality.
+ * PHPUnit tests for core Bee functionality.
  */
 
 use PHPUnit\Framework\TestCase;
 
-class bCoreTest extends TestCase {
+class BeeCoreTest extends TestCase {
 
   /**
-   * Make sure that `b` is installed correctly.
+   * Make sure that `bee` is installed correctly.
    */
-  public function test_b_is_installed_correctly() {
+  public function test_bee_is_installed_correctly() {
     // A '0' exit status means success.
-    exec('b', $output, $result);
+    exec('bee', $output, $result);
     $this->assertEquals(0, $result);
   }
 
@@ -22,7 +22,7 @@ class bCoreTest extends TestCase {
    */
   public function test_unknown_command_triggers_an_error() {
     $command = 'spoon';
-    $output = shell_exec("b $command");
+    $output = shell_exec("bee $command");
     $this->assertStringContainsString("There is no '$command' command.", $output);
   }
 
@@ -31,7 +31,7 @@ class bCoreTest extends TestCase {
    */
   public function test_missing_required_argument_triggers_an_error() {
     // `config-get` has a required argument: 'file'.
-    $output = shell_exec('b config-get');
+    $output = shell_exec('bee config-get');
     $this->assertStringContainsString("Argument 'file' is required.", $output);
   }
 
@@ -40,22 +40,22 @@ class bCoreTest extends TestCase {
    */
   public function test_commands_can_be_called_via_an_alias() {
     // `st` is an alias for `status`.
-    $output_command = shell_exec('b status');
-    $output_alias = shell_exec('b st');
+    $output_command = shell_exec('bee status');
+    $output_alias = shell_exec('bee st');
     $this->assertEquals($output_command, $output_alias);
   }
 
   /**
    * Make sure that the `--root` option works.
    *
-   * Test running `b` from outside the installation without the '--root' option,
-   * and then with the '--root' option.
+   * Test running `bee` from outside the installation without the '--root'
+   * option, and then with the '--root' option.
    */
   public function test_root_global_option_works() {
-    $output_no_root = shell_exec('cd ../ && b status');
+    $output_no_root = shell_exec('cd ../ && bee status');
     $this->assertStringContainsString('No Backdrop installation found.', $output_no_root);
 
-    $output_root = shell_exec('cd ../ && b --root=backdrop status');
+    $output_root = shell_exec('cd ../ && bee --root=backdrop status');
     $this->assertStringNotContainsString('No Backdrop installation found.', $output_root);
   }
 
@@ -63,17 +63,17 @@ class bCoreTest extends TestCase {
    * Make sure that the `--yes/--y` options work.
    */
   public function test_yes_global_option_works() {
-    $file = 'backdrop.console';
+    $file = 'bee.test';
     $option = 'foo';
     $value = 'bar';
 
-    $output_yes = shell_exec("b config-set --yes $file $option $value");
+    $output_yes = shell_exec("bee config-set --yes $file $option $value");
     $this->assertStringContainsString("The '$file' config file doesn't exist.", $output_yes);
     $this->assertStringContainsString("'$option' was set to '$value'.", $output_yes);
 
     $file2 = $file . '2';
 
-    $output_y = shell_exec("b config-set --y $file2 $option $value");
+    $output_y = shell_exec("bee config-set --y $file2 $option $value");
     $this->assertStringContainsString("The '$file2' config file doesn't exist.", $output_y);
     $this->assertStringContainsString("'$option' was set to '$value'.", $output_y);
 
@@ -88,10 +88,10 @@ class bCoreTest extends TestCase {
    * Make sure that the `--debug/--d` options work.
    */
   public function test_debug_global_option_works() {
-    $output_debug = shell_exec("b status --debug");
+    $output_debug = shell_exec("bee status --debug");
     $this->assertStringContainsString("'Debug' mode enabled.", $output_debug);
 
-    $output_d = shell_exec("b status --d");
+    $output_d = shell_exec("bee status --d");
     $this->assertStringContainsString("'Debug' mode enabled.", $output_d);
   }
 

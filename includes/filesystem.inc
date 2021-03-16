@@ -17,7 +17,7 @@
  *   The path to the root directory of Backdrop, or FALSE if no Backdrop
  *   installation was found.
  */
-function b_find_root($path, $recursive = TRUE) {
+function bee_find_root($path, $recursive = TRUE) {
   // Make sure we have a valid dir path.
   if (!empty($path) && is_dir($path)) {
     // Check if this is Backdrop's root dir.
@@ -29,12 +29,12 @@ function b_find_root($path, $recursive = TRUE) {
       $path = dirname($path);
       if (!in_array($path, array('/', '.'))) {
         // Check the parent path.
-        return b_find_root($path);
+        return bee_find_root($path);
       }
     }
   }
   else {
-    b_message(bt('@path is not a valid directory.', array(
+    bee_message(bt('@path is not a valid directory.', array(
       '@path' => $path,
     )), 'error');
   }
@@ -51,7 +51,7 @@ function b_find_root($path, $recursive = TRUE) {
  *   multisite installation, or FALSE if it's a regular (non-multisite)
  *   installation.
  */
-function b_is_multisite() {
+function bee_is_multisite() {
   global $backdrop_root;
   $sites_php = $backdrop_root . '/sites/sites.php';
 
@@ -79,7 +79,7 @@ function b_is_multisite() {
  *   The site directory, as defined in `sites.php`, or FALSE if no site was
  *   found.
  */
-function b_find_site_by_site($site) {
+function bee_find_site_by_site($site) {
   global $backdrop_root, $multisites;
 
   if ($multisites) {
@@ -90,14 +90,14 @@ function b_find_site_by_site($site) {
       return $site;
     }
     else {
-      b_message(bt('@site could not be found in @root/sites/sites.php.', array(
+      bee_message(bt('@site could not be found in @root/sites/sites.php.', array(
         '@site' => $site,
         '@root' => $backdrop_root,
       )), 'error');
     }
   }
   else {
-    b_message(bt('@root/sites/sites.php could not be found or is empty.', array(
+    bee_message(bt('@root/sites/sites.php could not be found or is empty.', array(
       '@root' => $backdrop_root,
     )), 'error');
   }
@@ -114,7 +114,7 @@ function b_find_site_by_site($site) {
  * @return string|false
  *   The site directory, or FALSE if no site was found.
  */
-function b_find_site_by_path($path) {
+function bee_find_site_by_path($path) {
   global $backdrop_root;
 
   // Make sure we have a valid dir path.
@@ -131,12 +131,12 @@ function b_find_site_by_path($path) {
       $path = dirname($path);
       if (!in_array($path, array('/', '.'))) {
         // Check the parent path.
-        return b_find_site_by_path($path);
+        return bee_find_site_by_path($path);
       }
     }
   }
   else {
-    b_message(bt('@path is not a valid directory.', array(
+    bee_message(bt('@path is not a valid directory.', array(
       '@path' => $path,
     )), 'error');
   }
@@ -154,10 +154,10 @@ function b_find_site_by_path($path) {
  * - The line: `$uri = file_stream_wrapper_uri_normalize($uri);` has been
  *   commented out since `file_stream_wrapper_uri_normalize()` is a Backdrop
  *   function and it calls other Backdrop functions.
- * - The recursive call to `file_scan_directory()` has been changed to this `b`
- *   specific version.
+ * - The recursive call to `file_scan_directory()` has been changed to this
+ *   `bee` specific version.
  */
-function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
+function bee_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
   // By default, do not check for files in common special-purpose directories.
   $ignore_directories = array(
     'node_modules',
@@ -183,7 +183,7 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
         // $uri = file_stream_wrapper_uri_normalize($uri);
         if (is_dir($uri) && $options['recurse']) {
           // Give priority to files in this folder by merging them in after any subdirectory files.
-          $files = array_merge(b_file_scan_directory($uri, $mask, $options, $depth + 1), $files);
+          $files = array_merge(bee_file_scan_directory($uri, $mask, $options, $depth + 1), $files);
         }
         elseif ($depth >= $options['min_depth'] && preg_match($mask, $filename)) {
           // Always use this match over anything already set in $files with the
@@ -217,7 +217,7 @@ function b_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
  *   The path to a subfolder in the first matching temporary directory, or FALSE
  *   if the folder could not be found/created.
  */
-function b_get_temp($prefix = '') {
+function bee_get_temp($prefix = '') {
   static $temp = FALSE;
 
   if (!$temp) {
@@ -263,7 +263,7 @@ function b_get_temp($prefix = '') {
  *
  * @see https://stackoverflow.com/a/3349792/4168619
  */
-function b_delete($path) {
+function bee_delete($path) {
   // Delete files.
   if (is_file($path)) {
     return unlink($path);
@@ -290,14 +290,14 @@ function b_delete($path) {
 
   // Log a message if the file/directory doesn't exist (but return TRUE anyway).
   if (!file_exists($path)) {
-    b_message(bt("'@path' was not deleted because it doesn't exist.", array(
+    bee_message(bt("'@path' was not deleted because it doesn't exist.", array(
       '@path' => $path,
     )), 'log');
     return TRUE;
   }
 
   // Display an error for non-files/directories.
-  b_message(bt("'@path' was not deleted because it is not a recognized type.", array(
+  bee_message(bt("'@path' was not deleted because it is not a recognized type.", array(
     '@path' => $path,
   )), 'error');
   return FALSE;
@@ -321,7 +321,7 @@ function b_delete($path) {
  *
  * @see https://stackoverflow.com/a/2050909/4168619
  */
-function b_copy($source, $destination, $self = TRUE) {
+function bee_copy($source, $destination, $self = TRUE) {
   // Copy source directory too.
   if (is_dir($source) && $self) {
     $destination .= '/' . basename(realpath($source));
@@ -330,7 +330,7 @@ function b_copy($source, $destination, $self = TRUE) {
   // Create the destination directory.
   if (!file_exists($destination)) {
     if (!mkdir($destination)) {
-      b_message(bt("The destination '@destination' doesn't exist and could not be created.", array(
+      bee_message(bt("The destination '@destination' doesn't exist and could not be created.", array(
         '@destination' => $destination,
       )), 'error');
       return FALSE;
@@ -338,7 +338,7 @@ function b_copy($source, $destination, $self = TRUE) {
   }
   // Make sure the destination is actually a directory.
   elseif (!is_dir($destination)) {
-    b_message(bt("The destination '@destination' is not a directory.", array(
+    bee_message(bt("The destination '@destination' is not a directory.", array(
       '@destination' => $destination,
     )), 'error');
     return FALSE;
@@ -350,7 +350,7 @@ function b_copy($source, $destination, $self = TRUE) {
     while (($file = readdir($directory)) !== FALSE) {
       if ($file != '.' && $file != '..') {
         if (is_dir("$source/$file")) {
-          b_copy("$source/$file", "$destination/$file", FALSE);
+          bee_copy("$source/$file", "$destination/$file", FALSE);
         }
         else {
           copy("$source/$file", "$destination/$file");
@@ -362,7 +362,7 @@ function b_copy($source, $destination, $self = TRUE) {
   else {
     // Copy a single file.
     if (!copy($source, $destination)) {
-      b_message(bt("Failed to copy '@source' to '@destination'.", array(
+      bee_message(bt("Failed to copy '@source' to '@destination'.", array(
         '@source' => $source,
         '@destination' => $destination,
       )), 'error');

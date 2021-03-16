@@ -5,13 +5,13 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function install_b_command() {
+function install_bee_command() {
   return array(
     'install' => array(
       'description' => bt('Install Backdrop and setup a new site.'),
-      'callback' => 'install_b_callback',
+      'callback' => 'install_bee_callback',
       'options' => array(
         'db' => array(
           'description' => bt("A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://api.backdropcms.org/database-configuration for more details."),
@@ -58,9 +58,9 @@ function install_b_command() {
       ),
       'aliases' => array('si', 'site-install'),
       'examples' => array(
-        'b install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
-        'b install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
-        'b install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
+        'bee install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
+        'bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
+        'bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
       ),
     ),
   );
@@ -69,13 +69,13 @@ function install_b_command() {
 /**
  * Command callback: Install Backdrop and setup a new site.
  */
-function install_b_callback($arguments, $options) {
+function install_bee_callback($arguments, $options) {
   global $backdrop_root, $backdrop_site, $multisites;
   $prompt = empty($options['auto']);
 
   // Make sure $backdrop_root is set.
   if (empty($backdrop_root)) {
-    b_message(bt("The install script could not be found. Re-run the command from within a Backdrop installation, or set the global '--root' option."), 'error');
+    bee_message(bt("The install script could not be found. Re-run the command from within a Backdrop installation, or set the global '--root' option."), 'error');
     return;
   }
 
@@ -84,10 +84,10 @@ function install_b_callback($arguments, $options) {
     $db = $options['db'];
   }
   else {
-    $db_name = b_check_plain(b_input(bt('Database name'), '', TRUE));
-    $db_username = b_check_plain(b_input(bt('Database username'), '', TRUE));
-    $db_password = b_check_plain(b_input(bt('Database password'), '', TRUE));
-    $db_host = b_check_plain(b_input(bt('Database host'), 'localhost', TRUE));
+    $db_name = bee_check_plain(bee_input(bt('Database name'), '', TRUE));
+    $db_username = bee_check_plain(bee_input(bt('Database username'), '', TRUE));
+    $db_password = bee_check_plain(bee_input(bt('Database password'), '', TRUE));
+    $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
     $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
   $db = "--db-url=$db";
@@ -97,7 +97,7 @@ function install_b_callback($arguments, $options) {
     $db_prefix = $options['db-prefix'];
   }
   else {
-    $db_prefix = ($prompt) ? b_check_plain(b_input(bt('Database prefix'), '')) : '';
+    $db_prefix = ($prompt) ? bee_check_plain(bee_input(bt('Database prefix'), '')) : '';
   }
   $db_prefix = "--db-prefix=$db_prefix";
 
@@ -106,7 +106,7 @@ function install_b_callback($arguments, $options) {
     $username = $options['username'];
   }
   else {
-    $username = ($prompt) ? b_check_plain(b_input(bt('Admin username'), 'admin', TRUE)) : 'admin';
+    $username = ($prompt) ? bee_check_plain(bee_input(bt('Admin username'), 'admin', TRUE)) : 'admin';
   }
   $username = "--account-name='$username'";
 
@@ -116,7 +116,7 @@ function install_b_callback($arguments, $options) {
     $password = $options['password'];
   }
   else {
-    $password = ($prompt) ? b_check_plain(b_input(bt('Admin password'), $random, TRUE)) : $random;
+    $password = ($prompt) ? bee_check_plain(bee_input(bt('Admin password'), $random, TRUE)) : $random;
   }
   $show_password = ($password == $random) ? TRUE : FALSE;
   $password = "--account-pass=$password";
@@ -126,7 +126,7 @@ function install_b_callback($arguments, $options) {
     $email = $options['email'];
   }
   else {
-    $email = ($prompt) ? b_check_plain(b_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
+    $email = ($prompt) ? bee_check_plain(bee_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
   $email = "--account-name=$email";
 
@@ -135,7 +135,7 @@ function install_b_callback($arguments, $options) {
     $site_name = $options['site-name'];
   }
   else {
-    $site_name = ($prompt) ? b_check_plain(b_input(bt('Site name'), 'My Backdrop Site', TRUE)) : 'My Backdrop Site';
+    $site_name = ($prompt) ? bee_check_plain(bee_input(bt('Site name'), 'My Backdrop Site', TRUE)) : 'My Backdrop Site';
   }
   $site_name = "--site-name='$site_name'";
 
@@ -144,7 +144,7 @@ function install_b_callback($arguments, $options) {
     $site_mail = $options['site-mail'];
   }
   else {
-    $site_mail = ($prompt) ? b_check_plain(b_input(bt('Site mail'), 'admin@example.com', TRUE)) : 'admin@example.com';
+    $site_mail = ($prompt) ? bee_check_plain(bee_input(bt('Site mail'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
   $site_mail = "--site-mail=$site_mail";
 
@@ -153,7 +153,7 @@ function install_b_callback($arguments, $options) {
     $langcode = $options['langcode'];
   }
   else {
-    $langcode = ($prompt) ? b_check_plain(b_input(bt('Language code'), 'en', TRUE)) : 'en';
+    $langcode = ($prompt) ? bee_check_plain(bee_input(bt('Language code'), 'en', TRUE)) : 'en';
   }
   $langcode = "--langcode=$langcode";
 
@@ -166,7 +166,7 @@ function install_b_callback($arguments, $options) {
     $profile = $options['profile'];
   }
   else {
-    $profile = ($prompt) ? b_check_plain(b_input(bt('Install profile'), 'standard', TRUE)) : 'standard';
+    $profile = ($prompt) ? bee_check_plain(bee_input(bt('Install profile'), 'standard', TRUE)) : 'standard';
   }
 
   // Get multisite site URL.
@@ -177,11 +177,11 @@ function install_b_callback($arguments, $options) {
 
   // Run the install script.
   $result = exec("cd $backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
-  b_render_text(array('value' => $result));
+  bee_render_text(array('value' => $result));
 
   // Show the randomly-generated password.
   if (strpos($result, 'successfully') !== FALSE && $show_password) {
-    b_render_text(array('value' => bt('The randomly-generated admin password is: ' . $random)), FALSE);
+    bee_render_text(array('value' => bt('The randomly-generated admin password is: ' . $random)), FALSE);
   }
 }
 
@@ -192,6 +192,6 @@ function install_b_callback($arguments, $options) {
  *
  * Copied here so it can be used while the Backdrop site is being installed.
  */
-function b_check_plain($text) {
+function bee_check_plain($text) {
   return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }

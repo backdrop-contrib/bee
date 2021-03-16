@@ -5,33 +5,33 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function help_b_command() {
+function help_bee_command() {
   return array(
     'help' => array(
-      'description' => bt("Provide help and examples for 'b' and its commands."),
-      'callback' => 'help_b_callback',
+      'description' => bt("Provide help and examples for 'bee' and its commands."),
+      'callback' => 'help_bee_callback',
       'arguments' => array(
-        'command' => bt("The command to display help for. Leave blank to display help for 'b' itself."),
+        'command' => bt("The command to display help for. Leave blank to display help for 'bee' itself."),
       ),
       'optional_arguments' => array('command'),
       'examples' => array(
-        'b help status' => bt("Display help for the 'status' command."),
-        'b help' => bt("Display help for 'b' itself."),
+        'bee help status' => bt("Display help for the 'status' command."),
+        'bee help' => bt("Display help for 'bee' itself."),
       ),
     ),
   );
 }
 
 /**
- * Command callback: Provide help and examples for 'b' and its commands.
+ * Command callback: Provide help and examples for 'bee' and its commands.
  */
-function help_b_callback($arguments, $options) {
+function help_bee_callback($arguments, $options) {
   global $global_options, $command_aliases;
 
   // Get all commands and sort them alphabetically.
-  $commands = b_all_commands();
+  $commands = bee_all_commands();
   ksort($commands);
 
   // Display help for the given command.
@@ -45,7 +45,7 @@ function help_b_callback($arguments, $options) {
 
     // Make sure the command exists.
     if (!isset($commands[$command])) {
-      b_message(bt("Cannot display help for '@command' as it doesn't exist.", array(
+      bee_message(bt("Cannot display help for '@command' as it doesn't exist.", array(
         '@command' => $command,
       )), 'error');
       return;
@@ -54,10 +54,10 @@ function help_b_callback($arguments, $options) {
     // Add the name of the command so it can be retrieved later.
     $commands[$command]['command'] = $command;
 
-    return help_b_command_help($commands[$command]);
+    return help_bee_command_help($commands[$command]);
   }
 
-  // Otherwise display help for 'b' itself.
+  // Otherwise display help for 'bee' itself.
   $option_rows = array();
   $command_rows = array();
 
@@ -107,14 +107,14 @@ function help_b_callback($arguments, $options) {
     array(
       'type' => 'text',
       'variables' => array(
-        'value' => bt('Backdrop Console'),
+        'value' => bt('Bee'),
         '#bold' => TRUE,
       ),
     ),
     array(
       'type' => 'text',
       'variables' => array(
-        'value' => bt('Usage: b [global-options] <command> [options] [arguments]') . "\n",
+        'value' => bt('Usage: bee [global-options] <command> [options] [arguments]') . "\n",
       ),
     ),
     array(
@@ -157,9 +157,9 @@ function help_b_callback($arguments, $options) {
  *
  * @param array $descriptor
  *   A command descriptor. See the documentation for the return value of
- *   HOOK_b_command() for more details.
+ *   HOOK_bee_command() for more details.
  */
-function help_b_command_help($descriptor) {
+function help_bee_command_help($descriptor) {
   global $command_aliases;
   $aliases = array_keys($command_aliases, $descriptor['command']);
 

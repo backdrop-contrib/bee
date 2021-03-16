@@ -5,13 +5,13 @@
  */
 
 /**
- * Implements hook_b_command().
+ * Implements hook_bee_command().
  */
-function download_b_command() {
+function download_bee_command() {
   return array(
     'download' => array(
       'description' => bt('Download Backdrop contrib projects.'),
-      'callback' => 'download_b_callback',
+      'callback' => 'download_bee_callback',
       'arguments' => array(
         'projects' => bt('One or more contrib projects to download.'),
       ),
@@ -23,14 +23,14 @@ function download_b_command() {
       ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
-        'b download webform' => bt('Download the Webform module.'),
-        'b download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
-        'b download devel --hide-progress' => bt("Download the Devel module, and don't show the download progress bar."),
+        'bee download webform' => bt('Download the Webform module.'),
+        'bee download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
+        'bee download devel --hide-progress' => bt("Download the Devel module, and don't show the download progress bar."),
       ),
     ),
     'download-core' => array(
       'description' => bt('Download Backdrop core.'),
-      'callback' => 'download_core_b_callback',
+      'callback' => 'download_core_bee_callback',
       'arguments' => array(
         'directory' => bt('The directory to download and extract Backdrop into. Leave blank to use the current directory.'),
       ),
@@ -42,8 +42,8 @@ function download_b_command() {
       ),
       'aliases' => array('dl-core'),
       'examples' => array(
-        'b download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
-        'b download-core --hide-progress' => bt("Download Backdrop into the current directory, and don't show the download progress bar."),
+        'bee download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
+        'bee download-core --hide-progress' => bt("Download Backdrop into the current directory, and don't show the download progress bar."),
       ),
     ),
   );
@@ -52,17 +52,17 @@ function download_b_command() {
 /**
  * Command callback: Download Backdrop contrib projects.
  */
-function download_b_callback($arguments, $options) {
+function download_bee_callback($arguments, $options) {
   global $backdrop_site, $backdrop_root;
 
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   foreach ($arguments['projects'] as $project) {
-    $info = download_b_git_info($project);
+    $info = download_bee_git_info($project);
 
     // Get the project type.
     if (empty($info['type'])) {
-      b_message(bt("The 'type' of project '@project' could not be determined.", array(
+      bee_message(bt("The 'type' of project '@project' could not be determined.", array(
         '@project' => $project,
       )), 'error');
       return;
@@ -80,7 +80,7 @@ function download_b_callback($arguments, $options) {
       $destination = "$backdrop_root/" . $info['type'];
     }
     else {
-      b_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
+      bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
       return;
     }
     if (file_exists("$destination/contrib")) {
@@ -88,22 +88,22 @@ function download_b_callback($arguments, $options) {
     }
     $destination .= "/$project";
     if (file_exists($destination)) {
-      b_message(bt("'@project' already exists in '@destination'.", array(
+      bee_message(bt("'@project' already exists in '@destination'.", array(
         '@project' => $project,
         '@destination' => $destination,
       )), 'error');
       return;
     }
     elseif (!mkdir($destination, 0755, TRUE)) {
-      b_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
+      bee_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
       return;
     }
 
     // Download the project.
-    if (download_b_download_project($project, $info, $destination, $progress)) {
-      b_message(bt("'@project' was downloaded into '@directory'.", array(
+    if (download_bee_download_project($project, $info, $destination, $progress)) {
+      bee_message(bt("'@project' was downloaded into '@directory'.", array(
         '@project' => $project,
         '@directory' => $destination,
       )), 'success');
@@ -114,15 +114,15 @@ function download_b_callback($arguments, $options) {
 /**
  * Command callback: Download Backdrop core.
  */
-function download_core_b_callback($arguments, $options) {
-  $info = download_b_git_info('backdrop');
+function download_core_bee_callback($arguments, $options) {
+  $info = download_bee_git_info('backdrop');
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
   if (!realpath($destination)) {
-    if (!mkdir($destination, 0755)) {
-      b_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
+    if (!mkdir($destination, 0755, TRUE)) {
+      bee_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
         '@directory' => $destination,
       )), 'error');
       return;
@@ -131,14 +131,14 @@ function download_core_b_callback($arguments, $options) {
   $destination = realpath($destination);
 
   // Make sure the directory isn't an existing Backdrop installation.
-  if (b_find_root($destination)) {
-    b_message(bt("Backdrop cannot be downloaded into an existing installation. Re-run the command from outside the Backdrop installation, or set the download directory using the 'directory' argument."), 'error');
+  if (bee_find_root($destination)) {
+    bee_message(bt("Backdrop cannot be downloaded into an existing installation. Re-run the command from outside the Backdrop installation, or set the download directory using the 'directory' argument."), 'error');
     return;
   }
 
   // Download Backdrop.
-  if (download_b_download_project('backdrop', $info, $destination, $progress)) {
-    b_message(bt("Backdrop was downloaded into '@directory'.", array(
+  if (download_bee_download_project('backdrop', $info, $destination, $progress)) {
+    bee_message(bt("Backdrop was downloaded into '@directory'.", array(
       '@directory' => $destination,
     )), 'success');
   }
@@ -156,7 +156,7 @@ function download_core_b_callback($arguments, $options) {
  *   - branch: The default branch of the project.
  *   - type: The 'type' of project (e.g. module, theme or layout).
  */
-function download_b_git_info($project) {
+function download_bee_git_info($project) {
   $info = array();
   $organisation = ($project == 'backdrop') ? 'backdrop' : 'backdrop-contrib';
   $api_url = 'https://api.github.com/repos';
@@ -170,7 +170,7 @@ function download_b_git_info($project) {
   }
   else {
     // Offer to get the dev version instead.
-    $answer = b_confirm(bt("There is no release for '@organisation/@project'. Do you you want to download the dev version instead?", array(
+    $answer = bee_confirm(bt("There is no release for '@organisation/@project'. Do you you want to download the dev version instead?", array(
       '@organisation' => $organisation,
       '@project' => $project,
     )));
@@ -234,16 +234,16 @@ function download_b_git_info($project) {
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
-function download_b_download_project($project, $info, $destination, $progress = TRUE) {
+function download_bee_download_project($project, $info, $destination, $progress = TRUE) {
   // Get a temp directory.
-  if (!$temp = b_get_temp($project)) {
-    b_message(bt('Failed to get temp directory.'), 'error');
+  if (!$temp = bee_get_temp($project)) {
+    bee_message(bt('Failed to get temp directory.'), 'error');
     return FALSE;
   }
 
   // Get the download URL.
   if (empty($url = $info['url'])) {
-    b_message(bt("The download URL for '@project' could not be found.", array(
+    bee_message(bt("The download URL for '@project' could not be found.", array(
       '@project' => $project,
     )), 'error');
     return FALSE;
@@ -259,8 +259,8 @@ function download_b_download_project($project, $info, $destination, $progress = 
   $wget .= " -qO $file $url";
   exec($wget);
   exec("unzip $file -d $temp");
-  b_copy("$temp/$directory", $destination, FALSE);
-  b_delete($temp);
+  bee_copy("$temp/$directory", $destination, FALSE);
+  bee_delete($temp);
 
   return TRUE;
 }

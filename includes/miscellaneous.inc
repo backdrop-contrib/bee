@@ -7,7 +7,7 @@
 /**
  * Initialize $_SERVER environment variables.
  */
-function b_initialize_server() {
+function bee_initialize_server() {
   $_SERVER['HTTP_HOST'] = 'localhost';
   // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
@@ -18,31 +18,31 @@ function b_initialize_server() {
   $_SERVER['REQUEST_METHOD'] = 'GET';
   $_SERVER['SCRIPT_NAME'] = '/index.php';
   $_SERVER['PHP_SELF'] = '/index.php';
-  $_SERVER['HTTP_USER_AGENT'] = 'Backdrop Console';
+  $_SERVER['HTTP_USER_AGENT'] = 'Bee';
 }
 
 /**
- * Initialize Backdrop Console.
+ * Initialize Bee.
  */
-function b_initialize_console() {
+function bee_initialize_console() {
   global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites, $yes_mode, $debug_mode;
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($options['root'])) {
-    $backdrop_root = b_find_root($options['root'], FALSE);
+    $backdrop_root = bee_find_root($options['root'], FALSE);
   }
   else {
-    $backdrop_root = b_find_root(getcwd());
+    $backdrop_root = bee_find_root(getcwd());
   }
 
   if ($backdrop_root) {
-    if ($multisites = b_is_multisite($backdrop_root)) {
+    if ($multisites = bee_is_multisite($backdrop_root)) {
       // Get the site directory of the Backdrop multisite to use.
       if (isset($options['site'])) {
-        $backdrop_site = b_find_site_by_site($options['site']);
+        $backdrop_site = bee_find_site_by_site($options['site']);
       }
       elseif (!isset($options['root'])) {
-        $backdrop_site = b_find_site_by_path(getcwd(), $backdrop_root);
+        $backdrop_site = bee_find_site_by_path(getcwd(), $backdrop_root);
       }
     }
 
@@ -61,10 +61,10 @@ function b_initialize_console() {
       }
       else {
         if (!$backdrop_site && !empty($multisites)) {
-          b_message(bt('The Backdrop site within the multisite installation could not be determined.'), 'log');
+          bee_message(bt('The Backdrop site within the multisite installation could not be determined.'), 'log');
         }
         else {
-          b_message(bt('Backdrop has not yet been installed.'), 'log');
+          bee_message(bt('Backdrop has not yet been installed.'), 'log');
         }
       }
     }
@@ -73,11 +73,11 @@ function b_initialize_console() {
   // Turn on various 'modes' as appropriate.
   if (!empty($options['yes']) || !empty($options['y'])) {
     $yes_mode = TRUE;
-    b_message(bt("'Yes' mode enabled."), 'log');
+    bee_message(bt("'Yes' mode enabled."), 'log');
   }
   if (!empty($options['debug']) || !empty($options['d'])) {
     $debug_mode = TRUE;
-    b_message(bt("'Debug' mode enabled."), 'log');
+    bee_message(bt("'Debug' mode enabled."), 'log');
   }
 }
 
@@ -90,10 +90,10 @@ function b_initialize_console() {
  * @return bool
  *   TRUE if Backdrop is bootstrapped to the desired level, FALSE if not.
  */
-function b_bootstrap($level) {
+function bee_bootstrap($level) {
   global $backdrop_installed, $backdrop_root;
 
-  if (!$backdrop_installed && $level > B_BOOTSTRAP_PAGE_CACHE) {
+  if (!$backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
     return FALSE;
   }
 
@@ -101,7 +101,7 @@ function b_bootstrap($level) {
     backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
-    set_error_handler('b_error_handler');
+    set_error_handler('bee_error_handler');
 
     return TRUE;
   }
@@ -119,7 +119,7 @@ function b_bootstrap($level) {
  *   of: info, success, warning, error, log. Defaults to 'info'.
  *   Note that 'log' messages are only displayed when `debug` mode is enabled.
  */
-function b_message($message, $type = 'info') {
+function bee_message($message, $type = 'info') {
   global $messages;
 
   // Append the message to the `$messages` array.
