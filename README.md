@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/backdrop-contrib/bee/1.x-1.x/images/bee.png" align="right" width="150" height="157">
 
-Bee
+Bee2
 ===
 
 Bee is a command line utility for Backdrop CMS. It includes commands that allow
