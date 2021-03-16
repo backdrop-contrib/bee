@@ -1,4 +1,4 @@
-<img src="images/bee.png" align="right" width="150" height="157">
+<img src="https://raw.githubusercontent.com/backdrop-contrib/bee/1.x-1.x/images/bee.png" align="right" width="150" height="157">
 
 Bee
 ===
