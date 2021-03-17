@@ -25,42 +25,42 @@ function bee_initialize_server() {
  * Initialize Bee.
  */
 function bee_initialize_console() {
-  global $options, $backdrop_installed, $backdrop_root, $backdrop_site, $multisites, $yes_mode, $debug_mode;
+  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode;
 
   // Get the root directory of the Backdrop installation to use.
-  if (isset($options['root'])) {
-    $backdrop_root = bee_find_root($options['root'], FALSE);
+  if (isset($_bee_options['root'])) {
+    $_bee_backdrop_root = bee_find_root($_bee_options['root'], FALSE);
   }
   else {
-    $backdrop_root = bee_find_root(getcwd());
+    $_bee_backdrop_root = bee_find_root(getcwd());
   }
 
-  if ($backdrop_root) {
-    if ($multisites = bee_is_multisite($backdrop_root)) {
+  if ($_bee_backdrop_root) {
+    if ($_bee_multisites = bee_is_multisite($_bee_backdrop_root)) {
       // Get the site directory of the Backdrop multisite to use.
-      if (isset($options['site'])) {
-        $backdrop_site = bee_find_site_by_site($options['site']);
+      if (isset($_bee_options['site'])) {
+        $_bee_backdrop_site = bee_find_site_by_site($_bee_options['site']);
       }
-      elseif (!isset($options['root'])) {
-        $backdrop_site = bee_find_site_by_path(getcwd(), $backdrop_root);
+      elseif (!isset($_bee_options['root'])) {
+        $_bee_backdrop_site = bee_find_site_by_path(getcwd(), $_bee_backdrop_root);
       }
     }
 
-    chdir($backdrop_root);
-    $backdrop_root = getcwd();
-    define('BACKDROP_ROOT', $backdrop_root);
-    $_SERVER['HTTP_HOST'] = !empty($backdrop_site) ? $backdrop_site : basename($backdrop_root);
+    chdir($_bee_backdrop_root);
+    $_bee_backdrop_root = getcwd();
+    define('BACKDROP_ROOT', $_bee_backdrop_root);
+    $_SERVER['HTTP_HOST'] = !empty($_bee_backdrop_site) ? $_bee_backdrop_site : basename($_bee_backdrop_root);
 
     // Determine if Backdrop is installed or not.
-    require_once $backdrop_root . '/core/includes/bootstrap.inc';
+    require_once $_bee_backdrop_root . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
       backdrop_settings_initialize();
 
       if (backdrop_bootstrap_is_installed()) {
-        $backdrop_installed = TRUE;
+        $_bee_backdrop_installed = TRUE;
       }
       else {
-        if (!$backdrop_site && !empty($multisites)) {
+        if (!$_bee_backdrop_site && !empty($_bee_multisites)) {
           bee_message(bt('The Backdrop site within the multisite installation could not be determined.'), 'log');
         }
         else {
@@ -71,12 +71,12 @@ function bee_initialize_console() {
   }
 
   // Turn on various 'modes' as appropriate.
-  if (!empty($options['yes']) || !empty($options['y'])) {
-    $yes_mode = TRUE;
+  if (!empty($_bee_options['yes']) || !empty($_bee_options['y'])) {
+    $_bee_yes_mode = TRUE;
     bee_message(bt("'Yes' mode enabled."), 'log');
   }
-  if (!empty($options['debug']) || !empty($options['d'])) {
-    $debug_mode = TRUE;
+  if (!empty($_bee_options['debug']) || !empty($_bee_options['d'])) {
+    $_bee_debug_mode = TRUE;
     bee_message(bt("'Debug' mode enabled."), 'log');
   }
 }
@@ -91,13 +91,13 @@ function bee_initialize_console() {
  *   TRUE if Backdrop is bootstrapped to the desired level, FALSE if not.
  */
 function bee_bootstrap($level) {
-  global $backdrop_installed, $backdrop_root;
+  global $_bee_backdrop_installed, $_bee_backdrop_root;
 
-  if (!$backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
+  if (!$_bee_backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
     return FALSE;
   }
 
-  if (!empty($backdrop_root) && function_exists('backdrop_bootstrap')) {
+  if (!empty($_bee_backdrop_root) && function_exists('backdrop_bootstrap')) {
     backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
@@ -120,10 +120,10 @@ function bee_bootstrap($level) {
  *   Note that 'log' messages are only displayed when `debug` mode is enabled.
  */
 function bee_message($message, $type = 'info') {
-  global $messages;
+  global $_bee_messages;
 
-  // Append the message to the `$messages` array.
-  $messages[$type][] = $message;
+  // Append the message to the `$_bee_messages` array.
+  $_bee_messages[$type][] = $message;
 }
 
 /**

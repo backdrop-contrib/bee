@@ -25,12 +25,12 @@ function update_bee_command() {
  * Command callback: Show, and optionally apply, all pending database updates.
  */
 function update_db_bee_callback() {
-  global $backdrop_root;
+  global $_bee_backdrop_root;
   $start = array();
   $modules = array();
 
-  require_once $backdrop_root . '/core/includes/install.inc';
-  require_once $backdrop_root . '/core/includes/update.inc';
+  require_once $_bee_backdrop_root . '/core/includes/install.inc';
+  require_once $_bee_backdrop_root . '/core/includes/update.inc';
 
   // Get list of pending database updates.
   backdrop_load_updates();

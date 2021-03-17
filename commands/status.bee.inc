@@ -31,10 +31,10 @@ function status_bee_command() {
  * installation/site.
  */
 function status_bee_callback($arguments, $options) {
-  global $backdrop_root, $backdrop_site, $multisites;
+  global $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites;
   $rows = array();
 
-  if (!empty($backdrop_root)) {
+  if (!empty($_bee_backdrop_root)) {
     // Backdrop core.
     if (defined('BACKDROP_VERSION')) {
       $rows[] = array(
@@ -44,18 +44,18 @@ function status_bee_callback($arguments, $options) {
     }
     $rows[] = array(
       array('value' => bt('Root directory')),
-      array('value' => $backdrop_root),
+      array('value' => $_bee_backdrop_root),
     );
 
     // Multisite.
     $rows[] = array(
       array('value' => bt('Site type')),
-      array('value' => empty($multisites) ? bt('Single') : bt('Multisite')),
+      array('value' => empty($_bee_multisites) ? bt('Single') : bt('Multisite')),
     );
-    if (!empty($backdrop_site)) {
+    if (!empty($_bee_backdrop_site)) {
       $rows[] = array(
         array('value' => bt('Site directory')),
-        array('value' => $backdrop_site),
+        array('value' => $_bee_backdrop_site),
       );
     }
 

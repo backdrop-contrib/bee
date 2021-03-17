@@ -8,18 +8,18 @@
  * Format and display all messages to the user.
  */
 function bee_print_messages() {
-  global $messages, $debug_mode;
+  global $_bee_messages, $_bee_debug_mode;
   $rows = array();
 
   // Exit if there are no messages.
-  if (empty($messages)) {
+  if (empty($_bee_messages)) {
     return;
   }
 
   // Style each type of message differently.
-  foreach ($messages as $type => $type_messages) {
+  foreach ($_bee_messages as $type => $type_messages) {
     // Skip 'log' messages if `debug` mode is disabled.
-    if ($type == 'log' && !$debug_mode) {
+    if ($type == 'log' && !$_bee_debug_mode) {
       continue;
     }
 
@@ -77,13 +77,13 @@ function bee_print_messages() {
  * Display the output of the given command.
  */
 function bee_display_output() {
-  global $output;
-  if (!is_array($output)) {
+  global $_bee_output;
+  if (!is_array($_bee_output)) {
     return;
   }
 
   // Process each element in the output.
-  foreach ($output as $element) {
+  foreach ($_bee_output as $element) {
     if (empty($type = $element['type']) || empty($variables = $element['variables'])) {
       continue;
     }

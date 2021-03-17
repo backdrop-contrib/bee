@@ -53,7 +53,7 @@ function download_bee_command() {
  * Command callback: Download Backdrop contrib projects.
  */
 function download_bee_callback($arguments, $options) {
-  global $backdrop_site, $backdrop_root;
+  global $_bee_backdrop_root, $_bee_backdrop_site;
 
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
@@ -73,11 +73,11 @@ function download_bee_callback($arguments, $options) {
     }
 
     // Get the directory to download the project into.
-    if (!empty($backdrop_site)) {
-      $destination = "$backdrop_root/sites/$backdrop_site/" . $info['type'];
+    if (!empty($_bee_backdrop_site)) {
+      $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $info['type'];
     }
-    elseif (!empty($backdrop_root)) {
-      $destination = "$backdrop_root/" . $info['type'];
+    elseif (!empty($_bee_backdrop_root)) {
+      $destination = "$_bee_backdrop_root/" . $info['type'];
     }
     else {
       bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');

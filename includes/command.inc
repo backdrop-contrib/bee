@@ -8,7 +8,7 @@
  * Parse the input to extract the command, options and arguments.
  */
 function bee_parse_input() {
-  global $argv, $command, $arguments, $options;
+  global $argv, $_bee_command, $_bee_arguments, $_bee_options;
 
   foreach ($argv as $id => $arg) {
     // Skip the first argument (the script name).
@@ -26,7 +26,7 @@ function bee_parse_input() {
         list($opt_name, $opt_value) = explode('=', $opt_name);
       }
 
-      $options[$opt_name] = $opt_value;
+      $_bee_options[$opt_name] = $opt_value;
       continue;
     }
 
@@ -34,18 +34,18 @@ function bee_parse_input() {
     if (preg_match('#^-(\S+)#', $arg, $matches)) {
       $opt_name = $matches[1];
 
-      $options[$opt_name] = TRUE;
+      $_bee_options[$opt_name] = TRUE;
       continue;
     }
 
     // The first non-option argument is the command.
-    if (empty($command)) {
-      $command = $arg;
+    if (empty($_bee_command)) {
+      $_bee_command = $arg;
       continue;
     }
 
     // Everything else is an argument.
-    $arguments[] = $arg;
+    $_bee_arguments[] = $arg;
   }
 }
 
@@ -53,29 +53,29 @@ function bee_parse_input() {
  * Get the callback function for the command and process it.
  */
 function bee_process_command() {
-  global $command, $arguments, $options, $command_aliases, $output;
+  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases, $_bee_output;
 
   // Display help text if no command is given.
-  if (empty($command)) {
-    $command = 'help';
+  if (empty($_bee_command)) {
+    $_bee_command = 'help';
   }
 
   // Get all commands and convert any aliases.
   $commands = bee_all_commands();
-  if (isset($command_aliases[$command])) {
-    $command = $command_aliases[$command];
+  if (isset($_bee_command_aliases[$_bee_command])) {
+    $_bee_command = $_bee_command_aliases[$_bee_command];
   }
 
   // Make sure the given command exists.
-  if (!isset($commands[$command])) {
+  if (!isset($commands[$_bee_command])) {
     bee_message(bt("There is no '@command' command.", array(
-      '@command' => $command,
+      '@command' => $_bee_command,
     )), 'error');
     return;
   }
 
   // Process the command.
-  $descriptor = $commands[$command];
+  $descriptor = $commands[$_bee_command];
   if (bee_validate_command($descriptor)) {
     $callback = $descriptor['callback'];
     if (function_exists($callback)) {
@@ -85,11 +85,11 @@ function bee_process_command() {
       }
 
       if ($ready) {
-        $output = $callback($arguments, $options);
+        $_bee_output = $callback($_bee_arguments, $_bee_options);
       }
       else {
         bee_message(bt("The required bootstrap level for '@command' is not ready.", array(
-          '@command' => $command,
+          '@command' => $_bee_command,
         )), 'error');
       }
     }
@@ -106,7 +106,7 @@ function bee_all_commands() {
   static $all_commands = array();
 
   if (empty($all_commands)) {
-    global $command_aliases;
+    global $_bee_command_aliases;
 
     // Get list of command files.
     $list = bee_command_file_list();
@@ -132,7 +132,7 @@ function bee_all_commands() {
         // Map aliases to their commands.
         if (!empty($descriptor['aliases'])) {
           foreach ($descriptor['aliases'] as $alias) {
-            $command_aliases[$alias] = $command;
+            $_bee_command_aliases[$alias] = $command;
           }
         }
       }
@@ -188,7 +188,7 @@ function bee_command_file_paths() {
   static $search_paths = array();
 
   if (empty($search_paths)) {
-    global $backdrop_installed;
+    global $_bee_backdrop_installed;
 
     // Add `bee/commands` directory.
     $search_paths[] = dirname(__DIR__) . '/commands';
@@ -200,7 +200,7 @@ function bee_command_file_paths() {
     }
 
     // Add enabled modules' directories.
-    if ($backdrop_installed) {
+    if ($_bee_backdrop_installed) {
       $filenames = db_query('SELECT filename FROM {system} WHERE type = :type AND status = :status', array(
         ':type' => 'module',
         ':status' => 1,
@@ -227,7 +227,7 @@ function bee_command_file_paths() {
  *   Whether or not the command input is valid.
  */
 function bee_validate_command($descriptor) {
-  global $arguments, $options;
+  global $_bee_arguments, $_bee_options;
 
   // Validate arguments.
   if (isset($descriptor['arguments'])) {
@@ -239,11 +239,11 @@ function bee_validate_command($descriptor) {
     // Group provided arguments by their argument name.
     foreach ($argument_names as $name) {
       if ($name != $multiple) {
-        $grouped[$name] = array_shift($arguments);
+        $grouped[$name] = array_shift($_bee_arguments);
       }
       else {
-        $grouped[$name] = $arguments;
-        $arguments = array();
+        $grouped[$name] = $_bee_arguments;
+        $_bee_arguments = array();
       }
 
       // Make sure all required arguments have a value.
@@ -254,23 +254,23 @@ function bee_validate_command($descriptor) {
         return FALSE;
       }
     }
-    $arguments = $grouped;
+    $_bee_arguments = $grouped;
   }
   else {
-    $arguments = array();
+    $_bee_arguments = array();
   }
 
   // Validate options.
   if (isset($descriptor['options'])) {
     // Remove any provided options that aren't used by the command.
-    foreach ($options as $name => $value) {
+    foreach ($_bee_options as $name => $value) {
       if (!isset($descriptor['options'][$name])) {
-        unset($options[$name]);
+        unset($_bee_options[$name]);
       }
     }
   }
   else {
-    $options = array();
+    $_bee_options = array();
   }
 
   return TRUE;

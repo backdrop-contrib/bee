@@ -52,8 +52,8 @@ function bee_find_root($path, $recursive = TRUE) {
  *   installation.
  */
 function bee_is_multisite() {
-  global $backdrop_root;
-  $sites_php = $backdrop_root . '/sites/sites.php';
+  global $_bee_backdrop_root;
+  $sites_php = $_bee_backdrop_root . '/sites/sites.php';
 
   if (file_exists($sites_php)) {
     $sites = array();
@@ -80,25 +80,25 @@ function bee_is_multisite() {
  *   found.
  */
 function bee_find_site_by_site($site) {
-  global $backdrop_root, $multisites;
+  global $_bee_backdrop_root, $_bee_multisites;
 
-  if ($multisites) {
-    if (isset($multisites[$site])) {
-      return $multisites[$site];
+  if ($_bee_multisites) {
+    if (isset($_bee_multisites[$site])) {
+      return $_bee_multisites[$site];
     }
-    elseif (in_array($site, $multisites)) {
+    elseif (in_array($site, $_bee_multisites)) {
       return $site;
     }
     else {
       bee_message(bt('@site could not be found in @root/sites/sites.php.', array(
         '@site' => $site,
-        '@root' => $backdrop_root,
+        '@root' => $_bee_backdrop_root,
       )), 'error');
     }
   }
   else {
     bee_message(bt('@root/sites/sites.php could not be found or is empty.', array(
-      '@root' => $backdrop_root,
+      '@root' => $_bee_backdrop_root,
     )), 'error');
   }
 
@@ -115,13 +115,13 @@ function bee_find_site_by_site($site) {
  *   The site directory, or FALSE if no site was found.
  */
 function bee_find_site_by_path($path) {
-  global $backdrop_root;
+  global $_bee_backdrop_root;
 
   // Make sure we have a valid dir path.
   if (!empty($path) && is_dir($path)) {
     // Check if this is Backdrop's current site dir.
     if (file_exists($path . '/settings.php')) {
-      if ($path != $backdrop_root) {
+      if ($path != $_bee_backdrop_root) {
         // Return the last part of the path (the site dir name).
         return basename($path);
       }

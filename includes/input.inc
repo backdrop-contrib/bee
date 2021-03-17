@@ -16,7 +16,7 @@
  *   TRUE if the user enters "y", FALSE if "n".
  */
 function bee_confirm($question, $default = FALSE) {
-  global $yes_mode;
+  global $_bee_yes_mode;
 
   // Set the default option.
   if ($default) {
@@ -34,7 +34,7 @@ function bee_confirm($question, $default = FALSE) {
   ), FALSE);
 
   // Return TRUE if `yes_mode` is enabled.
-  if ($yes_mode) {
+  if ($_bee_yes_mode) {
     bee_render_text(array('value' => 'y'));
     return TRUE;
   }

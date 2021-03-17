@@ -70,11 +70,11 @@ function install_bee_command() {
  * Command callback: Install Backdrop and setup a new site.
  */
 function install_bee_callback($arguments, $options) {
-  global $backdrop_root, $backdrop_site, $multisites;
+  global $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites;
   $prompt = empty($options['auto']);
 
-  // Make sure $backdrop_root is set.
-  if (empty($backdrop_root)) {
+  // Make sure $_bee_backdrop_root is set.
+  if (empty($_bee_backdrop_root)) {
     bee_message(bt("The install script could not be found. Re-run the command from within a Backdrop installation, or set the global '--root' option."), 'error');
     return;
   }
@@ -171,12 +171,12 @@ function install_bee_callback($arguments, $options) {
 
   // Get multisite site URL.
   $url = '';
-  if ($backdrop_site) {
-    $url = '--url=' . array_search($backdrop_site, $multisites);
+  if ($_bee_backdrop_site) {
+    $url = '--url=' . array_search($_bee_backdrop_site, $_bee_multisites);
   }
 
   // Run the install script.
-  $result = exec("cd $backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
+  $result = exec("cd $_bee_backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
   bee_render_text(array('value' => $result));
 
   // Show the randomly-generated password.

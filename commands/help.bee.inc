@@ -28,7 +28,7 @@ function help_bee_command() {
  * Command callback: Provide help and examples for 'bee' and its commands.
  */
 function help_bee_callback($arguments, $options) {
-  global $global_options, $command_aliases;
+  global $_bee_global_options, $_bee_command_aliases;
 
   // Get all commands and sort them alphabetically.
   $commands = bee_all_commands();
@@ -39,8 +39,8 @@ function help_bee_callback($arguments, $options) {
     $command = $arguments['command'];
 
     // If the given command is an alias, get the actual command name.
-    if (isset($command_aliases[$command])) {
-      $command = $command_aliases[$command];
+    if (isset($_bee_command_aliases[$command])) {
+      $command = $_bee_command_aliases[$command];
     }
 
     // Make sure the command exists.
@@ -61,7 +61,7 @@ function help_bee_callback($arguments, $options) {
   $option_rows = array();
   $command_rows = array();
 
-  foreach ($global_options as $option => $descriptor) {
+  foreach ($_bee_global_options as $option => $descriptor) {
     $value = '--' . $option;
     if (isset($descriptor['short'])) {
       $value .= ', -' . $descriptor['short'];
@@ -88,7 +88,7 @@ function help_bee_callback($arguments, $options) {
       array('value' => $descriptor['description']),
     );
 
-    $aliases = array_keys($command_aliases, $command);
+    $aliases = array_keys($_bee_command_aliases, $command);
     if (!empty($aliases)) {
       $command_rows[] = array(
         array(
@@ -160,8 +160,8 @@ function help_bee_callback($arguments, $options) {
  *   HOOK_bee_command() for more details.
  */
 function help_bee_command_help($descriptor) {
-  global $command_aliases;
-  $aliases = array_keys($command_aliases, $descriptor['command']);
+  global $_bee_command_aliases;
+  $aliases = array_keys($_bee_command_aliases, $descriptor['command']);
 
   // Command name.
   $output = array(

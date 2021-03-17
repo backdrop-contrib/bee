@@ -9,7 +9,7 @@
  */
 // A list of all available global options for `bee` (e.g. not specific to a
 // certain command).
-$global_options = array(
+$_bee_global_options = array(
   'root' => array(
     'description' => bt('Specify the root directory of the Backdrop installation to use. If not set, will try to find the Backdrop installation automatically based on the current directory.'),
   ),
@@ -27,42 +27,42 @@ $global_options = array(
 );
 
 // The command that was given (e.g. `core-status`).
-$command = '';
+$_bee_command = '';
 
 // A list of arguments given to the command.
-$arguments = array();
+$_bee_arguments = array();
 
 // A list of given options (this includes both global and command-specific
 // options).
-$options = array();
+$_bee_options = array();
 
 // A list that maps command aliases to their commands.
-$command_aliases = array();
+$_bee_command_aliases = array();
 
 // A boolean indicating whether or not Backdrop is installed.
-$backdrop_installed = FALSE;
+$_bee_backdrop_installed = FALSE;
 
 // The root directory of the Backdrop installation to use.
-$backdrop_root = '';
+$_bee_backdrop_root = '';
 
 // The site directory of the Backdrop multisite to use.
-$backdrop_site = FALSE;
+$_bee_backdrop_site = FALSE;
 
 // A list of multisites populated from `sites.php`.
-$multisites = array();
+$_bee_multisites = array();
 
 // A boolean indicating whether or not `Yes` mode is enabled.
-$yes_mode = FALSE;
+$_bee_yes_mode = FALSE;
 
 // A boolean indicating whether or not `Debug` mode is enabled.
-$debug_mode = FALSE;
+$_bee_debug_mode = FALSE;
 
 // A list of messages to display to the user, grouped by type.
-$messages = array();
+$_bee_messages = array();
 
 // A collection of elements to render and display as a result of processing
 // the given command.
-$output = array();
+$_bee_output = array();
 
 /**
  * Define constants for bootstrap phases.
