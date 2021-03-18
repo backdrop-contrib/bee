@@ -1,7 +1,6 @@
 <img src="https://raw.githubusercontent.com/backdrop-contrib/bee/1.x-1.x/images/bee.png" align="right" width="150" height="157">
 
-Bee
-===
+# Bee
 
 Bee is a command line utility for Backdrop CMS. It includes commands that allow
 developers to interact with Backdrop sites, performing actions like:
@@ -17,8 +16,7 @@ changes may occur**. Please see the release notes for a list of any major
 changes between versions. Also note that Bee is not (yet?) compatible with
 Microsoft Windows.
 
-Installation
-------------
+## Installation
 
 - Download (or clone) Bee to your computer/server.  
   This will create a folder called `bee` with lots of files inside. Your home
@@ -40,19 +38,41 @@ Installation
   Simply type `bee` in your terminal and you should see a list of available
   commands displayed.
 
-Issues
-------
+### Lando
+
+Bee can also be used with your existing [Lando](https://lando.dev/) setup:
+
+- Add some build steps that download and install Bee:
+  ```yaml
+  services:
+    appserver:
+      build:
+        - wget -qO bee.zip https://github.com/backdrop-contrib/bee/archive/1.x-1.x.zip
+        - unzip -q bee.zip && rm bee.zip
+        - mv bee-1.x-1.x /usr/local/bin/bee
+  ```
+
+- Add a tooling command for `bee`:
+  ```yaml
+  tooling:
+    bee:
+      service: appserver
+      cmd: /usr/local/bin/bee/bee.php
+  ```
+
+- Rebuild Lando (`lando rebuild`) and then you can use Bee by typing
+  `lando bee ...`
+
+## Issues
 
 Bugs and feature requests should be reported in the issue queue:
 https://github.com/backdrop-contrib/bee/issues.
 
-Current Maintainers
--------------------
+## Current Maintainers
 
 - [Peter Anderson](https://github.com/BWPanda)
 
-Credits
--------
+## Credits
 
 - Originally written for Backdrop CMS by
   [Geoff St. Pierre](https://github.com/serundeputy)  
@@ -61,8 +81,7 @@ Credits
 - [Bee icon](https://thenounproject.com/aomam/collection/bee-emoticons-line/?i=2257433)
   by AomAm from [the Noun Project](http://thenounproject.com).
 
-License
--------
+## License
 
 This project is GPL v2 software.
 See the LICENSE.txt file in this directory for complete text.
