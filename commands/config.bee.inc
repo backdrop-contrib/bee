@@ -38,6 +38,15 @@ function config_bee_command() {
         'bee config-set image.style.thumbnail effects.0.data.width 200' => bt('Change the width of the Thumbnail image style.'),
       ),
     ),
+    'config-import' => array(
+      'description' => bt('Import config into the site.'),
+      'callback' => 'config_import_bee_callback',
+      'aliases' => array('cim', 'bcim'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee config-import' => bt("Imports config (from 'staging' to 'active') for the current site."),
+      ),
+    ),
   );
 }
 
@@ -106,4 +115,79 @@ function config_set_bee_callback($arguments, $options) {
     '@option' => $arguments['option'],
     '@value' => $arguments['value'],
   )), 'success');
+}
+
+/**
+ * Command callback: Import config into the site.
+ */
+function config_import_bee_callback($arguments, $options) {
+  global $_bee_backdrop_root;
+  require_once $_bee_backdrop_root . '/core/modules/config/config.admin.inc';
+
+  $statuses = config_get_statuses();
+  $rows = array();
+
+  // Get config to be imported.
+  foreach ($statuses as $file => $status) {
+    if (!empty($status)) {
+      $rows[] = array(
+        array('value' => $file),
+        array('value' => $status),
+      );
+    }
+  }
+
+  // Show message and exit if there's no config to import.
+  if (empty($rows)) {
+    bee_message(bt('There is no config to import.'));
+    return;
+  }
+
+  // Display config to be imported to the user.
+  bee_render_text(array('value' => bt("The following config will be imported:\n")));
+  bee_render_table(array(
+    'rows' => $rows,
+    'header' => array(
+      array('value' => bt('Config')),
+      array('value' => bt('Status')),
+    ),
+  ));
+
+  // Prompt to continue.
+  if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
+    return;
+  }
+
+  require_once $_bee_backdrop_root . '/core/modules/config/config.sync.inc';
+
+  // Import config.
+  foreach ($rows as $row) {
+    $file = $row[0]['value'];
+    $status = $row[1]['value'];
+
+    // Validate the config.
+    try {
+      config_sync_validate_file($file, $status, $statuses);
+    }
+    catch (ConfigValidateException $e) {
+      bee_message($e->getMessage(), 'error');
+      return;
+    }
+
+    // Sync config.
+    config_sync_file($file, $status);
+  }
+
+  // Clean up.
+  if (config_get('system.core', 'config_sync_clear_staging')) {
+    $staging_dir = config_get_config_directory('staging');
+    $staging_storage = new ConfigFileStorage($staging_dir);
+    $staging_storage->deleteAll();
+  }
+  backdrop_flush_all_caches();
+
+  bee_message(format_plural(count($rows),
+    'Config was imported. 1 file was synced.',
+    'Config was imported. @count files were synced.'
+  ), 'success');
 }
