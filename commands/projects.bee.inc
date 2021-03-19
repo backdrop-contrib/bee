@@ -586,7 +586,7 @@ function projects_bee_show_project($project) {
       $rows[] = array(
         array('value' => bt('Configure')),
         array('value' => empty($module->info['configure']) ? $module->info['configure'] : ''),
-      );!
+      );
       $rows[] = array(
         array('value' => bt('Package')),
         array('value' => !empty($module->info['package']) ? $module->info['package'] : ''),
