@@ -11,6 +11,7 @@
       <file>backdrop/ProjectsCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
       <file>backdrop/UpdateCommandsTest.php</file>
+      <file>backdrop/UserCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
       <file>multisite/MultisiteTest.php</file>

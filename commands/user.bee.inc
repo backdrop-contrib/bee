@@ -31,6 +31,7 @@ function user_bee_command() {
       'examples' => array(
         'bee user-password admin P@55w0rd' => bt("Give the 'admin' user account an insecure password (not recommended)."),
         'bee user-password drop "Too hard to guess, too long to brute-force."' => bt("Give the 'drop' user account a secure password."),
+        'bee user-password "Joe Bloggs"' => bt("Give the 'Joe Bloggs' user account a random password."),
       ),
     ),
     'user-login' => array(
