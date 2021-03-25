@@ -47,6 +47,15 @@ function config_bee_command() {
         'bee config-import' => bt("Imports config (from 'staging' to 'active') for the current site."),
       ),
     ),
+    'config-export' => array(
+      'description' => bt('Export config from the site.'),
+      'callback' => 'config_export_bee_callback',
+      'aliases' => array('cex', 'bcex'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee config-export' => bt("Exports config (from 'active' to 'staging') for the current site."),
+      ),
+    ),
   );
 }
 
@@ -160,34 +169,56 @@ function config_import_bee_callback($arguments, $options) {
 
   require_once $_bee_backdrop_root . '/core/modules/config/config.sync.inc';
 
+  // Validate config.
+  try {
+    foreach ($rows as $row) {
+      config_sync_validate_file($row[0]['value'], $row[1]['value'], $statuses);
+    }
+  }
+  catch (ConfigValidateException $e) {
+    bee_message($e->getMessage(), 'error');
+    return;
+  }
+
   // Import config.
   foreach ($rows as $row) {
-    $file = $row[0]['value'];
-    $status = $row[1]['value'];
-
-    // Validate the config.
-    try {
-      config_sync_validate_file($file, $status, $statuses);
-    }
-    catch (ConfigValidateException $e) {
-      bee_message($e->getMessage(), 'error');
-      return;
-    }
-
-    // Sync config.
-    config_sync_file($file, $status);
+    config_sync_file($row[0]['value'], $row[1]['value']);
   }
 
   // Clean up.
   if (config_get('system.core', 'config_sync_clear_staging')) {
-    $staging_dir = config_get_config_directory('staging');
-    $staging_storage = new ConfigFileStorage($staging_dir);
-    $staging_storage->deleteAll();
+    $staging = config_get_config_storage('staging');
+    $staging->deleteAll();
   }
   backdrop_flush_all_caches();
 
+  bee_message(bt("Config was imported to '!active'.", array(
+    '!active' => config_get_config_directory('active'),
+  )), 'success');
   bee_message(format_plural(count($rows),
-    'Config was imported. 1 file was synced.',
-    'Config was imported. @count files were synced.'
-  ), 'success');
+    '1 file was synced.',
+    '@count files were synced.'
+  ));
+}
+
+/**
+ * Command callback: Export config from the site.
+ */
+function config_export_bee_callback($arguments, $options) {
+  // Delete staging config.
+  $staging = config_get_config_storage('staging');
+  $staging->deleteAll();
+
+  // Get active config.
+  $active = config_get_config_storage('active');
+
+  // Write each active config to staging.
+  foreach ($active->listAll() as $name) {
+    $data = $active->read($name);
+    $staging->write($name, $data);
+  }
+
+  bee_message(bt("Config was exported to '!staging'.", array(
+    '!staging' => config_get_config_directory('staging'),
+  )), 'success');
 }
