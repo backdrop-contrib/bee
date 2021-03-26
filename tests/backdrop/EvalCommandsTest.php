@@ -19,6 +19,11 @@ class EvalCommandsTest extends TestCase {
     // Test that the terminal semicolon is optional.
     $output_all = shell_exec('bee php-eval \'echo "foo" . "bar"\'');
     $this->assertStringContainsString('foobar', $output_all);
+
+    // Test that a Backdrop command works.
+    shell_exec('bee php-eval \'config_set("test.settings", "value", "foo" . "bar")\'');
+    $output_all = shell_exec('bee php-eval \'echo config_get("test.settings", "value")\'');
+    $this->assertStringContainsString('foobar', $output_all);
   }
 
 }
