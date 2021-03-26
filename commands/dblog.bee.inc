@@ -11,7 +11,7 @@ function dblog_bee_command() {
   return array(
     'log' => array(
       'description' => bt('Show database log messages.'),
-      'callback' => 'log_show_bee_callback',
+      'callback' => 'log_bee_callback',
       'arguments' => array(
         'id' => bt('The ID of a log message to display in detail. Leave blank to list summaries of the most recent log messages.'),
       ),
@@ -44,7 +44,7 @@ function dblog_bee_command() {
 /**
  * Command callback: Show database log messages.
  */
-function log_show_bee_callback($arguments, $options) {
+function log_bee_callback($arguments, $options) {
   if (empty($arguments['id'])) {
     // Show multiple log messages.
     return dblog_bee_show_messages($options);
