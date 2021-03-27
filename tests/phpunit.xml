@@ -8,6 +8,7 @@
       <file>backdrop/DBLogCommandsTest.php</file>
       <file>backdrop/DownloadCommandsTest.php</file>
       <file>backdrop/HelpCommandsTest.php</file>
+      <file>backdrop/PHPCommandsTest.php</file>
       <file>backdrop/ProjectsCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
       <file>backdrop/UpdateCommandsTest.php</file>
