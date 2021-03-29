@@ -128,6 +128,14 @@ function user_password_bee_callback($arguments, $options) {
  * Command callback: Display a login link for a given user.
  */
 function user_login_bee_callback($arguments, $options) {
+  // Include `settings.php`. This is required for the generated login link to
+  // work properly.
+  global $_bee_backdrop_root, $_bee_backdrop_site, $settings;
+  $settings_path = $_bee_backdrop_root;
+  $settings_path .= !empty($_bee_backdrop_site) ? '/sites/' . $_bee_backdrop_site : '';
+  $settings_path .= '/settings.php';
+  include $settings_path;
+
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
