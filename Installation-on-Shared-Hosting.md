@@ -1,4 +1,4 @@
-##Introduction
+## Introduction
 
 It may be possible to use Bee on your shared hosting if you have SSH access (or a virtual terminal - see Advanced > Terminal in your cPanel or equivalent) and if it will support aliases. See [this META issue](https://github.com/backdrop-contrib/bee/issues/154) for a list of shared hosts where this method has been tested and confirmed to work using the simple test above.
 
