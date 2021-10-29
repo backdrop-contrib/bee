@@ -247,7 +247,7 @@ function bee_validate_command($descriptor) {
       }
 
       // Make sure all required arguments have a value.
-      if (empty($grouped[$name]) && !in_array($name, $optional)) {
+      if (!isset($grouped[$name]) && !in_array($name, $optional)) {
         bee_message(bt("Argument '@name' is required.", array(
           '@name' => $name,
         )), 'error');

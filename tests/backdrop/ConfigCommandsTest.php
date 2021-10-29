@@ -28,6 +28,9 @@ class ConfigCommandsTest extends TestCase {
     $option = 'site_frontpage';
     $value = 'home';
     $new = 'about';
+    $option2 = 'preprocess_css';
+    $value2 = 1;
+    $new2 = 0;
 
     // Make sure the current homepage is 'home'.
     $output = shell_exec("bee config-get $file $option");
@@ -41,8 +44,13 @@ class ConfigCommandsTest extends TestCase {
     $output = shell_exec("bee config-get $file $option");
     $this->assertStringContainsString($new, $output);
 
-    // Set frontpage back to 'home' for future tests.
+    // Make sure 'empty' values can be set.
+    $output = shell_exec("bee config-set $file $option2 $new2");
+    $this->assertStringContainsString("'$option2' was set to '$new2'.", $output);
+
+    // Reset config values for future tests.
     exec("bee config-set $file $option $value");
+    exec("bee config-set $file $option2 $value2");
   }
 
   /**
