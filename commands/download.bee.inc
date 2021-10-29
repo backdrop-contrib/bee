@@ -251,7 +251,7 @@ function download_bee_download_project($project, $info, $destination, $progress 
 
   // Download & extract the project.
   $file = "$temp/$project.zip";
-  $directory = !empty($info['branch']) ? "$project-$branch" : $project;
+  $directory = !empty($info['branch']) ? $project . '-' . $info['branch'] : $project;
   $wget = "wget";
   if ($progress) {
     $wget .= " --show-progress";
