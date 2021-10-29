@@ -62,8 +62,8 @@ function download_bee_callback($arguments, $options) {
 
     // Get the project type.
     if (empty($info['type'])) {
-      bee_message(bt("The 'type' of project '@project' could not be determined.", array(
-        '@project' => $project,
+      bee_message(bt("The 'type' of project '!project' could not be determined.", array(
+        '!project' => $project,
       )), 'error');
       return;
     }
@@ -88,24 +88,24 @@ function download_bee_callback($arguments, $options) {
     }
     $destination .= "/$project";
     if (file_exists($destination)) {
-      bee_message(bt("'@project' already exists in '@destination'.", array(
-        '@project' => $project,
-        '@destination' => $destination,
+      bee_message(bt("'!project' already exists in '!destination'.", array(
+        '!project' => $project,
+        '!destination' => $destination,
       )), 'error');
       return;
     }
     elseif (!mkdir($destination, 0755, TRUE)) {
-      bee_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
-        '@directory' => $destination,
+      bee_message(bt("The destination directory '!directory' doesn't exist and couldn't be created.", array(
+        '!directory' => $destination,
       )), 'error');
       return;
     }
 
     // Download the project.
     if (download_bee_download_project($project, $info, $destination, $progress)) {
-      bee_message(bt("'@project' was downloaded into '@directory'.", array(
-        '@project' => $project,
-        '@directory' => $destination,
+      bee_message(bt("'!project' was downloaded into '!directory'.", array(
+        '!project' => $project,
+        '!directory' => $destination,
       )), 'success');
     }
   }
@@ -122,8 +122,8 @@ function download_core_bee_callback($arguments, $options) {
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
   if (!realpath($destination)) {
     if (!mkdir($destination, 0755, TRUE)) {
-      bee_message(bt("The destination directory '@directory' doesn't exist and couldn't be created.", array(
-        '@directory' => $destination,
+      bee_message(bt("The destination directory '!directory' doesn't exist and couldn't be created.", array(
+        '!directory' => $destination,
       )), 'error');
       return;
     }
@@ -138,8 +138,8 @@ function download_core_bee_callback($arguments, $options) {
 
   // Download Backdrop.
   if (download_bee_download_project('backdrop', $info, $destination, $progress)) {
-    bee_message(bt("Backdrop was downloaded into '@directory'.", array(
-      '@directory' => $destination,
+    bee_message(bt("Backdrop was downloaded into '!directory'.", array(
+      '!directory' => $destination,
     )), 'success');
   }
 }
@@ -170,9 +170,9 @@ function download_bee_git_info($project) {
   }
   else {
     // Offer to get the dev version instead.
-    $answer = bee_confirm(bt("There is no release for '@organisation/@project'. Do you you want to download the dev version instead?", array(
-      '@organisation' => $organisation,
-      '@project' => $project,
+    $answer = bee_confirm(bt("There is no release for '!organisation/!project'. Do you you want to download the dev version instead?", array(
+      '!organisation' => $organisation,
+      '!project' => $project,
     )));
 
     if ($answer) {
@@ -243,8 +243,8 @@ function download_bee_download_project($project, $info, $destination, $progress 
 
   // Get the download URL.
   if (empty($url = $info['url'])) {
-    bee_message(bt("The download URL for '@project' could not be found.", array(
-      '@project' => $project,
+    bee_message(bt("The download URL for '!project' could not be found.", array(
+      '!project' => $project,
     )), 'error');
     return FALSE;
   }

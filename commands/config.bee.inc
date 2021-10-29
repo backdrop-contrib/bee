@@ -69,15 +69,15 @@ function config_get_bee_callback($arguments, $options) {
 
   // Display errors for blank/missing values.
   if (!empty($arguments['option']) && is_null($value)) {
-    bee_message(bt("'@option' could not be found in the '@file' config file.", array(
-      '@option' => $arguments['option'],
-      '@file' => $arguments['file'],
+    bee_message(bt("'!option' could not be found in the '!file' config file.", array(
+      '!option' => $arguments['option'],
+      '!file' => $arguments['file'],
     )), 'error');
     return;
   }
   elseif (empty($arguments['option']) && empty($value)) {
-    bee_message(bt("The '@file' config file could not be found.", array(
-      '@file' => $arguments['file'],
+    bee_message(bt("The '!file' config file could not be found.", array(
+      '!file' => $arguments['file'],
     )), 'error');
     return;
   }
@@ -101,8 +101,8 @@ function config_set_bee_callback($arguments, $options) {
 
   // Ask to create file if it doesn't exist.
   if (empty($config->get())) {
-    $answer = bee_confirm(bt("The '@file' config file doesn't exist. Would you like to create it?", array(
-      '@file' => $arguments['file'],
+    $answer = bee_confirm(bt("The '!file' config file doesn't exist. Would you like to create it?", array(
+      '!file' => $arguments['file'],
     )), FALSE);
     if (!$answer) {
       return;
@@ -110,8 +110,8 @@ function config_set_bee_callback($arguments, $options) {
   }
   // Disallow setting the value of complex data types (e.g. arrays).
   elseif (!is_scalar($config->get($arguments['option']))) {
-    bee_message(bt("'@option' is a complex data type and cannot be set via the command line.", array(
-      '@option' => $arguments['option'],
+    bee_message(bt("'!option' is a complex data type and cannot be set via the command line.", array(
+      '!option' => $arguments['option'],
     )), 'error');
     return;
   }
@@ -120,9 +120,9 @@ function config_set_bee_callback($arguments, $options) {
   $config->set($arguments['option'], $arguments['value']);
   $config->save();
 
-  bee_message(bt("'@option' was set to '@value'.", array(
-    '@option' => $arguments['option'],
-    '@value' => $arguments['value'],
+  bee_message(bt("'!option' was set to '!value'.", array(
+    '!option' => $arguments['option'],
+    '!value' => $arguments['value'],
   )), 'success');
 }
 

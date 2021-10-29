@@ -56,8 +56,8 @@ function log_bee_callback($arguments, $options) {
     ))->fetchAssoc();
 
     if (!$message) {
-      bee_message(bt('Log message #@id could not be found.', array(
-        '@id' => $arguments['id'],
+      bee_message(bt('Log message #!id could not be found.', array(
+        '!id' => $arguments['id'],
       )), 'error');
       return;
     }
