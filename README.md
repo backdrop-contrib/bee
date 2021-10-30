@@ -38,30 +38,8 @@ Microsoft Windows.
   Simply type `bee` in your terminal and you should see a list of available
   commands displayed.
 
-### Lando
-
-Bee can also be used with your existing [Lando](https://lando.dev/) setup:
-
-- Add some build steps that download and install Bee:
-  ```yaml
-  services:
-    appserver:
-      build:
-        - wget -qO bee.zip https://github.com/backdrop-contrib/bee/archive/1.x-1.x.zip
-        - unzip -q bee.zip && rm bee.zip
-        - mv bee-1.x-1.x /usr/local/bin/bee
-  ```
-
-- Add a tooling command for `bee`:
-  ```yaml
-  tooling:
-    bee:
-      service: appserver
-      cmd: /usr/local/bin/bee/bee.php
-  ```
-
-- Rebuild Lando (`lando rebuild`) and then you can use Bee by typing
-  `lando bee ...`
+More advanced/specialised installation instructions can be found in the
+[wiki](https://github.com/backdrop-contrib/bee/wiki).
 
 ## Issues
 
