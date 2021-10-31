@@ -79,6 +79,11 @@ function install_bee_callback($arguments, $options) {
     return;
   }
 
+  // Display message about interactive mode.
+  if ($prompt) {
+    bee_render_text(array('value' => bt("Running installation in interactive mode. To run automatically (i.e. non-interactively), use the '--auto' option.\n")));
+  }
+
   // Get database connection string.
   if (!empty($options['db'])) {
     $db = $options['db'];
@@ -176,8 +181,10 @@ function install_bee_callback($arguments, $options) {
   }
 
   // Run the install script.
+  bee_render_text(array('value' => bt("\nInstalling Backdrop. This may take a moment...\n")));
   $result = exec("cd $_bee_backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
-  bee_render_text(array('value' => $result));
+  // Strip tags to prevent HTML code being output.
+  bee_render_text(array('value' => strip_tags($result)));
 
   // Show the randomly-generated password.
   if (strpos($result, 'successfully') !== FALSE && $show_password) {
