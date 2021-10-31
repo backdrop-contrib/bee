@@ -38,12 +38,14 @@ function user_bee_command() {
       'description' => bt('Display a login link for a given user.'),
       'callback' => 'user_login_bee_callback',
       'arguments' => array(
-        'username' => bt('The username of the user account to login as.'),
+        'username' => bt('The username of the user account to login as. Leave blank to login as User 1.'),
       ),
+      'optional_arguments' => array('username'),
       'aliases' => array('uli'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee user-login admin' => bt("Generate and display a one-time login link for the 'admin' user."),
+        'bee user-login bob' => bt("Generate and display a one-time login link for the user account named 'bob'."),
+        'bee user-login' => bt("Generate and display a one-time login link for User 1."),
       ),
     ),
   );
@@ -137,7 +139,13 @@ function user_login_bee_callback($arguments, $options) {
   include $settings_path;
 
   // Load the user account.
-  $user = user_load_by_name($arguments['username']);
+  if (!empty($arguments['username'])) {
+    $user = user_load_by_name($arguments['username']);
+  }
+  else {
+    // Load User 1 if no username provided.
+    $user = user_load(1);
+  }
   if (!$user) {
     bee_message(bt("User account '!user' cound not be found.", array(
       '!user' => $arguments['username'],

@@ -36,6 +36,11 @@ class UserCommandsTest extends TestCase {
     $output = shell_exec('bee user-login admin');
     $this->assertStringContainsString("Use the following link to login as 'admin':", $output);
     $this->assertStringContainsString('/user/reset/1/', $output);
+
+    // Test that leaving the username argument blank loads User 1.
+    $output = shell_exec('bee user-login');
+    $this->assertStringContainsString("Use the following link to login as 'admin':", $output);
+    $this->assertStringContainsString('/user/reset/1/', $output);
   }
 
 }
