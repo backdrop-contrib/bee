@@ -120,9 +120,10 @@ function config_set_bee_callback($arguments, $options) {
   $config->set($arguments['option'], $arguments['value']);
   $config->save();
 
-  bee_message(bt("'!option' was set to '!value'.", array(
+  bee_message(bt("'!option' was set to '!value' in '!file'.", array(
     '!option' => $arguments['option'],
     '!value' => $arguments['value'],
+    '!file' => $arguments['file'],
   )), 'success');
 }
 
