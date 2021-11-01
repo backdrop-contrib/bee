@@ -38,6 +38,24 @@ function config_bee_command() {
         'bee config-set image.style.thumbnail effects.0.data.width 200' => bt('Change the width of the Thumbnail image style.'),
       ),
     ),
+    'config-import' => array(
+      'description' => bt('Import config into the site.'),
+      'callback' => 'config_import_bee_callback',
+      'aliases' => array('cim', 'bcim'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee config-import' => bt("Imports config (from 'staging' to 'active') for the current site."),
+      ),
+    ),
+    'config-export' => array(
+      'description' => bt('Export config from the site.'),
+      'callback' => 'config_export_bee_callback',
+      'aliases' => array('cex', 'bcex'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee config-export' => bt("Exports config (from 'active' to 'staging') for the current site."),
+      ),
+    ),
   );
 }
 
@@ -51,15 +69,15 @@ function config_get_bee_callback($arguments, $options) {
 
   // Display errors for blank/missing values.
   if (!empty($arguments['option']) && is_null($value)) {
-    bee_message(bt("'@option' could not be found in the '@file' config file.", array(
-      '@option' => $arguments['option'],
-      '@file' => $arguments['file'],
+    bee_message(bt("'!option' could not be found in the '!file' config file.", array(
+      '!option' => $arguments['option'],
+      '!file' => $arguments['file'],
     )), 'error');
     return;
   }
   elseif (empty($arguments['option']) && empty($value)) {
-    bee_message(bt("The '@file' config file could not be found.", array(
-      '@file' => $arguments['file'],
+    bee_message(bt("The '!file' config file could not be found.", array(
+      '!file' => $arguments['file'],
     )), 'error');
     return;
   }
@@ -83,8 +101,8 @@ function config_set_bee_callback($arguments, $options) {
 
   // Ask to create file if it doesn't exist.
   if (empty($config->get())) {
-    $answer = bee_confirm(bt("The '@file' config file doesn't exist. Would you like to create it?", array(
-      '@file' => $arguments['file'],
+    $answer = bee_confirm(bt("The '!file' config file doesn't exist. Would you like to create it?", array(
+      '!file' => $arguments['file'],
     )), FALSE);
     if (!$answer) {
       return;
@@ -92,8 +110,8 @@ function config_set_bee_callback($arguments, $options) {
   }
   // Disallow setting the value of complex data types (e.g. arrays).
   elseif (!is_scalar($config->get($arguments['option']))) {
-    bee_message(bt("'@option' is a complex data type and cannot be set via the command line.", array(
-      '@option' => $arguments['option'],
+    bee_message(bt("'!option' is a complex data type and cannot be set via the command line.", array(
+      '!option' => $arguments['option'],
     )), 'error');
     return;
   }
@@ -102,8 +120,106 @@ function config_set_bee_callback($arguments, $options) {
   $config->set($arguments['option'], $arguments['value']);
   $config->save();
 
-  bee_message(bt("'@option' was set to '@value'.", array(
-    '@option' => $arguments['option'],
-    '@value' => $arguments['value'],
+  bee_message(bt("'!option' was set to '!value' in '!file'.", array(
+    '!option' => $arguments['option'],
+    '!value' => $arguments['value'],
+    '!file' => $arguments['file'],
+  )), 'success');
+}
+
+/**
+ * Command callback: Import config into the site.
+ */
+function config_import_bee_callback($arguments, $options) {
+  global $_bee_backdrop_root;
+  require_once $_bee_backdrop_root . '/core/modules/config/config.admin.inc';
+
+  $statuses = config_get_statuses();
+  $rows = array();
+
+  // Get config to be imported.
+  foreach ($statuses as $file => $status) {
+    if (!empty($status)) {
+      $rows[] = array(
+        array('value' => $file),
+        array('value' => $status),
+      );
+    }
+  }
+
+  // Show message and exit if there's no config to import.
+  if (empty($rows)) {
+    bee_message(bt('There is no config to import.'));
+    return;
+  }
+
+  // Display config to be imported to the user.
+  bee_render_text(array('value' => bt("The following config will be imported:\n")));
+  bee_render_table(array(
+    'rows' => $rows,
+    'header' => array(
+      array('value' => bt('Config')),
+      array('value' => bt('Status')),
+    ),
+  ));
+
+  // Prompt to continue.
+  if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
+    return;
+  }
+
+  require_once $_bee_backdrop_root . '/core/modules/config/config.sync.inc';
+
+  // Validate config.
+  try {
+    foreach ($rows as $row) {
+      config_sync_validate_file($row[0]['value'], $row[1]['value'], $statuses);
+    }
+  }
+  catch (ConfigValidateException $e) {
+    bee_message($e->getMessage(), 'error');
+    return;
+  }
+
+  // Import config.
+  foreach ($rows as $row) {
+    config_sync_file($row[0]['value'], $row[1]['value']);
+  }
+
+  // Clean up.
+  if (config_get('system.core', 'config_sync_clear_staging')) {
+    $staging = config_get_config_storage('staging');
+    $staging->deleteAll();
+  }
+  backdrop_flush_all_caches();
+
+  bee_message(bt("Config was imported to '!active'.", array(
+    '!active' => config_get_config_directory('active'),
+  )), 'success');
+  bee_message(format_plural(count($rows),
+    '1 file was synced.',
+    '@count files were synced.'
+  ));
+}
+
+/**
+ * Command callback: Export config from the site.
+ */
+function config_export_bee_callback($arguments, $options) {
+  // Delete staging config.
+  $staging = config_get_config_storage('staging');
+  $staging->deleteAll();
+
+  // Get active config.
+  $active = config_get_config_storage('active');
+
+  // Write each active config to staging.
+  foreach ($active->listAll() as $name) {
+    $data = $active->read($name);
+    $staging->write($name, $data);
+  }
+
+  bee_message(bt("Config was exported to '!staging'.", array(
+    '!staging' => config_get_config_directory('staging'),
   )), 'success');
 }

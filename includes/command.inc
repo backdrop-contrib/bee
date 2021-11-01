@@ -68,8 +68,8 @@ function bee_process_command() {
 
   // Make sure the given command exists.
   if (!isset($commands[$_bee_command])) {
-    bee_message(bt("There is no '@command' command.", array(
-      '@command' => $_bee_command,
+    bee_message(bt("There is no '!command' command.", array(
+      '!command' => $_bee_command,
     )), 'error');
     return;
   }
@@ -88,8 +88,8 @@ function bee_process_command() {
         $_bee_output = $callback($_bee_arguments, $_bee_options);
       }
       else {
-        bee_message(bt("The required bootstrap level for '@command' is not ready.", array(
-          '@command' => $_bee_command,
+        bee_message(bt("The required bootstrap level for '!command' is not ready.", array(
+          '!command' => $_bee_command,
         )), 'error');
       }
     }
@@ -117,9 +117,9 @@ function bee_all_commands() {
       // Make sure the command file's hook function exists.
       $function = $command_file . '_bee_command';
       if (!function_exists($function)) {
-        bee_message(bt("'@function()' does not exist in @file. Skipping.", array(
-          '@function' => $function,
-          '@file' => $path,
+        bee_message(bt("'!function()' does not exist in !file. Skipping.", array(
+          '!function' => $function,
+          '!file' => $path,
         )), 'log');
         continue;
       }
@@ -247,9 +247,9 @@ function bee_validate_command($descriptor) {
       }
 
       // Make sure all required arguments have a value.
-      if (empty($grouped[$name]) && !in_array($name, $optional)) {
-        bee_message(bt("Argument '@name' is required.", array(
-          '@name' => $name,
+      if (!isset($grouped[$name]) && !in_array($name, $optional)) {
+        bee_message(bt("Argument '!name' is required.", array(
+          '!name' => $name,
         )), 'error');
         return FALSE;
       }

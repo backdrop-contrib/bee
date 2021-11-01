@@ -48,7 +48,9 @@ function update_db_bee_callback() {
         bee_message($updates['warning'], 'warning');
       }
       else {
-        bee_message(bt("'@module' module can not be updated due to unresolved requirements."), 'warning');
+        bee_message(bt("'!module' module can not be updated due to unresolved requirements.", array(
+          '!module' => $module
+        )), 'warning');
       }
       continue;
     }
@@ -70,7 +72,7 @@ function update_db_bee_callback() {
     echo "\n";
     foreach ($modules as $module => $updates) {
       bee_render_text(array(
-        'value' => bt('@module module', array('@module' => $module)),
+        'value' => bt('!module module', array('!module' => $module)),
         '#color' => 'blue',
         '#bold' => TRUE,
       ));

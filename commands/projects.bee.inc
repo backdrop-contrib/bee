@@ -221,8 +221,8 @@ function enable_bee_callback($arguments, $options) {
 
     // Get project type.
     if (!$type = projects_bee_get_type($project)) {
-      bee_message(bt("Project '@name' could not be found.", array(
-        '@name' => $project,
+      bee_message(bt("Project '!name' could not be found.", array(
+        '!name' => $project,
       )), 'error');
       continue;
     }
@@ -244,8 +244,8 @@ function enable_bee_callback($arguments, $options) {
           $success = TRUE;
         }
         else {
-          bee_message(bt("The '@name' module could not be enabled due to missing dependencies.", array(
-            '@name' => $name,
+          bee_message(bt("The '!name' module could not be enabled due to missing dependencies.", array(
+            '!name' => $name,
           )), 'error');
         }
 
@@ -294,17 +294,17 @@ function enable_bee_callback($arguments, $options) {
 
     // Display a message if the project was already enabled.
     if ($already_enabled) {
-      bee_message(bt("The '@name' @type is already enabled.", array(
-        '@name' => $name,
-        '@type' => $type,
+      bee_message(bt("The '!name' !type is already enabled.", array(
+        '!name' => $name,
+        '!type' => $type,
       )), 'info');
     }
 
     // Display a message if the project was successfully enabled.
     if ($success) {
-      bee_message(bt("The '@name' @type was enabled.", array(
-        '@name' => $name,
-        '@type' => $type,
+      bee_message(bt("The '!name' !type was enabled.", array(
+        '!name' => $name,
+        '!type' => $type,
       )), 'success');
 
       $flush_caches = TRUE;
@@ -334,8 +334,8 @@ function disable_bee_callback($arguments, $options) {
 
     // Get project type.
     if (!$type = projects_bee_get_type($project)) {
-      bee_message(bt("Project '@name' could not be found.", array(
-        '@name' => $project,
+      bee_message(bt("Project '!name' could not be found.", array(
+        '!name' => $project,
       )), 'error');
       continue;
     }
@@ -400,17 +400,17 @@ function disable_bee_callback($arguments, $options) {
 
     // Display a message if the project was already disabled.
     if ($already_disabled) {
-      bee_message(bt("The '@name' @type is already disabled.", array(
-        '@name' => $name,
-        '@type' => $type,
+      bee_message(bt("The '!name' !type is already disabled.", array(
+        '!name' => $name,
+        '!type' => $type,
       )), 'info');
     }
 
     // Display a message if the project was successfully disabled.
     if ($success) {
-      bee_message(bt("The '@name' @type was disabled.", array(
-        '@name' => $name,
-        '@type' => $type,
+      bee_message(bt("The '!name' !type was disabled.", array(
+        '!name' => $name,
+        '!type' => $type,
       )), 'success');
 
       $flush_caches = TRUE;
@@ -437,8 +437,8 @@ function uninstall_bee_callback($arguments, $options) {
       $modules = system_rebuild_module_data();
     }
     if (!isset($modules[$module_name])) {
-      bee_message(bt("The '@name' module could not be found.", array(
-        '@name' => $module_name,
+      bee_message(bt("The '!name' module could not be found.", array(
+        '!name' => $module_name,
       )), 'error');
       continue;
     }
@@ -446,31 +446,31 @@ function uninstall_bee_callback($arguments, $options) {
 
     // Make sure module is disabled.
     if ($module->status) {
-      bee_message(bt("The '@name' module is still enabled and so cannot be uninstalled. Disable it and try again.", array(
-        '@name' => $module->info['name'],
+      bee_message(bt("The '!name' module is still enabled and so cannot be uninstalled. Disable it and try again.", array(
+        '!name' => $module->info['name'],
       )), 'error');
       break;
     }
 
     // Check if already uninstalled.
     if ($module->schema_version == SCHEMA_UNINSTALLED) {
-      bee_message(bt("The '@name' module is already uninstalled.", array(
-        '@name' => $module->info['name'],
+      bee_message(bt("The '!name' module is already uninstalled.", array(
+        '!name' => $module->info['name'],
       )), 'info');
       break;
     }
 
     // Uninstall module.
     if (backdrop_uninstall_modules(array($module_name), $uninstall_dependents)) {
-      bee_message(bt("The '@name' module was uninstalled.", array(
-        '@name' => $module->info['name'],
+      bee_message(bt("The '!name' module was uninstalled.", array(
+        '!name' => $module->info['name'],
       )), 'success');
 
       $flush_caches = TRUE;
     }
     else {
-      bee_message(bt("The '@name' module could not be uninstalled as other enabled modules depend on it.", array(
-        '@name' => $module->info['name'],
+      bee_message(bt("The '!name' module could not be uninstalled as other enabled modules depend on it.", array(
+        '!name' => $module->info['name'],
       )), 'error');
     }
   }
@@ -489,8 +489,8 @@ function theme_default_bee_callback($arguments, $options) {
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    bee_message(bt("The '@name' theme could not be found.", array(
-      '@name' => $theme_name,
+    bee_message(bt("The '!name' theme could not be found.", array(
+      '!name' => $theme_name,
     )), 'error');
     return;
   }
@@ -505,8 +505,8 @@ function theme_default_bee_callback($arguments, $options) {
   config_set('system.core', 'theme_default', $theme_name);
 
   // Display success message.
-  bee_message(bt("'@name' was set as the default theme.", array(
-    '@name' => $theme->info['name'],
+  bee_message(bt("'!name' was set as the default theme.", array(
+    '!name' => $theme->info['name'],
   )), 'success');
 
   // Flush caches.
@@ -521,8 +521,8 @@ function theme_admin_bee_callback($arguments, $options) {
   $theme_name = $arguments['theme'];
   $themes = system_rebuild_theme_data();
   if (!isset($themes[$theme_name])) {
-    bee_message(bt("The '@name' theme could not be found.", array(
-      '@name' => $theme_name,
+    bee_message(bt("The '!name' theme could not be found.", array(
+      '!name' => $theme_name,
     )), 'error');
     return;
   }
@@ -537,8 +537,8 @@ function theme_admin_bee_callback($arguments, $options) {
   config_set('system.core', 'admin_theme', $theme_name);
 
   // Display success message.
-  bee_message(bt("'@name' was set as the admin theme.", array(
-    '@name' => $theme->info['name'],
+  bee_message(bt("'!name' was set as the admin theme.", array(
+    '!name' => $theme->info['name'],
   )), 'success');
 
   // Flush caches.
@@ -556,8 +556,8 @@ function projects_bee_show_project($project) {
 
   // Get project type.
   if (!$type = projects_bee_get_type($project)) {
-    bee_message(bt("Project '@name' could not be found.", array(
-      '@name' => $project,
+    bee_message(bt("Project '!name' could not be found.", array(
+      '!name' => $project,
     )), 'error');
     return;
   }

@@ -106,14 +106,14 @@ function poem_bee_callback($arguments, $options) {
 
   // Generate poem.
   if (!$short) {
-    $poem = bt("Roses are @colour\nViolets are blue\nMy name is @name\nHow about you?\n", array(
-      '@colour' => $colour,
-      '@name' => $name,
+    $poem = bt("Roses are !colour\nViolets are blue\nMy name is !name\nHow about you?\n", array(
+      '!colour' => $colour,
+      '!name' => $name,
     ));
   }
   else {
-    $poem = bt("@name is my name and poetry's my game!\n", array(
-      '@name' => $name,
+    $poem = bt("!name is my name and poetry's my game!\n", array(
+      '!name' => $name,
     ));
   }
 

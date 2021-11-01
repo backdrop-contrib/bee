@@ -34,8 +34,8 @@ function bee_find_root($path, $recursive = TRUE) {
     }
   }
   else {
-    bee_message(bt('@path is not a valid directory.', array(
-      '@path' => $path,
+    bee_message(bt('!path is not a valid directory.', array(
+      '!path' => $path,
     )), 'error');
   }
 
@@ -90,15 +90,15 @@ function bee_find_site_by_site($site) {
       return $site;
     }
     else {
-      bee_message(bt('@site could not be found in @root/sites/sites.php.', array(
-        '@site' => $site,
-        '@root' => $_bee_backdrop_root,
+      bee_message(bt('!site could not be found in !root/sites/sites.php.', array(
+        '!site' => $site,
+        '!root' => $_bee_backdrop_root,
       )), 'error');
     }
   }
   else {
-    bee_message(bt('@root/sites/sites.php could not be found or is empty.', array(
-      '@root' => $_bee_backdrop_root,
+    bee_message(bt('!root/sites/sites.php could not be found or is empty.', array(
+      '!root' => $_bee_backdrop_root,
     )), 'error');
   }
 
@@ -136,8 +136,8 @@ function bee_find_site_by_path($path) {
     }
   }
   else {
-    bee_message(bt('@path is not a valid directory.', array(
-      '@path' => $path,
+    bee_message(bt('!path is not a valid directory.', array(
+      '!path' => $path,
     )), 'error');
   }
 
@@ -290,15 +290,15 @@ function bee_delete($path) {
 
   // Log a message if the file/directory doesn't exist (but return TRUE anyway).
   if (!file_exists($path)) {
-    bee_message(bt("'@path' was not deleted because it doesn't exist.", array(
-      '@path' => $path,
+    bee_message(bt("'!path' was not deleted because it doesn't exist.", array(
+      '!path' => $path,
     )), 'log');
     return TRUE;
   }
 
   // Display an error for non-files/directories.
-  bee_message(bt("'@path' was not deleted because it is not a recognized type.", array(
-    '@path' => $path,
+  bee_message(bt("'!path' was not deleted because it is not a recognized type.", array(
+    '!path' => $path,
   )), 'error');
   return FALSE;
 }
@@ -330,16 +330,16 @@ function bee_copy($source, $destination, $self = TRUE) {
   // Create the destination directory.
   if (!file_exists($destination)) {
     if (!mkdir($destination)) {
-      bee_message(bt("The destination '@destination' doesn't exist and could not be created.", array(
-        '@destination' => $destination,
+      bee_message(bt("The destination '!destination' doesn't exist and could not be created.", array(
+        '!destination' => $destination,
       )), 'error');
       return FALSE;
     }
   }
   // Make sure the destination is actually a directory.
   elseif (!is_dir($destination)) {
-    bee_message(bt("The destination '@destination' is not a directory.", array(
-      '@destination' => $destination,
+    bee_message(bt("The destination '!destination' is not a directory.", array(
+      '!destination' => $destination,
     )), 'error');
     return FALSE;
   }
@@ -362,9 +362,9 @@ function bee_copy($source, $destination, $self = TRUE) {
   else {
     // Copy a single file.
     if (!copy($source, $destination)) {
-      bee_message(bt("Failed to copy '@source' to '@destination'.", array(
-        '@source' => $source,
-        '@destination' => $destination,
+      bee_message(bt("Failed to copy '!source' to '!destination'.", array(
+        '!source' => $source,
+        '!destination' => $destination,
       )), 'error');
       return FALSE;
     }

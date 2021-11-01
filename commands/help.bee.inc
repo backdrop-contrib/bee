@@ -45,8 +45,8 @@ function help_bee_callback($arguments, $options) {
 
     // Make sure the command exists.
     if (!isset($commands[$command])) {
-      bee_message(bt("Cannot display help for '@command' as it doesn't exist.", array(
-        '@command' => $command,
+      bee_message(bt("Cannot display help for '!command' as it doesn't exist.", array(
+        '!command' => $command,
       )), 'error');
       return;
     }

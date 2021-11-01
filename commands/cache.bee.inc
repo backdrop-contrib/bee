@@ -106,7 +106,7 @@ function cache_clear_bee_command($arguments, $options) {
   }
 
   // Display success message.
-  bee_message(bt('Cache(s) cleared: @cache', array(
-    '@cache' => $cache_list[$cache],
+  bee_message(bt('Cache(s) cleared: !cache', array(
+    '!cache' => $cache_list[$cache],
   )), 'success');
 }
