@@ -44,5 +44,5 @@ You will be able to update your installation by clicking on 'Manage' and then 'U
 After adding the alias to .bashrc, Bee didn't work at all. 
 #### Solution
 Either:
-1. Log out and log back in
+1. Log out of your SSH session, and log back in
 2. Re-load the bash configuration using the command `source .bashrc`
