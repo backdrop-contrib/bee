@@ -16,7 +16,7 @@ function db_bee_command() {
         'file' => bt('The file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
       ),
       'optional_arguments' => array('file'),
-      'aliases' => array('db-dump', 'sql-dump', 'sql-export'),
+      'aliases' => array('dbex', 'db-dump', 'sql-export', 'sql-dump'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
         'bee db-export db.sql' => bt('Export the database to db.sql.gz.'),
@@ -27,9 +27,9 @@ function db_bee_command() {
       'description' => bt('Import an SQL file into the current database.'),
       'callback' => 'db_import_bee_callback',
       'arguments' => array(
-        'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. .sql.gz).'),
+        'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).'),
       ),
-      'aliases' => array('sql-import'),
+      'aliases' => array('dbim', 'sql-import'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
         'bee db-import backup.sql' => bt('Import backup.sql into the current database.'),
@@ -77,8 +77,9 @@ function db_export_bee_callback($arguments, $options) {
   exec($export_command, $output, $result);
 
   if ($result === 0) {
-    bee_message(bt("The database was exported to '@filename.gz'.", array(
-      '@filename' => $_bee_backdrop_root . '/' . $filename,
+    bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
+      '!database' => $db_info['database'],
+      '!filename' => $_bee_backdrop_root . '/' . $filename,
     )), 'success');
   }
 }
@@ -92,11 +93,31 @@ function db_import_bee_callback() {
   $db_info = $db_connection['default'];
 
   // Get the file for the import.
-  $file = $arguments['file'];
+  $filename = $arguments['file'];
+
+  // Determine if this is a compressed file.
+  $gzip = FALSE;
+  if (substr($file, -3) == '.gz') {
+    $gzip = TRUE;
+  }
 
   // Import the database.
-  $import_command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'] . ' < ' . $filename . '.gz';
+  $import_command = '';
+  if ($gzip) {
+    $import_command .= "gunzip -c $filename | ";
+  }
+  $import_command .= 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  if (!$gzip) {
+    $import_command .= " < $filename";
+  }
   exec($import_command, $output, $result);
+
+  if ($result === 0) {
+    bee_message(bt("'!filename' was imported into the '!database' database.", array(
+      '!filename' => $filename,
+      '!database' => $db_info['database'],
+    )), 'success');
+  }
 }
 
 /**
@@ -139,7 +160,7 @@ function _sql_drop_execute() {
         $connection->query($query);
       } else {
         bee_message(bt('Unable to drop database ' . $connection->error, array(
-          '@database' => $db['database'],
+          '!database' => $db['database'],
         )), 'error');
       }
       $connection->close();
