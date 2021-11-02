@@ -36,14 +36,16 @@ function db_bee_command() {
         'bee db-import db.sql.gz' => bt('Extract and import db.sql into the current database.'),
       ),
     ),
-    // 'sql-cli' => array(
-    //   'description' => bt('Open a SQL command-line interface using Backdrop\'s credentials.'),
-    //   'callback' => '_sql_cli_execute',
-    //   'aliases' => array('sqlc'),
-    //   'examples' => array(
-    //     'bee sql-cli < example.sql' => bt('Import sql statements from a file into the current database.'),
-    //   ),
-    // ),
+    'sql' => array(
+      'description' => bt("Open an SQL command-line interface using Backdrop's database credentials."),
+      'callback' => 'sql_bee_callback',
+      'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
+      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
+      'examples' => array(
+        'bee sql' => bt('Open a command-line for the current database.'),
+        'bee sql < backup.sql' => bt('Import an SQL file into the current database.'),
+      ),
+    ),
     // 'sql-drop' => array(
     //   'description' => bt('Drop all tables in a given database.'),
     //   'callback' => '_sql_drop_execute',
@@ -87,7 +89,7 @@ function db_export_bee_callback($arguments, $options) {
 /**
  * Command callback: Import an SQL file into the current database.
  */
-function db_import_bee_callback() {
+function db_import_bee_callback($arguments, $options) {
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
@@ -97,7 +99,7 @@ function db_import_bee_callback() {
 
   // Determine if this is a compressed file.
   $gzip = FALSE;
-  if (substr($file, -3) == '.gz') {
+  if (substr($filename, -3) == '.gz') {
     $gzip = TRUE;
   }
 
@@ -121,22 +123,17 @@ function db_import_bee_callback() {
 }
 
 /**
- * Opens a SQL command-line interface using Backdrop's credentials.
+ * Command callback: Open an SQL command-line interface using Backdrop's
+ * database credentials.
  */
-function _sql_cli_execute() {
-  global $_bee_backdrop_root;
-  if (!empty($_bee_backdrop_root)) {
-    if (class_exists('Database')) {
-      $db_connection = Database::getConnectionInfo();
-      $db = array_shift($db_connection);
-      $query = "mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} {$db['database']}";
-      exec($query);
-    }
-  }
-  else {
-    // No Backdrop root found.
-    bee_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'warning');
-  }
+function sql_bee_callback($arguments, $options) {
+  // Get database info.
+  $db_connection = Database::getConnectionInfo();
+  $db_info = $db_connection['default'];
+
+  // Open SQL command-line.
+  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 }
 
 /**
