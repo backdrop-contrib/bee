@@ -13,7 +13,7 @@ function db_bee_command() {
       'description' => bt('Export the database as a compressed SQL file.'),
       'callback' => 'db_export_bee_callback',
       'arguments' => array(
-        'file' => bt('The file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
+        'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
       ),
       'optional_arguments' => array('file'),
       'aliases' => array('dbex', 'db-dump', 'sql-export', 'sql-dump'),
@@ -46,18 +46,6 @@ function db_bee_command() {
         'bee sql < backup.sql' => bt('Import an SQL file into the current database.'),
       ),
     ),
-    // 'sql-drop' => array(
-    //   'description' => bt('Drop all tables in a given database.'),
-    //   'callback' => '_sql_drop_execute',
-    //   'options' => array(
-    //     'yes' => array(
-    //       'description' => bt('Skip confirmation and proceed.'),
-    //     ),
-    //     'result-file' => array(
-    //       'description' => bt('Save to a file. The file should be relative to Backdrop root.'),
-    //     ),
-    //   ),
-    // ),
   );
 }
 
@@ -134,37 +122,4 @@ function sql_bee_callback($arguments, $options) {
   // Open SQL command-line.
   $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
-}
-
-/**
- * Drops all tables in a given database..
- */
-function _sql_drop_execute() {
-  global $_bee_backdrop_root;
-  if (!empty($_bee_backdrop_root)) {
-    if (class_exists('Database')) {
-      $db_connection = Database::getConnectionInfo();
-      $db = array_shift($db_connection);
-      if (!bee_confirm(bt('Do you really want to drop all tables?'))) {
-        return;
-      }
-      $connection = mysqli_connect($db['host'], $db['username'], $db['password']);
-      // Drop Database
-      $query = "DROP DATABASE `{$db['database']}`";
-      if ($connection->query($query) === TRUE) {
-        // Re-create the database.
-        $query = "CREATE DATABASE `{$db['database']}`";
-        $connection->query($query);
-      } else {
-        bee_message(bt('Unable to drop database ' . $connection->error, array(
-          '!database' => $db['database'],
-        )), 'error');
-      }
-      $connection->close();
-    }
-  }
-  else {
-    // No Backdrop root found.
-    bee_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'warning');
-  }
 }

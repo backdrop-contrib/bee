@@ -69,13 +69,13 @@ class BeeCoreTest extends TestCase {
 
     $output_yes = shell_exec("bee config-set --yes $file $option $value");
     $this->assertStringContainsString("The '$file' config file doesn't exist.", $output_yes);
-    $this->assertStringContainsString("'$option' was set to '$value'.", $output_yes);
+    $this->assertStringContainsString("'$option' was set to '$value' in '$file'.", $output_yes);
 
     $file2 = $file . '2';
 
     $output_y = shell_exec("bee config-set --y $file2 $option $value");
     $this->assertStringContainsString("The '$file2' config file doesn't exist.", $output_y);
-    $this->assertStringContainsString("'$option' was set to '$value'.", $output_y);
+    $this->assertStringContainsString("'$option' was set to '$value' in '$file2'.", $output_y);
 
     // Cleanup config files.
     // Using `find` allows us to find and delete the necessary files without
