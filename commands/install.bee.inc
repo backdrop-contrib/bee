@@ -133,7 +133,7 @@ function install_bee_callback($arguments, $options) {
   else {
     $email = ($prompt) ? bee_check_plain(bee_input(bt('Admin email'), 'admin@example.com', TRUE)) : 'admin@example.com';
   }
-  $email = "--account-name=$email";
+  $email = "--account-mail=$email";
 
   // Get site name.
   if (!empty($options['site-name'])) {
