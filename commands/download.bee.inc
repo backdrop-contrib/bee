@@ -84,7 +84,7 @@ function download_bee_callback($arguments, $options) {
       return;
     }
     if (file_exists("$destination/contrib")) {
-      $description .= '/contrib';
+      $destination .= '/contrib';
     }
     $destination .= "/$project";
     if (file_exists($destination)) {
