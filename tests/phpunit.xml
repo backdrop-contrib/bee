@@ -5,6 +5,7 @@
       <file>backdrop/CacheCommandsTest.php</file>
       <file>backdrop/ConfigCommandsTest.php</file>
       <file>backdrop/CronCommandsTest.php</file>
+      <file>backdrop/DBCommandsTest.php</file>
       <file>backdrop/DBLogCommandsTest.php</file>
       <file>backdrop/DownloadCommandsTest.php</file>
       <file>backdrop/HelpCommandsTest.php</file>
