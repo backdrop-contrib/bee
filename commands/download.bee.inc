@@ -242,7 +242,8 @@ function download_bee_download_project($project, $info, $destination, $progress 
   }
 
   // Get the download URL.
-  if (empty($url = $info['url'])) {
+  $url = isset($info['url']) ? $info['url'] : NULL;
+  if (empty($url)) {
     bee_message(bt("The download URL for '!project' could not be found.", array(
       '!project' => $project,
     )), 'error');
