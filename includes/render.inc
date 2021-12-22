@@ -84,7 +84,9 @@ function bee_display_output() {
 
   // Process each element in the output.
   foreach ($_bee_output as $element) {
-    if (empty($type = $element['type']) || empty($variables = $element['variables'])) {
+    $type = isset($element['type']) ? $element['type'] : NULL;
+    $variables = isset($element['variables']) ? $element['variables'] : NULL;
+    if (empty($type) || empty($variables)) {
       continue;
     }
     $newline = isset($element['newline']) ? $element['newline'] : TRUE;
