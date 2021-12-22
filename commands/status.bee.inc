@@ -63,7 +63,7 @@ function status_bee_callback($arguments, $options) {
     if (class_exists('Database')) {
       $db_connection = Database::getConnectionInfo();
       $info = isset($db_connection['default']) ? $db_connection['default'] : NULL;
-      if (!empty($info) {
+      if (!empty($info)) {
         $rows[] = array(
           array('value' => bt('Database')),
           array('value' => $info['driver']),
