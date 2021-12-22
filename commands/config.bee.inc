@@ -100,7 +100,9 @@ function config_set_bee_callback($arguments, $options) {
   $config = config($arguments['file']);
 
   // Ask to create file if it doesn't exist.
-  if (empty($config->get())) {
+  $file = $config->get();
+  $option = $config->get($arguments['option']);
+  if (empty($file)) {
     $answer = bee_confirm(bt("The '!file' config file doesn't exist. Would you like to create it?", array(
       '!file' => $arguments['file'],
     )), FALSE);
@@ -109,7 +111,7 @@ function config_set_bee_callback($arguments, $options) {
     }
   }
   // Disallow setting the value of complex data types (e.g. arrays).
-  elseif (!is_scalar($config->get($arguments['option']))) {
+  elseif (!is_scalar($option)) {
     bee_message(bt("'!option' is a complex data type and cannot be set via the command line.", array(
       '!option' => $arguments['option'],
     )), 'error');
