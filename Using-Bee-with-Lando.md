@@ -1,5 +1,6 @@
 Bee can be used with your existing [Lando](https://lando.dev/) setup:
 
+## Installation
 1. Add some build steps that download and install Bee:
   ```yaml
   services:
@@ -20,4 +21,5 @@ Bee can be used with your existing [Lando](https://lando.dev/) setup:
 
 3. Rebuild Lando to make the above changes take effect: `lando rebuild`
 
-4. Use Bee by typing `lando bee ...`
+## Usage
+Use Bee by typing `lando bee ...`
