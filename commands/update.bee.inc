@@ -18,6 +18,24 @@ function update_bee_command() {
         'bee update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
       ),
     ),
+    'update' => array(
+      'description' => bt('Updates backdrop, modules, themes and layouts with new releases'),
+      'callback' => 'update_bee_callback',
+      'aliases' => array('up', 'pm-update'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'optional_arguments' => array('project'),
+      'multiple_argument' => 'project',
+      'options' => array(
+        'security-updates-only' => array(
+          'description' => bt('Only updates projects/backdrop with security releases'),
+        ),
+      ),
+      'examples' => array(
+        'bee update' => bt('Update everything with a new release.'),
+        'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
+        'bee update backdrop --security-updates-only' => bt('Updates only core backdrop and only security releases'),
+      ),
+    ),
   );
 }
 
