@@ -194,7 +194,7 @@ lando bee [global-options] <command> [options] [arguments]
 *Description:* Install Backdrop and setup a new site.  
 *Aliases:* `si` , `site-install`  
 *Options:*  
-- `--db=STRING` - A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://api.backdropcms.org/database-configuration for more details.
+- `--db=STRING` - A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://docs.backdropcms.org/documentation/database-configuration for more details.
 - `--username=USERNAME` - The username for the primary administrator account. Defaults to 'admin'.
 - `--password=PASSWORD` - The password for the primary administrator account. Defaults to a randomly-generated string.
 - `--email=EMAIL` - The email address for the primary administrator account. Defaults to 'admin@example.com'.
