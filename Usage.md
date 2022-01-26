@@ -288,7 +288,8 @@ TBC see https://github.com/backdrop-contrib/bee/issues/111
 
 *Examples:*  
 - `bee cache-clear menu` - Clear the menu cache.  
-- `bee cache-clear all` - Clear all caches.  
+- `bee cache-clear all` - Clear all caches.
+- `bee cache-clear css_js` - Clear the CSS & JS cache.  
 - `bee cache-clear` - Select the cache to clear from a list of available options: 
   
 0. All (default)
