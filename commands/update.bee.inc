@@ -118,3 +118,31 @@ function update_db_bee_callback() {
     bee_message(bt('All pending updates applied.'), 'success');
   }
 }
+
+/**
+ * Command callback: Show, and optionally apply, all core and module updates.
+ */
+function update_bee_callback() {
+/*
+  * @todo consider if any drush extension code can be re-used https://github.com/backdrop-contrib/backdrop-drush-extension/blob/1.x-1.x/commands/pm/backdrop_pm.drush.inc
+  * @todo determine required files:
+  *   - core/modules/update/update.fetch.inc
+  *   - core/modules/system/system.updater.inc ?? (https://docs.backdropcms.org/api/backdrop/core%21modules%21system%21system.updater.inc/1)
+  *   - core/includes/update.inc
+  *   - core/modules/installer/installer.manager.inc (https://docs.backdropcms.org/api/backdrop/core%21modules%21installer%21installer.manager.inc/1)
+  *   - core/modules/installer/installer.manager.inc (https://docs.backdropcms.org/api/backdrop/core%21modules%21installer%21installer.manager.inc/function/installer_manager_update_ready_form/1)
+  * @todo process arguments (list of projects)
+  * @todo process option (security-updates-only)
+  * @todo check for config item - update_disabled_extensions (Configuration>Update settings>) - if this is true (1) then need to check disabled projects also
+  * @todo get list of installed projects (core, modules, themes, layouts) if no argument list of projects
+  * @todo list of projects is either all installed + core, all enabled + core or argument list of projects
+  * @todo get current backdrop version
+  * @todo for each project in list get current version, type, name
+  * @todo for each project in list get available version
+  * @todo compare versions and prepare list of possible updates
+  * @todo ??option to review and proceed or cancel??
+  * @todo download updates to temp directory
+  * @todo install updates
+  * @todo can we / should we check if database updates needed and let user know
+*/
+}
