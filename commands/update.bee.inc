@@ -125,6 +125,8 @@ function update_db_bee_callback() {
 function update_bee_callback() {
 /*
   * @todo consider if any drush extension code can be re-used https://github.com/backdrop-contrib/backdrop-drush-extension/blob/1.x-1.x/commands/pm/backdrop_pm.drush.inc
+  * @todo consider if brush can be re-used https://github.com/backdrop-contrib/brush/blob/1.x-1.x/commands/pm/updatecode.pm.inc
+  * @todo check if file permissions allow backdrop to update itself? 
   * @todo determine required files:
   *   - core/modules/update/update.fetch.inc
   *   - core/modules/system/system.updater.inc ?? (https://docs.backdropcms.org/api/backdrop/core%21modules%21system%21system.updater.inc/1)
