@@ -4,6 +4,7 @@
       <file>backdrop/BeeCoreTest.php</file>
       <file>backdrop/CacheCommandsTest.php</file>
       <file>backdrop/ConfigCommandsTest.php</file>
+      <file>backdrop/StateCommandsTest.php</file>
       <file>backdrop/CronCommandsTest.php</file>
       <file>backdrop/DBCommandsTest.php</file>
       <file>backdrop/DBLogCommandsTest.php</file>
