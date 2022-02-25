@@ -34,6 +34,18 @@ function state_bee_command() {
         'bee state-set maintanance_mode 1' => bt('Set the value of the Backdrop state named "maintanance_mode" to 1.'),
       ],
     ],
+    'maintenance-mode' => [
+      'description' => bt('Set the value of maintenance_mode for Backdrop.'),
+      'callback' => 'maintenance_mode_bee_callback',
+      'arguments' => [
+        'value' => bt('The value to set maintenance_mode to.'),
+      ],
+      'aliases' => ['mm',],
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => [
+        'bee maintanance-mode 1' => bt('Set the value of the Backdrop maintenance_mode to 1.'),
+      ],
+    ],
   ];
 }
 
@@ -69,7 +81,7 @@ function state_set_bee_callback($arguments, $options) {
       '@state' => $arguments['state'],
       '@value' => $arguments['value'],
     ]);
-    bee_message($msg);
+    bee_message($msg, 'success');
   }
   catch(ParseError $e) {
     // This is more readable than the default error we would get from PHP.
@@ -80,3 +92,24 @@ function state_set_bee_callback($arguments, $options) {
     bee_message($err_msg, 'error');
   }
 }
+
+  /**
+   * Command callback: Set the value of a maintenance_mode for Backdrop.
+   */
+  function maintenance_mode_bee_callback($arguments, $options) {
+    try {
+      state_set('maintenance_mode', (int) $arguments['value']);
+      $msg = bt('The value of the Backdrop maintenance_mode is "@value".', [
+        '@value' => $arguments['value'],
+      ]);
+      bee_message($msg, 'success');
+    }
+    catch(ParseError $e) {
+      // This is more readable than the default error we would get from PHP.
+      $err_msg = bt('!msg in: !value', array(
+        '!msg' => $e->getMessage(),
+        '!value' => $arguments['value'],
+      ));
+      bee_message($err_msg, 'error');
+    }
+  }
