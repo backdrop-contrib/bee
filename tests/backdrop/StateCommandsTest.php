@@ -28,4 +28,16 @@ class StateCommandsTest extends TestCase {
     $output = shell_exec('bee state-set maintenance_mode 1');
     $this->assertStringContainsString('1', $output);
   }
+
+    /**
+   * Make sure that the maintenance-mode command works.
+   */
+  public function test_maintenance_mode_command_works() {
+    $output = shell_exec('bee maintenance_mode 1');
+    $this->assertStringContainsString('maintenance_mode', $output);
+    $this->assertStringContainsString('1', $output);
+
+    $output = shell_exec('bee state-set maintenance_mode 0');
+    $this->assertStringContainsString('0', $output);
+  }
 }
