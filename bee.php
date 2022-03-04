@@ -41,7 +41,7 @@ exit();
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function bee_error_handler($errno, $message, $filename, $line, $context) {
+function bee_error_handler($errno, $message, $filename, $line, $context = []) {
   if (error_reporting() > 0) {
     echo "$message\n";
     echo " $filename:$line\n\n";
