@@ -41,9 +41,19 @@ exit();
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function bee_error_handler($errno, $message, $filename, $line, $context) {
+function bee_error_handler($errno, $message, $filename, $line, $context = array()) {
   if (error_reporting() > 0) {
-    echo "$message\n";
-    echo " $filename:$line\n\n";
+    switch ($errno) {
+      case E_ERROR:
+      case E_CORE_ERROR:
+      case E_COMPILE_ERROR:
+      case E_USER_ERROR:
+        bee_render_text(array('value' => "ERROR: ", '#color' => 'red', '#bold' => TRUE), FALSE);
+        bee_render_text(array('value' => $message, '#color' => 'yellow'), TRUE);
+        bee_render_text(array('value' => "       In: $filename, Line: $line\n", '#color' => 'cyan', '#bold' => TRUE), TRUE);
+        break;
+      default:
+        break;
+    }
   }
 }
