@@ -1,0 +1,3 @@
+# Added for people using VSCode whose .inc files are caught by
+# prettier and munged. Good for people who do JS and PHP dev.
+*.inc
