@@ -36,6 +36,15 @@ function db_bee_command() {
         'bee db-import db.sql.gz' => bt('Extract and import db.sql into the current database.'),
       ),
     ),
+    'db-drop' => array(
+      'description' => bt('Drop the current backdrop database'),
+      'callback' => 'db_drop_bee_callback',
+      'aliases' => array('sql-drop', 'dbd'),
+      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
+      'examples' => array(
+        'bee sql-drop' => bt('Drop the existing backdrop database. Used when wanting to re-import fresh.'),
+      ),
+    ),
     'sql' => array(
       'description' => bt("Open an SQL command-line interface using Backdrop's database credentials."),
       'callback' => 'sql_bee_callback',
@@ -47,6 +56,48 @@ function db_bee_command() {
       ),
     ),
   );
+}
+
+/**
+ * Command callback: Drop and re-create the existing configured database.
+ */
+function db_drop_bee_callback($arguments, $options) {
+  // Initialize our pipes variable.
+  $pipes = array();
+
+  // Get database info.
+  $db_connection = Database::getConnectionInfo();
+  $db_info = $db_connection['default'];
+
+  // Drop the existing backdrop database as configured.
+  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' -e "drop database ' . $db_info['database'] . '"';
+  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+
+  if ($result == -1) {
+    bee_message(bt("The '!database' database could not be dropped.", array(
+      '!database' => $db_info['database'],
+    )), 'error');
+  }
+  else {
+    bee_message(bt("The '!database' database was successfully dropped.", array(
+      '!database' => $db_info['database'],
+    )), 'success');
+  }
+
+  // Re-create the existing backdrop database as configured.
+  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' -e "create database ' . $db_info['database'] . '"';
+  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+
+  if ($result == -1) {
+    bee_message(bt("The '!database' database could not be created.", array(
+      '!database' => $db_info['database'],
+    )), 'error');
+  }
+  else {
+    bee_message(bt("The '!database' database was successfully created.", array(
+      '!database' => $db_info['database'],
+    )), 'success');
+  }
 }
 
 /**
