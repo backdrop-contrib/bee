@@ -93,7 +93,7 @@ function bee_initialize_console() {
 function bee_bootstrap($level) {
   global $_bee_backdrop_installed, $_bee_backdrop_root;
 
-  if (!$_bee_backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
+  if (!$_bee_backdrop_installed && $level > BEE_BOOTSTRAP_DATABASE) {
     return FALSE;
   }
 
