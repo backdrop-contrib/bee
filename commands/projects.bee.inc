@@ -162,7 +162,7 @@ function projects_bee_callback($arguments, $options) {
         array('value' => $theme->info['name']),
         array('value' => $theme->type),
         array('value' => $theme->status ? bt('Enabled') : bt('Disabled')),
-        array('value' => $theme->info['version']),
+        array('value' => $theme->info['version'] ? $theme->info['version'] : bt('No version')),
       );
     }
   }
