@@ -143,7 +143,7 @@ function projects_bee_callback($arguments, $options) {
         array('value' => $module->info['name']),
         array('value' => $module->type),
         array('value' => $module->status ? bt('Enabled') : bt('Disabled')),
-        array('value' => $module->info['version'] ? $module->info['version'] : bt('No version')),
+        array('value' => $module->info['version'] ? $module->info['version'] : ''),
       );
     }
   }
@@ -162,7 +162,7 @@ function projects_bee_callback($arguments, $options) {
         array('value' => $theme->info['name']),
         array('value' => $theme->type),
         array('value' => $theme->status ? bt('Enabled') : bt('Disabled')),
-        array('value' => $theme->info['version'] ? $theme->info['version'] : bt('No version')),
+        array('value' => $theme->info['version'] ? $theme->info['version'] : ''),
       );
     }
   }
@@ -182,7 +182,7 @@ function projects_bee_callback($arguments, $options) {
         array('value' => $layout['title']),
         array('value' => $layout['type']),
         array('value' => !in_array($layout['name'], $disabled_layouts) ? bt('Enabled') : bt('Disabled')),
-        array('value' => $layout['version'] ? $layout['version'] : bt('No version')),
+        array('value' => $layout['version'] ? $layout['version'] : ''),
       );
     }
   }
