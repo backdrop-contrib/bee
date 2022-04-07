@@ -7,9 +7,9 @@ bee [global-options] <command> [options] [arguments]
 lando bee [global-options] <command> [options] [arguments]
 ```
 ## Global Options
- - `--root` - Specify the root directory of the Backdrop installation to use. If not set, will try to find the Backdrop installation automatically based on the current directory.                    
+ - `--root` - Specify the root directory of the Backdrop installation to use. If not set, will try to find the Backdrop installation automatically based on the current directory. For example, `bee --root=docroot status`                    
   
- - `--site` - Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory. 
+ - `--site` - Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory.
   
  - `--yes` , `-y` - Answer 'yes' to questions without prompting.  
   
