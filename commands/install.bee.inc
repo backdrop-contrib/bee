@@ -86,12 +86,19 @@ function install_bee_callback($arguments, $options) {
 
   // Get database connection string.
   if (!empty($options['db'])) {
-    $db = $options['db'];
+    // Split the passed URL into parts so can encode user, password and db name
+    $db_url = $options['db'];
+    $db_name = rawurlencode(substr(parse_url($db_url, PHP_URL_PATH),1));
+    $db_username = rawurlencode(parse_url($db_url, PHP_URL_USER));
+    $db_password = rawurlencode(parse_url($db_url, PHP_URL_PASS));
+    $db_host = parse_url($db_url, PHP_URL_HOST);
+    // Re-compile the database URL
+    $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
   else {
-    $db_name = bee_check_plain(bee_input(bt('Database name'), '', TRUE));
-    $db_username = bee_check_plain(bee_input(bt('Database username'), '', TRUE));
-    $db_password = bee_check_plain(bee_input(bt('Database password'), '', TRUE));
+    $db_name = rawurlencode(bee_check_plain(bee_input(bt('Database name'), '', TRUE)));
+    $db_username = rawurlencode(bee_check_plain(bee_input(bt('Database username'), '', TRUE)));
+    $db_password = rawurlencode(bee_check_plain(bee_input(bt('Database password'), '', TRUE)));
     $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
     $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
