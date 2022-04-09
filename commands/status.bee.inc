@@ -69,15 +69,15 @@ function status_bee_callback($arguments, $options) {
         );
         $rows[] = array(
           array('value' => bt('Database name')),
-          array('value' => $info['database']),
+          array('value' => rawurldecode($info['database'])),
         );
         $rows[] = array(
           array('value' => bt('Database username')),
-          array('value' => $info['username']),
+          array('value' => rawurldecode($info['username'])),
         );
         $rows[] = array(
           array('value' => bt('Database password')),
-          array('value' => isset($options['show-password']) ? $info['password'] : '**********'),
+          array('value' => isset($options['show-password']) ? rawurldecode($info['password']) : '**********'),
         );
         $rows[] = array(
           array('value' => bt('Database host')),

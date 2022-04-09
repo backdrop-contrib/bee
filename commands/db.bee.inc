@@ -63,12 +63,12 @@ function db_export_bee_callback($arguments, $options) {
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
   // Export and compress the database.
-  $export_command = 'mysqldump --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'] . ' | gzip > ' . $filename . '.gz';
+  $export_command = bee_compile_mysql_command('mysqldump') . ' | gzip > ' . $filename . '.gz';
   exec($export_command, $output, $result);
 
   if ($result === 0) {
     bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
-      '!database' => $db_info['database'],
+      '!database' => rawurldecode($db_info['database']),
       '!filename' => $_bee_backdrop_root . '/' . $filename,
     )), 'success');
   }
@@ -96,7 +96,7 @@ function db_import_bee_callback($arguments, $options) {
   if ($gzip) {
     $import_command .= "gunzip -c $filename | ";
   }
-  $import_command .= 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  $import_command .= bee_compile_mysql_command();
   if (!$gzip) {
     $import_command .= " < $filename";
   }
@@ -105,7 +105,7 @@ function db_import_bee_callback($arguments, $options) {
   if ($result === 0) {
     bee_message(bt("'!filename' was imported into the '!database' database.", array(
       '!filename' => $filename,
-      '!database' => $db_info['database'],
+      '!database' => rawurldecode($db_info['database']),
     )), 'success');
   }
 }
@@ -115,11 +115,29 @@ function db_import_bee_callback($arguments, $options) {
  * database credentials.
  */
 function sql_bee_callback($arguments, $options) {
+
+  // Open SQL command-line.
+  $command = bee_compile_mysql_command();
+  proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+}
+
+/**
+ * Helper function to create the mysql command line
+ * using database credentials.
+ */
+function bee_compile_mysql_command($mysql_function = 'mysql') {
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
-  // Open SQL command-line.
-  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
-  proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+  // Define command line base
+  $command =  $mysql_function;
+  $command .= ' --user=' . rawurldecode($db_info['username']);
+  $command .= ' --password=' . rawurldecode($db_info['password']);
+  $command .= ' --host=' . $db_info['host'];
+  $command .= ' ' . rawurldecode($db_info['database']);
+
+  // Return the concatenated command
+  echo $command;
+  return $command;
 }
