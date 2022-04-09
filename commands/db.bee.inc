@@ -138,6 +138,5 @@ function bee_compile_mysql_command($mysql_function = 'mysql') {
   $command .= ' ' . rawurldecode($db_info['database']);
 
   // Return the concatenated command
-  echo $command;
   return $command;
 }
