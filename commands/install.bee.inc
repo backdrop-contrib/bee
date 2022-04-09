@@ -88,11 +88,11 @@ function install_bee_callback($arguments, $options) {
   if (!empty($options['db'])) {
     // Split the passed URL into parts so can encode user, password and db name
     $db_url = $options['db'];
-    $db_name = rawurlencode(substr(parse_url($db_url, PHP_URL_PATH),1));
-    $db_username = rawurlencode(parse_url($db_url, PHP_URL_USER));
-    $db_password = rawurlencode(parse_url($db_url, PHP_URL_PASS));
-    $db_host = parse_url($db_url, PHP_URL_HOST);
-    // Re-compile the database URL
+    $db_name = rawurlencode(bee_check_plain(bee_after_last('/', $db_url)));
+    $db_username = rawurlencode(bee_check_plain(bee_before(':', bee_after('mysql://', $db_url))));
+    $db_password = rawurlencode(bee_check_plain(bee_between($db_username . ':', '@' . bee_after_last('@', $db_url), $db_url)));
+    $db_host = bee_check_plain(bee_between_last('@', '/', $db_url));
+    // Re-compile the database URL using the sanitized parts
     $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
   else {
@@ -209,3 +209,55 @@ function install_bee_callback($arguments, $options) {
 function bee_check_plain($text) {
   return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
+
+/**
+ * Helper functions for extracting the database connection parts from db option
+ *
+ * Source: https://www.php.net/manual/en/function.substr.php#112707
+ */
+
+// Returns all in $string between $text1 and $text2
+function bee_between ($text1, $text2, $string)
+{
+    return bee_before ($text2, bee_after($text1, $string));
+};
+
+// Returns all in $string between the last @text1 and last $text2
+function bee_between_last ($text1, $text2, $string)
+{
+ return bee_after_last($text1, bee_before_last($text2, $string));
+};
+
+// Returns all in $string after $text
+function bee_after ($text, $string)
+{
+    if (!is_bool(strpos($string, $text)))
+    return substr($string, strpos($string,$text)+strlen($text));
+};
+
+// Returns all in $string after the last occurrence of $text
+function bee_after_last ($text, $string)
+{
+    if (!is_bool(bee_position_from_end($string, $text)))
+    return substr($string, bee_position_from_end($string, $text)+strlen($text));
+};
+
+// Returns all in $string before $text
+function bee_before ($text, $string)
+{
+    return substr($string, 0, strpos($string, $text));
+};
+
+// Returns all in $string before the last occurrence of $text
+function bee_before_last ($text, $string)
+{
+    return substr($string, 0, bee_position_from_end($string, $text));
+};
+
+// Returns position of $text from the end of $string or `false` if not found
+function bee_position_from_end($string, $text)
+{
+$rev_pos = strpos (strrev($string), strrev($text));
+if ($rev_pos===false) return false;
+else return strlen($string) - $rev_pos - strlen($text);
+};
