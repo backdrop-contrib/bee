@@ -133,7 +133,7 @@ function bee_compile_mysql_command($mysql_function = 'mysql') {
   // Define command line base
   $command =  $mysql_function;
   $command .= ' --user=' . rawurldecode($db_info['username']);
-  $command .= ' --password=' . rawurldecode($db_info['password']);
+  $command .= ' --password=\'' .  rawurldecode($db_info['password']) . '\'' ;
   $command .= ' --host=' . $db_info['host'];
   $command .= ' ' . rawurldecode($db_info['database']);
 
