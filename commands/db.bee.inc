@@ -63,7 +63,7 @@ function db_export_bee_callback($arguments, $options) {
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
   // Export and compress the database.
-  $export_command = bee_compile_mysql_command('mysqldump') . ' | gzip > ' . $filename . '.gz';
+  $export_command = 'mysqldump ' . db_bee_mysql_options($db_info) . ' | gzip > ' . $filename . '.gz';
   exec($export_command, $output, $result);
 
   if ($result === 0) {
@@ -96,7 +96,7 @@ function db_import_bee_callback($arguments, $options) {
   if ($gzip) {
     $import_command .= "gunzip -c $filename | ";
   }
-  $import_command .= bee_compile_mysql_command();
+  $import_command .= 'mysql ' . db_bee_mysql_options($db_info);
   if (!$gzip) {
     $import_command .= " < $filename";
   }
@@ -115,28 +115,32 @@ function db_import_bee_callback($arguments, $options) {
  * database credentials.
  */
 function sql_bee_callback($arguments, $options) {
-
-  // Open SQL command-line.
-  $command = bee_compile_mysql_command();
-  proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
-}
-
-/**
- * Helper function to create the mysql command line
- * using database credentials.
- */
-function bee_compile_mysql_command($mysql_function = 'mysql') {
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
-  // Define command line base
-  $command =  $mysql_function;
-  $command .= ' --user=' . rawurldecode($db_info['username']);
-  $command .= ' --password=\'' .  rawurldecode($db_info['password']) . '\'' ;
-  $command .= ' --host=' . $db_info['host'];
-  $command .= ' ' . rawurldecode($db_info['database']);
+  // Open SQL command-line.
+  $command = 'mysql ' . db_bee_mysql_options($db_info);
+  proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+}
 
-  // Return the concatenated command
-  return $command;
+/**
+ * Returns a decoded options string for use with MySQL commands.
+ *
+ * @param array $db_info
+ *   Connection information for the current database. Generally obtained via
+ *   Database::getConnectionInfo().
+ *
+ * @return string
+ *   A string of command options that can be appended to 'mysql' or 'mysqldump'.
+ */
+function db_bee_mysql_options($db_info) {
+
+  $options =  $mysql_function;
+  $options .= ' --user=' . rawurldecode($db_info['username']);
+  $options .= ' --password=\'' .  rawurldecode($db_info['password']) . '\'' ;
+  $options .= ' --host=' . $db_info['host'];
+  $options .= ' ' . rawurldecode($db_info['database']);
+
+  return $options;
 }
