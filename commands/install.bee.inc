@@ -13,9 +13,21 @@ function install_bee_command() {
       'description' => bt('Install Backdrop and setup a new site.'),
       'callback' => 'install_bee_callback',
       'options' => array(
-        'db' => array(
-          'description' => bt("A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://api.backdropcms.org/database-configuration for more details."),
-          'value' => bt('String'),
+        'db-name' => array(
+          'description' => bt("The database name."),
+          'value' => bt('Database name'),
+        ),
+        'db-user' => array(
+          'description' => bt("The username for the database."),
+          'value' => bt('Database username'),
+        ),
+        'db-pass' => array(
+          'description' => bt("The password for the database. "),
+          'value' => bt('Database password'),
+        ),
+        'db-host' => array(
+          'description' => bt("The host for the database relative to your webserver. Defaults to 'localhost'"),
+          'value' => bt('Database host'),
         ),
         'username' => array(
           'description' => bt("The username for the primary administrator account. Defaults to 'admin'."),
@@ -59,8 +71,8 @@ function install_bee_command() {
       'aliases' => array('si', 'site-install'),
       'examples' => array(
         'bee install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
-        'bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
-        'bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
+        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
+        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
       ),
     ),
   );
@@ -84,24 +96,40 @@ function install_bee_callback($arguments, $options) {
     bee_render_text(array('value' => bt("Running installation in interactive mode. To run automatically (i.e. non-interactively), use the '--auto' option.\n")));
   }
 
-  // Get database connection string.
-  if (!empty($options['db'])) {
-    // Split the passed URL into parts so can encode user, password and db name
-    $db_url = $options['db'];
-    $db_name = rawurlencode(bee_check_plain(bee_after_last('/', $db_url)));
-    $db_username = rawurlencode(bee_check_plain(bee_before(':', bee_after('mysql://', $db_url))));
-    $db_password = rawurlencode(bee_check_plain(bee_between($db_username . ':', '@' . bee_after_last('@', $db_url), $db_url)));
-    $db_host = bee_check_plain(bee_between_last('@', '/', $db_url));
-    // Re-compile the database URL using the sanitized parts
-    $db = "mysql://$db_username:$db_password@$db_host/$db_name";
+  // Get database name.
+  if (!empty($options['db-name'])) {
+    $db_name = $options['db-name'];
   }
   else {
     $db_name = rawurlencode(bee_check_plain(bee_input(bt('Database name'), '', TRUE)));
-    $db_username = rawurlencode(bee_check_plain(bee_input(bt('Database username'), '', TRUE)));
-    $db_password = rawurlencode(bee_check_plain(bee_input(bt('Database password'), '', TRUE)));
-    $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
-    $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   }
+  
+  // Get database username.
+  if (!empty($options['db-user'])) {
+    $db_username = $options['db-user'];
+  }
+  else {
+    $db_username = rawurlencode(bee_check_plain(bee_input(bt('Database username'), '', TRUE)));
+  }
+
+  // Get database password.
+  if (!empty($options['db-pass'])) {
+    $db_password = $options['db-pass'];
+  }
+  else {
+    $db_password = rawurlencode(bee_check_plain(bee_input(bt('Database password'), '', TRUE)));
+  }
+
+  // Get database host.
+  if (!empty($options['db-host'])) {
+    $db_host = $options['db-host'];
+  }
+  else {
+    $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
+  }
+
+  // Compile database url
+  $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   $db = "--db-url=$db";
 
   // Get database prefix.
@@ -209,55 +237,3 @@ function install_bee_callback($arguments, $options) {
 function bee_check_plain($text) {
   return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
-
-/**
- * Helper functions for extracting the database connection parts from db option
- *
- * Source: https://www.php.net/manual/en/function.substr.php#112707
- */
-
-// Returns all in $string between $text1 and $text2
-function bee_between ($text1, $text2, $string)
-{
-    return bee_before ($text2, bee_after($text1, $string));
-};
-
-// Returns all in $string between the last @text1 and last $text2
-function bee_between_last ($text1, $text2, $string)
-{
- return bee_after_last($text1, bee_before_last($text2, $string));
-};
-
-// Returns all in $string after $text
-function bee_after ($text, $string)
-{
-    if (!is_bool(strpos($string, $text)))
-    return substr($string, strpos($string,$text)+strlen($text));
-};
-
-// Returns all in $string after the last occurrence of $text
-function bee_after_last ($text, $string)
-{
-    if (!is_bool(bee_position_from_end($string, $text)))
-    return substr($string, bee_position_from_end($string, $text)+strlen($text));
-};
-
-// Returns all in $string before $text
-function bee_before ($text, $string)
-{
-    return substr($string, 0, strpos($string, $text));
-};
-
-// Returns all in $string before the last occurrence of $text
-function bee_before_last ($text, $string)
-{
-    return substr($string, 0, bee_position_from_end($string, $text));
-};
-
-// Returns position of $text from the end of $string or `false` if not found
-function bee_position_from_end($string, $text)
-{
-$rev_pos = strpos (strrev($string), strrev($text));
-if ($rev_pos===false) return false;
-else return strlen($string) - $rev_pos - strlen($text);
-};
