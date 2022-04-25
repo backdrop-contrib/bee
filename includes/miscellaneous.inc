@@ -25,7 +25,7 @@ function bee_initialize_server() {
  * Initialize Bee.
  */
 function bee_initialize_console() {
-  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode;
+  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode, $_bee_verbose_mode;
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($_bee_options['root'])) {
@@ -75,9 +75,15 @@ function bee_initialize_console() {
     $_bee_yes_mode = TRUE;
     bee_message(bt("'Yes' mode enabled."), 'log');
   }
+
   if (!empty($_bee_options['debug']) || !empty($_bee_options['d'])) {
     $_bee_debug_mode = TRUE;
     bee_message(bt("'Debug' mode enabled."), 'log');
+  }
+
+  if (!empty($_bee_options['verbose']) || !empty($_bee_options['v'])) {
+    $_bee_verbose_mode = TRUE;
+    bee_message(bt("'Verbose' mode enabled."), 'log');
   }
 }
 

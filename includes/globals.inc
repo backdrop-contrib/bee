@@ -24,6 +24,10 @@ $_bee_global_options = array(
     'description' => bt("Enables 'debug' mode, in which 'log' type messages will be displayed (in addition to all other messages)."),
     'short' => 'd',
   ),
+  'verbose' => array(
+    'description' => bt("Enables the output of PHP notices and warnings."),
+    'short' => 'v',
+  ),
 );
 
 // The command that was given (e.g. `core-status`).
@@ -39,7 +43,7 @@ $_bee_options = array();
 // A list that maps command aliases to their commands.
 $_bee_command_aliases = array();
 
-// A boolean indicating whether or not Backdrop is installed.
+// A boolean indicating whether Backdrop is installed.
 $_bee_backdrop_installed = FALSE;
 
 // The root directory of the Backdrop installation to use.
@@ -51,11 +55,14 @@ $_bee_backdrop_site = FALSE;
 // A list of multisites populated from `sites.php`.
 $_bee_multisites = array();
 
-// A boolean indicating whether or not `Yes` mode is enabled.
+// A boolean indicating whether `Yes` mode is enabled.
 $_bee_yes_mode = FALSE;
 
-// A boolean indicating whether or not `Debug` mode is enabled.
+// A boolean indicating whether `Debug` mode is enabled.
 $_bee_debug_mode = FALSE;
+
+// A boolean indicating whether 'verbose' mode is enabled.
+$_bee_verbose_mode = FALSE;
 
 // A list of messages to display to the user, grouped by type.
 $_bee_messages = array();

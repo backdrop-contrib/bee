@@ -42,7 +42,9 @@ exit();
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
 function bee_error_handler($errno, $message, $filename, $line, $context) {
-  if (error_reporting() > 0) {
+  global $_bee_verbose_mode;
+
+  if ($_bee_verbose_mode && error_reporting() > 0) {
     echo "$message\n";
     echo " $filename:$line\n\n";
   }
