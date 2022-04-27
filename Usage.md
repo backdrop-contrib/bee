@@ -227,21 +227,26 @@ TBC see https://github.com/backdrop-contrib/bee/issues/111
 *Description:* Export the database as a compressed SQL file (.sql.gz).  
 *Aliases:* `dbex` , `db-dump` , `sql-export` , `sql-dump`  
 *Arguments:*
-- `file` - (optional) The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.  
+- `file` - (optional) The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.
+
+Note: The path is always relative to the Backdrop root so if you want to save in a folder above this, use `../` and the filename.
   
 *Examples:*  
 - `bee db-export db.sql` - Export the database to db.sql.gz.
 - `bee db-export` - Export the database to [DATE_TIME].sql.gz.
+- `bee db-export ../db/db_export.sql` - Export the database to ../db/db_export.sql.gz
 
 #### `db-import`
 *Description:* Import an SQL file into the current database.  
 *Aliases:* `dbim` , `sql-import`  
 *Arguments:*  
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
- 
+Note: The path is always relative to the Backdrop root so if you want to import from a folder above this, use `../` and the filename.
+
 *Examples:*  
 - `bee db-import backup.sql` - Import backup.sql into the current database.
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
+- `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
 
 #### `sql`
 *Description:* Open an SQL command-line interface using Backdrop's database credentials.  
