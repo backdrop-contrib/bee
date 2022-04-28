@@ -229,7 +229,7 @@ TBC see https://github.com/backdrop-contrib/bee/issues/111
 *Arguments:*
 - `file` - (optional) The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.
 
-Note: The path is always relative to the Backdrop root so if you want to save in a folder above this, use `../` and the filename.
+Note: The path is always relative to the Backdrop root so if you want to export to a folder above this, use `../` and the filename.
   
 *Examples:*  
 - `bee db-export db.sql` - Export the database to db.sql.gz.
@@ -241,6 +241,7 @@ Note: The path is always relative to the Backdrop root so if you want to save in
 *Aliases:* `dbim` , `sql-import`  
 *Arguments:*  
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
+
 Note: The path is always relative to the Backdrop root so if you want to import from a folder above this, use `../` and the filename.
 
 *Examples:*  
