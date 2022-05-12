@@ -49,6 +49,7 @@ https://github.com/backdrop-contrib/bee/issues.
 ## Current Maintainers
 
 - [Peter Anderson](https://github.com/BWPanda)
+- [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons](https://www.systemhorizons.co.uk)
 
 ## Credits
 
