@@ -99,7 +99,6 @@ function install_bee_callback($arguments, $options) {
   // Get database name.
   if (!empty($options['db-name'])) {
     $db_name = $options['db-name'];
-    $check_db_name_option = TRUE;
   }
   else {
     $db_name = rawurlencode(bee_check_plain(bee_input(bt('Database name'), '', TRUE)));
@@ -125,8 +124,12 @@ function install_bee_callback($arguments, $options) {
   if (!empty($options['db-host'])) {
     $db_host = $options['db-host'];
   }
-  else {
-    $check_db_name_option ? $db_host = 'localhost' : $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
+  elseif (!empty($options['db-name'])) {
+    // If the user provided a DB name but not the host, we assume 'localhost'.
+    $db_host = 'localhost';
+  }
+  else { 
+    $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
   }
 
   // Compile database url
