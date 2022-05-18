@@ -136,9 +136,8 @@ function sql_bee_callback($arguments, $options) {
  */
 function db_bee_mysql_options($db_info) {
 
-  $options =  $mysql_function;
   $options .= ' --user=' . rawurldecode($db_info['username']);
-  $options .= ' --password=\'' .  rawurldecode($db_info['password']) . '\'' ;
+  $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
   $options .= ' --host=' . $db_info['host'];
   $options .= ' ' . rawurldecode($db_info['database']);
 

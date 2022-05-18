@@ -71,7 +71,7 @@ function install_bee_command() {
       'aliases' => array('si', 'site-install'),
       'examples' => array(
         'bee install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
-        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
+        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --db-host=db_server --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
         'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
       ),
     ),
@@ -99,6 +99,7 @@ function install_bee_callback($arguments, $options) {
   // Get database name.
   if (!empty($options['db-name'])) {
     $db_name = $options['db-name'];
+    $check_db_name_option = TRUE;
   }
   else {
     $db_name = rawurlencode(bee_check_plain(bee_input(bt('Database name'), '', TRUE)));
@@ -125,7 +126,7 @@ function install_bee_callback($arguments, $options) {
     $db_host = $options['db-host'];
   }
   else {
-    $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
+    $check_db_name_option ? $db_host = 'localhost' : $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
   }
 
   // Compile database url
