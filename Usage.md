@@ -194,7 +194,10 @@ lando bee [global-options] <command> [options] [arguments]
 *Description:* Install Backdrop and setup a new site.  
 *Aliases:* `si` , `site-install`  
 *Options:*  
-- `--db=STRING` - A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://docs.backdropcms.org/documentation/database-configuration for more details.
+- `--db-name=DATABASE_NAME` - The name of the database to install into.
+- `--db-user=DATABASE_USERNAME` - The username for connecting to the database.
+- `--db-pass=DATABASE_PASSWORD` - The password for connecting to the database.
+- `--db-host=DATABASE_HOST` - The host for the database. Defaults to 'localhost' when a database name is provided.
 - `--username=USERNAME` - The username for the primary administrator account. Defaults to 'admin'.
 - `--password=PASSWORD` - The password for the primary administrator account. Defaults to a randomly-generated string.
 - `--email=EMAIL` - The email address for the primary administrator account. Defaults to 'admin@example.com'.
@@ -208,8 +211,8 @@ lando bee [global-options] <command> [options] [arguments]
 
 *Examples:*
 - `bee install` - Install Backdrop in interactive mode, providing information when prompted.
-- `bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --auto` - Install Backdrop automatically using the provided database credentials, and default settings for everything else.
-- `bee install --db=mysql://admin:P@ssw0rd!@localhost/backdrop --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"` - Install Backdrop using the given options, and be prompted for the rest.
+- `bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --auto` - Install Backdrop automatically using the provided database credentials, and default settings for everything else.
+- `bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --db-host=db_server --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"` - Install Backdrop using the given options, and be prompted for the rest.
 
 ### Update
 #### `update-db`
