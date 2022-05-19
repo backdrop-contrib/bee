@@ -14,19 +14,19 @@ function install_bee_command() {
       'callback' => 'install_bee_callback',
       'options' => array(
         'db-name' => array(
-          'description' => bt("The database name."),
+          'description' => bt("The name of the database to install into."),
           'value' => bt('Database name'),
         ),
         'db-user' => array(
-          'description' => bt("The username for the database."),
+          'description' => bt("The username for connecting to the database."),
           'value' => bt('Database username'),
         ),
         'db-pass' => array(
-          'description' => bt("The password for the database. "),
+          'description' => bt("The password for connecting to the database."),
           'value' => bt('Database password'),
         ),
         'db-host' => array(
-          'description' => bt("The host for the database relative to your webserver. Defaults to 'localhost'"),
+          'description' => bt("The host for the database. Defaults to 'localhost' when a database name is provided."),
           'value' => bt('Database host'),
         ),
         'username' => array(
@@ -71,8 +71,8 @@ function install_bee_command() {
       'aliases' => array('si', 'site-install'),
       'examples' => array(
         'bee install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
-        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --db-host=db_server --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
-        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
+        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
+        'bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --db-host=db_server --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
       ),
     ),
   );
@@ -132,7 +132,7 @@ function install_bee_callback($arguments, $options) {
     $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
   }
 
-  // Compile database url
+  // Compile database URL.
   $db = "mysql://$db_username:$db_password@$db_host/$db_name";
   $db = "--db-url=$db";
 
