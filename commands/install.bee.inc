@@ -133,8 +133,7 @@ function install_bee_callback($arguments, $options) {
   }
 
   // Compile database URL.
-  $db = "mysql://$db_username:$db_password@$db_host/$db_name";
-  $db = "--db-url=$db";
+  $db = "--db-url=mysql://$db_username:$db_password@$db_host/$db_name";
 
   // Get database prefix.
   if (!empty($options['db-prefix'])) {
