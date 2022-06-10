@@ -61,7 +61,7 @@ $_bee_yes_mode = FALSE;
 // A boolean indicating whether `Debug` mode is enabled.
 $_bee_debug_mode = FALSE;
 
-// A boolean indicating whether 'verbose' mode is enabled.
+// A boolean indicating whether `Verbose` mode is enabled.
 $_bee_verbose_mode = FALSE;
 
 // A list of messages to display to the user, grouped by type.
