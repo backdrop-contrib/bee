@@ -15,7 +15,6 @@ RUN mv bee-1.x-1.x /usr/local/bin/bee
 ```
 #!/usr/bin/env bash
 
-echo $DDEV_PRIMARY_URL;
 /usr/local/bin/bee/bee.php --root=/var/www/html/$DDEV_DOCROOT --uri=$DDEV_PRIMARY_URL $@
 ```
 
