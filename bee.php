@@ -41,7 +41,7 @@ exit();
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function bee_error_handler($errno, $message, $filename, $line, $context = []) {
+function bee_error_handler($errno, $message, $filename, $line, $context = array()) {
   if (error_reporting() > 0) {
     switch ($errno) {
       case E_ERROR:
