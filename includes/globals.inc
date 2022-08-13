@@ -93,3 +93,6 @@ define('BEE_BOOTSTRAP_LANGUAGE', 7);
 
 // 9th phase: Backdrop is fully loaded; validate and fix input data.
 define('BEE_BOOTSTRAP_FULL', 8);
+
+// Current version of Bee
+define('BEE_VERSION', '1.x-1.0.0-beta');
