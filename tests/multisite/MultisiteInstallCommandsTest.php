@@ -19,7 +19,7 @@ class MultisiteInstallCommandsTest extends TestCase {
     $this->assertStringNotContainsString('Database', $output_before);
 
     // Install the site.
-    $output_install = shell_exec('bee install --site=install_test --db=mysql://backdrop:backdrop@database/install_test --auto');
+    $output_install = shell_exec('bee install --site=install_test --db-name=install_test --db-user=backdrop --db-pass=backdrop --db-host=database --auto');
     $this->assertStringContainsString('Backdrop installed successfully.', $output_install);
 
     // Check site status after install.

@@ -63,12 +63,12 @@ function db_export_bee_callback($arguments, $options) {
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
   // Export and compress the database.
-  $export_command = 'mysqldump --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'] . ' | gzip > ' . $filename . '.gz';
+  $export_command = 'mysqldump ' . db_bee_mysql_options($db_info) . ' | gzip > ' . $filename . '.gz';
   exec($export_command, $output, $result);
 
   if ($result === 0) {
     bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
-      '!database' => $db_info['database'],
+      '!database' => rawurldecode($db_info['database']),
       '!filename' => $_bee_backdrop_root . '/' . $filename,
     )), 'success');
   }
@@ -96,7 +96,7 @@ function db_import_bee_callback($arguments, $options) {
   if ($gzip) {
     $import_command .= "gunzip -c $filename | ";
   }
-  $import_command .= 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  $import_command .= 'mysql ' . db_bee_mysql_options($db_info);
   if (!$gzip) {
     $import_command .= " < $filename";
   }
@@ -105,7 +105,7 @@ function db_import_bee_callback($arguments, $options) {
   if ($result === 0) {
     bee_message(bt("'!filename' was imported into the '!database' database.", array(
       '!filename' => $filename,
-      '!database' => $db_info['database'],
+      '!database' => rawurldecode($db_info['database']),
     )), 'success');
   }
 }
@@ -120,6 +120,25 @@ function sql_bee_callback($arguments, $options) {
   $db_info = $db_connection['default'];
 
   // Open SQL command-line.
-  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  $command = 'mysql ' . db_bee_mysql_options($db_info);
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+}
+
+/**
+ * Returns a decoded options string for use with MySQL commands.
+ *
+ * @param array $db_info
+ *   Connection information for the current database. Generally obtained via
+ *   Database::getConnectionInfo().
+ *
+ * @return string
+ *   A string of command options that can be appended to 'mysql' or 'mysqldump'.
+ */
+function db_bee_mysql_options($db_info) {
+  $options = '--user=' . rawurldecode($db_info['username']);
+  $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
+  $options .= ' --host=' . $db_info['host'];
+  $options .= ' ' . rawurldecode($db_info['database']);
+
+  return $options;
 }
