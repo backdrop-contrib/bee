@@ -54,7 +54,7 @@ function bee_initialize_console() {
     // Determine if Backdrop is installed or not.
     require_once $_bee_backdrop_root . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
-      backdrop_settings_initialize();
+      backdrop_bootstrap(BACKDROP_BOOTSTRAP_CONFIGURATION);
 
       if (backdrop_bootstrap_is_installed()) {
         $_bee_backdrop_installed = TRUE;
