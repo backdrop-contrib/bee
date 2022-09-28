@@ -95,4 +95,4 @@ define('BEE_BOOTSTRAP_LANGUAGE', 7);
 define('BEE_BOOTSTRAP_FULL', 8);
 
 // Current version of Bee
-define('BEE_VERSION', '1.x-1.0.0-beta');
+define('BEE_VERSION', '1.x-1.x');
