@@ -18,11 +18,11 @@ function db_bee_command() {
       'optional_arguments' => array('file'),
       'options' => array(
         'column-statistics' => array(
-          'description' => bt("Allow extra options to be passed to the MySQL dump command."),
+          'description' => bt("Allow for the inclusion or exclusion of database column statistics. Required for some configurations of MySQL/MariaDB."),
           'value' => bt('String'),
         ),
         'no-tablespaces' => array(
-          'description' => bt("Allow extra options to be passed to the MySQL dump command."),
+          'description' => bt("Allow for the exclusions of tablespaces. Required for some configurations of MySQL/MariaDB."),
           'value' => bt('String'),
         ),
       ),
