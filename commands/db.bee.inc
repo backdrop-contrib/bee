@@ -16,6 +16,16 @@ function db_bee_command() {
         'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
       ),
       'optional_arguments' => array('file'),
+      'options' => array(
+        'column-statistics' => array(
+          'description' => bt("Allow extra options to be passed to the MySQL dump command."),
+          'value' => bt('String'),
+        ),
+        'no-tablespaces' => array(
+          'description' => bt("Allow extra options to be passed to the MySQL dump command."),
+          'value' => bt('String'),
+        ),
+      ),
       'aliases' => array('dbex', 'db-dump', 'sql-export', 'sql-dump'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
@@ -37,12 +47,18 @@ function db_bee_command() {
       ),
     ),
     'db-drop' => array(
-      'description' => bt('Drop the current backdrop database'),
+      'description' => bt('Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.'),
       'callback' => 'db_drop_bee_callback',
-      'aliases' => array('sql-drop', 'dbd'),
+      'aliases' => array('sql-drop'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
-        'bee sql-drop' => bt('Drop the existing backdrop database. Used when wanting to re-import fresh.'),
+        'bee db-drop' => bt('Drop the current database and recreate an empty database with the same details.'),
+      ),
+      'options' => array(
+        'y' => array(
+          'description' => bt("A database connection string of the form: 'mysql://user:pass@localhost/database_name'. See https://api.backdropcms.org/database-configuration for more details."),
+          'value' => bt('String'),
+        ),
       ),
     ),
     'sql' => array(
@@ -59,48 +75,6 @@ function db_bee_command() {
 }
 
 /**
- * Command callback: Drop and re-create the existing configured database.
- */
-function db_drop_bee_callback($arguments, $options) {
-  // Initialize our pipes variable.
-  $pipes = array();
-
-  // Get database info.
-  $db_connection = Database::getConnectionInfo();
-  $db_info = $db_connection['default'];
-
-  // Drop the existing backdrop database as configured.
-  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' -e "drop database ' . $db_info['database'] . '"';
-  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
-
-  if ($result == -1) {
-    bee_message(bt("The '!database' database could not be dropped.", array(
-      '!database' => $db_info['database'],
-    )), 'error');
-  }
-  else {
-    bee_message(bt("The '!database' database was successfully dropped.", array(
-      '!database' => $db_info['database'],
-    )), 'success');
-  }
-
-  // Re-create the existing backdrop database as configured.
-  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' -e "create database ' . $db_info['database'] . '"';
-  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
-
-  if ($result == -1) {
-    bee_message(bt("The '!database' database could not be created.", array(
-      '!database' => $db_info['database'],
-    )), 'error');
-  }
-  else {
-    bee_message(bt("The '!database' database was successfully created.", array(
-      '!database' => $db_info['database'],
-    )), 'success');
-  }
-}
-
-/**
  * Command callback: Export the database as a compressed SQL file.
  */
 function db_export_bee_callback($arguments, $options) {
@@ -113,8 +87,14 @@ function db_export_bee_callback($arguments, $options) {
   // Get the filename for the export.
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
+  // Added handling for these two options. Note that trying to mimic "extra-dumps" as per
+  // drush does not work due to the way arguments and options are parsed. (quotes not respected)
+  // These are needed for some configurations of MariaDB/MySQL to work.
+  $colstats = (!empty($options['column-statistics']) || $option['column-statistics'] == '0') ? '--column-statistics=' . $options['column-statistics'] : NULL;
+  $tablespaces = (!empty($options['no-tablespaces'])) ? '--no-tablespaces' : NULL;
+
   // Export and compress the database.
-  $export_command = 'mysqldump --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'] . ' | gzip > ' . $filename . '.gz';
+  $export_command = 'mysqldump --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' ' . $colstats . ' ' . $tablespaces . '  --host=' . $db_info['host'] . ' ' . $db_info['database'] . ' | gzip > ' . $filename . '.gz';
   exec($export_command, $output, $result);
 
   if ($result === 0) {
@@ -142,12 +122,16 @@ function db_import_bee_callback($arguments, $options) {
     $gzip = TRUE;
   }
 
+  $db_username = rawurldecode($db_info['username']);
+  $db_password = rawurldecode($db_info['password']);
+  $db_database = rawurldecode($db_info['database']);
+
   // Import the database.
   $import_command = '';
   if ($gzip) {
     $import_command .= "gunzip -c $filename | ";
   }
-  $import_command .= 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  $import_command .= 'mysql --user=' . $db_username . ' --password=' . $db_password . ' --host=' . $db_info['host'] . ' ' . $db_database;
   if (!$gzip) {
     $import_command .= " < $filename";
   }
@@ -162,15 +146,78 @@ function db_import_bee_callback($arguments, $options) {
 }
 
 /**
- * Command callback: Open an SQL command-line interface using Backdrop's
- * database credentials.
+ * Command callback: Drop and re-create the existing configured database.
  */
-function sql_bee_callback($arguments, $options) {
+function db_drop_bee_callback($arguments, $options) {
+  // Initialize our pipes variable.
+  $pipes = array();
+
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
+  // Get database connection string.
+  if (empty($options['y'])) {
+    // Prompt to continue.
+    if (!bee_confirm(bt('Are you sure you want to drop the database !database ?', array(
+        '!database' => $db_info['database']
+      )), FALSE)) {
+      return;
+    }
+  }
+
+  $db_username = rawurldecode($db_info['username']);
+  $db_password = rawurldecode($db_info['password']);
+  $db_database = rawurldecode($db_info['database']);
+
+  // Drop the existing backdrop database as configured.
+  $command = 'mysql --user=' . $db_username . ' --password=' . $db_password . ' --host=' . $db_info['host'] . ' -e "drop database ' . $db_database . '"';
+  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+
+  if ($result == -1) {
+    bee_message(bt("The '!database' database could not be dropped.", array(
+      '!database' => $db_info['database'],
+    )), 'error');
+  }
+  else {
+    bee_message(bt("The '!database' database was successfully dropped.", array(
+      '!database' => $db_info['database'],
+    )), 'success');
+  }
+
+  // Re-create the existing backdrop database as configured.
+  $command = 'mysql --user=' . $db_username . ' --password=' . $db_password . ' --host=' . $db_info['host'] . ' -e "create database ' . $db_database . '"';
+  $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+
+  if ($result == -1) {
+    bee_message(bt("The '!database' database could not be created.", array(
+      '!database' => $db_info['database'],
+    )), 'error');
+  }
+  else {
+    bee_message(bt("The '!database' database was successfully created.", array(
+      '!database' => $db_info['database'],
+    )), 'success');
+  }
+}
+
+/**
+ * Command callback: Open an SQL command-line interface using Backdrop's
+ * database credentials.
+ */
+function sql_bee_callback($arguments, $options) {
+  // Initialize our pipes variable.
+  $pipes = array();
+
+  // Get database info.
+  $db_connection = Database::getConnectionInfo();
+  $db_info = $db_connection['default'];
+
+  $db_username = rawurldecode($db_info['username']);
+  $db_password = rawurldecode($db_info['password']);
+  $db_database = rawurldecode($db_info['database']);
+
   // Open SQL command-line.
-  $command = 'mysql --user=' . $db_info['username'] . ' --password=' . $db_info['password'] . ' --host=' . $db_info['host'] . ' ' . $db_info['database'];
+  $command = 'mysql --user=' . $db_username . ' --password=' . $db_password . ' --host=' . $db_info['host'] . ' ' . $db_database;
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 }
