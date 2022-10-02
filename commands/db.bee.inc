@@ -203,11 +203,11 @@ function sql_bee_callback($arguments, $options) {
  * @return string
  *   A string of command options that can be appended to 'mysql' or 'mysqldump'.
  */
-function db_bee_mysql_options($db_info, $command = NULL) {
+function db_bee_mysql_options($db_info) {
   $options = '--user=' . rawurldecode($db_info['username']);
   $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
   $options .= ' --host=' . $db_info['host'];
   $options .= ' ' . rawurldecode($db_info['database']);
-  
+
   return $options;
 }
