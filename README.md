@@ -41,6 +41,13 @@ Microsoft Windows.
 More advanced/specialised installation instructions can be found in the
 [wiki](https://github.com/backdrop-contrib/bee/wiki).
 
+## Extending
+
+Bee can be extended (i.e. custom/additional commands added) by Backdrop contrib
+modules or by individual users. See
+[API.md](https://github.com/backdrop-contrib/bee/blob/1.x-1.x/API.md) for
+details. 
+
 ## Issues
 
 Bugs and feature requests should be reported in the issue queue:
@@ -49,6 +56,7 @@ https://github.com/backdrop-contrib/bee/issues.
 ## Current Maintainers
 
 - [Peter Anderson](https://github.com/BWPanda)
+- [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons](https://www.systemhorizons.co.uk)
 
 ## Credits
 
