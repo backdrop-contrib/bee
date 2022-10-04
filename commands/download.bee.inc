@@ -63,7 +63,7 @@ function download_bee_callback($arguments, $options) {
     $url = "https://github.com/$organisation/$project";
     $headers = get_headers($url);
     $response = substr($headers[0], 9, 3);
-    if ($response == 400 || $response == 404) {
+    if ($response >= 400) {
       bee_message(bt("The '!project' project repository could not be found. Please check your spelling and try again.", array(
         '!project' => $project,
       )), 'error');
