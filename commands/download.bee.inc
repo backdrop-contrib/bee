@@ -58,55 +58,67 @@ function download_bee_callback($arguments, $options) {
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   foreach ($arguments['projects'] as $project) {
-    $info = download_bee_git_info($project);
-
-    // Get the project type.
-    if (empty($info['type'])) {
-      bee_message(bt("The 'type' of project '!project' could not be determined.", array(
+    // Check if the project exists by trying to get the repo homepage
+    $organisation = 'backdrop-contrib';
+    $url = "https://github.com/$organisation/$project";
+    $headers = get_headers($url);
+    $response = substr($headers[0], 9, 3);
+    if ($response >= 400) {
+      bee_message(bt("The '!project' project repository could not be found. Please check your spelling and try again.", array(
         '!project' => $project,
       )), 'error');
-      return;
     }
     else {
-      // Add an 's' to the end of the type name.
-      $info['type'] .= 's';
-    }
+      $info = download_bee_git_info($project);
 
-    // Get the directory to download the project into.
-    if (!empty($_bee_backdrop_site)) {
-      $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $info['type'];
-    }
-    elseif (!empty($_bee_backdrop_root)) {
-      $destination = "$_bee_backdrop_root/" . $info['type'];
-    }
-    else {
-      bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
-      return;
-    }
-    if (file_exists("$destination/contrib")) {
-      $destination .= '/contrib';
-    }
-    $destination .= "/$project";
-    if (file_exists($destination)) {
-      bee_message(bt("'!project' already exists in '!destination'.", array(
-        '!project' => $project,
-        '!destination' => $destination,
-      )), 'error');
-      return;
-    }
-    elseif (!mkdir($destination, 0755, TRUE)) {
-      bee_message(bt("The destination directory '!directory' doesn't exist and couldn't be created.", array(
-        '!directory' => $destination,
-      )), 'error');
-      return;
-    }
+      // Get the project type.
+      if (empty($info['type'])) {
+        bee_message(bt("The 'type' of project '!project' could not be determined.", array(
+          '!project' => $project,
+        )), 'error');
+        return;
+      }
+      else {
+        // Add an 's' to the end of the type name.
+        $info['type'] .= 's';
+      }
 
-    // Download the project.
-    if (download_bee_download_project($project, $info, $destination, $progress)) {
-      bee_message(bt("'!project' was downloaded into '!directory'.", array(
-        '!project' => $project,
-        '!directory' => $destination,
-      )), 'success');
+      // Get the directory to download the project into.
+      if (!empty($_bee_backdrop_site)) {
+        $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $info['type'];
+      }
+      elseif (!empty($_bee_backdrop_root)) {
+        $destination = "$_bee_backdrop_root/" . $info['type'];
+      }
+      else {
+        bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
+        return;
+      }
+      if (file_exists("$destination/contrib")) {
+        $destination .= '/contrib';
+      }
+      $destination .= "/$project";
+      if (file_exists($destination)) {
+        bee_message(bt("'!project' already exists in '!destination'.", array(
+          '!project' => $project,
+          '!destination' => $destination,
+        )), 'error');
+        return;
+      }
+      elseif (!mkdir($destination, 0755, TRUE)) {
+        bee_message(bt("The destination directory '!directory' doesn't exist and couldn't be created.", array(
+          '!directory' => $destination,
+        )), 'error');
+        return;
+      }
+
+      // Download the project.
+      if (download_bee_download_project($project, $info, $destination, $progress)) {
+        bee_message(bt("'!project' was downloaded into '!directory'.", array(
+          '!project' => $project,
+          '!directory' => $destination,
+        )), 'success');
+      }
     }
   }
 }
