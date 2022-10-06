@@ -13,7 +13,7 @@ class UserCommandsTest extends TestCase {
    */
   public function test_users_command_works() {
     $output = shell_exec('bee users');
-    $this->assertRegExp('/| 1 +| admin +| admin@example.com +|/', $output);
+    $this->assertRegExp('/| 1 +| admin +| admin@example.com +|/', (string) $output);
   }
 
   /**
@@ -21,12 +21,12 @@ class UserCommandsTest extends TestCase {
    */
   public function test_user_password_command_works() {
     $output_password = shell_exec('bee user-password admin 123456');
-    $this->assertStringContainsString("The password for 'admin' has been reset.", $output_password);
-    $this->assertStringNotContainsString('The new password is:', $output_password);
+    $this->assertStringContainsString("The password for 'admin' has been reset.", (string) $output_password);
+    $this->assertStringNotContainsString('The new password is:', (string) $output_password);
 
     $output_random = shell_exec('bee user-password admin');
-    $this->assertStringContainsString("The password for 'admin' has been reset.", $output_random);
-    $this->assertStringContainsString('The new password is:', $output_random);
+    $this->assertStringContainsString("The password for 'admin' has been reset.", (string) $output_random);
+    $this->assertStringContainsString('The new password is:', (string) $output_random);
   }
 
   /**
@@ -34,13 +34,13 @@ class UserCommandsTest extends TestCase {
    */
   public function test_user_login_command_works() {
     $output = shell_exec('bee user-login admin');
-    $this->assertStringContainsString("Use the following link to login as 'admin':", $output);
-    $this->assertStringContainsString('/user/reset/1/', $output);
+    $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output);
+    $this->assertStringContainsString('/user/reset/1/', (string) $output);
 
     // Test that leaving the username argument blank loads User 1.
     $output = shell_exec('bee user-login');
-    $this->assertStringContainsString("Use the following link to login as 'admin':", $output);
-    $this->assertStringContainsString('/user/reset/1/', $output);
+    $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output);
+    $this->assertStringContainsString('/user/reset/1/', (string) $output);
   }
 
 }

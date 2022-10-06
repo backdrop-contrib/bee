@@ -13,7 +13,7 @@ class DBCommandsTest extends TestCase {
    */
   public function test_db_export_command_works() {
     $output = shell_exec('bee db-export database.sql');
-    $this->assertStringContainsString("The 'backdrop' database was exported to '/app/backdrop/database.sql.gz'.", $output);
+    $this->assertStringContainsString("The 'backdrop' database was exported to '/app/backdrop/database.sql.gz'.", (string) $output);
     $this->assertTrue(file_exists('/app/backdrop/database.sql.gz'));
   }
 
@@ -22,7 +22,7 @@ class DBCommandsTest extends TestCase {
    */
   public function test_db_import_command_works() {
     $output = shell_exec('bee db-import database.sql.gz');
-    $this->assertStringContainsString("'database.sql.gz' was imported into the 'backdrop' database.", $output);
+    $this->assertStringContainsString("'database.sql.gz' was imported into the 'backdrop' database.", (string) $output);
 
     // Remove DB export for future tests.
     exec('rm /app/backdrop/database.sql.gz');

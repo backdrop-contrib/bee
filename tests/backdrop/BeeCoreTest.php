@@ -23,7 +23,7 @@ class BeeCoreTest extends TestCase {
   public function test_unknown_command_triggers_an_error() {
     $command = 'spoon';
     $output = shell_exec("bee $command");
-    $this->assertStringContainsString("There is no '$command' command.", $output);
+    $this->assertStringContainsString("There is no '$command' command.", (string) $output);
   }
 
   /**
@@ -32,7 +32,7 @@ class BeeCoreTest extends TestCase {
   public function test_missing_required_argument_triggers_an_error() {
     // `config-get` has a required argument: 'file'.
     $output = shell_exec('bee config-get');
-    $this->assertStringContainsString("Argument 'file' is required.", $output);
+    $this->assertStringContainsString("Argument 'file' is required.", (string) $output);
   }
 
   /**
@@ -53,10 +53,10 @@ class BeeCoreTest extends TestCase {
    */
   public function test_root_global_option_works() {
     $output_no_root = shell_exec('cd ../ && bee status');
-    $this->assertStringContainsString('No Backdrop installation found.', $output_no_root);
+    $this->assertStringContainsString('No Backdrop installation found.', (string) $output_no_root);
 
     $output_root = shell_exec('cd ../ && bee --root=backdrop status');
-    $this->assertStringNotContainsString('No Backdrop installation found.', $output_root);
+    $this->assertStringNotContainsString('No Backdrop installation found.', (string) $output_root);
   }
 
   /**
@@ -68,14 +68,14 @@ class BeeCoreTest extends TestCase {
     $value = 'bar';
 
     $output_yes = shell_exec("bee config-set --yes $file $option $value");
-    $this->assertStringContainsString("The '$file' config file doesn't exist.", $output_yes);
-    $this->assertStringContainsString("'$option' was set to '$value' in '$file'.", $output_yes);
+    $this->assertStringContainsString("The '$file' config file doesn't exist.", (string) $output_yes);
+    $this->assertStringContainsString("'$option' was set to '$value' in '$file'.", (string) $output_yes);
 
     $file2 = $file . '2';
 
     $output_y = shell_exec("bee config-set --y $file2 $option $value");
-    $this->assertStringContainsString("The '$file2' config file doesn't exist.", $output_y);
-    $this->assertStringContainsString("'$option' was set to '$value' in '$file2'.", $output_y);
+    $this->assertStringContainsString("The '$file2' config file doesn't exist.", (string) $output_y);
+    $this->assertStringContainsString("'$option' was set to '$value' in '$file2'.", (string) $output_y);
 
     // Cleanup config files.
     // Using `find` allows us to find and delete the necessary files without
@@ -89,10 +89,10 @@ class BeeCoreTest extends TestCase {
    */
   public function test_debug_global_option_works() {
     $output_debug = shell_exec("bee status --debug");
-    $this->assertStringContainsString("'Debug' mode enabled.", $output_debug);
+    $this->assertStringContainsString("'Debug' mode enabled.", (string) $output_debug);
 
     $output_d = shell_exec("bee status --d");
-    $this->assertStringContainsString("'Debug' mode enabled.", $output_d);
+    $this->assertStringContainsString("'Debug' mode enabled.", (string) $output_d);
   }
 
 }
