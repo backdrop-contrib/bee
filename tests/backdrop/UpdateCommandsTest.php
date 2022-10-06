@@ -19,7 +19,7 @@ class UpdateCommandsTest extends TestCase {
 
     // Make sure there are no database updates.
     $output_clean = shell_exec('bee update-db');
-    $this->assertStringContainsString('There are no pending database updates.', $output_clean);
+    $this->assertStringContainsString('There are no pending database updates.', (string) $output_clean);
 
     // Update Devel to a newer version.
     exec('cd modules && rm -rf devel && wget -q https://github.com/backdrop-contrib/devel/releases/download/1.x-1.6.0/devel.zip');
@@ -27,9 +27,9 @@ class UpdateCommandsTest extends TestCase {
 
     // Perform database updates.
     $output_updates = shell_exec('bee update-db --y');
-    $this->assertStringContainsString('Remove option for Krumo skin.', $output_updates);
-    $this->assertStringContainsString('Would you like to apply all pending updates?', $output_updates);
-    $this->assertStringContainsString('All pending updates applied.', $output_updates);
+    $this->assertStringContainsString('Remove option for Krumo skin.', (string) $output_updates);
+    $this->assertStringContainsString('Would you like to apply all pending updates?', (string) $output_updates);
+    $this->assertStringContainsString('All pending updates applied.', (string) $output_updates);
 
     // Cleanup Devel.
     exec('bee disable --y devel');
