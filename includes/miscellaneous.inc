@@ -19,6 +19,7 @@ function bee_initialize_server() {
   $_SERVER['SCRIPT_NAME'] = '/index.php';
   $_SERVER['PHP_SELF'] = '/index.php';
   $_SERVER['HTTP_USER_AGENT'] = 'Bee';
+  $_GET['q'] = 'node';
 }
 
 /**
