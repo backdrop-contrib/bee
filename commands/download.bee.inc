@@ -288,7 +288,7 @@ function download_bee_download_project($project, $info, $destination, $progress 
   exec("unzip $file -d $temp");
   bee_copy("$temp/$directory", $destination, FALSE);
   bee_delete($temp);
-  ($wget_older && $progress) ? bee_message(bt("The wget tool used for downloading is version !version and does not support showing only the progress bar. Upgrade to version 1.16 or later; or use the '--hide-progress' argument if you wish to hide altogether.", array(
+  ($wget_older && $progress) ? bee_message(bt("The wget tool used by bee for downloading is version !version and does not support showing only the progress bar. Upgrade wget to version 1.16 or later; or use the '--hide-progress' argument if you wish to hide altogether.", array(
     '!version' => $wget_version_number,
   )), 'status') : '' ;
   return TRUE;
