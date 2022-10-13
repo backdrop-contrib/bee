@@ -266,13 +266,30 @@ function download_bee_download_project($project, $info, $destination, $progress 
   $directory = !empty($info['branch']) ? $project . '-' . $info['branch'] : $project;
   $wget = "wget";
   if ($progress) {
-    $wget .= " --show-progress";
+    // Check the wget version so the right "show progress" argument can be used.
+    $wget_version_text = shell_exec("wget --version");
+    $wget_version_number = substr((string) $wget_version_text, 9, 4);
+    if (version_compare((string) $wget_version_number, "1.16", ">=")) {
+      $wget_older = FALSE;
+      $wget_progress_argument = " --show-progress -qO";
+    }
+    else {
+      // Versions < 1.16 - different argument and no "quiet" argument is used.
+      $wget_older = TRUE;
+      $wget_progress_argument = " --progress=bar -O";
+    }
+    $wget .= $wget_progress_argument;
   }
-  $wget .= " -qO $file $url";
+  else {
+    $wget .= " -qO";
+  }
+  $wget .= " $file $url";
   exec($wget);
   exec("unzip $file -d $temp");
   bee_copy("$temp/$directory", $destination, FALSE);
   bee_delete($temp);
-
+  ($wget_older && $progress) ? bee_message(bt("The wget tool used by bee for downloading is version !version and does not support showing only the progress bar. Upgrade wget to version 1.16 or later; or use the '--hide-progress' argument if you wish to hide altogether.", array(
+    '!version' => $wget_version_number,
+  )), 'status') : '' ;
   return TRUE;
 }
