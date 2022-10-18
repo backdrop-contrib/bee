@@ -92,18 +92,16 @@ function status_bee_callback($arguments, $options) {
         foreach ($states as $name => $serialized) {
           switch ($name) {
             case 'cron_last':
-              $date = new DateTime('@' . unserialize($serialized));
               $rows[] = array(
                 array('value' => bt('Cron last run')),
-                array('value' => $date->format('Y-m-d H:i:s O')),
+                array('value' => bee_format_date(unserialize($serialized))),
               );
               break;
 
             case 'install_time':
-              $date = new DateTime('@' . unserialize($serialized));
               $rows[] = array(
                 array('value' => bt('Install time')),
-                array('value' => $date->format('Y-m-d H:i:s O')),
+                array('value' => bee_format_date(unserialize($serialized))),
               );
               break;
 
@@ -115,10 +113,9 @@ function status_bee_callback($arguments, $options) {
               break;
 
             case 'update_last_check':
-              $date = new DateTime('@' . unserialize($serialized));
               $rows[] = array(
                 array('value' => bt('Update last check')),
-                array('value' => $date->format('Y-m-d H:i:s O')),
+                array('value' => bee_format_date(unserialize($serialized))),
               );
               break;
 
