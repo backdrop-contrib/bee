@@ -62,7 +62,7 @@ function status_bee_callback($arguments, $options) {
     // Database.
     if (class_exists('Database')) {
       $db_connection = Database::getConnectionInfo();
-      if (!empty($info = $db_connection['default'])) {
+      if (!empty($db_connection['default']) && $info = $db_connection['default']) {
         $rows[] = array(
           array('value' => bt('Database')),
           array('value' => $info['driver']),
@@ -87,8 +87,97 @@ function status_bee_callback($arguments, $options) {
           array('value' => bt('Database port')),
           array('value' => $info['port']),
         );
+
+        $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
+        foreach ($states as $name => $serialized) {
+          switch ($name) {
+            case 'cron_last':
+              $date = new DateTime('@' . unserialize($serialized));
+              $rows[] = array(
+                array('value' => bt('Cron last run')),
+                array('value' => $date->format('Y-m-d H:i:s O')),
+              );
+              break;
+
+            case 'install_time':
+              $date = new DateTime('@' . unserialize($serialized));
+              $rows[] = array(
+                array('value' => bt('Install time')),
+                array('value' => $date->format('Y-m-d H:i:s O')),
+              );
+              break;
+
+            case 'maintenance_mode':
+              $rows[] = array(
+                array('value' => bt('Maintenance mode')),
+                array('value' => (unserialize($serialized)) ? 'on' : 'off'),
+              );
+              break;
+
+            case 'update_last_check':
+              $date = new DateTime('@' . unserialize($serialized));
+              $rows[] = array(
+                array('value' => bt('Update last check')),
+                array('value' => $date->format('Y-m-d H:i:s O')),
+              );
+              break;
+
+          }
+        }
       }
     }
+    if (function_exists('conf_path')) {
+      $settings_path = realpath(conf_path());
+      $rows[] = array(
+        array('value' => bt('Settings.php path')),
+        array('value' => $settings_path),
+      );
+      include $settings_path . '/settings.php';
+      $rows[] = array(
+        array('value' => bt('Drupal compatibility')),
+        array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
+      );
+      if ($config_directories['active'] && is_dir($config_directories['active'])) {
+        $rows[] = array(
+          array('value' => bt('Config dir active')),
+          array('value' => realpath($config_directories['active'])),
+        );
+      }
+      if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+        $rows[] = array(
+          array('value' => bt('Config dir staging')),
+          array('value' => realpath($config_directories['staging'])),
+        );
+      }
+    }
+    if (!function_exists('config')) {
+      include $_bee_backdrop_root . '/core/includes/config.inc';
+    }
+    $config = config('system.core');
+    $rows[] = array(
+      array('value' => bt('Default theme')),
+      array('value' => $config->get('theme_default')),
+    );
+    if ($files_public = $config->get('file_public_path')) {
+      $rows[] = array(
+        array('value' => bt('Public files path')),
+        array('value' => realpath($files_public)),
+      );
+    }
+    if ($files_private = $config->get('file_private_path')) {
+      $rows[] = array(
+        array('value' => bt('Private files path')),
+        array('value' => realpath($files_private)),
+      );
+    }
+    $rows[] = array(
+      array('value' => bt('PHP version')),
+      array('value' => PHP_VERSION),
+    );
+    $rows[] = array(
+      array('value' => bt('PHP OS')),
+      array('value' => PHP_OS),
+    );
 
     echo "\n";
     return array(
