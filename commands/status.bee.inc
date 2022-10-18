@@ -189,6 +189,10 @@ function status_bee_callback($arguments, $options) {
         array('value' => ($config->get('preprocess_js')) ? 'on' : 'off'),
       );
       $rows[] = array(
+        array('value' => bt('Theme debug')),
+        array('value' => ($config->get('theme_debug')) ? 'on' : 'off'),
+      );
+      $rows[] = array(
         array('value' => bt('Error display level')),
         array('value' => $config->get('error_level')),
       );
