@@ -133,50 +133,76 @@ function status_bee_callback($arguments, $options) {
         array('value' => $settings_path),
       );
       include $settings_path . '/settings.php';
-      $rows[] = array(
-        array('value' => bt('Drupal compatibility')),
-        array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
-      );
-      if ($config_directories['active'] && is_dir($config_directories['active'])) {
+      if (isset($database) && $database != 'mysql://user:pass@localhost/database_name') {
         $rows[] = array(
-          array('value' => bt('Config dir active')),
-          array('value' => realpath($config_directories['active'])),
+          array('value' => bt('Drupal compatibility')),
+          array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
         );
-      }
-      if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
-        $rows[] = array(
-          array('value' => bt('Config dir staging')),
-          array('value' => realpath($config_directories['staging'])),
-        );
+        if ($config_directories['active'] && is_dir($config_directories['active'])) {
+          $rows[] = array(
+            array('value' => bt('Config dir active')),
+            array('value' => realpath($config_directories['active'])),
+          );
+        }
+        if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+          $rows[] = array(
+            array('value' => bt('Config dir staging')),
+            array('value' => realpath($config_directories['staging'])),
+          );
+        }
       }
     }
     if (!function_exists('config')) {
       include $_bee_backdrop_root . '/core/includes/config.inc';
     }
     $config = config('system.core');
-    $rows[] = array(
-      array('value' => bt('Default theme')),
-      array('value' => $config->get('theme_default')),
-    );
-    if ($files_public = $config->get('file_public_path')) {
+    if (!$config->isNew()) {
       $rows[] = array(
-        array('value' => bt('Public files path')),
-        array('value' => realpath($files_public)),
+        array('value' => bt('Default theme')),
+        array('value' => $config->get('theme_default')),
+      );
+      $rows[] = array(
+        array('value' => bt('Admin theme')),
+        array('value' => $config->get('admin_theme')),
+      );
+      if ($files_public = $config->get('file_public_path')) {
+        $rows[] = array(
+          array('value' => bt('Public files path')),
+          array('value' => realpath($files_public)),
+        );
+      }
+      if ($files_private = $config->get('file_private_path')) {
+        $rows[] = array(
+          array('value' => bt('Private files path')),
+          array('value' => realpath($files_private)),
+        );
+      }
+      if ($files_temp = $config->get('file_temporary_path')) {
+        $rows[] = array(
+          array('value' => bt('Temporary files path')),
+          array('value' => realpath($files_temp)),
+        );
+      }
+      $rows[] = array(
+        array('value' => bt('Preprocess CSS')),
+        array('value' => ($config->get('preprocess_css')) ? 'on' : 'off'),
+      );
+      $rows[] = array(
+        array('value' => bt('Preprocess JS')),
+        array('value' => ($config->get('preprocess_js')) ? 'on' : 'off'),
+      );
+      $rows[] = array(
+        array('value' => bt('Error display level')),
+        array('value' => $config->get('error_level')),
       );
     }
-    if ($files_private = $config->get('file_private_path')) {
-      $rows[] = array(
-        array('value' => bt('Private files path')),
-        array('value' => realpath($files_private)),
-      );
-    }
     $rows[] = array(
-      array('value' => bt('PHP version')),
+      array('value' => bt('PHP cli version')),
       array('value' => PHP_VERSION),
     );
     $rows[] = array(
-      array('value' => bt('PHP OS')),
-      array('value' => PHP_OS),
+      array('value' => bt('PHP ini path')),
+      array('value' => php_ini_loaded_file()),
     );
 
     echo "\n";
