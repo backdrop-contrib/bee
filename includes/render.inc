@@ -229,7 +229,7 @@ function bee_render_table($variables, $newline = TRUE) {
 
     foreach ($row as $index => $column) {
       // Allow for text that is wider than the column width.
-      if (mb_strlen($column['value']) > $column_widths[$index]) {
+      if (mb_strlen((string) $column['value']) > $column_widths[$index]) {
         $remaining = $column;
         $remaining['index'] = $index;
         $remaining['value'] = mb_substr($column['value'], $column_widths[$index]);
@@ -270,14 +270,14 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   // Calculate the width of each column in the header.
   if (!empty($header)) {
     foreach ($header as $index => $column) {
-      $widths[$index] = mb_strlen($column['value']);
+      $widths[$index] = mb_strlen((string) $column['value']);
     }
   }
 
   // Calculate the width of each column in each row.
   foreach ($rows as $row) {
     foreach ($row as $index => $column) {
-      $width = mb_strlen($column['value']);
+      $width = mb_strlen((string) $column['value']);
       if (!isset($widths[$index]) || $widths[$index] < $width) {
         $widths[$index] = $width;
       }
@@ -293,9 +293,9 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
     }
     $table_width += $width;
   }
-  $table_width += mb_strlen($delimiter_left);
-  $table_width += mb_strlen($delimiter_right);
-  $table_width += (count($widths) - 1) * mb_strlen($delimiter);
+  $table_width += mb_strlen((string) $delimiter_left);
+  $table_width += mb_strlen((string) $delimiter_right);
+  $table_width += (count($widths) - 1) * mb_strlen((string) $delimiter);
 
   // Adjust the width of the widest column to fit in the terminal.
   $terminal_width = exec('tput cols');
@@ -329,7 +329,7 @@ function bee_format_column($column, $width) {
   $bold = isset($column['#bold']) ? $column['#bold'] : FALSE;
 
   $formatted_text = bee_format_text($text, $color, $bold);
-  $color_width = mb_strlen($formatted_text) - mb_strlen($column['value']);
+  $color_width = mb_strlen((string) $formatted_text) - mb_strlen((string) $column['value']);
 
   return sprintf('%-' . ($width + $color_width) . 's', $formatted_text);
 }
@@ -355,7 +355,7 @@ function bee_get_remaining_rows($row, $column_widths) {
     if ($index == $row['index']) {
       $column = $row;
 
-      if (mb_strlen($column['value']) > $width) {
+      if (mb_strlen((string) $column['value']) > $width) {
         $row['value'] = mb_substr($row['value'], $width);
         $column['value'] = mb_substr($column['value'], 0, $width);
       }

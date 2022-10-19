@@ -13,7 +13,7 @@ class CronCommandsTest extends TestCase {
    */
   public function test_cron_command_works() {
     $output = shell_exec('bee cron');
-    $this->assertStringContainsString('Cron ran successfully.', $output);
+    $this->assertStringContainsString('Cron ran successfully.', (string) $output);
   }
 
 }

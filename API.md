@@ -4,7 +4,8 @@ API Information
 `HOOK_bee_command()`
 --------------------
 This hook can be invoked to provide additional commands to Bee. It should reside
-in a `bee` command file: *HOOK.bee.inc*.
+in a `bee` command file (*HOOK.bee.inc*) which should be placed in a
+custom/contrib module, or in the `.bee` folder in the user's HOME directory.
 
 Implementations of this hook should return an associative array of command
 descriptors, where the keys are unique command names and the values are

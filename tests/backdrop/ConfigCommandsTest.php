@@ -13,11 +13,11 @@ class ConfigCommandsTest extends TestCase {
    */
   public function test_config_get_command_works() {
     $output_all = shell_exec('bee config-get system.core');
-    $this->assertStringContainsString("'admin_theme' => 'seven',", $output_all);
-    $this->assertStringContainsString("'site_frontpage' => 'home',", $output_all);
+    $this->assertStringContainsString("'admin_theme' => 'seven',", (string) $output_all);
+    $this->assertStringContainsString("'site_frontpage' => 'home',", (string) $output_all);
 
     $output_theme = shell_exec('bee config-get system.core theme_default');
-    $this->assertStringContainsString("'basis'", $output_theme);
+    $this->assertStringContainsString("'basis'", (string) $output_theme);
   }
 
   /**
@@ -34,19 +34,19 @@ class ConfigCommandsTest extends TestCase {
 
     // Make sure the current homepage is 'home'.
     $output = shell_exec("bee config-get $file $option");
-    $this->assertStringContainsString($value, $output);
+    $this->assertStringContainsString((string) $value, (string) $output);
 
     // Set a new value for the homepage.
     $output = shell_exec("bee config-set $file $option $new");
-    $this->assertStringContainsString("'$option' was set to '$new' in '$file'.", $output);
+    $this->assertStringContainsString("'$option' was set to '$new' in '$file'.", (string) $output);
 
     // Make sure the new homepage is 'about'.
     $output = shell_exec("bee config-get $file $option");
-    $this->assertStringContainsString($new, $output);
+    $this->assertStringContainsString((string) $new, (string) $output);
 
     // Make sure 'empty' values can be set.
     $output = shell_exec("bee config-set $file $option2 $new2");
-    $this->assertStringContainsString("'$option2' was set to '$new2' in '$file'.", $output);
+    $this->assertStringContainsString("'$option2' was set to '$new2' in '$file'.", (string) $output);
 
     // Reset config values for future tests.
     exec("bee config-set $file $option $value");
@@ -63,7 +63,7 @@ class ConfigCommandsTest extends TestCase {
     $this->assertNotEquals(count($active), count($staging_before));
 
     $output = shell_exec('bee config-export');
-    $this->assertStringContainsString('Config was exported to', $output);
+    $this->assertStringContainsString('Config was exported to', (string) $output);
 
     // Number of files in active and staging should be the same.
     exec('find files/config_*/staging -type f', $staging_after);
@@ -82,8 +82,8 @@ class ConfigCommandsTest extends TestCase {
     $this->assertFileExists($file);
 
     $output = shell_exec('bee config-import -y');
-    $this->assertStringContainsString('Config was imported to', $output);
-    $this->assertStringContainsString('1 file was synced.', $output);
+    $this->assertStringContainsString('Config was imported to', (string) $output);
+    $this->assertStringContainsString('1 file was synced.', (string) $output);
 
     // Verify config file doesn't exist in active.
     $this->assertFileNotExists($file);

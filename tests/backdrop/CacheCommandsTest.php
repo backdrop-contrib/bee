@@ -13,10 +13,10 @@ class CacheCommandsTest extends TestCase {
    */
   public function test_cache_clear_command_works() {
     $output_all = shell_exec('bee cache-clear all');
-    $this->assertStringContainsString('Cache(s) cleared: All', $output_all);
+    $this->assertStringContainsString('Cache(s) cleared: All', (string) $output_all);
 
     $output_menu = shell_exec('bee cache-clear menu');
-    $this->assertStringContainsString('Cache(s) cleared: Menu', $output_menu);
+    $this->assertStringContainsString('Cache(s) cleared: Menu', (string) $output_menu);
   }
 
 }

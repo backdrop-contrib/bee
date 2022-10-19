@@ -14,20 +14,20 @@ class ProjectsCommandsTest extends TestCase {
   public function test_projects_command_works() {
     // All projects.
     $output_all = shell_exec('bee projects');
-    $this->assertRegExp('/| admin_bar +| Administration Bar +| module +| Enabled +|/', $output_all);
-    $this->assertRegExp('/| bartik +| Bartik +| theme +| Disabled +|/', $output_all);
-    $this->assertRegExp('/| moscone +| Moscone +| layout +| Enabled +|/', $output_all);
+    $this->assertRegExp('/| admin_bar +| Administration Bar +| module +| Enabled +|/', (string) $output_all);
+    $this->assertRegExp('/| bartik +| Bartik +| theme +| Disabled +|/', (string) $output_all);
+    $this->assertRegExp('/| moscone +| Moscone +| layout +| Enabled +|/', (string) $output_all);
 
     // Specific project.
     $output_project = shell_exec('bee projects contact');
-    $this->assertRegExp('/Name +Contact/', $output_project);
-    $this->assertRegExp('/Description +Enables the use of both personal and site-wide contact forms./', $output_project);
+    $this->assertRegExp('/Name +Contact/', (string) $output_project);
+    $this->assertRegExp('/Description +Enables the use of both personal and site-wide contact forms./', (string) $output_project);
 
     // Just modules.
     $output_modules = shell_exec('bee projects --type=module');
-    $this->assertRegExp('/| taxonomy +| Taxonomy +| module +| Enabled +|/', $output_modules);
-    $this->assertStringNotContainsString(' | theme ', $output_modules);
-    $this->assertStringNotContainsString(' | layout ', $output_modules);
+    $this->assertRegExp('/| taxonomy +| Taxonomy +| module +| Enabled +|/', (string) $output_modules);
+    $this->assertStringNotContainsString(' | theme ', (string) $output_modules);
+    $this->assertStringNotContainsString(' | layout ', (string) $output_modules);
   }
 
   /**
@@ -35,11 +35,11 @@ class ProjectsCommandsTest extends TestCase {
    */
   public function test_enable_command_works() {
     $output_single = shell_exec('bee enable contact');
-    $this->assertStringContainsString("The 'Contact' module was enabled.", $output_single);
+    $this->assertStringContainsString("The 'Contact' module was enabled.", (string) $output_single);
 
     $output_multiple = shell_exec('bee enable book bartik');
-    $this->assertStringContainsString("The 'Book' module was enabled.", $output_multiple);
-    $this->assertStringContainsString("The 'Bartik' theme was enabled.", $output_multiple);
+    $this->assertStringContainsString("The 'Book' module was enabled.", (string) $output_multiple);
+    $this->assertStringContainsString("The 'Bartik' theme was enabled.", (string) $output_multiple);
   }
 
   /**
@@ -47,11 +47,11 @@ class ProjectsCommandsTest extends TestCase {
    */
   public function test_disable_command_works() {
     $output_single = shell_exec('bee disable contact');
-    $this->assertStringContainsString("The 'Contact' module was disabled.", $output_single);
+    $this->assertStringContainsString("The 'Contact' module was disabled.", (string) $output_single);
 
     $output_multiple = shell_exec('bee disable book bartik');
-    $this->assertStringContainsString("The 'Book' module was disabled.", $output_multiple);
-    $this->assertStringContainsString("The 'Bartik' theme was disabled.", $output_multiple);
+    $this->assertStringContainsString("The 'Book' module was disabled.", (string) $output_multiple);
+    $this->assertStringContainsString("The 'Bartik' theme was disabled.", (string) $output_multiple);
   }
 
   /**
@@ -59,8 +59,8 @@ class ProjectsCommandsTest extends TestCase {
    */
   public function test_uninstall_command_works() {
     $output = shell_exec('bee uninstall contact book');
-    $this->assertStringContainsString("The 'Contact' module was uninstalled.", $output);
-    $this->assertStringContainsString("The 'Book' module was uninstalled.", $output);
+    $this->assertStringContainsString("The 'Contact' module was uninstalled.", (string) $output);
+    $this->assertStringContainsString("The 'Book' module was uninstalled.", (string) $output);
   }
 
   /**
@@ -68,7 +68,7 @@ class ProjectsCommandsTest extends TestCase {
    */
   public function test_theme_default_command_works() {
     $output = shell_exec('bee theme-default bartik');
-    $this->assertStringContainsString("'Bartik' was set as the default theme.", $output);
+    $this->assertStringContainsString("'Bartik' was set as the default theme.", (string) $output);
 
     // Reset theme.
     exec('bee theme-default basis');
@@ -80,7 +80,7 @@ class ProjectsCommandsTest extends TestCase {
    */
   public function test_theme_admin_command_works() {
     $output = shell_exec('bee theme-admin basis');
-    $this->assertStringContainsString("Basis' was set as the admin theme.", $output);
+    $this->assertStringContainsString("Basis' was set as the admin theme.", (string) $output);
 
     // Reset theme.
     exec('bee theme-admin seven');
