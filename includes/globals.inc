@@ -96,3 +96,4 @@ define('BEE_BOOTSTRAP_FULL', 8);
 
 // Current version of Bee.
 define('BEE_VERSION', '1.x-1.x');
+
