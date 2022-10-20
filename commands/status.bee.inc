@@ -36,6 +36,7 @@ function status_bee_callback($arguments, $options) {
 
   if (!empty($_bee_backdrop_root)) {
     // Backdrop core.
+    global $settings, $config_directories;
     if (defined('BACKDROP_VERSION')) {
       $rows[] = array(
         array('value' => bt('Backdrop CMS')),
@@ -88,6 +89,8 @@ function status_bee_callback($arguments, $options) {
           array('value' => $info['port']),
         );
 
+        // States directly from database, as state_get() requires a higher
+        // bootstrap level with caching and locking.
         $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
         foreach ($states as $name => $serialized) {
           switch ($name) {
@@ -123,58 +126,60 @@ function status_bee_callback($arguments, $options) {
         }
       }
     }
-    if (function_exists('conf_path')) {
-      $settings_path = realpath(conf_path());
+
+    // Global settings.
+    $rows[] = array(
+      array('value' => bt('Settings.php path')),
+      array('value' => realpath(conf_path()) . '/settings.php'),
+    );
+    $rows[] = array(
+      array('value' => bt('Drupal compatibility')),
+      array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
+    );
+    if ($config_directories['active'] && is_dir($config_directories['active'])) {
       $rows[] = array(
-        array('value' => bt('Settings.php path')),
-        array('value' => $settings_path),
+        array('value' => bt('Config dir active')),
+        array('value' => realpath($config_directories['active'])),
       );
-      include $settings_path . '/settings.php';
-      if (isset($database) && $database != 'mysql://user:pass@localhost/database_name') {
-        $rows[] = array(
-          array('value' => bt('Drupal compatibility')),
-          array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
-        );
-        if ($config_directories['active'] && is_dir($config_directories['active'])) {
-          $rows[] = array(
-            array('value' => bt('Config dir active')),
-            array('value' => realpath($config_directories['active'])),
-          );
-        }
-        if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
-          $rows[] = array(
-            array('value' => bt('Config dir staging')),
-            array('value' => realpath($config_directories['staging'])),
-          );
-        }
-      }
     }
+    if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+      $rows[] = array(
+        array('value' => bt('Config dir staging')),
+        array('value' => realpath($config_directories['staging'])),
+      );
+    }
+
+    // Config including overridden values.
     if (!function_exists('config')) {
       include $_bee_backdrop_root . '/core/includes/config.inc';
     }
-    $config = config('system.core');
-    if (!$config->isNew()) {
+    $config_core = config('system.core');
+    if (!$config_core->isNew()) {
+      $rows[] = array(
+        array('value' => bt('Site name')),
+        array('value' => $config_core->get('site_name')),
+      );
       $rows[] = array(
         array('value' => bt('Default theme')),
-        array('value' => $config->get('theme_default')),
+        array('value' => $config_core->get('theme_default')),
       );
       $rows[] = array(
         array('value' => bt('Admin theme')),
-        array('value' => $config->get('admin_theme')),
+        array('value' => $config_core->get('admin_theme')),
       );
-      if ($files_public = $config->get('file_public_path')) {
+      if ($files_public = $config_core->get('file_public_path')) {
         $rows[] = array(
           array('value' => bt('Public files path')),
           array('value' => realpath($files_public)),
         );
       }
-      if ($files_private = $config->get('file_private_path')) {
+      if ($files_private = $config_core->get('file_private_path')) {
         $rows[] = array(
           array('value' => bt('Private files path')),
           array('value' => realpath($files_private)),
         );
       }
-      if ($files_temp = $config->get('file_temporary_path')) {
+      if ($files_temp = $config_core->get('file_temporary_path')) {
         $rows[] = array(
           array('value' => bt('Temporary files path')),
           array('value' => realpath($files_temp)),
@@ -182,21 +187,23 @@ function status_bee_callback($arguments, $options) {
       }
       $rows[] = array(
         array('value' => bt('Preprocess CSS')),
-        array('value' => ($config->get('preprocess_css')) ? 'on' : 'off'),
+        array('value' => ($config_core->get('preprocess_css')) ? 'on' : 'off'),
       );
       $rows[] = array(
         array('value' => bt('Preprocess JS')),
-        array('value' => ($config->get('preprocess_js')) ? 'on' : 'off'),
+        array('value' => ($config_core->get('preprocess_js')) ? 'on' : 'off'),
       );
       $rows[] = array(
         array('value' => bt('Theme debug')),
-        array('value' => ($config->get('theme_debug')) ? 'on' : 'off'),
+        array('value' => ($config_core->get('theme_debug')) ? 'on' : 'off'),
       );
       $rows[] = array(
         array('value' => bt('Error display level')),
-        array('value' => $config->get('error_level')),
+        array('value' => $config_core->get('error_level')),
       );
     }
+
+    // PHP command line info.
     $rows[] = array(
       array('value' => bt('PHP cli version')),
       array('value' => PHP_VERSION),
