@@ -153,3 +153,26 @@ function bt($string, $args = array()) {
     }
   }
 }
+
+/**
+ * Formats a timestamp as date string.
+ *
+ * @param int $timestamp
+ *   Unix timestamp.
+ * @param string $format
+ *   Optional datetime format pattern.
+ * @param string $timezone
+ *   Optional timezone string, falls back to the server default setting.
+ *
+ * @return string
+ */
+function bee_format_date($timestamp, $format = 'Y-m-d H:i:s T', $timezone = NULL) {
+  $date = new DateTime('@' . (int) $timestamp);
+  if (!$timezone) {
+    $timezone = date_default_timezone_get();
+  }
+  if ($timezone != 'UTC') {
+    $date->setTimezone(new DateTimeZone($timezone));
+  }
+  return $date->format($format);
+}
