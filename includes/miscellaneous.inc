@@ -12,7 +12,7 @@ function bee_initialize_server() {
   // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_SOFTWARE'] = '';
   $_SERVER['SERVER_NAME'] = 'localhost';
   $_SERVER['REQUEST_URI'] = '/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
