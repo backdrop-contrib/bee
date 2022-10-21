@@ -4,7 +4,6 @@
       <file>backdrop/BeeCoreTest.php</file>
       <file>backdrop/CacheCommandsTest.php</file>
       <file>backdrop/ConfigCommandsTest.php</file>
-      <file>backdrop/StateCommandsTest.php</file>
       <file>backdrop/CronCommandsTest.php</file>
       <file>backdrop/DBCommandsTest.php</file>
       <file>backdrop/DBLogCommandsTest.php</file>
@@ -12,6 +11,7 @@
       <file>backdrop/HelpCommandsTest.php</file>
       <file>backdrop/PHPCommandsTest.php</file>
       <file>backdrop/ProjectsCommandsTest.php</file>
+      <file>backdrop/StateCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
       <file>backdrop/UpdateCommandsTest.php</file>
       <file>backdrop/UserCommandsTest.php</file>

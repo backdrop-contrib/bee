@@ -4,8 +4,10 @@ config:
   php: 7.4
   webroot: backdrop
   database: mariadb
+  # Although Drush isn't needed/used, the version that Lando includes by default
+  # has a bug that causes all build steps to fail. We therefore need to update
+  # Drush to the latest version just to make sure that build steps run properly.
   backdrush: '1.x-1.x'
-
 services:
   appserver:
     build:
@@ -27,12 +29,12 @@ events:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/tests/.phpunit.result.cache
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/tests/.phpunit.result.cache
 tooling:
   bee:
     service: appserver
