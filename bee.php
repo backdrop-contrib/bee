@@ -43,6 +43,14 @@ exit();
  */
 function bee_error_handler($errno, $message, $filename, $line, $context = NULL) {
   if (error_reporting() > 0) {
+    // Core uses the @ error operator in url_stat() to suppress the warning for
+    // non-existent files. But that doesn't work for us in PHP 8+.
+    if (version_compare(PHP_VERSION, '8', '>=')) {
+      $trace = debug_backtrace();
+      if (isset($trace[5]) && $trace[5]['function'] == 'installer_clear_update_disk_cache') {
+        return;
+      }
+    }
     echo "$message\n";
     echo " $filename:$line\n\n";
   }
