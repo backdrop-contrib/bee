@@ -93,11 +93,18 @@ lando bee [global-options] <command> [options] [arguments]
 - `bee theme-default bartik` - Set Bartik as the default theme.
          
 ### Information
+#### `version`
+*Description:* Display the current version of Bee.
+
+*Examples:*
+- `bee version` -    Output the current version.
+
 #### `status`
 *Description:* Provides an overview of the current Backdrop installation/site.   
 *Aliases:*  `st` , `info` , `core-status`  
 *Options:*                                             
-`--show-password` - Show the database password.  
+`--show-password` - Show the database password.
+
 *Examples:*
 - `bee status` -    Get an overview of the Backdrop installation.
 - `bee status --show-password` - Include the database password in the overview.  
