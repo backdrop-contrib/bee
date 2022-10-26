@@ -44,6 +44,10 @@ function status_bee_callback($arguments, $options) {
       );
     }
     $rows[] = array(
+      array('value' => bt('Bee version')),
+      array('value' => BEE_VERSION),
+    );
+    $rows[] = array(
       array('value' => bt('Root directory')),
       array('value' => $_bee_backdrop_root),
     );
