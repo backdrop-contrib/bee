@@ -62,6 +62,12 @@ function download_bee_callback($arguments, $options) {
     $organisation = 'backdrop-contrib';
     $url = "https://github.com/$organisation/$project";
     $headers = get_headers($url);
+    if (!$headers) {
+      bee_message(bt("Unable to connect to !url.", array(
+        '!url' => $url,
+      )), 'error');
+      continue;
+    }
     $response = substr($headers[0], 9, 3);
     if ($response >= 400) {
       bee_message(bt("The '!project' project repository could not be found. Please check your spelling and try again.", array(
@@ -176,6 +182,12 @@ function download_bee_git_info($project) {
   // Get the download URL of the latest release.
   $url = "https://github.com/$organisation/$project/releases/latest/download/$project.zip";
   $headers = get_headers($url);
+  if (!$headers) {
+    bee_message(bt("Unable to connect to !url.", array(
+      '!url' => $url,
+    )), 'error');
+    return;
+  }
   $response = substr($headers[0], 9, 3);
   if ($response < 400) {
     $info['url'] = $url;
@@ -194,6 +206,12 @@ function download_bee_git_info($project) {
       $branch = $repo_info['default_branch'];
       $url = "https://github.com/$organisation/$project/archive/$branch.zip";
       $headers = get_headers($url);
+      if (!$headers) {
+        bee_message(bt("Unable to connect to !url.", array(
+          '!url' => $url,
+        )), 'error');
+        return;
+      }
       $response = substr($headers[0], 9, 3);
       if ($response < 400) {
         $info['url'] = $url;
