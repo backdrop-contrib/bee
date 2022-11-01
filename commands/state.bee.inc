@@ -44,6 +44,8 @@ function state_bee_command() {
       'aliases' => array('mm'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
+        'bee maintenance-mode true' => bt('Enable maintenance mode for the site (not case-sensitive).'),
+        'bee maintenance-mode FALSE' => bt('Disable maintenance mode for the site (not case-sensitive).'),
         'bee maintenance-mode 1' => bt('Enable maintenance mode for the site.'),
         'bee maintenance-mode 0' => bt('Disable maintenance mode for the site.'),
         'bee maintenance-mode' => bt('Get the maintenance mode status for the site.'),
@@ -58,6 +60,7 @@ function state_bee_command() {
 function state_get_bee_callback($arguments, $options) {
   try {
     $value = state_get($arguments['state']);
+    // Check the type and set to display in a meaningful way
     $type = gettype($value);
     switch ($type) {
       case 'integer':
@@ -74,11 +77,20 @@ function state_get_bee_callback($arguments, $options) {
       default:
         $value = $value;
     }
-    $msg = bt("The value of the '!state' state is: !value ", array(
+    $msg = bt("The value (!type) of the '!state' state is: !value ", array(
       '!state' => $arguments['state'],
       '!value' => $value,
+      '!type' => $type,
     ));
-    bee_message((string) $msg, 'status');
+    return array(
+      array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => $msg,
+        ),
+        'newline' => TRUE,
+      ),
+    );
   }
   catch(ParseError $e) {
     // This is more readable than the default error we would get from PHP.
@@ -87,6 +99,7 @@ function state_get_bee_callback($arguments, $options) {
       '!state' => $arguments['state'],
     ));
     bee_message((string) $err_msg, 'error');
+    return;
   }
 }
 
@@ -95,12 +108,87 @@ function state_get_bee_callback($arguments, $options) {
  */
 function state_set_bee_callback($arguments, $options) {
   try {
-    state_set($arguments['state'], $arguments['value']);
+    $state_name = (string) $arguments['state'];
+    $value = $arguments['value'];
+    // Check the type of the existing value
+    $existing_value = state_get($state_name);
+    $existing_type = gettype($existing_value);
+    switch ($existing_type) {
+      case 'integer':
+        // Make sure input is a number and then ensure its past as integer
+        if (is_numeric($value)) {
+          $value = (int) $value;
+        }
+        else {
+          // Reject input that is invalid
+          $err_msg = bt('!state is an !type and the argument you entered is not a valid !type.', array(
+            '!type' => $existing_type,
+            '!state' => $state_name,
+          ));
+          bee_message((string) $err_msg, 'error');
+          return;
+        }
+        break;
+      case 'boolean':
+        // Check input is valid boolean - allow true/false and 1/0
+        $value = strtoupper($value);
+        switch ($value) {
+          case 'TRUE':
+            $value = (bool) TRUE;
+            break;
+          case '1':
+            $value = (bool) TRUE;
+            break;
+          case 'FALSE':
+            $value = (bool) FALSE;
+            break;
+          case '0':
+            $value = (bool) FALSE;
+            break;
+          default:
+            // Reject invalid input
+            $err_msg = bt('!state is a !type and the argument you entered is not a valid !type.', array(
+              '!type' => $existing_type,
+              '!state' => $state_name,
+            ));
+            bee_message((string) $err_msg, 'error');
+            return;
+          }
+        break;
+      case 'string':
+        // Pass string as is but cast to string to be safe
+        $value = (string) $value;
+        break;
+      case 'array':
+        // Do not allow updating of array states
+        $err_msg = bt('!state is an !type and cannot be set via the command line.', array(
+          '!type' => $existing_type,
+          '!state' => $state_name,
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
+      default:
+        // Reject any other types - no others known at present
+        $err_msg = bt('!state is an !type and cannot be set via the command line.', array(
+          '!type' => $existing_type,
+          '!state' => $state_name,
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
+    }
+    // If no errors then set the state value accordingly
+    state_set($state_name, $value);
+    // Feedback message needs boolean in readable form
+    if ($existing_type === 'boolean') {
+      $value = $value ? 'TRUE' : 'FALSE';
+    }
+    // Give feedback on operation
     $msg = bt("The '!state' state was set to: !value", array(
-      '!state' => $arguments['state'],
-      '!value' => $arguments['value'],
+      '!state' => $state_name,
+      '!value' => $value,
     ));
     bee_message((string) $msg, 'success');
+    return;
   }
   catch(ParseError $e) {
     // This is more readable than the default error we would get from PHP.
@@ -118,8 +206,29 @@ function state_set_bee_callback($arguments, $options) {
   function maintenance_mode_bee_callback($arguments, $options) {
     // Check if argument provided first
     if (isset($arguments['value'])) {
+      // Check for valid boolean argument - allow true/false AND 1/0
+      $value = strtoupper($arguments['value']);
+      switch ($value) {
+        case 'TRUE':
+          $value = (bool) TRUE;
+          break;
+        case '1':
+          $value = (bool) TRUE;
+          break;
+        case 'FALSE':
+          $value = (bool) FALSE;
+          break;
+        case '0':
+          $value = (bool) FALSE;
+          break;
+        default:
+          $err_msg = bt('"!value" is not a valid argument. Enter "TRUE" or "FALSE" (not case sensitive) OR "1" or "0" OR leave argument blank to get the current value.', array (
+            '!value' => (string) $value,)
+          );
+          bee_message((string) $err_msg, 'error');
+          return;
+      }
       // Check if argument matches existing value
-      $value = (strtoupper($arguments['value']) == 'TRUE') ? (bool) TRUE : (bool) FALSE;
       if ((bool) state_get('maintenance_mode', FALSE) == $value) {
         $msg = bt('Maintenance mode is already !value', array(
           '!value' => ($value) ? 'enabled' : 'disabled',
@@ -129,7 +238,7 @@ function state_set_bee_callback($arguments, $options) {
       else {
         // Attempt to set maintenance mode
         try {
-          state_set('maintenance_mode', $value);
+          state_set('maintenance_mode',(bool) $value);
           $msg = bt('Maintenance mode was !value', array(
             '!value' => ($value) ? 'enabled' : 'disabled',
           ));
@@ -151,6 +260,14 @@ function state_set_bee_callback($arguments, $options) {
       $msg = bt('Maintenance mode is !status', array(
         '!status' => ($value) ? 'enabled' : 'disabled',
       ));
-      bee_message((string) $msg, 'status');
+      return array(
+        array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => $msg,
+          ),
+          'newline' => TRUE,
+        ),
+      );
     }
   }
