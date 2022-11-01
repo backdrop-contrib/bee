@@ -29,12 +29,12 @@ events:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/tests/
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/tests/
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
 tooling:
   bee:
     service: appserver
