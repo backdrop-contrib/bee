@@ -7,7 +7,7 @@ config:
   # Although Drush isn't needed/used, the version that Lando includes by default
   # has a bug that causes all build steps to fail. We therefore need to update
   # Drush to the latest version just to make sure that build steps run properly.
-  backdrush: '1.x-1.x'
+  backdrush: 1.x-1.x
 services:
   appserver:
     build:
