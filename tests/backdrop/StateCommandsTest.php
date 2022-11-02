@@ -15,7 +15,7 @@ class StateCommandsTest extends TestCase {
     // New installs don't have maintenance_mode state so need setting to TRUE to initiate
     $output = shell_exec('bee maintenance-mode TRUE');
     $output = shell_exec('bee maintenance-mode FALSE');
-    
+
     // Make sure maintenance mode is disabled and message matches format
     $output = shell_exec('bee state-get maintenance_mode');
     $this->assertStringContainsString("The value (boolean) of the 'maintenance_mode' state is: FALSE", (string) $output);
@@ -28,11 +28,11 @@ class StateCommandsTest extends TestCase {
     // Make sure maintenance_mode is disabled.
     $output = shell_exec('bee state-get maintenance_mode');
     $this->assertStringContainsString("The value (boolean) of the 'maintenance_mode' state is: FALSE", (string) $output);
-    
+
     // Set maintenance_mode to 'TRUE'.
     $output = shell_exec('bee state-set maintenance_mode TRUE');
     $this->assertStringContainsString("The 'maintenance_mode' state was set to: TRUE", (string) $output);
-    
+
     // Make sure maintenance_mode is enabled.
     $output = shell_exec('bee state-get maintenance_mode');
     $this->assertStringContainsString("The value (boolean) of the 'maintenance_mode' state is: TRUE", (string) $output);

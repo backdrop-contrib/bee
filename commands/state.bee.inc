@@ -22,7 +22,7 @@ function state_bee_command() {
       ),
     ),
     'state-set' => array(
-      'description' => bt('Set the value of a Backdrop state.'),
+      'description' => bt('Set the value of an existing Backdrop state.'),
       'callback' => 'state_set_bee_callback',
       'arguments' => array(
         'state' => bt('The name of the state to set.'),
@@ -31,14 +31,15 @@ function state_bee_command() {
       'aliases' => array('ss', 'sset'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee state-set maintenance_mode 1' => bt('Set the value of the maintenance_mode state.'),
+        'bee state-set maintenance_mode 1' => bt("Set the value (enabled) of the 'maintenance_mode' state."),
+        'bee state-set database_utf8mb4_active TRUE' => bt("Set the value of the 'database_utf8mb4_active' state.")
       ),
     ),
     'maintenance-mode' => array(
       'description' => bt('Enable or disable maintenance mode for Backdrop.'),
       'callback' => 'maintenance_mode_bee_callback',
       'arguments' => array(
-        'value' => bt('The value to set maintenance_mode to.'),
+        'value' => bt('A boolean value to enable (true/1) or disable (false/0) maintenance mode. Omitting the value will return the current maintenance mode status.'),
       ),
       'optional_arguments' => array('value'),
       'aliases' => array('mm'),
@@ -74,8 +75,17 @@ function state_get_bee_callback($arguments, $options) {
         break;
       case 'array':
         $value = var_export($value, TRUE);
+        break;
+      case 'NULL':
+        // If type is NULL then state does not exist.
+        $err_msg = bt("State '!state' cannot be found. Please check your spelling and try again.", array(
+          '!state' => $arguments['state'],
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
       default:
         $value = $value;
+        break;
     }
     $msg = bt("The value (!type) of the '!state' state is: !value ", array(
       '!state' => $arguments['state'],
@@ -121,7 +131,7 @@ function state_set_bee_callback($arguments, $options) {
         }
         else {
           // Reject input that is invalid
-          $err_msg = bt('!state is an !type and the argument you entered is not a valid !type.', array(
+          $err_msg = bt("'!state' is an !type state and the argument you entered is not a valid !type.", array(
             '!type' => $existing_type,
             '!state' => $state_name,
           ));
@@ -147,7 +157,7 @@ function state_set_bee_callback($arguments, $options) {
             break;
           default:
             // Reject invalid input
-            $err_msg = bt('!state is a !type and the argument you entered is not a valid !type.', array(
+            $err_msg = bt("'!state' is a !type state and the argument you entered is not a valid !type. Enter 'TRUE' or 'FALSE' (not case sensitive) OR '1' or '0'.", array(
               '!type' => $existing_type,
               '!state' => $state_name,
             ));
@@ -161,15 +171,23 @@ function state_set_bee_callback($arguments, $options) {
         break;
       case 'array':
         // Do not allow updating of array states
-        $err_msg = bt('!state is an !type and cannot be set via the command line.', array(
+        $err_msg = bt("'!state' is an !type and cannot be set via the command line.", array(
           '!type' => $existing_type,
           '!state' => $state_name,
         ));
         bee_message((string) $err_msg, 'error');
         return;
+      case 'NULL':
+        // If type is NULL then state does not exist and we do not want to
+        // allow user to set it.
+        $err_msg = bt("State '!state' cannot be found. New states cannot be created from the command line. Please check your spelling and try again.", array(
+          '!state' => $arguments['state'],
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
       default:
         // Reject any other types - no others known at present
-        $err_msg = bt('!state is an !type and cannot be set via the command line.', array(
+        $err_msg = bt("'!state' is a !type and is not currently enabled to be set via the command line. Please submit an issue listing the state, the type, and what module has created it.", array(
           '!type' => $existing_type,
           '!state' => $state_name,
         ));
@@ -222,7 +240,7 @@ function state_set_bee_callback($arguments, $options) {
           $value = (bool) FALSE;
           break;
         default:
-          $err_msg = bt('"!value" is not a valid argument. Enter "TRUE" or "FALSE" (not case sensitive) OR "1" or "0" OR leave argument blank to get the current value.', array (
+          $err_msg = bt("'!value' is not a valid argument. Enter 'TRUE' or 'FALSE' (not case sensitive) OR '1' or '0' OR leave argument blank to get the current value.", array (
             '!value' => (string) $value,)
           );
           bee_message((string) $err_msg, 'error');
