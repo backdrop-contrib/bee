@@ -131,7 +131,7 @@ function state_set_bee_callback($arguments, $options) {
         }
         else {
           // Reject input that is invalid.
-          $err_msg = bt("The type of the '!state' is !type, but the value you provided is of a different type.", array(
+          $err_msg = bt("The type of the '!state' state is !type, but the value you provided is of a different type.", array(
             '!type' => $existing_type,
             '!state' => $state_name,
           ));
@@ -157,7 +157,7 @@ function state_set_bee_callback($arguments, $options) {
             break;
           default:
             // Reject invalid input.
-            $err_msg = bt("The type of the value of the '!state' is !type, but the value you provided is not a valid !type. Accepted values are 'TRUE', 'FALSE' (not case sensitive), '1' or '0'.", array(
+            $err_msg = bt("The type of the value of the '!state' state is !type, but the value you provided is not a valid !type. Accepted values are 'TRUE', 'FALSE' (not case sensitive), '1' or '0'.", array(
               '!type' => $existing_type,
               '!state' => $state_name,
             ));
