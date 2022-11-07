@@ -300,7 +300,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Description:* Clear a specific cache, or all Backdrop caches.  
 *Aliases:* `cc`  
 *Arguments:*  
-- `cache` (optional) The name of the cache to clear. Leave blank to see a list of available caches.  
+- `cache` - (optional) The name of the cache to clear. Leave blank to see a list of available caches.  
 
 *Examples:*  
 - `bee cache-clear menu` - Clear the menu cache.  
@@ -323,6 +323,40 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Description:* Run cron.  
 *Examples:*
 - `bee cron` - Initiate a cron run.
+
+#### `maintenance-mode`
+*Description:* Enable or disable maintenance mode for Backdrop.  
+*Aliases:* `mm`  
+*Arguments:*
+- `value` - (optional) A boolean value to enable (true/1) or disable (false/0) maintenance mode.
+Omitting the value will return the current maintenance mode status.
+
+*Examples:*
+- `bee maintenance-mode true` - Enable maintenance mode for the site (not case-sensitive).
+- `bee maintenance-mode FALSE` - Disable maintenance mode for the site (not case-sensitive).
+- `bee maintenance-mode 1` - Enable maintenance mode for the site.
+- `bee maintenance-mode 0` - Disable maintenance mode for the site.
+- `bee maintenance-mode` - Get the maintenance mode status for the site.
+
+#### `state-get`
+*Description:* Get the value of a Backdrop state.  
+*Aliases:* `sg`, `sget`  
+*Arguments:*
+- `state` - The name of the state to get.
+
+*Examples:*
+- `bee state-get maintenance_mode` - Get the value of the 'maintenance_mode' state.
+
+#### `state-set`
+*Description:* Set the value of an existing Backdrop state.  
+*Aliases:* `ss`, `sset`  
+*Arguments:*
+- `state` - The name of the state to set.
+- `value` - The value to set the state to.
+
+*Examples:*
+- `bee state-set maintenance_mode 1` - Set the value of the 'maintenance_mode' state to '1' (enabled).
+- `bee state-set database_utf8mb4_active TRUE` - Set the value of the 'database_utf8mb4_active' state to 'TRUE'.
 
 ### Advanced
 #### `eval`
