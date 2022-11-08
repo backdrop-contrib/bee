@@ -16,6 +16,12 @@ function db_bee_command() {
         'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
       ),
       'optional_arguments' => array('file'),
+      'options' => array(
+        'extra' => array(
+          'description' => bt("Add custom option(s) to the 'mysqldump' command. Do not include leading or trailing spaces and enclose multiple options in double quotes."),
+          'value' => bt('Custom mysqldump options'),
+        ),
+      ),
       'aliases' => array('dbex', 'db-dump', 'sql-export', 'sql-dump'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
@@ -62,8 +68,15 @@ function db_export_bee_callback($arguments, $options) {
   // Get the filename for the export.
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
+  // Get any extra mysqldump options entered.
+  $extra = (!empty($options['extra'])) ? $options['extra'] . ' ' : '';
+
   // Export and compress the database.
-  $export_command = 'mysqldump ' . db_bee_mysql_options($db_info) . ' | gzip > ' . $filename . '.gz';
+  $export_command = 'mysqldump ';
+  $export_command .= $extra;
+  $export_command .= db_bee_mysql_options($db_info);
+  $export_command .= ' | gzip > ';
+  $export_command .= $filename . '.gz';
   exec($export_command, $output, $result);
 
   if ($result === 0) {
