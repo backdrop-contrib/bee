@@ -26,7 +26,7 @@ function bee_initialize_server() {
  * Initialize Bee.
  */
 function bee_initialize_console() {
-  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode;
+  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode, $_bee_settings;
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($_bee_options['root'])) {
@@ -55,7 +55,11 @@ function bee_initialize_console() {
     // Determine if Backdrop is installed or not.
     require_once $_bee_backdrop_root . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
+      // Declare Core settings variable so can retrieve settings to store.
+      global $settings;
       backdrop_settings_initialize();
+      // Store settings globally once retrieved so can reinstate after backdrop_bootstrap.
+      $_bee_settings = $settings;
 
       if (backdrop_bootstrap_is_installed()) {
         $_bee_backdrop_installed = TRUE;
@@ -92,14 +96,18 @@ function bee_initialize_console() {
  *   TRUE if Backdrop is bootstrapped to the desired level, FALSE if not.
  */
 function bee_bootstrap($level) {
-  global $_bee_backdrop_installed, $_bee_backdrop_root;
+  global $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_settings;
 
   if (!$_bee_backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
     return FALSE;
   }
 
   if (!empty($_bee_backdrop_root) && function_exists('backdrop_bootstrap')) {
+    // Declare Core settings variable so can restore settings.
+    global $settings;
     backdrop_bootstrap($level);
+    // Restore settings.
+    $settings = $_bee_settings;
 
     // Backdrop sets its own error handler, so reset ours here.
     set_error_handler('bee_error_handler');
