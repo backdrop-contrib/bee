@@ -102,9 +102,10 @@ function bee_bootstrap($level) {
     // Declare Core settings variable so can store settings.
     global $settings;
     $settings_initial = $settings;
-    backdrop_bootstrap($level);
+    backdrop_bootstrap(BEE_BOOTSTRAP_CONFIGURATION);
     // Restore settings and merge with any newly created settings.
     $settings = array_unique(array_merge($settings_initial, $settings));
+    backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
     set_error_handler('bee_error_handler');
