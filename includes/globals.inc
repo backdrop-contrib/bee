@@ -64,10 +64,6 @@ $_bee_messages = array();
 // the given command.
 $_bee_output = array();
 
-// A list of settings stored globally so can be reinstated after
-// backdrop_bootstrap.
-$_bee_settings = array();
-
 /**
  * Define constants for bootstrap phases.
  */
