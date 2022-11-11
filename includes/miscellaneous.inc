@@ -104,7 +104,7 @@ function bee_bootstrap($level) {
     $settings_initial = $settings;
     backdrop_bootstrap(BEE_BOOTSTRAP_CONFIGURATION);
     // Restore settings and merge with any newly created settings.
-    $settings = array_unique(array_merge($settings_initial, $settings));
+    $settings = array_merge($settings_initial, $settings);
     backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
