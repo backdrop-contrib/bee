@@ -26,7 +26,7 @@ function bee_initialize_server() {
  * Initialize Bee.
  */
 function bee_initialize_console() {
-  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode, $_bee_settings;
+  global $_bee_options, $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites, $_bee_yes_mode, $_bee_debug_mode;
 
   // Get the root directory of the Backdrop installation to use.
   if (isset($_bee_options['root'])) {
@@ -92,7 +92,7 @@ function bee_initialize_console() {
  *   TRUE if Backdrop is bootstrapped to the desired level, FALSE if not.
  */
 function bee_bootstrap($level) {
-  global $_bee_backdrop_installed, $_bee_backdrop_root, $_bee_settings;
+  global $_bee_backdrop_installed, $_bee_backdrop_root;
 
   if (!$_bee_backdrop_installed && $level > BEE_BOOTSTRAP_PAGE_CACHE) {
     return FALSE;
