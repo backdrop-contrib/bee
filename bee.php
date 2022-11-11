@@ -44,8 +44,9 @@ exit();
 function bee_error_handler($errno, $message, $filename, $line, $context = NULL) {
   if (error_reporting() > 0) {
     // Core uses the @ error operator in url_stat() to suppress the warning for
-    // non-existent files. But that doesn't work for us, as since PHP 8+ the
-    // error_reporting value raises automatically with "@".
+    // non-existent files. However, since PHP 8.0, certain errors are no longer
+    // suppressed which causes unnecessary error messages to appear in some
+    // 'bee' commands.
     if (version_compare(PHP_VERSION, '8', '>=')) {
       $trace = debug_backtrace();
       if (isset($trace[2]) && $trace[2]['function'] == 'url_stat') {
