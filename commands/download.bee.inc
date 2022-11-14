@@ -57,7 +57,11 @@ function download_bee_callback($arguments, $options) {
 
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
-  foreach ($arguments['projects'] as $project) {
+  // Iterate through the list of projects manually so any dependencies can be
+  // added to the list of projects to download. 
+  $project_count = 0;
+  while ($project_count < count($arguments['projects'])) {
+    $project = $arguments['projects'][$project_count];
     // Check if the project exists by trying to get the repo homepage
     $organisation = 'backdrop-contrib';
     $url = "https://github.com/$organisation/$project";
@@ -76,6 +80,18 @@ function download_bee_callback($arguments, $options) {
     }
     else {
       $info = download_bee_git_info($project);
+
+      // Get the list of dependencies and add to list of projects.
+      if (!empty($info['dependencies'])) {
+        $dependencies = $info['dependencies'];
+        foreach ($dependencies as $dependency) {
+          $arguments['projects'][] = $dependency;
+          bee_message(bt("The '!dependency' module will also be downloaded, as it is required by the '!project' module.", array(
+            '!dependency' => $dependency,
+            '!project' => $project,
+          )), 'status');
+        }
+      }
 
       // Get the project type.
       if (empty($info['type'])) {
@@ -126,6 +142,7 @@ function download_bee_callback($arguments, $options) {
         )), 'success');
       }
     }
+    $project_count++;
   }
 }
 
@@ -220,7 +237,7 @@ function download_bee_git_info($project) {
     }
   }
 
-  // Get the 'type' of project.
+  // Get the 'type' and any dependencies of project.
   if ($project != 'backdrop') {
     $files = shell_exec("curl -sS $api_url/$organisation/$project/contents");
     $files = json_decode($files, TRUE);
@@ -228,13 +245,21 @@ function download_bee_git_info($project) {
       if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
         $info_file = shell_exec("curl -sSH 'Accept: application/vnd.github.v3.raw' $api_url/$organisation/$project/contents/" . $file['name']);
         $lines = explode("\n", $info_file);
+        // Declare dependencies as array.
+        $info['dependencies'] = array();
         foreach ($lines as $line) {
           $values = explode('=', $line);
+          // Get the type of project.
           if (trim($values[0]) == 'type') {
             $info['type'] = trim($values[1]);
-            break 2;
+          }
+          // Get any dependencies of project.
+          if (trim($values[0]) == 'dependencies[]') {
+            $info['dependencies'][] = trim($values[1]);
           }
         }
+        // Exit loop as only need to check .info file.
+        break;
       }
     }
   }
