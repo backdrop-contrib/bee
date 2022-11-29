@@ -19,7 +19,7 @@ lando bee [global-options] <command> [options] [arguments]
 
 ### Project Actions
 #### `download`
-*Description:* Download Backdrop contrib projects.  
+*Description:* Download Backdrop contrib projects together with dependencies.  
 *Aliases:* `dl` , `pm-download`  
 *Arguments:*
 - `projects` - One or more contrib projects to download.
