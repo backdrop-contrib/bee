@@ -116,8 +116,76 @@ function config_set_bee_callback($arguments, $options) {
     return;
   }
 
+  // Check the existing type.
+  $existing_value = $config->get($arguments['option']);
+  $existing_type = gettype($existing_value);
+  
+  // Attempt to set the config item using the correct type.
+  $value = $arguments['value'];
+  $config_item = $arguments['option'];
+  switch ($existing_type) {
+    case 'integer':
+      // Make sure input is a number, and then ensure it's passed as integer.
+      if (is_numeric($value)) {
+        $value = (int) $value;
+      }
+      else {
+        // Reject input that is invalid.
+        $err_msg = bt("The type of the '!config_item' config item is !type, but the value you provided is of a different type.", array(
+          '!type' => $existing_type,
+          '!config_item' => $config_item,
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
+      }
+      break;
+    case 'boolean':
+      // Check input is valid boolean - allow true/false and 1/0.
+      $value = strtoupper($value);
+      switch ($value) {
+        case 'TRUE':
+          $value = (bool) true;
+          break;
+        case '1':
+          $value = (bool) true;
+          break;
+        case 'FALSE':
+          $value = (bool) false;
+          break;
+        case '0':
+          $value = (bool) false;
+          break;
+        default:
+          // Reject invalid input.
+          $err_msg = bt("The type of the value of the '!config_item' config item is !type, but the value you provided is not a valid !type. Accepted values are 'TRUE', 'FALSE' (not case sensitive), '1' or '0'.", array(
+            '!type' => $existing_type,
+            '!config_item' => $config_item,
+          ));
+          bee_message((string) $err_msg, 'error');
+          return;
+        }
+      break;
+    case 'string':
+      // Pass string as is but cast to string to be safe.
+      $value = (string) $value;
+      break;
+    case 'NULL':
+      // If config item is not set, default to string.
+      $value = (string) $value;
+      break;
+    default:
+        // Reject any other types - complex types already ruled out and no
+        // others known at present.
+        $err_msg = bt("The type of the '!config_item' config item is !type, which is not currently supported to be set via the command line. Please submit an issue listing the config_item, the file, the type, and which module has created it.", array(
+          '!type' => $existing_type,
+          '!state' => $config_item,
+        ));
+        bee_message((string) $err_msg, 'error');
+        return;
+  }
+
   // Set the value.
-  $config->set($arguments['option'], $arguments['value']);
+  $config->set($config_item, $value);
   $config->save();
 
   bee_message(bt("'!option' was set to '!value' in '!file'.", array(
