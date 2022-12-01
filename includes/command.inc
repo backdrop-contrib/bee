@@ -15,19 +15,28 @@ function bee_parse_input() {
     if ($id == 0) {
       continue;
     }
-
-    // Get any long options.
-    if (preg_match('#^--(\S+)#', $arg, $matches)) {
-      $opt_name = $matches[1];
-      $opt_value = TRUE;
-
-      // Get the value, if any.
-      if (strpos($opt_name, '=') !== FALSE) {
-        list($opt_name, $opt_value) = explode('=', $opt_name);
+    // Get any and all long options. Help provided by:
+    // https://stackoverflow.com/questions/17848618/parsing-command-arguments-in-php
+    if (preg_match_all('#(?<!\\\\)("|\')(?:[^\\\\]|\\\\.)*?\1|\S+#s', $arg, $matches)) {
+      // If we have more than one match in our argument in quotes then we need to parse it so the quoted
+      // values are sent as part of the option.
+      if (is_array($matches[0]) && (count($matches[0]) > 1)) {
+        foreach($matches[0] as $key => $match) {
+          // The first match has the variable name in it, so we need to separate it from the first value.
+          if ($key == 0) {
+            // Get the option name (remove the -- and =).
+            $opt_key = substr($match, 2, strpos($match, '=') - 2);
+            $opt_value = substr($match, strpos($match, '=') + 1);
+            $$opt_key = $opt_value;
+          }
+          else {
+            // Concatenate any additional values with a space.
+            $$opt_key .= ' ' . $opt_value;
+          }
+        }
+        // Set the option as a single string with the space inserted.
+        $_bee_options[$opt_key] = $$opt_key;
       }
-
-      $_bee_options[$opt_name] = $opt_value;
-      continue;
     }
 
     // Get any short options.
@@ -48,6 +57,7 @@ function bee_parse_input() {
     $_bee_arguments[] = $arg;
   }
 }
+
 
 /**
  * Get the callback function for the command and process it.
