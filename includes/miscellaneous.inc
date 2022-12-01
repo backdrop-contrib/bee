@@ -12,13 +12,14 @@ function bee_initialize_server() {
   // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_SOFTWARE'] = '';
   $_SERVER['SERVER_NAME'] = 'localhost';
   $_SERVER['REQUEST_URI'] = '/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
   $_SERVER['SCRIPT_NAME'] = '/index.php';
   $_SERVER['PHP_SELF'] = '/index.php';
   $_SERVER['HTTP_USER_AGENT'] = 'Bee';
+  $_GET['q'] = 'node';
 }
 
 /**
@@ -98,6 +99,12 @@ function bee_bootstrap($level) {
   }
 
   if (!empty($_bee_backdrop_root) && function_exists('backdrop_bootstrap')) {
+    // Declare Core settings variable so can store settings.
+    global $settings;
+    $settings_initial = $settings;
+    backdrop_bootstrap(BEE_BOOTSTRAP_CONFIGURATION);
+    // Restore settings and merge with any newly created settings.
+    $settings = array_merge($settings_initial, $settings);
     backdrop_bootstrap($level);
 
     // Backdrop sets its own error handler, so reset ours here.
@@ -151,4 +158,27 @@ function bt($string, $args = array()) {
       return $string;
     }
   }
+}
+
+/**
+ * Formats a timestamp as date string.
+ *
+ * @param int $timestamp
+ *   Unix timestamp.
+ * @param string $format
+ *   Optional datetime format pattern.
+ * @param string $timezone
+ *   Optional timezone string, falls back to the server default setting.
+ *
+ * @return string
+ */
+function bee_format_date($timestamp, $format = 'Y-m-d H:i:s T', $timezone = NULL) {
+  $date = new DateTime('@' . (int) $timestamp);
+  if (!$timezone) {
+    $timezone = date_default_timezone_get();
+  }
+  if ($timezone != 'UTC') {
+    $date->setTimezone(new DateTimeZone($timezone));
+  }
+  return $date->format($format);
 }
