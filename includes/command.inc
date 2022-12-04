@@ -25,17 +25,17 @@ function bee_parse_input() {
           // The first match has the variable name in it, so we need to separate it from the first value.
           if ($key == 0) {
             // Get the option name (remove the -- and =).
-            $opt_key = substr($match, 2, strpos($match, '=') - 2);
+            $opt_name = substr($match, 2, strpos($match, '=') - 2);
             $opt_value = substr($match, strpos($match, '=') + 1);
-            $$opt_key = $opt_value;
+            $$opt_name = $opt_value;
           }
           else {
             // Concatenate any additional values with a space.
-            $$opt_key .= ' ' . $opt_value;
+            $$opt_name .= ' ' . $opt_value;
           }
         }
         // Set the option as a single string with the space inserted.
-        $_bee_options[$opt_key] = $$opt_key;
+        $_bee_options[$opt_name] = $$opt_name;
       }
     }
 
