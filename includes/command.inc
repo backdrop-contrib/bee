@@ -58,7 +58,6 @@ function bee_parse_input() {
   }
 }
 
-
 /**
  * Get the callback function for the command and process it.
  */
