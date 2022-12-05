@@ -78,6 +78,10 @@ function db_export_bee_callback($arguments, $options) {
   $export_command .= ' | gzip > ';
   $export_command .= $filename . '.gz';
   exec($export_command, $output, $result);
+  // Create debug message with the compiled export command.
+  bee_message(bt("The compiled export command is: !export", array(
+    '!export' => $export_command,
+    )), 'log');
 
   if ($result === 0) {
     bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
