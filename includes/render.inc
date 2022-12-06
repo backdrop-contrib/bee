@@ -110,7 +110,7 @@ function bee_display_output() {
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
  */
-function bee_render_text($variables, $newline = TRUE) {
+function bee_render_text(array $variables, $newline = TRUE) {
   // Get the text and format options.
   $text = $variables['value'];
   $color = isset($variables['#color']) ? $variables['#color'] : FALSE;
@@ -196,7 +196,7 @@ function bee_format_text($text, $color = FALSE, $bold = FALSE) {
  *   Whether or not to add a newline character (`\n`) to the end of the output.
  *   Defaults to TRUE.
  */
-function bee_render_table($variables, $newline = TRUE) {
+function bee_render_table(array $variables, $newline = TRUE) {
   // Get variables and set default values.
   $rows = $variables['rows'];
   $header = isset($variables['header']) ? $variables['header'] : array();
@@ -258,7 +258,7 @@ function bee_render_table($variables, $newline = TRUE) {
 /**
  * Calculate a table's column widths and make sure they fit in the terminal.
  *
- * @see bee_render_table() for description of parameters.
+ * @see bee_render_table()
  *
  * @return array
  *   An associative array of column widths, where the keys are column indexes
@@ -322,7 +322,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
  * @return string
  *   The formatted string for the column.
  */
-function bee_format_column($column, $width) {
+function bee_format_column(array $column, $width) {
   // Get the text and format options.
   $text = $column['value'];
   $color = isset($column['#color']) ? $column['#color'] : FALSE;
@@ -347,7 +347,7 @@ function bee_format_column($column, $width) {
  * @return array
  *   An array of rows to add to the table.
  */
-function bee_get_remaining_rows($row, $column_widths) {
+function bee_get_remaining_rows(array $row, array $column_widths) {
   $rows = array();
   $row_rendered = array();
 

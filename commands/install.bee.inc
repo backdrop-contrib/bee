@@ -108,7 +108,7 @@ function install_bee_callback($arguments, $options) {
   else {
     $db_name = rawurlencode(bee_check_plain(bee_input(bt('Database name'), '', TRUE)));
   }
-  
+
   // Get database username.
   if (!empty($options['db-user'])) {
     $db_username = $options['db-user'];
@@ -133,7 +133,7 @@ function install_bee_callback($arguments, $options) {
     // If the user provided a DB name but not the host, we assume 'localhost'.
     $db_host = 'localhost';
   }
-  else { 
+  else {
     $db_host = bee_check_plain(bee_input(bt('Database host'), 'localhost', TRUE));
   }
 

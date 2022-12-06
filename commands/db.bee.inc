@@ -81,7 +81,7 @@ function db_export_bee_callback($arguments, $options) {
   // Create debug message with the compiled export command.
   bee_message(bt("The compiled export command is: !export", array(
     '!export' => $export_command,
-    )), 'log');
+  )), 'log');
 
   if ($result === 0) {
     bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
@@ -151,7 +151,7 @@ function sql_bee_callback($arguments, $options) {
  * @return string
  *   A string of command options that can be appended to 'mysql' or 'mysqldump'.
  */
-function db_bee_mysql_options($db_info) {
+function db_bee_mysql_options(array $db_info) {
   $options = '--user=' . rawurldecode($db_info['username']);
   $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
   $options .= ' --host=' . $db_info['host'];

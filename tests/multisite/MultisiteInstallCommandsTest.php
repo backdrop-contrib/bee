@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ *
+ */
 class MultisiteInstallCommandsTest extends TestCase {
 
   /**

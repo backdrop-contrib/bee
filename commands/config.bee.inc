@@ -119,7 +119,7 @@ function config_set_bee_callback($arguments, $options) {
   // Check the existing type.
   $existing_value = $config->get($arguments['option']);
   $existing_type = gettype($existing_value);
-  
+
   // Attempt to set the config item using the correct type.
   $value = $arguments['value'];
   $config_item = $arguments['option'];
@@ -144,16 +144,16 @@ function config_set_bee_callback($arguments, $options) {
       $value = strtoupper($value);
       switch ($value) {
         case 'TRUE':
-          $value = (bool) true;
+          $value = (bool) TRUE;
           break;
         case '1':
-          $value = (bool) true;
+          $value = (bool) TRUE;
           break;
         case 'FALSE':
-          $value = (bool) false;
+          $value = (bool) FALSE;
           break;
         case '0':
-          $value = (bool) false;
+          $value = (bool) FALSE;
           break;
         default:
           // Reject invalid input.
@@ -163,7 +163,7 @@ function config_set_bee_callback($arguments, $options) {
           ));
           bee_message((string) $err_msg, 'error');
           return;
-        }
+      }
       break;
     case 'string':
       // Pass string as is but cast to string to be safe.

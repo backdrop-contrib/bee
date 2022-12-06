@@ -49,7 +49,7 @@ function update_db_bee_callback() {
       }
       else {
         bee_message(bt("'!module' module can not be updated due to unresolved requirements.", array(
-          '!module' => $module
+          '!module' => $module,
         )), 'warning');
       }
       continue;

@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Tests the Bee config commands.
+ */
 class ConfigCommandsTest extends TestCase {
 
   /**

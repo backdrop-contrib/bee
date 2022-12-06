@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's commands for gettings information on installed projects.
+ */
 class ProjectsCommandsTest extends TestCase {
 
   /**

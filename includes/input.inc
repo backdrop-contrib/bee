@@ -81,7 +81,7 @@ function bee_confirm($question, $default = FALSE) {
  * @return mixed
  *   The array key of the selected option.
  */
-function bee_choice($options, $message, $default, $repeat = FALSE) {
+function bee_choice(array $options, $message, $default, $repeat = FALSE) {
   $keys = array_keys($options);
   $rows = array();
 

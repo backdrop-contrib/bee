@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's PHP command.
+ */
 class PHPCommandsTest extends TestCase {
 
   /**
@@ -24,7 +26,7 @@ class PHPCommandsTest extends TestCase {
     exec('bee eval \'config_set("test.settings", "value", "foobar")\'');
     $output_backdrop = shell_exec('bee eval \'echo config_get("test.settings", "value")\'');
     $this->assertStringContainsString('foobar', (string) $output_backdrop);
-    
+
     // Cleanup test config file.
     exec('bee eval \'config("test.settings")->delete();\'');
   }

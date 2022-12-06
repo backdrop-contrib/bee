@@ -41,7 +41,7 @@ exit();
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
-function bee_error_handler($errno, $message, $filename, $line, $context = NULL) {
+function bee_error_handler($errno, $message, $filename, $line, array $context = NULL) {
   if (error_reporting() > 0) {
     // Core uses the @ error operator in url_stat() to suppress the warning for
     // non-existent files. However, since PHP 8.0, certain errors are no longer
