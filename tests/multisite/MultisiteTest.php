@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 /**
- *
+ * Test Bee's global multisite option.
  */
 class MultisiteTest extends TestCase {
 

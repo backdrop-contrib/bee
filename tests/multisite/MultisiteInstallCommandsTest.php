@@ -6,7 +6,7 @@
 
 use PHPUnit\Framework\TestCase;
 /**
- *
+ * Test Bee's installation command in multisite.
  */
 class MultisiteInstallCommandsTest extends TestCase {
 
