@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's command for examining the DBLog.
+ */
 class DBLogCommandsTest extends TestCase {
 
   /**

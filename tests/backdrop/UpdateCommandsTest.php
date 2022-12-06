@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's command for updating the Backdrop database.
+ */
 class UpdateCommandsTest extends TestCase {
 
   /**

@@ -58,11 +58,11 @@ function download_bee_callback($arguments, $options) {
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   // Iterate through the list of projects manually so any dependencies can be
-  // added to the list of projects to download. 
+  // added to the list of projects to download.
   $project_count = 0;
   while ($project_count < count($arguments['projects'])) {
     $project = $arguments['projects'][$project_count];
-    // Check if the project exists by trying to get the repo homepage
+    // Check if the project exists by trying to get the repo homepage.
     $organisation = 'backdrop-contrib';
     $url = "https://github.com/$organisation/$project";
     $headers = get_headers($url);
@@ -289,7 +289,7 @@ function download_bee_git_info($project) {
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
-function download_bee_download_project($project, $info, $destination, $progress = TRUE) {
+function download_bee_download_project($project, array $info, $destination, $progress = TRUE) {
   // Get a temp directory.
   if (!$temp = bee_get_temp($project)) {
     bee_message(bt('Failed to get temp directory.'), 'error');
@@ -333,6 +333,6 @@ function download_bee_download_project($project, $info, $destination, $progress 
   bee_delete($temp);
   ($wget_older && $progress) ? bee_message(bt("The wget tool used by bee for downloading is version !version and does not support showing only the progress bar. Upgrade wget to version 1.16 or later; or use the '--hide-progress' argument if you wish to hide altogether.", array(
     '!version' => $wget_version_number,
-  )), 'status') : '' ;
+  )), 'status') : '';
   return TRUE;
 }

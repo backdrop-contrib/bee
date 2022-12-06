@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Tests core Bee functionality.
+ */
 class BeeCoreTest extends TestCase {
 
   /**

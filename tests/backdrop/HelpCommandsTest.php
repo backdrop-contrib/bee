@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's help command.
+ */
 class HelpCommandsTest extends TestCase {
 
   /**

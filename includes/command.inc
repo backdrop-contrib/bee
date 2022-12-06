@@ -24,7 +24,7 @@ function bee_parse_input() {
       // Get the value, if any.
       if (($pos_equals = strpos($arg, '=')) !== FALSE) {
         // Extract option name from before '=' and ignoring the preceding '--'.
-        $opt_name = substr($arg, 2 , $pos_equals - 2);
+        $opt_name = substr($arg, 2, $pos_equals - 2);
         // Extract option value by taking everything from after '='.
         $opt_value = substr($arg, $pos_equals + 1);
       }
@@ -229,7 +229,7 @@ function bee_command_file_paths() {
  * @return bool
  *   Whether or not the command input is valid.
  */
-function bee_validate_command($descriptor) {
+function bee_validate_command(array $descriptor) {
   global $_bee_arguments, $_bee_options;
 
   // Validate arguments.

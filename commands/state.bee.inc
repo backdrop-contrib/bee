@@ -32,7 +32,7 @@ function state_bee_command() {
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
         'bee state-set maintenance_mode 1' => bt("Set the value of the 'maintenance_mode' state to '1' (enabled)."),
-        'bee state-set database_utf8mb4_active TRUE' => bt("Set the value of the 'database_utf8mb4_active' state to 'TRUE'.")
+        'bee state-set database_utf8mb4_active TRUE' => bt("Set the value of the 'database_utf8mb4_active' state to 'TRUE'."),
       ),
     ),
     'maintenance-mode' => array(
@@ -163,7 +163,7 @@ function state_set_bee_callback($arguments, $options) {
             ));
             bee_message((string) $err_msg, 'error');
             return;
-          }
+        }
         break;
       case 'string':
         // Pass string as is but cast to string to be safe.
@@ -221,71 +221,71 @@ function state_set_bee_callback($arguments, $options) {
   /**
    * Command callback: Set the value of maintenance_mode for Backdrop.
    */
-  function maintenance_mode_bee_callback($arguments, $options) {
-    // Check if a value has been provided.
-    if (isset($arguments['value'])) {
-      // Check for valid boolean value - allow true/false AND 1/0.
-      $value = strtoupper($arguments['value']);
-      switch ($value) {
-        case 'TRUE':
-          $value = (bool) TRUE;
-          break;
-        case '1':
-          $value = (bool) TRUE;
-          break;
-        case 'FALSE':
-          $value = (bool) FALSE;
-          break;
-        case '0':
-          $value = (bool) FALSE;
-          break;
-        default:
-          $err_msg = bt("'!value' is not a valid value. Enter 'TRUE', 'FALSE' (not case sensitive), '1' or '0'. Omit providing a value to get the current value.", array (
-            '!value' => (string) $value,)
-          );
-          bee_message((string) $err_msg, 'error');
-          return;
-      }
-      // Check if argument matches existing value.
-      if ((bool) state_get('maintenance_mode', FALSE) == $value) {
-        $msg = bt('Maintenance mode is already !value', array(
-          '!value' => ($value) ? 'enabled' : 'disabled',
-        ));
-        bee_message((string) $msg, 'status');
-      }
-      else {
-        // Attempt to set maintenance mode.
-        try {
-          state_set('maintenance_mode',(bool) $value);
-          $msg = bt('Maintenance mode was !value', array(
-            '!value' => ($value) ? 'enabled' : 'disabled',
-          ));
-          bee_message((string) $msg, 'success');
-        }
-        catch(ParseError $e) {
-          // This is more readable than the default error we would get from PHP.
-          $err_msg = bt('!msg in: !value', array(
-            '!msg' => $e->getMessage(),
-            '!value' => $arguments['value'],
-          ));
-          bee_message((string) $err_msg, 'error');
-        }
-      }
+function maintenance_mode_bee_callback($arguments, $options) {
+  // Check if a value has been provided.
+  if (isset($arguments['value'])) {
+    // Check for valid boolean value - allow true/false AND 1/0.
+    $value = strtoupper($arguments['value']);
+    switch ($value) {
+      case 'TRUE':
+        $value = (bool) TRUE;
+        break;
+      case '1':
+        $value = (bool) TRUE;
+        break;
+      case 'FALSE':
+        $value = (bool) FALSE;
+        break;
+      case '0':
+        $value = (bool) FALSE;
+        break;
+      default:
+        $err_msg = bt("'!value' is not a valid value. Enter 'TRUE', 'FALSE' (not case sensitive), '1' or '0'. Omit providing a value to get the current value.", array (
+          '!value' => (string) $value,)
+        );
+        bee_message((string) $err_msg, 'error');
+        return;
+    }
+    // Check if argument matches existing value.
+    if ((bool) state_get('maintenance_mode', FALSE) == $value) {
+      $msg = bt('Maintenance mode is already !value', array(
+        '!value' => ($value) ? 'enabled' : 'disabled',
+      ));
+      bee_message((string) $msg, 'status');
     }
     else {
-      // No value provided - get status.
-      $value = (bool) state_get('maintenance_mode', FALSE);
-      $msg = bt('Maintenance mode is !status', array(
-        '!status' => ($value) ? 'enabled' : 'disabled',
-      ));
-      return array(
-        array(
-          'type' => 'text',
-          'variables' => array(
-            'value' => $msg,
-          ),
-          'newline' => TRUE,
-        ),
-      );
+      // Attempt to set maintenance mode.
+      try {
+        state_set('maintenance_mode', (bool) $value);
+        $msg = bt('Maintenance mode was !value', array(
+          '!value' => ($value) ? 'enabled' : 'disabled',
+        ));
+        bee_message((string) $msg, 'success');
+      }
+      catch(ParseError $e) {
+        // This is more readable than the default error we would get from PHP.
+        $err_msg = bt('!msg in: !value', array(
+          '!msg' => $e->getMessage(),
+          '!value' => $arguments['value'],
+        ));
+        bee_message((string) $err_msg, 'error');
+      }
     }
   }
+  else {
+    // No value provided - get status.
+    $value = (bool) state_get('maintenance_mode', FALSE);
+    $msg = bt('Maintenance mode is !status', array(
+      '!status' => ($value) ? 'enabled' : 'disabled',
+    ));
+    return array(
+      array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => $msg,
+        ),
+        'newline' => TRUE,
+      ),
+    );
+  }
+}

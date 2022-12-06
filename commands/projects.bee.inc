@@ -605,7 +605,7 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Status')),
-        array('value' => $module->status ? bt('Enabled'): bt('Disabled')),
+        array('value' => $module->status ? bt('Enabled') : bt('Disabled')),
       );
       $rows[] = array(
         array('value' => bt('Requires')),
@@ -642,7 +642,7 @@ function projects_bee_show_project($project) {
       );
       $rows[] = array(
         array('value' => bt('Status')),
-        array('value' => $theme->status ? bt('Enabled'): bt('Disabled')),
+        array('value' => $theme->status ? bt('Enabled') : bt('Disabled')),
       );
 
       break;

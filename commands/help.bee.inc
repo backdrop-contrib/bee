@@ -159,7 +159,7 @@ function help_bee_callback($arguments, $options) {
  *   A command descriptor. See the documentation for the return value of
  *   HOOK_bee_command() for more details.
  */
-function help_bee_command_help($descriptor) {
+function help_bee_command_help(array $descriptor) {
   global $_bee_command_aliases;
   $aliases = array_keys($_bee_command_aliases, $descriptor['command']);
 

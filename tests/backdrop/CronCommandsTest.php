@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's cron command.
+ */
 class CronCommandsTest extends TestCase {
 
   /**

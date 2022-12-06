@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's commands for managing users.
+ */
 class UserCommandsTest extends TestCase {
 
   /**

@@ -32,6 +32,7 @@ function php_bee_command() {
  */
 function eval_bee_callback($arguments, $options) {
   try {
+    // phpcs:ignore Squiz.PHP.Eval -- integral part of the command
     eval($arguments['code'] . ';');
   }
   catch(ParseError $e) {

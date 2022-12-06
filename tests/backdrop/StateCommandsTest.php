@@ -5,7 +5,10 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's functions for settings state, including the maintenance mode
+ * command.
+ */
 class StateCommandsTest extends TestCase {
 
   /**

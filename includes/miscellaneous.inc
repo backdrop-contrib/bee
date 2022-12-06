@@ -9,7 +9,6 @@
  */
 function bee_initialize_server() {
   $_SERVER['HTTP_HOST'] = 'localhost';
-  // @codingStandardsIgnoreLine -- Not applicable to use ip_address() instead.
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_SOFTWARE'] = NULL;
@@ -152,7 +151,7 @@ function bee_message($message, $type = 'info') {
  *
  * @see t()
  */
-function bt($string, $args = array()) {
+function bt($string, array $args = array()) {
   if (function_exists('t')) {
     return t($string, $args);
   }

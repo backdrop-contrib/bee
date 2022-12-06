@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Tests the Bee cache commands.
+ */
 class CacheCommandsTest extends TestCase {
 
   /**

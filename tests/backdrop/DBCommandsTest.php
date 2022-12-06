@@ -5,7 +5,9 @@
  */
 
 use PHPUnit\Framework\TestCase;
-
+/**
+ * Test Bee's database commands.
+ */
 class DBCommandsTest extends TestCase {
 
   /**
