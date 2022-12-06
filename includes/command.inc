@@ -22,8 +22,11 @@ function bee_parse_input() {
       $opt_value = TRUE;
 
       // Get the value, if any.
-      if (strpos($opt_name, '=') !== FALSE) {
-        list($opt_name, $opt_value) = explode('=', $opt_name);
+      if (($pos_equals = strpos($arg, '=')) !== FALSE) {
+        // Extract option name from before '=' and ignoring the preceding '--'.
+        $opt_name = substr($arg, 2 , $pos_equals - 2);
+        // Extract option value by taking everything from after '='.
+        $opt_value = substr($arg, $pos_equals + 1);
       }
 
       $_bee_options[$opt_name] = $opt_value;
