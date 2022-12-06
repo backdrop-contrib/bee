@@ -6,9 +6,6 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
-      - name: Setup env
-        run: echo "REPO_NAME=${PWD##*/}" >> $GITHUB_ENV
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -33,5 +30,6 @@ jobs:
       # We run phpcs even if phpstan fails.
       - name: Run CodeSniffer
         run: |
-          cd ${{ env.REPO_NAME }}
-          phpcs --standard=../../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
+          pwd
+          ls
+          phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
