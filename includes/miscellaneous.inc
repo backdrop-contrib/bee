@@ -9,7 +9,6 @@
  */
 function bee_initialize_server() {
   $_SERVER['HTTP_HOST'] = 'localhost';
-  // phpcs:ignore -- Not applicable to use ip_address() instead
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_SOFTWARE'] = NULL;
