@@ -1,0 +1,31 @@
+name: Coding standards
+on: [pull_request]
+jobs:
+  phpcs:
+    name: phpcs
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          # No composer, but we need our commandline tool.
+          tools: none, phpcs:3.7
+
+      # The checkout action refuses to put it outside, so we have to do it in
+      # two steps.
+      - name: Get Backdrop coding standard
+        uses: actions/checkout@v3
+        with:
+          repository: backdrop-ops/phpcs
+          ref: 1.0.0-beta1
+          path: phpcs
+      - name: Move standard outside current dir
+        run: mv phpcs ..
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run CodeSniffer
+        run: phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
