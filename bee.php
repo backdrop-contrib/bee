@@ -42,7 +42,7 @@ exit();
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  */
 function bee_error_handler($errno, $message, $filename, $line, array $context = NULL) {
-  if (error_reporting() > 0) {
+  if(error_reporting() > 0) {
     // Core uses the @ error operator in url_stat() to suppress the warning for
     // non-existent files. However, since PHP 8.0, certain errors are no longer
     // suppressed which causes unnecessary error messages to appear in some
@@ -53,7 +53,8 @@ function bee_error_handler($errno, $message, $filename, $line, array $context = 
         return;
       }
     }
+    $long_array = array('Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetuer', 'adipiscing', 'elit');
     echo "$message\n";
-    echo " $filename:$line\n\n";
+    echo " $filename:$line\n\n";     
   }
 }
