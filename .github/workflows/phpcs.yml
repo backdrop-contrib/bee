@@ -2,7 +2,7 @@ name: Coding standards
 on: [pull_request]
 jobs:
   phpcs:
-    name: Coding standards
+    name: phpcs
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
@@ -15,7 +15,7 @@ jobs:
 
       # The checkout action refuses to put it outside, so we have to do it in
       # two steps.
-      - name: Get Backdrop conding standard
+      - name: Get Backdrop coding standard
         uses: actions/checkout@v2
         with:
           repository: backdrop-ops/phpcs
@@ -25,11 +25,7 @@ jobs:
         run: mv phpcs ..
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      # We run phpcs even if phpstan fails.
       - name: Run CodeSniffer
-        run: |
-          pwd
-          ls
-          phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
+        run: phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
