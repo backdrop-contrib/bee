@@ -57,6 +57,26 @@ function download_bee_callback($arguments, $options) {
 
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
+  // Get list of all core projects so we don't try to download core dependencies
+  // when we download a named project.
+  if (!empty($_bee_backdrop_root)) {
+    // Look in folders for core modules, themes and layouts.
+    $project_types = array('module', 'theme', 'layout');
+    foreach ($project_types as $project_type) {
+      $core_project_path = "${_bee_backdrop_root}/core/${project_type}s";
+      $core_projects_raw = array();
+      $core_projects_raw = glob($core_project_path . "/*", GLOB_ONLYDIR);
+      // Extract the project name and add it to a single list.
+      foreach ($core_projects_raw as $core_project) {
+        $core_projects[] = basename($core_project);
+      }
+    }
+    // Provide list of core projects for debug purposes.
+    bee_message(bt("Core projects are: !list", array(
+      '!list' => implode(",", $core_projects),
+    )), 'log');
+  }
+
   // Iterate through the list of projects manually so any dependencies can be
   // added to the list of projects to download.
   $project_count = 0;
@@ -85,11 +105,19 @@ function download_bee_callback($arguments, $options) {
       if (!empty($info['dependencies'])) {
         $dependencies = $info['dependencies'];
         foreach ($dependencies as $dependency) {
-          $arguments['projects'][] = $dependency;
-          bee_message(bt("The '!dependency' module will also be downloaded, as it is required by the '!project' module.", array(
-            '!dependency' => $dependency,
-            '!project' => $project,
-          )), 'status');
+          // Remove any minimum version requirements to get just the project
+          // name.
+          $dependency = explode(" ", $dependency, 2);
+          $dependency = $dependency[0];
+          // Only add contrib dependencies to the list of projects to download.
+          if (!in_array($dependency, $core_projects)) {
+            $arguments['projects'][] = $dependency;
+            bee_message(bt("The '!dependency' module will also be downloaded, as it is required by the '!project' module.", array(
+              '!dependency' => $dependency,
+              '!project' => $project,
+            )), 'status');
+          }
+
         }
       }
 
