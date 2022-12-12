@@ -274,7 +274,7 @@ function enable_bee_callback($arguments, $options) {
 
         // Get layout info.
         $layout = $layouts[$project];
-        $name = $layout->title;
+        $name = $layout['title'];
 
         // Check if already enabled.
         if (!in_array($project, $disabled_layouts)) {
@@ -381,7 +381,7 @@ function disable_bee_callback($arguments, $options) {
 
         // Get layout info.
         $layout = $layouts[$project];
-        $name = $layout->title;
+        $name = $layout['title'];
 
         // Check if already disabled.
         if (in_array($project, $disabled_layouts)) {
