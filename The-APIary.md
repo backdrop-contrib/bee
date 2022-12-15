@@ -38,8 +38,8 @@ The purpose of this command is to ...
 -
 
 #### Details
-Link to request in module queue or link to module
-Do drush commands already exist?
-If yes, link to file with drush commands in.
-Is anyone working on it?
-Your name (optional) and github handle
+- Link to request in module queue or link to module
+- Do drush commands already exist?
+  - If yes, link to file with drush commands in.
+- Is anyone working on it?
+- Your name (optional) and github handle
