@@ -1,21 +1,21 @@
 <?php
 /**
  * @file
- * PHPUnit tests for Bee PHP commands.
+ * PHPUnit tests for Bee PHP Script commands.
  */
 
 use PHPUnit\Framework\TestCase;
 /**
- * Test Bee's PHP command.
+ * Test Bee's PHP Script command.
  */
 class ScriptCommandsTest extends TestCase {
 
   /**
-   * Make sure that the eval command works.
+   * Make sure that the php-script command works.
    */
-  public function test_eval_command_works() {
+  public function test_script_command_works() {
     // Create a simple script.
-    exec('"<?php echo \"foo\" . \"bar\";" > /app/backdrop/simple.php');
+    exec('echo "<?php echo \"foo\" . \"bar\";" > /app/backdrop/simple.php');
 
     $this->assertTrue(file_exists('/app/backdrop/simple.php'));
 
@@ -27,7 +27,7 @@ class ScriptCommandsTest extends TestCase {
     exec('rm /app/backdrop/simple.php');
 
     // Create a script that calls a Backdrop function.
-    exec('"<?php config_set(\"test.settings\", \"value\", \"foobar\");" > /app/backdrop/backdrop-function.php');
+    exec('echo "<?php config_set(\"test.settings\", \"value\", \"foobar\");" > /app/backdrop/backdrop-function.php');
 
     $this->assertTrue(file_exists('/app/backdrop/backdrop-function.php'));
 
