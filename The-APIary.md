@@ -24,14 +24,21 @@ The purpose of this command is to ...
 </details>
 
 ## Modules
+### Memcache
+#### Functions
+- Retrieve statistics from memcache.
+- Flush all objects from a bin.
+
+#### Details
+[Memcache](https://github.com/backdrop-contrib/memcache)
 
 ### Template - use the module name
 #### Functions
-- What the bee commands should do
+- What the bee commands do or should do
 -
 
 #### Details
-Link to request in module queue
+Link to request in module queue or link to module
 Do drush commands already exist?
 If yes, link to file with drush commands in.
 Is anyone working on it?
