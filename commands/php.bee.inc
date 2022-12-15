@@ -23,6 +23,19 @@ function php_bee_command() {
         'bee eval "file_unmanaged_copy(\'$HOME/Pictures/image.jpg\', \'public://image.jpg\');"' => bt('Copies a file whose path is determined by an environment\'s variable. Note the use of double quotes so the variable $HOME gets replaced by its value.'),
       ),
     ),
+    'php-script' => array(
+      'description' => bt('Execute an arbitrary PHP file after bootstrapping Backdrop.'),
+      'callback' => 'script_bee_callback',
+      'arguments' => array(
+        'file' => bt('The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.'),
+      ),
+      'aliases' => array('scr'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee php-script ../my-scripts/scratch.php' => bt('Run scratch.php script relative to the Backdrop root.'),
+        'bee scr /var/www/my-scripts/scratch.php' => bt('Run scratch.php script with the absolute path.'),
+      ),
+    ),
   );
 }
 
@@ -40,6 +53,25 @@ function eval_bee_callback($arguments, $options) {
     $err_msg = bt('!msg in: !code', array(
       '!msg' => $e->getMessage(),
       '!code' => $arguments['code'],
+    ));
+    bee_message($err_msg, 'error');
+  }
+}
+
+/**
+ * Command callback: Execute php scripts after bootstrapping Backdrop.
+ */
+function script_bee_callback($arguments, $options) {
+  if (!file_exists($arguments['file'])) {
+    return;
+  }
+
+  try {
+    include($arguments['file']);
+  } catch (ParseError $e) {
+    $err_msg = bt('!msg in: !file', array(
+      '!msg' => $e->getMessage(),
+      '!file' => $arguments['file'],
     ));
     bee_message($err_msg, 'error');
   }
