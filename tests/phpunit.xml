@@ -10,6 +10,7 @@
       <file>backdrop/DownloadCommandsTest.php</file>
       <file>backdrop/HelpCommandsTest.php</file>
       <file>backdrop/PHPCommandsTest.php</file>
+      <file>backdrop/ScriptCommandsTest.php</file>
       <file>backdrop/ProjectsCommandsTest.php</file>
       <file>backdrop/StateCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
