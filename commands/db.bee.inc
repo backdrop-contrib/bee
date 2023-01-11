@@ -10,7 +10,7 @@
 function db_bee_command() {
   return array(
     'db-export' => array(
-      'description' => bt('Export the database as a compressed SQL file.'),
+      'description' => bt('Export the database as a compressed SQL file. This uses the --no-tablespaces option by default.'),
       'callback' => 'db_export_bee_callback',
       'arguments' => array(
         'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
@@ -18,7 +18,7 @@ function db_bee_command() {
       'optional_arguments' => array('file'),
       'options' => array(
         'extra' => array(
-          'description' => bt("Add custom option(s) to the 'mysqldump' command. Do not include leading or trailing spaces and enclose multiple options in double quotes."),
+          'description' => bt("Add custom option(s) to the 'mysqldump' command. Do not include leading or trailing spaces and enclose multiple options in double quotes. '--no-tablespaces' option is not used unless you add it."),
           'value' => bt('Custom mysqldump options'),
         ),
       ),
@@ -27,6 +27,8 @@ function db_bee_command() {
       'examples' => array(
         'bee db-export db.sql' => bt('Export the database to db.sql.gz.'),
         'bee db-export' => bt('Export the database to [DATE_TIME].sql.gz.'),
+        'bee db-export --extra=" " db.sql' => bt("Export the database to db.sql.gz without using the '--no-tablespaces' option."),
+        'bee db-export --extra="--no-data --no-tablespaces" db.sql' => bt("Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz."),
       ),
     ),
     'db-import' => array(
@@ -57,6 +59,11 @@ function db_bee_command() {
 
 /**
  * Command callback: Export the database as a compressed SQL file.
+ *
+ * Now includes '--no-tablespaces' by default as many hosts need this for MySQL
+ * to work as the PROCESS permission can't be granted to the Backdrop
+ * database user.
+ * @see https://anothercoffee.net/how-to-fix-the-mysqldump-access-denied-process-privilege-error/
  */
 function db_export_bee_callback($arguments, $options) {
   global $_bee_backdrop_root;
@@ -68,8 +75,17 @@ function db_export_bee_callback($arguments, $options) {
   // Get the filename for the export.
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
-  // Get any extra mysqldump options entered.
-  $extra = (!empty($options['extra'])) ? $options['extra'] . ' ' : '';
+  // Check if any extra mysqldump options have been entered.
+  if (!empty($options['extra'])) {
+    // Get extra mysqldump options. If user has added the extra option, then we
+    // don't include '--no-tablespaces' by default to allow the user to
+    // override this setting through ommission.
+    $extra = $options['extra'] . ' ';
+  }
+  else {
+    // Include '--no-tablespaces' by default.
+    $extra = '--no-tablespaces ';
+  }
 
   // Export and compress the database.
   $export_command = 'mysqldump ';
