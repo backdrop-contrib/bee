@@ -60,9 +60,9 @@ function db_bee_command() {
 /**
  * Command callback: Export the database as a compressed SQL file.
  *
- * Now includes '--no-tablespaces' by default as many hosts need this for MySQL
- * to work as the PROCESS permission can't be granted to the Backdrop database
- * user.
+ * Now includes '--no-tablespaces' by default. Many hosts need this for
+ * mysqldump to work as the PROCESS permission can't be granted to the Backdrop
+ * database user.
  * @see https://anothercoffee.net/how-to-fix-the-mysqldump-access-denied-process-privilege-error/
  */
 function db_export_bee_callback($arguments, $options) {
