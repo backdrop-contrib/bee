@@ -73,8 +73,8 @@ function db_export_bee_callback($arguments, $options) {
 
   // Export and compress the database.
   $export_command = 'mysqldump ';
-  $export_command .= $extra;
   $export_command .= db_bee_mysql_options($db_info);
+  $export_command .= $extra;
   $export_command .= ' | gzip > ';
   $export_command .= $filename . '.gz';
   exec($export_command, $output, $result);
@@ -136,9 +136,16 @@ function sql_bee_callback($arguments, $options) {
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
+  // Get database connection details.
+  $connection_details = db_bee_mysql_options($db_info);
+  $connection_string = $connection_details['connection'];
+  $connection_file = $connection_details['filename'];
+
   // Open SQL command-line.
-  $command = 'mysql ' . db_bee_mysql_options($db_info);
+  $command = 'mysql ' . $connection_string;
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
+  // Remove the temp file with username, password and host in.
+  bee_delete($connection_file);
 }
 
 /**
@@ -148,14 +155,32 @@ function sql_bee_callback($arguments, $options) {
  *   Connection information for the current database. Generally obtained via
  *   Database::getConnectionInfo().
  *
- * @return string
- *   A string of command options that can be appended to 'mysql' or 'mysqldump'.
+ * @return array
+ *   An array of command options that can be appended to 'mysql' or 'mysqldump'.
  */
 function db_bee_mysql_options(array $db_info) {
-  $options = '--user=' . rawurldecode($db_info['username']);
-  $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
-  $options .= ' --host=' . $db_info['host'];
-  $options .= ' ' . rawurldecode($db_info['database']);
+  // Get the username.
+  $db_username = rawurldecode($db_info['username']);
+  // Get the password.
+  $db_password = rawurldecode($db_info['password']);
+  // Get the host.
+  $db_host = $db_info['host'];
+  // Get the temporary directory.
+  $temp_dir = bee_get_temp();
+  // Create a temporary file for the username, password and host.
+  $temp_filename = $temp_dir . '/db_bee.cnf';
+  $temp_file = fopen($temp_filename, 'a');
+  fwrite($temp_file, "[client]" . PHP_EOL);
+  fwrite($temp_file, "user=" . $db_username . PHP_EOL);
+  fwrite($temp_file, "password=" . $db_password . PHP_EOL);
+  fwrite($temp_file, "host=" . $db_host . PHP_EOL);
+  fclose($temp_file);
+
+  // Create an array for the connection string and filename.
+  $options = array();
+  $options['connection'] = "--defaults-file=$temp_filename";
+  $options['connection'] .= ' ' . rawurldecode($db_info['database']);
+  $options['filename'] = $temp_filename;
 
   return $options;
 }
