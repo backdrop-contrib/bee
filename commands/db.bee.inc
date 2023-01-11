@@ -65,6 +65,11 @@ function db_export_bee_callback($arguments, $options) {
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
+  // Get database connection details.
+  $connection_details = db_bee_mysql_options($db_info);
+  $connection_string = $connection_details['connection'];
+  $connection_file = $connection_details['filename'];
+
   // Get the filename for the export.
   $filename = isset($arguments['file']) ? $arguments['file'] : date('Ymd_His') . '.sql';
 
@@ -73,11 +78,15 @@ function db_export_bee_callback($arguments, $options) {
 
   // Export and compress the database.
   $export_command = 'mysqldump ';
-  $export_command .= db_bee_mysql_options($db_info);
+  $export_command .= $connection_string;
+  $export_command .= ' ';
   $export_command .= $extra;
   $export_command .= ' | gzip > ';
   $export_command .= $filename . '.gz';
   exec($export_command, $output, $result);
+  // Remove the temporary mysql options file.
+  bee_delete($connection_file);
+
   // Create debug message with the compiled export command.
   bee_message(bt("The compiled export command is: !export", array(
     '!export' => $export_command,
@@ -99,6 +108,11 @@ function db_import_bee_callback($arguments, $options) {
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
 
+  // Get database connection details.
+  $connection_details = db_bee_mysql_options($db_info);
+  $connection_string = $connection_details['connection'];
+  $connection_file = $connection_details['filename'];
+
   // Get the file for the import.
   $filename = $arguments['file'];
 
@@ -113,11 +127,13 @@ function db_import_bee_callback($arguments, $options) {
   if ($gzip) {
     $import_command .= "gunzip -c $filename | ";
   }
-  $import_command .= 'mysql ' . db_bee_mysql_options($db_info);
+  $import_command .= 'mysql ' . $connection_string;
   if (!$gzip) {
     $import_command .= " < $filename";
   }
   exec($import_command, $output, $result);
+  // Remove the temporary mysql options file.
+  bee_delete($connection_file);
 
   if ($result === 0) {
     bee_message(bt("'!filename' was imported into the '!database' database.", array(
@@ -144,36 +160,36 @@ function sql_bee_callback($arguments, $options) {
   // Open SQL command-line.
   $command = 'mysql ' . $connection_string;
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
-  // Remove the temp file with username, password and host in.
+  // Remove the temporary mysql options file.
   bee_delete($connection_file);
 }
 
 /**
- * Returns a decoded options string for use with MySQL commands.
+ * Puts the decoded connection options into a temporary option file and returns
+ * an options string pointing to the file for use with MySQL commands and the
+ * filename separately, so it can be deleted after use.
  *
  * @param array $db_info
  *   Connection information for the current database. Generally obtained via
  *   Database::getConnectionInfo().
  *
  * @return array
- *   An array of command options that can be appended to 'mysql' or 'mysqldump'.
+ *   An array of the option string that can be appended to 'mysql' or
+ *   'mysqldump', together with the filename of the temporary options file.
  */
 function db_bee_mysql_options(array $db_info) {
-  // Get the username.
-  $db_username = rawurldecode($db_info['username']);
-  // Get the password.
-  $db_password = rawurldecode($db_info['password']);
-  // Get the host.
-  $db_host = $db_info['host'];
+  // Prepare the credentials for the .cnf file.
+  $temp_file_contents = "[client]" . PHP_EOL
+    . "user=" . rawurldecode($db_info['username']) . PHP_EOL
+    . "password='" . rawurldecode($db_info['password']) . "'" . PHP_EOL
+    . "host=" . $db_info['host'] . PHP_EOL;
+
   // Get the temporary directory.
   $temp_dir = bee_get_temp();
   // Create a temporary file for the username, password and host.
   $temp_filename = $temp_dir . '/db_bee.cnf';
   $temp_file = fopen($temp_filename, 'a');
-  fwrite($temp_file, "[client]" . PHP_EOL);
-  fwrite($temp_file, "user=" . $db_username . PHP_EOL);
-  fwrite($temp_file, "password=" . $db_password . PHP_EOL);
-  fwrite($temp_file, "host=" . $db_host . PHP_EOL);
+  fwrite($temp_file, $temp_file_contents);
   fclose($temp_file);
 
   // Create an array for the connection string and filename.
