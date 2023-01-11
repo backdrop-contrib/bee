@@ -11,7 +11,7 @@ function bee_initialize_server() {
   $_SERVER['HTTP_HOST'] = 'localhost';
   $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
   $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-  $_SERVER['SERVER_SOFTWARE'] = NULL;
+  $_SERVER['SERVER_SOFTWARE'] = '';
   $_SERVER['SERVER_NAME'] = 'localhost';
   $_SERVER['REQUEST_URI'] = '/';
   $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -105,12 +105,6 @@ function bee_bootstrap($level) {
     // Restore settings and merge with any newly created settings.
     $settings = array_merge($settings_initial, $settings);
     backdrop_bootstrap($level);
-
-    // Set SERVER_SOFTWARE to be a string so can work with preg_match.
-    $server_variables = array(
-      'SERVER_SOFTWARE' => '',
-    );
-    backdrop_override_server_variables($server_variables);
 
     // Backdrop sets its own error handler, so reset ours here.
     set_error_handler('bee_error_handler');
