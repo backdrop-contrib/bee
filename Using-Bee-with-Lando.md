@@ -5,7 +5,7 @@ Bee can be used with your existing [Lando](https://lando.dev/) setup:
   ```yaml
   services:
     appserver:
-      build:
+      build_as_root:
         - wget -qO bee.zip https://github.com/backdrop-contrib/bee/archive/1.x-1.x.zip
         - unzip -q bee.zip && rm bee.zip
         - mv bee-1.x-1.x /usr/local/bin/bee
