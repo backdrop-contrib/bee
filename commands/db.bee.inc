@@ -109,9 +109,15 @@ function db_export_bee_callback($arguments, $options) {
   )), 'log');
 
   if ($result === 0) {
+    // Compile the correct filename based on whether path is absolute or
+    // relative.
+    if (substr($filename, 0, 1) != '/') {
+      // Filename is relative path.
+      $filename = $_bee_backdrop_root . '/' . $filename;
+    }
     bee_message(bt("The '!database' database was exported to '!filename.gz'.", array(
       '!database' => rawurldecode($db_info['database']),
-      '!filename' => $_bee_backdrop_root . '/' . $filename,
+      '!filename' => $filename,
     )), 'success');
   }
 }
