@@ -109,15 +109,39 @@ function download_bee_callback($arguments, $options) {
           // name.
           $dependency = explode(" ", $dependency, 2);
           $dependency = $dependency[0];
-          // Only add contrib dependencies to the list of projects to download.
-          if (!in_array($dependency, $core_projects)) {
-            $arguments['projects'][] = $dependency;
-            bee_message(bt("The '!dependency' module will also be downloaded, as it is required by the '!project' module.", array(
-              '!dependency' => $dependency,
-              '!project' => $project,
-            )), 'status');
+          // Check if the dependency is a core project.
+          $dependency_is_core = in_array($dependency, $core_projects);
+          // Check if dependency exists in the site file system. Only
+          // check contrib dependencies.
+          if (!$dependency_is_core) {
+            // Get information about the dependency project.
+            $dependency_info = download_bee_git_info($dependency);
+            // Check whether the dependency exists within the site file system.
+            $dependency_existing_location = download_bee_check_project_exists($dependency, $dependency_info['type']);
+            if ($dependency_existing_location == FALSE) {
+              // If project does not exist in the site file system add to list
+              // and prepare message.
+              $arguments['projects'][] = $dependency;
+              bee_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
+                '!dependency' => $dependency,
+                '!dependency_type' => $dependency_info['type'],
+                '!project' => $project,
+                '!project_type' => $info['type'],
+              )), 'status');
+            }
+            else {
+              // If project does exist in the site file system, give a
+              // meaningful message so user is aware of the dependency and that
+              // it is already met.
+              bee_message(bt("The '!dependency' !dependency_type is required by the '!project' !project_type but already exists at '!dependency_location'.", array(
+                '!dependency' => $dependency,
+                '!dependency_type' => $dependency_info['type'],
+                '!project' => $project,
+                '!project_type' => $info['type'],
+                '!dependency_location' => $dependency_existing_location,
+              )), 'status');
+            }
           }
-
         }
       }
 
@@ -130,15 +154,15 @@ function download_bee_callback($arguments, $options) {
       }
       else {
         // Add an 's' to the end of the type name.
-        $info['type'] .= 's';
+        $type_folder = $info['type'] . 's';
       }
 
       // Get the directory to download the project into.
       if (!empty($_bee_backdrop_site)) {
-        $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $info['type'];
+        $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $type_folder;
       }
       elseif (!empty($_bee_backdrop_root)) {
-        $destination = "$_bee_backdrop_root/" . $info['type'];
+        $destination = "$_bee_backdrop_root/" . $type_folder;
       }
       else {
         bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
@@ -148,10 +172,12 @@ function download_bee_callback($arguments, $options) {
         $destination .= '/contrib';
       }
       $destination .= "/$project";
-      if (file_exists($destination)) {
-        bee_message(bt("'!project' already exists in '!destination'.", array(
+      // Check if the project exists within the site file system.
+      $project_existing_location = download_bee_check_project_exists($project, $info['type']);
+      if ($project_existing_location != FALSE) {
+        bee_message(bt("'!project' already exists in '!existing_location'.", array(
           '!project' => $project,
-          '!destination' => $destination,
+          '!existing_location' => $project_existing_location,
         )), 'error');
         return;
       }
@@ -363,4 +389,89 @@ function download_bee_download_project($project, array $info, $destination, $pro
     '!version' => $wget_version_number,
   )), 'status') : '';
   return TRUE;
+}
+
+/**
+ * Get list of all projects in filesystem.
+ *
+ * @param string $type
+ *   The type of project to list:
+ *    - module
+ *    - theme
+ *    - layout
+ *   This will find projects in both core and contrib.
+ *
+ * @return array
+ *   An associative array of all projects with their locations, together with
+ *   the location type and project type.
+ */
+function download_bee_find_all_projects($type) {
+  global $_bee_backdrop_root, $_bee_backdrop_site;
+  // Create an empty array for files.
+  $files = array();
+  // Set the pattern to look for .info files.
+  $pattern = '#\.info$#';
+  // Define the locations to search.
+  $locations = array('core','contrib');
+  (empty($_bee_backdrop_site)) ?: $locations[] = 'site_contrib';
+  // Loop through each location.
+  foreach ($locations as $location) {
+    // Set the path depending on location.
+    switch ($location) {
+      case 'core':
+        $path = "${_bee_backdrop_root}/core/${type}s";
+        break;
+      case 'contrib':
+        $path = "${_bee_backdrop_root}/${type}s";
+        break;
+      case 'site_contrib':
+        $path = "${_bee_backdrop_root}/sites/${_bee_backdrop_site}/${type}s";
+        break;
+      default:
+        $path = $location;
+        break;
+    }
+    // Scan the location recursively for projects.
+    $options = array(
+      'key' => 'name',
+    );
+    $files = bee_file_scan_directory($path, $pattern, $options);
+    // Modify each record to meet our needs.
+    $projects[] = array();
+    foreach ($files as &$file) {
+      // Add the revised project record to a common list of projects.
+      $key = $file->name;
+      $projects[$key] = array(
+        'name' => $file->name,
+        'uri' => $file->uri,
+        'location_category' => $location,
+        'type' => $type,
+      );
+    }
+  }
+  return $projects;
+}
+
+/**
+ * Check if a project exists in the site filesystem.
+ *
+ * @param string $project
+ *   The name of the project.
+ * @param string $type
+ *   The type of the project.
+ *
+ * @return string|false
+ *   The project location, or FALSE if not found.
+ */
+function download_bee_check_project_exists($project, $type) {
+  // Get the list of all projects for the type.
+  $projects = download_bee_find_all_projects($type);
+  if (array_key_exists($project, $projects)) {
+    // If project exists, return the path where it is located.
+    return dirname($projects[$project]['uri']);
+  }
+  else {
+    // If project does not exist, return FALSE.
+    return FALSE;
+  }
 }
