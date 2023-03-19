@@ -12,6 +12,7 @@ function user_bee_command() {
     'users' => array(
       'description' => bt('List all user accounts.'),
       'callback' => 'users_bee_callback',
+      'group' => 'user',
       'aliases' => array('uls', 'user-list'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
@@ -21,6 +22,7 @@ function user_bee_command() {
     'user-password' => array(
       'description' => bt('Reset the login password for a given user.'),
       'callback' => 'user_password_bee_callback',
+      'group' => 'user',
       'arguments' => array(
         'username' => bt('The username of the user account to reset the password for.'),
         'password' => bt('The new password to use for the given user account. Leave blank to generate a random password.'),
@@ -37,6 +39,7 @@ function user_bee_command() {
     'user-login' => array(
       'description' => bt('Display a login link for a given user.'),
       'callback' => 'user_login_bee_callback',
+      'group' => 'user',
       'arguments' => array(
         'username' => bt('The username of the user account to login as. Leave blank to login as User 1.'),
       ),

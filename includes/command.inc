@@ -102,13 +102,17 @@ function bee_process_command() {
 /**
  * Get a list of all possible commands.
  *
+ * @param bool $group
+ *   Whether or not to group the commands. Defaults to FALSE.
+ *
  * @return array
  *   Associative array of command descriptors.
  */
-function bee_all_commands() {
+function bee_all_commands($group = FALSE) {
   static $all_commands = array();
+  static $grouped_commands = array();
 
-  if (empty($all_commands)) {
+  if (empty($all_commands) || ($group && empty($grouped_commands))) {
     global $_bee_command_aliases;
 
     // Get list of command files.
@@ -130,7 +134,13 @@ function bee_all_commands() {
       // Get the command descriptor(s) from the hook function.
       $descriptors = (array) $function();
       foreach ($descriptors as $command => $descriptor) {
-        $all_commands[$command] = $descriptor;
+        if ($group) {
+          $group_name = (!empty($descriptor['group'])) ? $descriptor['group'] : 'miscellaneous';
+          $grouped_commands[$group_name][$command] = $descriptor;
+        }
+        else {
+          $all_commands[$command] = $descriptor;
+        }
 
         // Map aliases to their commands.
         if (!empty($descriptor['aliases'])) {
@@ -142,7 +152,12 @@ function bee_all_commands() {
     }
   }
 
-  return $all_commands;
+  if ($group) {
+    return $grouped_commands;
+  }
+  else {
+    return $all_commands;
+  }
 }
 
 /**
