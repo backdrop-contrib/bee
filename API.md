@@ -146,7 +146,7 @@ files.
 
 - **`bt()`** (*includes/miscellaneous.inc*)  
   All text that can be translated into other languages should be run through
-  this function. This is the Backdrop Console equivalent of the `t()` function.
+  this function. This is the Bee equivalent of Backdrop's `t()` function.
 
 - **`bee_get_temp()`** (*includes/filesystem.inc*)  
   If a temporary directory is needed (e.g. for downloading files, etc. before
