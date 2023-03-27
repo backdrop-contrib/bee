@@ -373,3 +373,13 @@ Omitting the value will return the current maintenance mode status.
 - `bee eval '$node = node_load(1); print $node->title;'` - Loads node with nid 1 and then prints its title.
 - `bee eval "node_access_rebuild();"` - Rebuild node access permissions.
 - `bee eval "file_unmanaged_copy('$HOME/Pictures/image.jpg', 'public://image.jpg');"` - Copies a file whose path is determined by an environment's variable. Note the use of double quotes so the variable $HOME gets replaced by its value.  
+
+#### `php-script`
+*Description:* Execute an arbitrary PHP file after bootstrapping Backdrop.
+*Aliases:* `scr`
+*Arguments:*
+- `file` - The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.  
+
+*Examples:*
+- `bee php-script ../my-scripts/scratch.php` - Run scratch.php script relative to the Backdrop root.
+- `bee scr /var/www/my-scripts/scratch.php` - Run scratch.php script with the absolute path.
