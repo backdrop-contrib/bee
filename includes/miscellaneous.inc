@@ -49,7 +49,19 @@ function bee_initialize_console() {
     chdir($_bee_backdrop_root);
     $_bee_backdrop_root = getcwd();
     define('BACKDROP_ROOT', $_bee_backdrop_root);
-    $_SERVER['HTTP_HOST'] = !empty($_bee_backdrop_site) ? $_bee_backdrop_site : basename($_bee_backdrop_root);
+
+    if (isset($_bee_options['base-url'])) {
+      $url_parts = parse_url($_bee_options['base-url']);
+      $_SERVER['HTTP_HOST'] = $url_parts['host'] . (isset($url_parts['port']) ? ':' . $url_parts['port'] : '');
+      $_SERVER['HTTPS'] = $url_parts['scheme'] === 'https';
+      $GLOBALS['base_url'] = $_bee_options['base-url'];
+    }
+    elseif ($_bee_backdrop_site) {
+      $_SERVER['HTTP_HOST'] = $_bee_backdrop_site;
+    }
+    else {
+      $_SERVER['HTTP_HOST'] = basename($_bee_backdrop_root);
+    }
 
     // Determine if Backdrop is installed or not.
     require_once $_bee_backdrop_root . '/core/includes/bootstrap.inc';
