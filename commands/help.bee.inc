@@ -171,7 +171,6 @@ function help_bee_command_help(array $descriptor) {
         'value' => $descriptor['command'],
         '#bold' => TRUE,
       ),
-      'newline' => TRUE,
     ),
   );
   if (!empty($aliases)) {
@@ -275,27 +274,22 @@ function help_bee_command_help(array $descriptor) {
       ),
     );
 
-    $rows = array();
     foreach ($descriptor['examples'] as $example => $description) {
-      $rows[] = array(
-        array(
-          'value' => $example,
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $example",
           '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => $description),
+      );
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $description\n",
+        ),
       );
     }
-
-    $output[] = array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    );
   }
 
   return $output;
