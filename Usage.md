@@ -234,10 +234,10 @@ TBC see https://github.com/backdrop-contrib/bee/issues/111
 
 ### Database
 #### `db-export`
-*Description:* Export the database as a compressed SQL file (.sql.gz).  
+*Description:* Export the database as a compressed SQL file (.sql.gz). This uses the --no-tablespaces option by default.  
 *Aliases:* `dbex` , `db-dump` , `sql-export` , `sql-dump`  
 *Options:*
-- `--extra=--MYSQLDUMPOPTIONS` - (optional) additional `mysqldump` option(s) that should be used. Enclose multiple options in "".   
+- `--extra=--MYSQLDUMPOPTIONS` - (optional) additional `mysqldump` option(s) that should be used. Enclose multiple options in "". '--no-tablespaces' option is not used unless you add it.   
 
 *Arguments:*
 - `file` - (optional) The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.
@@ -247,8 +247,8 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 *Examples:*  
 - `bee db-export db.sql` - Export the database to db.sql.gz.
 - `bee db-export` - Export the database to [DATE_TIME].sql.gz.
-- `bee db-export ../db/db_export.sql` - Export the database to ../db/db_export.sql.gz
-- `bee db-export --extra="--no-tablespaces"` Export the database to [DATE_TIME].sql.gz using no-tablespaces option.
+- `bee db-export --extra=" " db.sql` - Export the database to db.sql.gz without using the '--no-tablespaces' option.
+- `bee db-export --extra="--no-data --no-tablespaces" db.sql` Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz.
 
 #### `db-import`
 *Description:* Import an SQL file into the current database.  
