@@ -12,6 +12,7 @@ function php_bee_command() {
     'eval' => array(
       'description' => bt('Evaluate (run/execute) arbitrary PHP code after bootstrapping Backdrop.'),
       'callback' => 'eval_bee_callback',
+      'group' => 'advanced',
       'arguments' => array(
         'code' => bt('The PHP code to evaluate.'),
       ),
@@ -26,6 +27,7 @@ function php_bee_command() {
     'php-script' => array(
       'description' => bt('Execute an arbitrary PHP file after bootstrapping Backdrop.'),
       'callback' => 'script_bee_callback',
+      'group' => 'advanced',
       'arguments' => array(
         'file' => bt('The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.'),
       ),
