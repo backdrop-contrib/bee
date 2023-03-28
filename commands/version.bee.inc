@@ -12,7 +12,7 @@ function version_bee_command() {
     'version' => array(
       'description' => bt('Display the current version of Bee.'),
       'callback' => 'version_bee_callback',
-      'group' => 'miscellaneous',
+      'group' => 'information',
       'examples' => array(
         'bee version' => bt('Output the current version.'),
       ),

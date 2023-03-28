@@ -97,7 +97,7 @@ function projects_bee_command() {
     'theme-default' => array(
       'description' => bt('Set the default theme.'),
       'callback' => 'theme_default_bee_callback',
-      'group' => 'projects',
+      'group' => 'themes',
       'arguments' => array(
         'theme' => bt('The theme to set as the default theme. It will be enabled, if not already.'),
       ),
@@ -110,7 +110,7 @@ function projects_bee_command() {
     'theme-admin' => array(
       'description' => bt('Set the admin theme.'),
       'callback' => 'theme_admin_bee_callback',
-      'group' => 'projects',
+      'group' => 'themes',
       'arguments' => array(
         'theme' => bt('The theme to set as the admin theme. It will be enabled, if not already.'),
       ),

@@ -49,7 +49,7 @@ function db_bee_command() {
     'sql' => array(
       'description' => bt("Open an SQL command-line interface using Backdrop's database credentials."),
       'callback' => 'sql_bee_callback',
-      'group' => 'database',
+      'group' => 'advanced',
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
       'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(

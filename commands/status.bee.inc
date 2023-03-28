@@ -12,7 +12,7 @@ function status_bee_command() {
     'status' => array(
       'description' => bt('Provides an overview of the current Backdrop installation/site.'),
       'callback' => 'status_bee_callback',
-      'group' => 'miscellaneous',
+      'group' => 'information',
       'options' => array(
         'show-password' => array(
           'description' => bt('Show the database password.'),

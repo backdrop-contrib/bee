@@ -12,7 +12,7 @@ function help_bee_command() {
     'help' => array(
       'description' => bt("Provide help and examples for 'bee' and its commands."),
       'callback' => 'help_bee_callback',
-      'group' => 'miscellaneous',
+      'group' => 'information',
       'arguments' => array(
         'command' => bt("The command to display help for. Leave blank to display help for 'bee' itself."),
       ),
@@ -82,6 +82,12 @@ function help_bee_callback($arguments, $options) {
   // Get all commands in groups.
   $commands = bee_all_commands(TRUE);
   ksort($commands);
+
+  // Move the 'Advanced' group to the end.
+  $advanced = $commands['advanced'];
+  unset($commands['advanced']);
+  $commands['advanced'] = $advanced;
+
   foreach ($commands as $group => $grouped_commands) {
     ksort($grouped_commands);
 
