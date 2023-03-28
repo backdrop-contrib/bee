@@ -12,6 +12,7 @@ function install_bee_command() {
     'install' => array(
       'description' => bt('Install Backdrop and setup a new site.'),
       'callback' => 'install_bee_callback',
+      'group' => 'core',
       'options' => array(
         'db-name' => array(
           'description' => bt("The name of the database to install into."),
@@ -71,13 +72,8 @@ function install_bee_command() {
       'aliases' => array('si', 'site-install'),
       'examples' => array(
         'bee install' => bt('Install Backdrop in interactive mode, providing information when prompted.'),
-        'bee install --db-name=backdrop --db-user=admin \\' => '',
-        ' --db-pass=P@ssw0rd! --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
-        'bee install --db-name=backdrop --db-user=backdrop \\' => '',
-        ' --db-pass=P@ssw0rd! --db-host=db_server \\' => '',
-        ' --username=Root --password=N0tS3cur3 \\' => '',
-        ' --email=root@mydomain.com \\' => '',
-        ' --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
+        'bee install --db-name=backdrop --db-user=admin --db-pass=P@ssw0rd! --auto' => bt('Install Backdrop automatically using the provided database credentials, and default settings for everything else.'),
+        'bee install --db-name=backdrop --db-user=backdrop --db-pass=P@ssw0rd! --db-host=db_server --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"' => bt('Install Backdrop using the given options, and be prompted for the rest.'),
       ),
     ),
   );

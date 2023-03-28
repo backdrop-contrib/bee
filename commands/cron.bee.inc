@@ -12,6 +12,7 @@ function cron_bee_command() {
     'cron' => array(
       'description' => bt('Run cron.'),
       'callback' => 'cron_bee_callback',
+      'group' => 'miscellaneous',
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
         'bee cron' => bt('Initiate a cron run.'),

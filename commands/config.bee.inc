@@ -12,6 +12,7 @@ function config_bee_command() {
     'config-get' => array(
       'description' => bt('Get the value of a specific config option, or view all the config options in a given file.'),
       'callback' => 'config_get_bee_callback',
+      'group' => 'configuration',
       'arguments' => array(
         'file' => bt("The name of the config object to retrieve. This is the name of the config file, less the '.json' suffix."),
         'option' => bt('The name of the config option within the file to read. This may contain periods to indicate levels within the config file. Leave blank to display the entire config file.'),
@@ -27,6 +28,7 @@ function config_bee_command() {
     'config-set' => array(
       'description' => bt('Set the value of an option in a config file.'),
       'callback' => 'config_set_bee_callback',
+      'group' => 'configuration',
       'arguments' => array(
         'file' => bt("The name of the config object to retrieve. This is the name of the config file, less the '.json' suffix."),
         'option' => bt('The name of the config option within the file to set. This may contain periods to indicate levels within the config file.'),
@@ -41,6 +43,7 @@ function config_bee_command() {
     'config-import' => array(
       'description' => bt('Import config into the site.'),
       'callback' => 'config_import_bee_callback',
+      'group' => 'configuration',
       'aliases' => array('cim', 'bcim'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
@@ -50,6 +53,7 @@ function config_bee_command() {
     'config-export' => array(
       'description' => bt('Export config from the site.'),
       'callback' => 'config_export_bee_callback',
+      'group' => 'configuration',
       'aliases' => array('cex', 'bcex'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(

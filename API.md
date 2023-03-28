@@ -14,6 +14,9 @@ associative arrays, containing:
 - **description**: The translated description of the command.
 - **callback**: The name of the function that runs the command. Should be of the
   form `COMMAND_bee_callback`.
+- **group**: The name of the group the command belongs to (used when listing all
+  commands together). Group names should be lowercase with individual words
+  separated by an underscore. See `bee help` for a list of existing groups.
 - **arguments**: (optional) An array of required arguments for the command,
   where the keys are argument names and the values are translated argument
   descriptions.
@@ -46,6 +49,7 @@ function poetry_bee_command() {
     'poem' => array(
       'description' => bt('Displays a customised poem.'),
       'callback' => 'poem_bee_callback',
+      'group' => 'poetry',
       'arguments' => array(
         'name' => bt('The name to use in the poem.'),
       ),
@@ -146,7 +150,7 @@ files.
 
 - **`bt()`** (*includes/miscellaneous.inc*)  
   All text that can be translated into other languages should be run through
-  this function. This is the Backdrop Console equivalent of the `t()` function.
+  this function. This is the Bee equivalent of Backdrop's `t()` function.
 
 - **`bee_get_temp()`** (*includes/filesystem.inc*)  
   If a temporary directory is needed (e.g. for downloading files, etc. before

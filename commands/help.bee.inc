@@ -12,6 +12,7 @@ function help_bee_command() {
     'help' => array(
       'description' => bt("Provide help and examples for 'bee' and its commands."),
       'callback' => 'help_bee_callback',
+      'group' => 'information',
       'arguments' => array(
         'command' => bt("The command to display help for. Leave blank to display help for 'bee' itself."),
       ),
@@ -30,13 +31,13 @@ function help_bee_command() {
 function help_bee_callback($arguments, $options) {
   global $_bee_global_options, $_bee_command_aliases;
 
-  // Get all commands and sort them alphabetically.
-  $commands = bee_all_commands();
-  ksort($commands);
-
   // Display help for the given command.
   if (isset($arguments['command'])) {
     $command = $arguments['command'];
+
+    // Get all commands and sort them alphabetically.
+    $commands = bee_all_commands();
+    ksort($commands);
 
     // If the given command is an alias, get the actual command name.
     if (isset($_bee_command_aliases[$command])) {
@@ -78,29 +79,47 @@ function help_bee_callback($arguments, $options) {
     $option_rows[] = array();
   }
 
-  foreach ($commands as $command => $descriptor) {
+  // Get all commands in groups.
+  $commands = bee_all_commands(TRUE);
+  ksort($commands);
+
+  // Move the 'Advanced' group to the end.
+  $advanced = $commands['advanced'];
+  unset($commands['advanced']);
+  $commands['advanced'] = $advanced;
+
+  foreach ($commands as $group => $grouped_commands) {
+    ksort($grouped_commands);
+
     $command_rows[] = array(
-      array(
-        'value' => $command,
-        '#color' => 'blue',
-        '#bold' => TRUE,
-      ),
-      array('value' => $descriptor['description']),
+      array('value' => strtoupper(str_replace('_', ' ', $group))),
+      array('value' => ''),
     );
 
-    $aliases = array_keys($_bee_command_aliases, $command);
-    if (!empty($aliases)) {
+    foreach ($grouped_commands as $command => $descriptor) {
       $command_rows[] = array(
         array(
-          'value' => implode(', ', $aliases),
-          '#color' => 'magenta',
+          'value' => ' ' . $command,
+          '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => ''),
+        array('value' => $descriptor['description']),
       );
-    }
 
-    $command_rows[] = array();
+      $aliases = array_keys($_bee_command_aliases, $command);
+      if (!empty($aliases)) {
+        $command_rows[] = array(
+          array(
+            'value' => ' ' . implode(', ', $aliases),
+            '#color' => 'magenta',
+            '#bold' => TRUE,
+          ),
+          array('value' => ''),
+        );
+      }
+
+      $command_rows[] = array();
+    }
   }
 
   return array(
@@ -171,7 +190,6 @@ function help_bee_command_help(array $descriptor) {
         'value' => $descriptor['command'],
         '#bold' => TRUE,
       ),
-      'newline' => TRUE,
     ),
   );
   if (!empty($aliases)) {
@@ -275,27 +293,22 @@ function help_bee_command_help(array $descriptor) {
       ),
     );
 
-    $rows = array();
     foreach ($descriptor['examples'] as $example => $description) {
-      $rows[] = array(
-        array(
-          'value' => $example,
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $example",
           '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => $description),
+      );
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $description\n",
+        ),
       );
     }
-
-    $output[] = array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    );
   }
 
   return $output;

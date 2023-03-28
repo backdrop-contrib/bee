@@ -12,6 +12,7 @@ function state_bee_command() {
     'state-get' => array(
       'description' => bt('Get the value of a Backdrop state.'),
       'callback' => 'state_get_bee_callback',
+      'group' => 'state',
       'arguments' => array(
         'state' => bt('The name of the state to get.'),
       ),
@@ -24,6 +25,7 @@ function state_bee_command() {
     'state-set' => array(
       'description' => bt('Set the value of an existing Backdrop state.'),
       'callback' => 'state_set_bee_callback',
+      'group' => 'state',
       'arguments' => array(
         'state' => bt('The name of the state to set.'),
         'value' => bt('The value to set the state to.'),
@@ -38,6 +40,7 @@ function state_bee_command() {
     'maintenance-mode' => array(
       'description' => bt('Enable or disable maintenance mode for Backdrop.'),
       'callback' => 'maintenance_mode_bee_callback',
+      'group' => 'miscellaneous',
       'arguments' => array(
         'value' => bt('A boolean value to enable (true/1) or disable (false/0) maintenance mode. Omitting the value will return the current maintenance mode status.'),
       ),

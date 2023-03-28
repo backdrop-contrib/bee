@@ -120,7 +120,7 @@ function bee_find_site_by_path($path) {
   // Make sure we have a valid dir path.
   if (!empty($path) && is_dir($path)) {
     // Check if this is Backdrop's current site dir.
-    if (file_exists($path . '/settings.php')) {
+    if (file_exists(realpath($path . '/settings.php'))) {
       if ($path != $_bee_backdrop_root) {
         // Return the last part of the path (the site dir name).
         return basename($path);
@@ -290,7 +290,7 @@ function bee_delete($path) {
   }
 
   // Log a message if the file/directory doesn't exist (but return TRUE anyway).
-  if (!file_exists($path)) {
+  if (!file_exists(realpath($path))) {
     bee_message(bt("'!path' was not deleted because it doesn't exist.", array(
       '!path' => $path,
     )), 'log');
@@ -329,7 +329,7 @@ function bee_copy($source, $destination, $self = TRUE) {
   }
 
   // Create the destination directory.
-  if (!file_exists($destination)) {
+  if (!file_exists(realpath($destination))) {
     if (!mkdir($destination)) {
       bee_message(bt("The destination '!destination' doesn't exist and could not be created.", array(
         '!destination' => $destination,
