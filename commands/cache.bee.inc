@@ -12,6 +12,7 @@ function cache_bee_command() {
     'cache-clear' => array(
       'description' => bt('Clear a specific cache, or all Backdrop caches.'),
       'callback' => 'cache_clear_bee_command',
+      'group' => 'miscellaneous',
       'arguments' => array(
         'cache' => bt('The name of the cache to clear. Leave blank to see a list of available caches.'),
       ),

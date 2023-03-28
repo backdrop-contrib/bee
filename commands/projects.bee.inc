@@ -12,6 +12,7 @@ function projects_bee_command() {
     'projects' => array(
       'description' => bt('Display information about available projects (modules, themes, layouts).'),
       'callback' => 'projects_bee_callback',
+      'group' => 'projects',
       'arguments' => array(
         'project' => bt('The name of a project to display information for. Leave blank to list information about all projects.'),
       ),
@@ -33,6 +34,7 @@ function projects_bee_command() {
     'enable' => array(
       'description' => bt('Enable one or more projects (modules, themes, layouts).'),
       'callback' => 'enable_bee_callback',
+      'group' => 'projects',
       'arguments' => array(
         'projects' => bt('One or more projects to enable.'),
       ),
@@ -53,6 +55,7 @@ function projects_bee_command() {
     'disable' => array(
       'description' => bt('Disable one or more projects (modules, themes, layouts).'),
       'callback' => 'disable_bee_callback',
+      'group' => 'projects',
       'arguments' => array(
         'projects' => bt('One or more projects to disable.'),
       ),
@@ -73,6 +76,7 @@ function projects_bee_command() {
     'uninstall' => array(
       'description' => bt('Uninstall one or more modules.'),
       'callback' => 'uninstall_bee_callback',
+      'group' => 'projects',
       'arguments' => array(
         'modules' => bt('One or more modules to uninstall.'),
       ),
@@ -93,6 +97,7 @@ function projects_bee_command() {
     'theme-default' => array(
       'description' => bt('Set the default theme.'),
       'callback' => 'theme_default_bee_callback',
+      'group' => 'themes',
       'arguments' => array(
         'theme' => bt('The theme to set as the default theme. It will be enabled, if not already.'),
       ),
@@ -105,6 +110,7 @@ function projects_bee_command() {
     'theme-admin' => array(
       'description' => bt('Set the admin theme.'),
       'callback' => 'theme_admin_bee_callback',
+      'group' => 'themes',
       'arguments' => array(
         'theme' => bt('The theme to set as the admin theme. It will be enabled, if not already.'),
       ),

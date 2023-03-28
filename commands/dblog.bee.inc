@@ -12,6 +12,7 @@ function dblog_bee_command() {
     'log' => array(
       'description' => bt('Show database log messages.'),
       'callback' => 'log_bee_callback',
+      'group' => 'information',
       'arguments' => array(
         'id' => bt('The ID of a log message to display in detail. Leave blank to list summaries of the most recent log messages.'),
       ),
