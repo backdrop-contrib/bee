@@ -17,7 +17,21 @@ lando bee [global-options] <command> [options] [arguments]
 
 ## Commands
 
-### Project Actions
+### Projects
+#### `projects`
+*Description:* Display information about available projects (modules, themes, layouts).  
+*Aliases:* `pml` , `pmi` , `project` , `pm-list` , `pm-info`  
+*Arguments:*
+- `project` - (optional) The name of a project to display information for. Leave blank to list information about all projects.
+
+*Options:*
+- `--type=TYPE` - Restrict list to projects of a given type: 'module', 'theme' or 'layout'.
+
+*Examples:*
+- `bee projects webform` - Show information about the Webform module.
+- `bee projects --type=layout` - Show information about all available layouts.
+- `bee projects` - Show information about all available projects.
+
 #### `download`
 *Description:* Download Backdrop contrib projects together with dependencies.  
 *Aliases:* `dl` , `pm-download`  
@@ -74,6 +88,7 @@ lando bee [global-options] <command> [options] [arguments]
 - `bee uninstall --no-dependency-checking rules` - Uninstall the Rules module, regardless of whether or not other modules depend on it.
 - `bee uninstall simplify thesis bamboo` - Uninstall the Simplify module, Thesis theme, and Bamboo layout. 
 
+### Themes
 #### `theme-admin`
 *Description:* Set the admin theme.  
 *Aliases:* `admin-theme`  
@@ -109,20 +124,6 @@ lando bee [global-options] <command> [options] [arguments]
 - `bee status` -    Get an overview of the Backdrop installation.
 - `bee status --show-password` - Include the database password in the overview.  
 
-#### `projects`
-*Description:* Display information about available projects (modules, themes, layouts).  
-*Aliases:* `pml` , `pmi` , `project` , `pm-list` , `pm-info`  
-*Arguments:*
-- `project` - (optional) The name of a project to display information for. Leave blank to list information about all projects.
-
-*Options:*
-- `--type=TYPE` - Restrict list to projects of a given type: 'module', 'theme' or 'layout'.
-
-*Examples:*
-- `bee projects webform` - Show information about the Webform module.
-- `bee projects --type=layout` - Show information about all available layouts.
-- `bee projects` - Show information about all available projects.
-
 #### `log`
 *Description:* Show database log messages.  
 *Aliases:* `ws` , `dblog` , `watchdog-show`  
@@ -148,7 +149,7 @@ lando bee [global-options] <command> [options] [arguments]
 - `bee help status` - Display help for the 'status' command.
 - `bee help` - Display help for 'bee' itself.
 
-### Config 
+### Configuration 
 #### `config-export`
 *Description:* Export config from the site.  
 *Aliases:* `cex` , `bcex`  
@@ -184,7 +185,7 @@ lando bee [global-options] <command> [options] [arguments]
 *Examples:*
 - `bee config-set image.style.thumbnail effects.0.data.width 200` -    Change the width of the Thumbnail image style.
 
-### Installation
+### Core
 #### `download-core`
 *Description:* Download Backdrop core.  
 *Aliases:* `dl-core`  
@@ -263,13 +264,6 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
 - `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
 
-#### `sql`
-*Description:* Open an SQL command-line interface using Backdrop's database credentials.  
-*Aliases:* `sqlc` , `sql-cli` , `db-cli`  
-*Examples:*
-- `bee sql` - Open a command-line for the current database.
-- `bee sql < backup.sql` - Import an SQL file into the current database.
-
 ### Users
 #### `user-login`
 *Description:* Display a one-time login link for a given user.  
@@ -342,6 +336,7 @@ Omitting the value will return the current maintenance mode status.
 - `bee maintenance-mode 0` - Disable maintenance mode for the site.
 - `bee maintenance-mode` - Get the maintenance mode status for the site.
 
+### State
 #### `state-get`
 *Description:* Get the value of a Backdrop state.  
 *Aliases:* `sg`, `sget`  
@@ -383,3 +378,10 @@ Omitting the value will return the current maintenance mode status.
 *Examples:*
 - `bee php-script ../my-scripts/scratch.php` - Run scratch.php script relative to the Backdrop root.
 - `bee scr /var/www/my-scripts/scratch.php` - Run scratch.php script with the absolute path.
+
+#### `sql`
+*Description:* Open an SQL command-line interface using Backdrop's database credentials.  
+*Aliases:* `sqlc` , `sql-cli` , `db-cli`  
+*Examples:*
+- `bee sql` - Open a command-line for the current database.
+- `bee sql < backup.sql` - Import an SQL file into the current database.
