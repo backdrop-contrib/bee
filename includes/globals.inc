@@ -17,7 +17,7 @@ $_bee_global_options = array(
     'description' => bt("Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory."),
   ),
   'base-url' => array(
-    'description' => bt('Specify the base URL of your Backdrop site, such as https://example.com/backdrop.'),
+    'description' => bt("Specify the base URL of the Backdrop site, such as https://example.com/backdrop. May be useful with commands that output URLs to pages on the site."),
   ),
   'yes' => array(
     'description' => bt("Answer 'yes' to questions without prompting."),

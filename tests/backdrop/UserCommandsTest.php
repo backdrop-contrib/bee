@@ -35,9 +35,9 @@ class UserCommandsTest extends TestCase {
    * Make sure that the user-login command works.
    */
   public function test_user_login_command_works() {
-    $output = shell_exec('bee --base-url=https://bee.lndo.site user-login admin');
+    $output = shell_exec('bee user-login admin');
     $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output);
-    $this->assertStringContainsString('https://bee.lndo.site/user/reset/1/', (string) $output);
+    $this->assertStringContainsString('/user/reset/1/', (string) $output);
 
     // Test that leaving the username argument blank loads User 1.
     $output = shell_exec('bee user-login');

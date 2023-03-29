@@ -50,19 +50,21 @@ function bee_initialize_console() {
     $_bee_backdrop_root = getcwd();
     define('BACKDROP_ROOT', $_bee_backdrop_root);
 
-    if (isset($_bee_options['base-url'])) {
+    if (!empty($_bee_options['base-url'])) {
       $url_parts = parse_url($_bee_options['base-url']);
-      $_SERVER['HTTP_HOST'] = $url_parts['host'] . (isset($url_parts['port']) ? ':' . $url_parts['port'] : '');
-      $_SERVER['HTTPS'] = $url_parts['scheme'] === 'https';
+      if (isset($url_parts['host'])) {
+        $_SERVER['HTTP_HOST'] = $url_parts['host'] . (isset($url_parts['port']) ? ':' . $url_parts['port'] : '');
+      }
+      if (isset($url_parts['scheme'])) {
+        $_SERVER['HTTPS'] = ($url_parts['scheme'] === 'https');
+      }
+      // Set the Backdrop global base_url to ensure that if an https base-url
+      // is specified then an https login link is returned.
       $GLOBALS['base_url'] = $_bee_options['base-url'];
     }
-    elseif ($_bee_backdrop_site) {
-      $_SERVER['HTTP_HOST'] = $_bee_backdrop_site;
-    }
     else {
-      $_SERVER['HTTP_HOST'] = basename($_bee_backdrop_root);
+      $_SERVER['HTTP_HOST'] = !empty($_bee_backdrop_site) ? $_bee_backdrop_site : basename($_bee_backdrop_root);
     }
-
     // Determine if Backdrop is installed or not.
     require_once $_bee_backdrop_root . '/core/includes/bootstrap.inc';
     if (function_exists('backdrop_bootstrap_is_installed')) {
