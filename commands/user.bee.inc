@@ -49,6 +49,7 @@ function user_bee_command() {
       'examples' => array(
         'bee user-login bob' => bt("Generate and display a one-time login link for the user account named 'bob'."),
         'bee user-login' => bt("Generate and display a one-time login link for User 1."),
+        'bee user-login --base-url=https://www.example.com' => bt("Generate and display a one-time login link for User 1, setting the base-url option."),
       ),
     ),
   );
