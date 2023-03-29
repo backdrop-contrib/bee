@@ -1,21 +1,85 @@
 ## Command structure
+
 ```bash
 bee [global-options] <command> [options] [arguments]
 ```
+
 ### Lando
+
 ```bash
 lando bee [global-options] <command> [options] [arguments]
 ```
+
 ## Global Options
- - `--root` - Specify the root directory of the Backdrop installation to use. If not set, will try to find the Backdrop installation automatically based on the current directory. For example, `bee --root=docroot status`                    
-  
- - `--site` - Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory. For example `bee --site=example-a status` or `bee --site=www.example-a.com status`
-  
- - `--yes` , `-y` - Answer 'yes' to questions without prompting.  
-  
- - `--debug` , `-d` - Enables 'debug' mode, in which 'log' type messages will be displayed (in addition to all other messages.
+
+- `--root`  
+  Specify the root directory of the Backdrop installation to use. If not set,
+  will try to find the Backdrop installation automatically based on the current
+  directory. For example, `bee --root=docroot status`
+- `--site`  
+  Specify the directory name or URL of the Backdrop site to use (as defined in
+  'sites.php'). If not set, will try to find the Backdrop site automatically
+  based on the current directory. For example `bee --site=example-a status` or
+  `bee --site=www.example-a.com status`
+- `--yes`, `-y`  
+  Answer 'yes' to questions without prompting.
+- `--debug`, `-d`  
+  Enables 'debug' mode, in which 'log' type messages will be displayed (in
+  addition to all other messages).
 
 ## Commands
+
+### Configuration
+
+#### `config-export`
+*Description:* Export config from the site.  
+*Aliases:* `cex`, `bcex`  
+*Examples:*
+- `bee config-export`  
+  Exports config (from 'active' to 'staging') for the current site.
+
+#### `config-import`
+*Description:* Import config into the site.  
+*Aliases:* `cim`, `bcim`  
+*Examples:*
+- `bee config-import`  
+  Imports config (from 'staging' to 'active') for the current site.
+
+#### `config-get`
+*Description:* Get the value of a specific config option, or view all the config
+options in a given file.  
+*Aliases:* `cget`  
+*Arguments:*
+- `file`  
+  The name of the config object to retrieve. This is the name of the config
+  file, less the '.json' suffix.
+- `option`  
+  (optional) The name of the config option within the file to read. This may
+  contain periods to indicate levels within the config file. Leave blank to
+  display the entire config file.
+
+*Examples:*
+- `bee config-get system.core site_name`  
+  Get the value of the 'site_name' config option.
+- `bee config-get devel.settings`  
+  See all the config options for the Devel module.
+
+#### `config-set`
+*Description:* Set the value of an option in a config file.  
+*Aliases:* `cset`  
+*Arguments:*
+- `file`  
+  The name of the config object to retrieve. This is the name of the config
+  file, less the '.json' suffix.
+- `option`  
+  The name of the config option within the file to set. This may contain periods
+  to indicate levels within the config file.
+- `value`  
+  The value to save in the config file.
+
+*Examples:*
+- `bee config-set image.style.thumbnail effects.0.data.width 200`  
+  Change the width of the Thumbnail image style.
 
 ### Projects
 #### `projects`
@@ -148,42 +212,6 @@ lando bee [global-options] <command> [options] [arguments]
 *Examples:*
 - `bee help status` - Display help for the 'status' command.
 - `bee help` - Display help for 'bee' itself.
-
-### Configuration 
-#### `config-export`
-*Description:* Export config from the site.  
-*Aliases:* `cex` , `bcex`  
-*Examples:*  
-- `bee config-export` - Exports config (from 'active' to 'staging') for the current site.
-
-#### `config-import`
-*Description:* Import config into the site.  
-*Aliases:* `cim` , `bcim`  
-*Examples:*
-- `bee config-import` - Imports config (from 'staging' to 'active') for the current site.
-
-#### `config-get`
-*Description:* Get the value of a specific config option, or view all the config options in a given file. 
-*Aliases:* `cget`  
-*Arguments:*  
-- `file` The name of the config object to retrieve. This is the name of the config file, less the '.json' suffix.
-
-- `option` (optional) The name of the config option within the file to read. This may contain periods to indicate levels within the config file. Leave blank to display the entire config file.
-
-*Examples:*  
-- `bee config-get system.core site_name` - Get the value of the 'site_name' config option.  
-- `bee config-get devel.settings` - See all the config options for the Devel module.
-
-#### `config-set`
-*Description:* Set the value of an option in a config file.  
-*Aliases:* `cset`  
-*Arguments:*
-- `file` - The name of the config object to retrieve. This is the name of the config file, less the '.json' suffix.
-- `option` - The name of the config option within the file to set. This may contain periods to indicate levels within the config file.
-- `value` - The value to save in the config file.
-
-*Examples:*
-- `bee config-set image.style.thumbnail effects.0.data.width 200` -    Change the width of the Thumbnail image style.
 
 ### Core
 #### `download-core`
