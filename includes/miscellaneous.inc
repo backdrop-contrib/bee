@@ -51,6 +51,9 @@ function bee_initialize_console() {
     define('BACKDROP_ROOT', $_bee_backdrop_root);
 
     if (!empty($_bee_options['base-url'])) {
+      // Strip any trailing slash.
+      $_bee_options['base-url'] = rtrim($_bee_options['base-url'], '/');
+
       $url_parts = parse_url($_bee_options['base-url']);
       if (isset($url_parts['host'])) {
         $_SERVER['HTTP_HOST'] = $url_parts['host'] . (isset($url_parts['port']) ? ':' . $url_parts['port'] : '');
@@ -58,8 +61,8 @@ function bee_initialize_console() {
       if (isset($url_parts['scheme'])) {
         $_SERVER['HTTPS'] = ($url_parts['scheme'] === 'https');
       }
-      // Set the Backdrop global base_url to ensure that if an https base-url
-      // is specified then an https login link is returned.
+      // Pass the base URL to Backdrop's global variable. This removes the need
+      // to set it manually in settings.php.
       $GLOBALS['base_url'] = $_bee_options['base-url'];
     }
     else {
