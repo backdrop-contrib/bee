@@ -247,8 +247,8 @@ options in a given file.
 
 *Examples:*
 - `bee install` - Install Backdrop in interactive mode, providing information when prompted.
-- `bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --auto` - Install Backdrop automatically using the provided database credentials, and default settings for everything else.
-- `bee install --db-name=backdrop --db-user=admin --db-password=P@ssw0rd! --db-host=db_server --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"` - Install Backdrop using the given options, and be prompted for the rest.
+- `bee install --db-name=backdrop --db-user=admin --db-pass=P@ssw0rd! --auto` - Install Backdrop automatically using the provided database credentials, and default settings for everything else.
+- `bee install --db-name=backdrop --db-user=admin --db-pass=P@ssw0rd! --db-host=db_server --username=Root --password=N0tS3cur3 --email=root@mydomain.com --site-name="My awesome site!"` - Install Backdrop using the given options, and be prompted for the rest.
 
 ### Update
 #### `update-db`
