@@ -21,12 +21,16 @@ function download_bee_command() {
         'hide-progress' => array(
           'description' => bt('Hide the download progress bar.'),
         ),
+        'allow-multisite-copy' => array(
+          'description' => bt('Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.'),
+        ),
       ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
         'bee download webform' => bt('Download the Webform module.'),
         'bee download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
         'bee download devel --hide-progress' => bt("Download the Devel module, and don't show the download progress bar."),
+        'bee --site=site_name download simplify --allow-multisite-copy' => bt('Download an additional copy of the Simplify module into the site_name multisite module folder.'),
       ),
     ),
     'download-core' => array(
@@ -58,6 +62,7 @@ function download_bee_callback($arguments, $options) {
   global $_bee_backdrop_root, $_bee_backdrop_site;
 
   $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
+  $allow_multisite_copy = (!empty($options['allow-multisite-copy'])) ? TRUE : FALSE;
 
   // Get list of all core projects so we don't try to download core dependencies
   // when we download a named project.
@@ -120,16 +125,32 @@ function download_bee_callback($arguments, $options) {
             $dependency_info = download_bee_git_info($dependency);
             // Check whether the dependency exists within the site file system.
             $dependency_existing_location = download_bee_check_project_exists($dependency, $dependency_info['type']);
-            if ($dependency_existing_location == FALSE) {
-              // If project does not exist in the site file system add to list
-              // and prepare message.
-              $arguments['projects'][] = $dependency;
-              bee_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
-                '!dependency' => $dependency,
-                '!dependency_type' => $dependency_info['type'],
-                '!project' => $project,
-                '!project_type' => $info['type'],
-              )), 'status');
+            $dependency_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $dependency_existing_location);
+            if ($dependency_existing_location == FALSE || $dependency_allow_multisite_copy) {
+              // If project does not exist in the site file system, or it is
+              // but a multisite copy is allowed, then check whether it is
+              // already in the download list.
+              if (in_array($dependency, $arguments['projects'])) {
+                // If project is already in the list to download, do not add to
+                // the list to download again.
+                bee_message(bt("The '!dependency' !dependency_type is also required by the '!project' !project_type.", array(
+                  '!dependency' => $dependency,
+                  '!dependency_type' => $dependency_info['type'],
+                  '!project' => $project,
+                  '!project_type' => $info['type'],
+                )), 'status');
+              }
+              else {
+                // If project is not already in download list, then add to list
+                // and prepare message.
+                $arguments['projects'][] = $dependency;
+                bee_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
+                  '!dependency' => $dependency,
+                  '!dependency_type' => $dependency_info['type'],
+                  '!project' => $project,
+                  '!project_type' => $info['type'],
+                )), 'status');
+              }
             }
             else {
               // If project does exist in the site file system, give a
@@ -176,7 +197,8 @@ function download_bee_callback($arguments, $options) {
       $destination .= "/$project";
       // Check if the project exists within the site file system.
       $project_existing_location = download_bee_check_project_exists($project, $info['type']);
-      if ($project_existing_location != FALSE) {
+      $project_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $project_existing_location);
+      if ($project_existing_location != FALSE && !$project_allow_multisite_copy) {
         bee_message(bt("'!project' already exists in '!existing_location'.", array(
           '!project' => $project,
           '!existing_location' => $project_existing_location,
@@ -474,6 +496,42 @@ function download_bee_check_project_exists($project, $type) {
   }
   else {
     // If project does not exist, return FALSE.
+    return FALSE;
+  }
+}
+
+/**
+ * Check if download for multisite can be downloaded if it exists in the
+ * root directory for the same project type.
+ *
+ * @param boolean $allow_multisite_copy
+ *   Whether or not to allow multisite copy.
+ * @param string $existing_location_path
+ *   The path of the existing project.
+ *
+ * @return boolean
+ *   TRUE if the download for multisite can be downloaded. FALSE if not.
+ */
+function download_bee_check_multisite_copy($allow_multisite_copy, $existing_location_path) {
+  global $_bee_backdrop_site;
+  // Check if site is defined for this download.
+  if (!empty($_bee_backdrop_site)) {
+    // If site defined then check if existing location is in site folder.
+    $existing_in_site_folder = stripos($existing_location_path, $_bee_backdrop_site) > 0;
+    if (!$existing_in_site_folder && $allow_multisite_copy) {
+      // If existing is in root directory and the option to allow multisite
+      // copy is included, then we can download to site directory.
+      return TRUE;
+    }
+    else {
+      // If either the existing copy of the project is in the site directory OR
+      // the option to allow multisite copy is NOT included, then we should not
+      // allow a download to the site directory.
+      return FALSE;
+    }
+  }
+  else {
+    // If no site defined then this check should always return FALSE.
     return FALSE;
   }
 }
