@@ -62,6 +62,22 @@ class BeeCoreTest extends TestCase {
   }
 
   /**
+   * Make sure that the `--base-url` option works.
+   *
+   * Test running the `user-login` command of `bee` without the '--base-url'
+   * option, and then with the '--base-url' option.
+   */
+  public function test_base_url_global_option_works() {
+    $output_no_base_url = shell_exec('bee user-login admin');
+    $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output_no_base_url);
+    $this->assertStringContainsString('http://backdrop/user/reset/1/', (string) $output_no_base_url);
+
+    $output_base_url = shell_exec('bee --base-url=https://bee.lndo.site user-login admin');
+    $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output_base_url);
+    $this->assertStringContainsString('https://bee.lndo.site/user/reset/1/', (string) $output_base_url);
+  }
+
+  /**
    * Make sure that the `--yes/--y` options work.
    */
   public function test_yes_global_option_works() {
