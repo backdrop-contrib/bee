@@ -61,7 +61,7 @@ function bee_initialize_console() {
       if (isset($url_parts['scheme'])) {
         $_SERVER['HTTPS'] = ($url_parts['scheme'] === 'https');
       }
-      
+
       // Pass the base URL to Backdrop's global variable. This removes the need
       // to set it manually in settings.php.
       $GLOBALS['base_url'] = $_bee_options['base-url'];
