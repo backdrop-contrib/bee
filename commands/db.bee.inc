@@ -24,7 +24,6 @@ function db_bee_command() {
         ),
       ),
       'aliases' => array('dbex', 'db-dump', 'sql-export', 'sql-dump'),
-      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
         'bee db-export db.sql' => bt('Export the database to db.sql.gz.'),
         'bee db-export' => bt('Export the database to [DATE_TIME].sql.gz.'),
@@ -40,7 +39,6 @@ function db_bee_command() {
         'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).'),
       ),
       'aliases' => array('dbim', 'sql-import'),
-      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
         'bee db-import backup.sql' => bt('Import backup.sql into the current database.'),
         'bee db-import db.sql.gz' => bt('Extract and import db.sql into the current database.'),
@@ -51,7 +49,6 @@ function db_bee_command() {
       'callback' => 'sql_bee_callback',
       'group' => 'advanced',
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
-      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
         'bee sql' => bt('Open a command-line for the current database.'),
         'bee sql < backup.sql' => bt('Import an SQL file into the current database.'),
