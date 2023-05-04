@@ -21,6 +21,8 @@ lando bee [global-options] <command> [options] [arguments]
   'sites.php'). If not set, will try to find the Backdrop site automatically
   based on the current directory. For example `bee --site=example-a status` or
   `bee --site=www.example-a.com status`
+- `--base-url`  
+  Specify the base URL of the Backdrop site, such as `https://example.com/backdrop`. May be useful with commands that output URLs to pages on the site.
 - `--yes`, `-y`  
   Answer 'yes' to questions without prompting.
 - `--debug`, `-d`  
@@ -104,11 +106,13 @@ options in a given file.
 
 *Options:*
 - `--hide-progress` - Hide the download progress bar.
+- `--allow-multisite-copy` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
 
 *Examples:*
 - `bee download webform` - Download the Webform module.
 - `bee download simplify thesis bamboo` - Download the Simplify module, Thesis theme, and Bamboo layout.
 - `bee download devel --hide-progress` - Download the Devel module, and don't show the download progress bar. 
+- 'bee --site=site_name download simplify --allow-multisite-copy' - Download an additional copy of the Simplify module into the site_name multisite module folder.
 
 #### `enable`
 *Description:* Enable one or more projects (modules, themes, layouts).  
@@ -302,6 +306,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Examples:*
 - `bee user-login bob` - Generate and display a one-time login link for the user account named 'bob'.
 - `bee user-login` - Generate and display a one-time login link for User 1.
+- `bee user-login --base-url=https://www.example.com` - Generate and display a one-time login link for User 1, setting the base-url option.
 
 #### `user-password`
 *Description:* Reset the login password for a given user.  
