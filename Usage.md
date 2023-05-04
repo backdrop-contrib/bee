@@ -112,7 +112,7 @@ options in a given file.
 - `bee download webform` - Download the Webform module.
 - `bee download simplify thesis bamboo` - Download the Simplify module, Thesis theme, and Bamboo layout.
 - `bee download devel --hide-progress` - Download the Devel module, and don't show the download progress bar. 
-- 'bee --site=site_name download simplify --allow-multisite-copy' - Download an additional copy of the Simplify module into the site_name multisite module folder.
+- `bee --site=site_name download simplify --allow-multisite-copy` - Download an additional copy of the Simplify module into the site_name multisite module folder.
 
 #### `enable`
 *Description:* Enable one or more projects (modules, themes, layouts).  
