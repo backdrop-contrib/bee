@@ -194,12 +194,15 @@ function sql_bee_callback($arguments, $options) {
  * @param array $db_info
  *   Connection information for the current database. Generally obtained via
  *   Database::getConnectionInfo().
+ * @param boolean $include_db
+ *   Whether or not the database name is included in the connection string. By
+ *   default, this is included.
  *
  * @return array
  *   An array of the option string that can be appended to 'mysql' or
  *   'mysqldump', together with the filename of the temporary options file.
  */
-function db_bee_mysql_options(array $db_info) {
+function db_bee_mysql_options(array $db_info, $include_db = TRUE) {
   // Prepare the credentials for the .cnf file.
   $temp_file_contents = "[client]" . PHP_EOL
     . "user=" . rawurldecode($db_info['username']) . PHP_EOL
@@ -216,8 +219,8 @@ function db_bee_mysql_options(array $db_info) {
 
   // Create an array for the connection string and filename.
   $options = array();
-  $options['connection'] = "--defaults-file=$temp_filename";
-  $options['connection'] .= ' ' . rawurldecode($db_info['database']);
+  $options['connection'] = "--defaults-file=$temp_filename ";
+  $options['connection'] .= ($include_db) ? rawurldecode($db_info['database']) : '';
   $options['filename'] = $temp_filename;
 
   return $options;
