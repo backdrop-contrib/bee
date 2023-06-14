@@ -261,7 +261,9 @@ function help_bee_command_help(array $descriptor) {
     $rows = array();
     foreach ($descriptor['options'] as $option_name => $option) {
       $value = !empty($option['value']) ? '=' . strtoupper($option['value']) : '';
-
+      if (isset($option['short'])) {
+        $option_name .= ', -' . $option['short'];
+      }
       $rows[] = array(
         array(
           'value' => '--' . $option_name . $value,
