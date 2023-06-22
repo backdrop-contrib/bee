@@ -15,13 +15,13 @@ function update_bee_command()
           'callback' => 'update_db_bee_callback',
           'group' => 'update',
           'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
-            'bootstrap' => BEE_BOOTSTRAP_FULL,
-            'examples' => array(
-                'bee update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
+          'bootstrap' => BEE_BOOTSTRAP_FULL,
+          'examples' => array(
+              'bee update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
             ),
         ),
-        'update' => array(
-            'description' => bt('Updates backdrop, modules, themes and layouts with new releases'),
+      'update' => array(
+          'description' => bt('Updates backdrop, modules, themes and layouts with new releases'),
             'callback' => 'update_bee_callback',
             'aliases' => array('up', 'pm-update'),
             'bootstrap' => BEE_BOOTSTRAP_FULL,
