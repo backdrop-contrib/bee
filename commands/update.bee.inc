@@ -14,7 +14,7 @@ function update_bee_command()
           'description' => bt('Show, and optionally apply, all pending database updates.'),
           'callback' => 'update_db_bee_callback',
           'group' => 'update',
-            'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
+          'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
             'bootstrap' => BEE_BOOTSTRAP_FULL,
             'examples' => array(
                 'bee update-db' => bt('Show a list of any pending database updates. You will then be prompted to apply them.'),
