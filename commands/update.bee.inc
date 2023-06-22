@@ -11,7 +11,7 @@ function update_bee_command()
 {
     return array(
       'update-db' => array(
-            'description' => bt('Show, and optionally apply, all pending database updates.'),
+          'description' => bt('Show, and optionally apply, all pending database updates.'),
             'callback' => 'update_db_bee_callback',
             'group' => 'update',
             'aliases' => array('updb', 'updbst', 'updatedb', 'updatedb-status'),
