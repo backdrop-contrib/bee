@@ -134,8 +134,8 @@ function db_drop_bee_callback($arguments, $options) {
   if (!$_bee_yes_mode) {
     // Prompt to continue.
     if (!bee_confirm(bt('Are you sure you want to drop the contents of !database ?', array(
-        '!database' => $db_database,
-      )), FALSE)) {
+      '!database' => $db_database,
+    )), FALSE)) {
       return;
     }
   }
@@ -175,7 +175,7 @@ function db_drop_bee_callback($arguments, $options) {
     )), 'success');
   }
   // Remove the temporary mysql options file.
-  bee_delete($connection_file);  
+  bee_delete($connection_file);
 }
 
 /**
