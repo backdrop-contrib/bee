@@ -39,10 +39,11 @@ function db_bee_command() {
     'db-drop' => array(
       'description' => bt('Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.'),
       'callback' => 'db_drop_bee_callback',
+      'group' => 'database',
       'aliases' => array('sql-drop'),
-      'bootstrap' => BEE_BOOTSTRAP_DATABASE,
       'examples' => array(
-        'bee db-drop' => bt('Drop the current database and recreate an empty database with the same details.'),
+        'bee db-drop' => bt('Drop the current database and recreate an empty database with the same details.  You will then be prompted to confirm.'),
+        'bee --yes db-drop' => bt('Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.'),
       ),
     ),
     'sql' => array(
@@ -124,56 +125,57 @@ function db_import_bee_callback($arguments, $options) {
  */
 function db_drop_bee_callback($arguments, $options) {
   global $_bee_yes_mode;
-  // Initialize our pipes variable.
-  $pipes = array();
 
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
+  $db_database = rawurldecode($db_info['database']);
 
   if (!$_bee_yes_mode) {
     // Prompt to continue.
     if (!bee_confirm(bt('Are you sure you want to drop the contents of !database ?', array(
-        '!database' => $db_info['database']
+        '!database' => $db_database,
       )), FALSE)) {
       return;
     }
   }
 
-  $options = '--user=' . rawurldecode($db_info['username']);
-  $options .= " --password='" .  rawurldecode($db_info['password']) . "'";
-  $options .= ' --host=' . $db_info['host'];
-  $db_database = rawurldecode($db_info['database']);
+  // Get database connection details.
+  $connection_details = db_bee_mysql_options($db_info, FALSE);
+  $connection_string = $connection_details['connection'];
+  $connection_file = $connection_details['filename'];
 
   // Drop the existing backdrop database as configured.
-  $command = 'mysql ' . $options . ' -e "drop database ' . $db_database . '";';
+  $command = 'mysql ' . $connection_string . ' -e "drop database ' . $db_database . '";';
   $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 
   if ($result == -1) {
     bee_message(bt("The '!database' database could not be dropped.", array(
-      '!database' => $db_info['database'],
+      '!database' => $db_database,
     )), 'error');
   }
   else {
     bee_message(bt("The '!database' database was successfully dropped.", array(
-      '!database' => $db_info['database'],
+      '!database' => $db_database,
     )), 'success');
   }
 
   // Re-create the existing backdrop database as configured.
-  $command = 'mysql ' . $options . ' -e "create database ' . $db_database . '";';
+  $command = 'mysql ' . $connection_string . ' -e "create database ' . $db_database . '";';
   $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 
   if ($result == -1) {
     bee_message(bt("The '!database' database could not be created.", array(
-      '!database' => $db_info['database'],
+      '!database' => $db_database,
     )), 'error');
   }
   else {
     bee_message(bt("The '!database' database was successfully created.", array(
-      '!database' => $db_info['database'],
+      '!database' => $db_database,
     )), 'success');
   }
+  // Remove the temporary mysql options file.
+  bee_delete($connection_file);  
 }
 
 /**
@@ -181,9 +183,6 @@ function db_drop_bee_callback($arguments, $options) {
  * database credentials.
  */
 function sql_bee_callback($arguments, $options) {
-  // Initialize our pipes variable.
-  $pipes = array();
-
   // Get database info.
   $db_connection = Database::getConnectionInfo();
   $db_info = $db_connection['default'];
