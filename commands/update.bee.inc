@@ -57,7 +57,7 @@ function update_db_bee_callback()
     backdrop_load_updates();
     $pending = update_get_update_list();
     if (empty($pending)) {
-        bee_message(bt('There are no pending database updates.'), 'info');
+        bee_message(bt('There are no pending database updates.'));
         return;
     }
 
@@ -142,16 +142,17 @@ function update_bee_callback()
         foreach ($data as $item) {
             if ($item['name'] == 'backdrop') {
                 unset($data['backdrop']);
-            } else {
+            } else
                 if ($item['existing_version'] == $item['latest_version']) {
                     unset($data[$item['name']]);
                 }
             }
         }
         if ($data != null) {
-            bee_message(bt('These are the items being updated.....'), 'info');
+            bee_message(bt('These are the items being updated.....'));
             foreach ($data as $item) {
-                bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] . ' to ' . $item['latest_version']), 'info');
+                bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] .
+                    ' to ' . $item['latest_version']));
             }
             // TODO Prompt to continue. but it does not show
             // if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
@@ -160,17 +161,17 @@ function update_bee_callback()
             foreach ($data as $item) {
                 $folder = $_bee_backdrop_root . '/' . $item['project_type'] . 's/' . $item['name'];
                 if (is_dir($folder)) {
-                    deleteDir($folder);
+                    delete_dir($folder);
                 }
                 download_bee_callback(array('projects' => array($item['name']),), []);
                 echo '';
             }
             bee_message(bt('You will probably need to fix the permissions on the new modules'), 'warning');
         } else {
-            bee_message(bt('No Modules or Themes to Update'), 'info');
+            bee_message(bt('No Modules or Themes to Update'));
         }
     } else {
-        bee_message(bt('No Modules or Themes to Update'), 'info');
+        bee_message(bt('No Modules or Themes to Update'));
     }
 
 }
@@ -179,14 +180,18 @@ function update_bee_callback()
  * Delete a folder recursively
  * checks for root folder and exits
  * */
-function deleteDir($path)
+/**
+ * @param $path - Path of folder to delete
+ * @return bool
+ */
+function delete_dir($path): bool
 {
     if (empty($path)) {
         return false;
     }
     $files = array_diff(scandir($path), array('.', '..'));
     foreach ($files as $file) {
-        (is_dir("$path/$file")) ? deleteDir("$path/$file") : unlink("$path/$file");
+        (is_dir("$path/$file")) ? delete_dir("$path/$file") : unlink("$path/$file");
     }
     return rmdir($path);
 }
