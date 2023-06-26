@@ -30,4 +30,21 @@ class DBCommandsTest extends TestCase {
     exec('rm /app/backdrop/database.sql.gz');
   }
 
+  /**
+   * Make sure that the db-drop command works.
+   */
+  public function test_db_drop_command_works() {
+    $output = shell_exec('bee db-export database.sql');
+    $this->assertStringContainsString("The 'backdrop' database was exported to '/app/backdrop/database.sql.gz'.", (string) $output);
+    $this->assertTrue(file_exists('/app/backdrop/database.sql.gz'));
+
+    $output = shell_exec('bee db-drop -y');
+    $this->assertStringContainsString("The 'backdrop' database was successfully dropped.", (string) $output);
+
+    $output = shell_exec('bee db-import database.sql.gz');
+    $this->assertStringContainsString("'database.sql.gz' was imported into the 'backdrop' database.", (string) $output);
+
+    // Remove DB export for future tests.
+    exec('rm /app/backdrop/database.sql.gz');
+  }
 }
