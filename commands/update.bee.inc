@@ -35,6 +35,7 @@ function update_bee_command() {
         'bee update' => bt('Update everything with a new release.'),
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
         'bee update backdrop --security-updates-only' => bt('Updates only core backdrop and only security releases'),
+      ),
     ),
   );
 }
@@ -128,23 +129,24 @@ function update_bee_callback() {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
   $themes = list_themes();
-  $data = null;
+  $data = NULL;
   if ($available = update_get_available(TRUE)) {
     module_load_include('inc', 'update', 'update.compare');
     $data = update_calculate_project_data($available);
   }
-
-  if ($data != null) {
+  if ($data != NULL) {
     foreach ($data as $item) {
       if ($item['name'] == 'backdrop') {
         unset($data['backdrop']);
-      } else
+      }
+      else {
         if ($item['existing_version'] == $item['latest_version']) {
           unset($data[$item['name']]);
         }
+      }
     }
   }
-  if ($data != null) {
+  if ($data != NULL) {
     bee_message(bt('These are the items being updated.....'));
     foreach ($data as $item) {
       bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] .
@@ -170,7 +172,6 @@ function update_bee_callback() {
 else {
   bee_message(bt('No Modules or Themes to Update'));
   }
-
 }
 
 /*
