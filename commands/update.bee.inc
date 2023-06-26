@@ -123,7 +123,6 @@ function update_db_bee_callback() {
 function update_bee_callback() {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
-  $themes = list_themes();
   $data = NULL;
   if ($available = update_get_available(TRUE)) {
     module_load_include('inc', 'update', 'update.compare');
