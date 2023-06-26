@@ -296,6 +296,14 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
 - `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
 
+#### `db-drop`
+*Description:* Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.  
+*Aliases:* `sql-dropimport`  
+
+*Examples:*  
+- `bee db-drop` - Drop the current database and recreate an empty database with the same details.  You will then be prompted to confirm.
+- `bee --yes db-drop` - Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.
+
 ### Users
 #### `user-login`
 *Description:* Display a one-time login link for a given user.  
