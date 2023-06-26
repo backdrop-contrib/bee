@@ -52,7 +52,6 @@ function update_db_bee_callback() {
     bee_message(bt('There are no pending database updates.'), 'info');
     return;
   }
-
   // Process the list of updates.
   foreach ($pending as $module => $updates) {
     if (!isset($updates['start'])) {
