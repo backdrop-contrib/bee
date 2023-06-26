@@ -16,6 +16,7 @@ function status_bee_command() {
       'options' => array(
         'show-password' => array(
           'description' => bt('Show the database password.'),
+          'short' => 'p',
         ),
       ),
       'aliases' => array('st', 'info', 'core-status'),
@@ -81,9 +82,10 @@ function status_bee_callback($arguments, $options) {
           array('value' => bt('Database username')),
           array('value' => rawurldecode($info['username'])),
         );
+        $status_show_password = (isset($options['show-password']) || isset($options['p']));
         $rows[] = array(
           array('value' => bt('Database password')),
-          array('value' => isset($options['show-password']) ? rawurldecode($info['password']) : '**********'),
+          array('value' => $status_show_password ? rawurldecode($info['password']) : '**********'),
         );
         $rows[] = array(
           array('value' => bt('Database host')),
