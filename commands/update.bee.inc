@@ -26,15 +26,9 @@ function update_bee_command() {
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'optional_arguments' => array('project'),
       'multiple_argument' => 'project',
-      'options' => array(
-        'security-updates-only' => array(
-          'description' => bt('Only updates projects/backdrop with security releases'),
-        ),
-      ),
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
-        'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
-        'bee update backdrop --security-updates-only' => bt('Updates only core backdrop and only security releases'),
+        'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),        
       ),
     ),
   );
@@ -123,7 +117,9 @@ function update_db_bee_callback() {
 /**
  * Command callback: Show, and apply, module and theme updates.
  *
- * 2023-03-06 a first attempt at getting this working
+ * @todo  Add core update.
+ * @todo  Consider a way to download first, check the download has worked before delete.
+ *
  */
 function update_bee_callback() {
   global $_bee_backdrop_root;
@@ -139,52 +135,39 @@ function update_bee_callback() {
       if ($item['name'] == 'backdrop') {
         unset($data['backdrop']);
       }
-      else {
-        if ($item['existing_version'] == $item['latest_version']) {
-          unset($data[$item['name']]);
-        }
+      if ($item['existing_version'] == $item['latest_version']) {
+        unset($data[$item['name']]);
       }
     }
   }
   if ($data != NULL) {
-    bee_message(bt('These are the items being updated.....'));
     foreach ($data as $item) {
       bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] .
         ' to ' . $item['latest_version']));
     }
-    // TODO Prompt to continue. but it does not show
-    // if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
-    //    return;
-    // }
+    bee_render_text(array('value' => bt("These are the items being updated:\n")));
+    bee_render_table(array(
+      'rows' => $rows,
+      'header' => array(
+        array('value' => bt('Module')),
+        array('value' => bt('Existing')),
+        array('value' => bt('Latest')),
+      ),
+    ));
+    
+    // Prompt to continue.
+    if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
+      return;
+    }
     foreach ($data as $item) {
-      $folder = $_bee_backdrop_root . '/' . $item['project_type'] . 's/' . $item['name'];
+      $folder = backdrop_get_path($item['project_type'], $item['name']);
       if (is_dir($folder)) {
-        delete_dir($folder);
+         bee_delete($folder);
       }
       download_bee_callback(array('projects' => array($item['name']),), []);
       echo '';
     }
-    bee_message(bt('You will probably need to fix the permissions on the new modules'), 'warning');
   } else {
     bee_message(bt('No Modules or Themes to Update'));
   }
-}
-
-/*
- * Delete a folder recursively
- * checks for root folder and exits
- * */
-/**
- * @param $path - Path of folder to delete
- * @return bool
- */
-function delete_dir($path): bool {
-  if (empty($path)) {
-    return false;
-  }
-  $files = array_diff(scandir($path), array('.', '..'));
-  foreach ($files as $file) {
-    (is_dir("$path/$file")) ? delete_dir("$path/$file") : unlink("$path/$file");
-  }
-  return rmdir($path);
 }
