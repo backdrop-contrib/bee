@@ -142,8 +142,11 @@ function update_bee_callback() {
   }
   if ($data != NULL) {
     foreach ($data as $item) {
-      bee_message(bt($item['name'] . ' upgrading from ' . $item['existing_version'] .
-        ' to ' . $item['latest_version']));
+      $rows[] = array(
+        array('value' => $item['name']),
+        array('value' => $item['existing_version']),
+        array('value' => $item['latest_version']),
+      );
     }
     bee_render_text(array('value' => bt("These are the items being updated:\n")));
     bee_render_table(array(
