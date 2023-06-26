@@ -20,9 +20,11 @@ function download_bee_command() {
       'options' => array(
         'hide-progress' => array(
           'description' => bt('Hide the download progress bar.'),
+          'short' => 'h',
         ),
         'allow-multisite-copy' => array(
           'description' => bt('Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.'),
+          'short' => 'f',
         ),
       ),
       'aliases' => array('dl', 'pm-download'),
@@ -44,6 +46,7 @@ function download_bee_command() {
       'options' => array(
         'hide-progress' => array(
           'description' => bt('Hide the download progress bar.'),
+          'short' => 'h',
         ),
       ),
       'aliases' => array('dl-core'),

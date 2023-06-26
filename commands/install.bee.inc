@@ -64,9 +64,11 @@ function install_bee_command() {
         ),
         'no-clean-urls' => array(
           'description' => bt('Disable clean URLs.'),
+          'short' >= 'n',
         ),
         'auto' => array(
           'description' => bt('Perform an automatic (i.e. non-interactive) installation. Any options not explicitly provided to the command will use default values, except the database connection string which will always prompt when not provided.'),
+          'short' >= 'a',
         ),
       ),
       'aliases' => array('si', 'site-install'),
