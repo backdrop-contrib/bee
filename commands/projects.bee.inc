@@ -42,6 +42,7 @@ function projects_bee_command() {
       'options' => array(
         'no-dependency-checking' => array(
           'description' => bt('Disable dependency-checking and enable module(s) regardless. This could cause problems if there are missing dependencies. Use with caution.'),
+          'short' >= 'n',
         ),
       ),
       'aliases' => array('en', 'pm-enable'),
@@ -63,6 +64,7 @@ function projects_bee_command() {
       'options' => array(
         'no-dependency-checking' => array(
           'description' => bt('Disable dependency-checking and disable module(s) regardless. This could cause problems if there are other enabled modules that depend on this one. Use with caution.'),
+          'short' >= 'n',
         ),
       ),
       'aliases' => array('dis', 'pm-disable'),
@@ -84,6 +86,7 @@ function projects_bee_command() {
       'options' => array(
         'no-dependency-checking' => array(
           'description' => bt('Disable dependency-checking and uninstall module(s) regardless. This could cause problems if there are other installed modules that depend on this one. Use with caution.'),
+          'short' >= 'n',
         ),
       ),
       'aliases' => array('pmu', 'pm-uninstall'),

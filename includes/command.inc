@@ -282,8 +282,15 @@ function bee_validate_command(array $descriptor) {
   if (isset($descriptor['options'])) {
     // Remove any provided options that aren't used by the command.
     foreach ($_bee_options as $name => $value) {
+      // Check for long form command options.
       if (!isset($descriptor['options'][$name])) {
-        unset($_bee_options[$name]);
+        // Check for short form command options.
+        foreach ($descriptor['options'] as $command_option) {
+          if (!isset($command_option['short']) || $command_option['short'] != $name) {
+            // Remove any that don't match either long or short form options.
+            unset($_bee_options[$name]);
+          }
+        }
       }
     }
   }
