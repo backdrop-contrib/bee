@@ -28,7 +28,7 @@ function update_bee_command() {
       'multiple_argument' => 'project',
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
-        'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),        
+        'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
       ),
     ),
   );
@@ -157,7 +157,6 @@ function update_bee_callback() {
         array('value' => bt('Latest')),
       ),
     ));
-    
     // Prompt to continue.
     if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
       return;
