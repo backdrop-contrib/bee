@@ -105,8 +105,8 @@ options in a given file.
 - `projects` - One or more contrib projects to download.
 
 *Options:*
-- `--hide-progress` - Hide the download progress bar.
-- `--allow-multisite-copy` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
+- `--hide-progress`, `-h` - Hide the download progress bar.
+- `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
 
 *Examples:*
 - `bee download webform` - Download the Webform module.
@@ -121,7 +121,7 @@ options in a given file.
 - `projects` - One or more (space separated) projects to enable.
 
 *Options:*
-- `--no-dependency-checking` - Disable dependency-checking and enable module(s) regardless. This could cause problems if there are missing dependencies. Use with caution.
+- `--no-dependency-checking`, `-n` - Disable dependency-checking and enable module(s) regardless. This could cause problems if there are missing dependencies. Use with caution.
 
 *Examples:*  
 - `bee enable webform` - Enable the Webform module.
@@ -135,7 +135,7 @@ options in a given file.
 - `projects` - One or more (space separated) projects to disable.
 
 *Options:*
-- `--no-dependency-checking` - Disable dependency-checking and disable module(s) regardless. This could cause problems if there are other enabled modules that depend on this one. Use with caution.
+- `--no-dependency-checking`, `-n` - Disable dependency-checking and disable module(s) regardless. This could cause problems if there are other enabled modules that depend on this one. Use with caution.
 
 *Examples:*  
 - `bee disable webform` - Disable the Webform module.
@@ -149,7 +149,7 @@ options in a given file.
 - `modules` - One or more (space separated) modules to uninstall.
 
 *Options:*
-- `--no-dependency-checking` - Disable dependency-checking and uninstall module(s) regardless. This could cause problems if there are other installed modules that depend on this one. Use with caution.
+- `--no-dependency-checking`, `-n` - Disable dependency-checking and uninstall module(s) regardless. This could cause problems if there are other installed modules that depend on this one. Use with caution.
 
 *Examples:*
 - `bee uninstall webform` - Uninstall the Webform module.
@@ -186,7 +186,7 @@ options in a given file.
 *Description:* Provides an overview of the current Backdrop installation/site.   
 *Aliases:*  `st` , `info` , `core-status`  
 *Options:*                                             
-`--show-password` - Show the database password.
+`--show-password`, `-p` - Show the database password.
 
 *Examples:*
 - `bee status` -    Get an overview of the Backdrop installation.
@@ -224,7 +224,7 @@ options in a given file.
 *Arguments:*
 - `directory` - (optional) The directory to download and extract Backdrop into. Leave blank to use the current directory.
 *Options:*
-- `--hide-progress` - Hide the download progress bar.
+- `--hide-progress`, `-h` - Hide the download progress bar.
 
 *Examples:*
 - `bee download-core ../backdrop` - Download Backdrop into a 'backdrop' directory in the parent folder.
@@ -246,8 +246,8 @@ options in a given file.
 - `--profile=PROFILE` - The machine-name of the installation profile to use. Defaults to 'standard'.
 - `--langcode=LANGUAGE` - The short code of the default site language. Language files must already be present. Defaults to 'en'.
 - `--db-prefix=PREFIX` - The table prefix to use for this site in the database. Defaults to no prefix.
-- `--no-clean-urls` - Disable clean URLs.
-- `--auto` - Perform an automatic (i.e. non-interactive) installation. Any options not explicitly provided to the command will use default values, except the database connection string which will always prompt when not provided.
+- `--no-clean-urls`, `-n` - Disable clean URLs.
+- `--auto`, `-a` - Perform an automatic (i.e. non-interactive) installation. Any options not explicitly provided to the command will use default values, except the database connection string which will always prompt when not provided.
 
 *Examples:*
 - `bee install` - Install Backdrop in interactive mode, providing information when prompted.
