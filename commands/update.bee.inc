@@ -169,10 +169,6 @@ function update_bee_callback() {
     bee_message(bt('No Modules or Themes to Update'));
   }
 }
-else {
-  bee_message(bt('No Modules or Themes to Update'));
-  }
-}
 
 /*
  * Delete a folder recursively
