@@ -73,7 +73,7 @@ function download_bee_callback($arguments, $options) {
     // Look in folders for core modules, themes and layouts.
     $project_types = array('module', 'theme', 'layout');
     foreach ($project_types as $project_type) {
-      $core_project_path = "${_bee_backdrop_root}/core/${project_type}s";
+      $core_project_path = "{$_bee_backdrop_root}/core/{$project_type}s";
       $core_projects_raw = array();
       $core_projects_raw = glob($core_project_path . "/*", GLOB_ONLYDIR);
       // Extract the project name and add it to a single list.
@@ -446,13 +446,13 @@ function download_bee_find_all_projects($type) {
     // Set the path depending on location.
     switch ($location) {
       case 'core':
-        $path = "${_bee_backdrop_root}/core/${type}s";
+        $path = "{$_bee_backdrop_root}/core/{$type}s";
         break;
       case 'contrib':
-        $path = "${_bee_backdrop_root}/${type}s";
+        $path = "{$_bee_backdrop_root}/{$type}s";
         break;
       case 'site_contrib':
-        $path = "${_bee_backdrop_root}/sites/${_bee_backdrop_site}/${type}s";
+        $path = "{$_bee_backdrop_root}/sites/{$_bee_backdrop_site}/{$type}s";
         break;
       default:
         $path = $location;
