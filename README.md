@@ -55,14 +55,18 @@ https://github.com/backdrop-contrib/bee/issues.
 
 ## Current Maintainers
 
-- [Peter Anderson](https://github.com/BWPanda)
 - [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons](https://www.systemhorizons.co.uk)
+- Collaboration and co-maintainers welcome!
 
 ## Credits
 
 - Originally written for Backdrop CMS by
   [Geoff St. Pierre](https://github.com/serundeputy)  
   (originally called 'Backdrop Console (a.k.a. `b`)').
+- Grateful thanks goes to previous maintainers and collaborators who have
+helped bring Bee to where it is today. See the 
+[list of contributors](https://github.com/backdrop-contrib/bee/graphs/contributors)
+for details.
 - Inspired by [Drush](https://github.com/drush-ops/drush).
 - [Bee icon](https://thenounproject.com/aomam/collection/bee-emoticons-line/?i=2257433)
   by AomAm from [the Noun Project](http://thenounproject.com).
