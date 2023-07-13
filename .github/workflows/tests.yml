@@ -20,8 +20,6 @@ jobs:
           sudo dpkg -i --ignore-depends=docker-ce lando.deb
           cd $GITHUB_WORKSPACE
           lando start
-          lando info
-          sudo netstat -ln
 
       # Runs PHPUnit tests.
       - name: PHPUnit
