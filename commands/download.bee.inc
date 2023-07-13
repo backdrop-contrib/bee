@@ -19,7 +19,7 @@ function download_bee_command() {
       'multiple_argument' => 'projects',
       'options' => array(
         'hide-progress' => array(
-          'description' => bt('Hide the download progress bar.'),
+          'description' => bt('Deprecated, will get removed in a future version.'),
           'short' => 'h',
         ),
         'allow-multisite-copy' => array(
@@ -31,7 +31,6 @@ function download_bee_command() {
       'examples' => array(
         'bee download webform' => bt('Download the Webform module.'),
         'bee download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
-        'bee download devel --hide-progress' => bt("Download the Devel module, and don't show the download progress bar."),
         'bee --site=site_name download simplify --allow-multisite-copy' => bt('Download an additional copy of the Simplify module into the site_name multisite module folder.'),
       ),
     ),
@@ -45,14 +44,13 @@ function download_bee_command() {
       'optional_arguments' => array('directory'),
       'options' => array(
         'hide-progress' => array(
-          'description' => bt('Hide the download progress bar.'),
+          'description' => bt('Deprecated, will get removed in a future version.'),
           'short' => 'h',
         ),
       ),
       'aliases' => array('dl-core'),
       'examples' => array(
         'bee download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
-        'bee download-core --hide-progress' => bt("Download Backdrop into the current directory, and don't show the download progress bar."),
       ),
     ),
   );
@@ -64,7 +62,6 @@ function download_bee_command() {
 function download_bee_callback($arguments, $options) {
   global $_bee_backdrop_root, $_bee_backdrop_site;
 
-  $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
   $allow_multisite_copy = (!empty($options['allow-multisite-copy'])) ? TRUE : FALSE;
 
   // Get list of all core projects so we don't try to download core dependencies
@@ -216,7 +213,7 @@ function download_bee_callback($arguments, $options) {
       }
 
       // Download the project.
-      if (download_bee_download_project($project, $info, $destination, $progress)) {
+      if (download_bee_download_project($project, $info, $destination)) {
         bee_message(bt("'!project' was downloaded into '!directory'.", array(
           '!project' => $project,
           '!directory' => $destination,
@@ -232,7 +229,6 @@ function download_bee_callback($arguments, $options) {
  */
 function download_core_bee_callback($arguments, $options) {
   $info = download_bee_git_info('backdrop');
-  $progress = (!empty($options['hide-progress'])) ? FALSE : TRUE;
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
@@ -253,7 +249,7 @@ function download_core_bee_callback($arguments, $options) {
   }
 
   // Download Backdrop.
-  if (download_bee_download_project('backdrop', $info, $destination, $progress)) {
+  if (download_bee_download_project('backdrop', $info, $destination)) {
     bee_message(bt("Backdrop was downloaded into '!directory'.", array(
       '!directory' => $destination,
     )), 'success');
@@ -298,9 +294,20 @@ function download_bee_git_info($project) {
     )));
 
     if ($answer) {
+      $repo_info = FALSE;
+      if ($curl_handle = curl_init("$api_url/$organisation/$project")) {
+        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');// github nag @todo constant
+        curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+        $repo_info = curl_exec($curl_handle);
+        curl_close($curl_handle);
+        $repo_info = json_decode($repo_info, TRUE);
+      }
+      if (!is_array($repo_info)) {
+        bee_message(bt('Unable to fetch repo information.'), 'error');
+        return;
+      }
       // Get the download URL of the dev version.
-      $repo_info = shell_exec("curl -sS $api_url/$organisation/$project");
-      $repo_info = json_decode($repo_info, TRUE);
       $branch = $repo_info['default_branch'];
       $url = "https://github.com/$organisation/$project/archive/$branch.zip";
       $headers = get_headers($url);
@@ -320,11 +327,28 @@ function download_bee_git_info($project) {
 
   // Get the 'type' and any dependencies of project.
   if ($project != 'backdrop') {
-    $files = shell_exec("curl -sS $api_url/$organisation/$project/contents");
-    $files = json_decode($files, TRUE);
+    $files = FALSE;
+    if ($curl_handle = curl_init("$api_url/$organisation/$project/contents")) {
+      curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+      curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+      curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+      $files = curl_exec($curl_handle);
+      curl_close($curl_handle);
+      $files = json_decode($files, TRUE);
+    }
+    if (!is_array($files)) {
+      bee_message(bt('Unable to fetch file information.'), 'error');
+      return;
+    }
     foreach ($files as $file) {
       if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
-        $info_file = shell_exec("curl -sSH 'Accept: application/vnd.github.v3.raw' $api_url/$organisation/$project/contents/" . $file['name']);
+        $curl_handle = curl_init("$api_url/$organisation/$project/contents/" . $file['name']);
+        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+        curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Accept: application/vnd.github.v3.raw'));
+        $info_file = curl_exec($curl_handle);
+        curl_close($curl_handle);
         $lines = explode("\n", $info_file);
         // Declare dependencies as array.
         $info['dependencies'] = array();
@@ -363,14 +387,11 @@ function download_bee_git_info($project) {
  *     contrib projects.
  * @param string $destination
  *   The path to the destination directory.
- * @param boolean $progress
- *   Whether or not the download progress bar should be displayed. Defaults to
- *   TRUE.
  *
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
-function download_bee_download_project($project, array $info, $destination, $progress = TRUE) {
+function download_bee_download_project($project, array $info, $destination) {
   // Get a temp directory.
   if (!$temp = bee_get_temp($project)) {
     bee_message(bt('Failed to get temp directory.'), 'error');
@@ -388,33 +409,28 @@ function download_bee_download_project($project, array $info, $destination, $pro
   // Download & extract the project.
   $file = "$temp/$project.zip";
   $directory = !empty($info['branch']) ? $project . '-' . $info['branch'] : $project;
-  $wget = "wget";
-  if ($progress) {
-    // Check the wget version so the right "show progress" argument can be used.
-    $wget_version_text = shell_exec("wget --version");
-    $wget_version_number = substr((string) $wget_version_text, 9, 4);
-    if (version_compare((string) $wget_version_number, "1.16", ">=")) {
-      $wget_older = FALSE;
-      $wget_progress_argument = " --show-progress -qO";
-    }
-    else {
-      // Versions < 1.16 - different argument and no "quiet" argument is used.
-      $wget_older = TRUE;
-      $wget_progress_argument = " --progress=bar -O";
-    }
-    $wget .= $wget_progress_argument;
+
+  $file_handle = fopen($file, 'w');
+  $curl_handle = curl_init($url);
+  curl_setopt($curl_handle, CURLOPT_FILE, $file_handle);
+  curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+  curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
+  curl_exec($curl_handle);
+  curl_close($curl_handle);
+  fclose($file_handle);
+
+  $zip = new ZipArchive;
+  if ($zip->open($file)) {
+    $zip->extractTo($temp);
+    $zip->close();
   }
   else {
-    $wget .= " -qO";
+    bee_message(bt('Unable to open zip file.'), 'error');
+    return FALSE;
   }
-  $wget .= " $file $url";
-  exec($wget);
-  exec("unzip $file -d $temp");
   bee_copy("$temp/$directory", $destination, FALSE);
   bee_delete($temp);
-  ($wget_older && $progress) ? bee_message(bt("The wget tool used by bee for downloading is version !version and does not support showing only the progress bar. Upgrade wget to version 1.16 or later; or use the '--hide-progress' argument if you wish to hide altogether.", array(
-    '!version' => $wget_version_number,
-  )), 'status') : '';
+
   return TRUE;
 }
 
