@@ -5,8 +5,6 @@
 
 ### Clean-up tasks that get the system back to a clean slate.
 clean_up() {
-  lando info
-  netstat -ln
   cd /app
 
   # Remove Backdrop installations.
