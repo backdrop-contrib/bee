@@ -105,13 +105,12 @@ options in a given file.
 - `projects` - One or more contrib projects to download.
 
 *Options:*
-- `--hide-progress`, `-h` - Hide the download progress bar.
+- `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
 - `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
 
 *Examples:*
 - `bee download webform` - Download the Webform module.
 - `bee download simplify thesis bamboo` - Download the Simplify module, Thesis theme, and Bamboo layout.
-- `bee download devel --hide-progress` - Download the Devel module, and don't show the download progress bar. 
 - `bee --site=site_name download simplify --allow-multisite-copy` - Download an additional copy of the Simplify module into the site_name multisite module folder.
 
 #### `enable`
@@ -224,11 +223,11 @@ options in a given file.
 *Arguments:*
 - `directory` - (optional) The directory to download and extract Backdrop into. Leave blank to use the current directory.
 *Options:*
-- `--hide-progress`, `-h` - Hide the download progress bar.
+- `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
 
 *Examples:*
 - `bee download-core ../backdrop` - Download Backdrop into a 'backdrop' directory in the parent folder.
-- `bee download-core --hide-progress` - Download Backdrop into the current directory, and don't show the download progress bar.                       
+                    
 
 #### `install`
 *Description:* Install Backdrop and setup a new site.  
