@@ -5,6 +5,11 @@
  */
 
 /**
+ * The useragent string used for HTTP requests via cURL.
+ */
+define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
+
+/**
  * Implements hook_bee_command().
  */
 function download_bee_command() {
@@ -296,7 +301,7 @@ function download_bee_git_info($project) {
     if ($answer) {
       $repo_info = FALSE;
       if ($curl_handle = curl_init("$api_url/$organisation/$project")) {
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');// github nag @todo constant
+        curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         $repo_info = curl_exec($curl_handle);
@@ -329,7 +334,7 @@ function download_bee_git_info($project) {
   if ($project != 'backdrop') {
     $files = FALSE;
     if ($curl_handle = curl_init("$api_url/$organisation/$project/contents")) {
-      curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+      curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
       curl_setopt($curl_handle, CURLOPT_HEADER, 0);
       curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
       $files = curl_exec($curl_handle);
@@ -343,7 +348,7 @@ function download_bee_git_info($project) {
     foreach ($files as $file) {
       if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
         $curl_handle = curl_init("$api_url/$organisation/$project/contents/" . $file['name']);
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+        curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Accept: application/vnd.github.v3.raw'));
@@ -413,7 +418,7 @@ function download_bee_download_project($project, array $info, $destination) {
   $file_handle = fopen($file, 'w');
   $curl_handle = curl_init($url);
   curl_setopt($curl_handle, CURLOPT_FILE, $file_handle);
-  curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Bee');
+  curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
   curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
   curl_exec($curl_handle);
   curl_close($curl_handle);
