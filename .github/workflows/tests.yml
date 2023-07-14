@@ -15,7 +15,6 @@ jobs:
       # Installs and starts Lando.
       - name: Lando
         run: |
-          sudo netstat -nl
           # For downloading latest DEB file, see: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
           curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
           sudo dpkg -i --ignore-depends=docker-ce lando.deb
