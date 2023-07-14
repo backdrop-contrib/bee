@@ -16,9 +16,9 @@ jobs:
       - name: Lando
         run: |
           # For downloading latest DEB file, see: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
-          # curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
+          curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
           # curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.11.0/lando-x64-v3.11.0.deb
-          curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.14.0/lando-x64-v3.14.0.deb
+          # curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.14.0/lando-x64-v3.14.0.deb
           # curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.15.0/lando-x64-v3.15.0.deb
           # curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.16.0/lando-x64-v3.16.0.deb
           # curl -Lo lando.deb https://github.com/lando/lando/releases/download/v3.17.0/lando-x64-v3.17.0.deb
