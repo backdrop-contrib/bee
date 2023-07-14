@@ -40,7 +40,7 @@ set_up() {
   mkdir sites/multi_one && cp settings.php sites/multi_one/settings.php
   mkdir sites/multi_two && cp settings.php sites/multi_two/settings.php
   mkdir sites/install_test && cp settings.php sites/install_test/settings.php
-
+  sleep 10
   # Install sites.
   cd ../backdrop
   ./core/scripts/install.sh --account-pass=password --db-url=mysql://backdrop:backdrop@database/backdrop
