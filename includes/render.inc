@@ -297,7 +297,10 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   $table_width += mb_strlen((string) $delimiter_right);
   $table_width += (count($widths) - 1) * mb_strlen((string) $delimiter);
 
-  // Adjust the width of the widest column to fit in the terminal.
+  // Adjust the width of the widest column to fit in the terminal. If a command
+  // outputting a table is run in a non-interactive shell (e.g. as part of an
+  // SSH command) then 'tput cols' on its own will create an error. This
+  // provides an alternative if 'tput cols' create an error.
   $terminal_width = exec('if tput cols &>/dev/null; then  echo $(tput cols); else $(echo $COLUMNS); fi');
   if ($terminal_width && $table_width > $terminal_width) {
     $diff = $table_width - $terminal_width;
