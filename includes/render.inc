@@ -298,7 +298,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   $table_width += (count($widths) - 1) * mb_strlen((string) $delimiter);
 
   // Adjust the width of the widest column to fit in the terminal.
-  $terminal_width = exec('tput cols');
+  $terminal_width = exec('if tput cols &>/dev/null; then  echo $(tput cols); else $(echo $COLUMNS); fi');
   if ($terminal_width && $table_width > $terminal_width) {
     $diff = $table_width - $terminal_width;
     $widths[$widest_column] -= $diff;
