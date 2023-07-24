@@ -202,14 +202,13 @@ function user_bee_create_callback($arguments, $options) {
     bee_message(bt("Mail argument missing!", array()), 'error');
     return;
   }
-  $check=db_select('users','u')
-    ->fields('u',array('uid'))
-    ->condition('mail',$arguments['mail'],'=')
+  $check = db_select('users', 'u')
+    ->fields('u', array('uid'))
+    ->condition('mail', $arguments['mail'], '=')
     ->execute()
     ->fetchField();
 
-  if($check!='')
-  {
+  if($check != '') {
     bee_message(bt("A user account with mail '!mail' allready exits.", array(
       '!mail' => $arguments['mail'],
     )), 'error');
@@ -223,16 +222,16 @@ function user_bee_create_callback($arguments, $options) {
     'status' => 1,
     'access' => '0',
   );
-    if ($account = entity_create('user', $new_user)) {
-      $account->save();
-      bee_message(bt("User '!user' has been created, with password !pass", array(
-      '!user' => $arguments['username'], '!pass' => $password,
-      )), 'success');
-    }else {
-    	bee_message(bt("Could not create a new user account with the name, !user", array(
-        '!user' => $name,
-        )), 'error');
-    }
+  if ($account = entity_create('user', $new_user)) {
+    $account->save();
+    bee_message(bt("User '!user' has been created, with password !pass", array(
+     '!user' => $arguments['username'], '!pass' => $password,
+    )), 'success');
+  }else {
+    bee_message(bt("Could not create a new user account with the name, !user", array(
+      '!user' => $name,
+    )), 'error');
+  }
 }
 
 /**
@@ -249,11 +248,11 @@ function user_cancel_bee_callback($arguments, $options) {
   }
 
   user_cancel(array(
-  'user_cancel_notify' => TRUE,
-  'user_cancel_method' => 'user_cancel_delete',
+   'user_cancel_notify' => TRUE,
+   'user_cancel_method' => 'user_cancel_delete',
   ), $user->uid, 'user_cancel_delete');
 
-// Invoke the Batch API, disable drupal_goto(), and execute.
+// Invoke the Batch API, disable backdrop_goto(), and execute.
   $batch = &batch_get();
   $batch['progressive'] = FALSE;
   batch_process();
@@ -316,24 +315,24 @@ function user_add_role_bee_callback($arguments, $options) {
     )), 'error');
     return;
   }
-  $role =new stdClass();
+  $role = new stdClass();
   $role->name = $arguments['role'];
   $role->label = $arguments['role'];
   $roles = user_roles(TRUE);
   if(user_role_save($role)) {
     if(!user_has_role($arguments['role'])){
-         if (!in_array($arguments['role'], $user->roles)) {
-    	   $user->roles[] = $arguments['role'];
-           user_save($user);
-           bee_message(bt("The role !role has been assigned to user '!user'.", array(
-           '!user' => $user->name, '!role' => $arguments['role']
-           )), 'success');
+      if (!in_array($arguments['role'], $user->roles)) {
+        $user->roles[] = $arguments['role'];
+        user_save($user);
+        bee_message(bt("The role !role has been assigned to user '!user'.", array(
+          '!user' => $user->name, '!role' => $arguments['role']
+        )), 'success');
           }else{
-           bee_message(bt("The role !role has allready been assigned to user '!user'.", array(
-           '!user' => $user->name, '!role' => $arguments['role']
-           )));
-          }
-       }
+            bee_message(bt("The role !role has allready been assigned to user '!user'.", array(
+              '!user' => $user->name, '!role' => $arguments['role']
+            )));
+      }
+    }
   }
 }
 /**
@@ -348,18 +347,18 @@ function user_remove_role_bee_callback($arguments, $options) {
     return;
   }
   if (in_array($arguments['role'], $user->roles)) {
-     if (($key = array_search($arguments['role'], $user->roles)) !== false) {
-        unset($user->roles[$key]);
-     }
-     user_save($user);
-       bee_message(bt("The role !role has been removed from  user '!user'.", array(
-       '!user' => $user->name, '!role' => $arguments['role']
-        )), 'success');
-     }else{
-           bee_message(bt("The role !role has allready been removed from  user '!user'.", array(
-           '!user' => $user->name, '!role' => $arguments['role']
-           )));
-     }
+    if (($key = array_search($arguments['role'], $user->roles)) !== false) {
+      unset($user->roles[$key]);
+    }
+    user_save($user);
+      bee_message(bt("The role !role has been removed from  user '!user'.", array(
+        '!user' => $user->name, '!role' => $arguments['role']
+      )), 'success');
+  }else{
+    bee_message(bt("The role !role has allready been removed from  user '!user'.", array(
+      '!user' => $user->name, '!role' => $arguments['role']
+     )));
+  }
 }
 
 /**
