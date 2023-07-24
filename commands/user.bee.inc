@@ -20,15 +20,15 @@ function user_bee_command() {
       ),
     ),
     'user-create' => array(
-    	'description' => 'Create a user account with the specified name.',
-    	'callback' => 'user_bee_create_callback',
-    	'group' => 'users',
-    	'aliases' => array('ucrt'),
-      	'bootstrap' => BEE_BOOTSTRAP_FULL,
-    	'arguments' => array(
-      		'username' => bt('The name of the account to add'),
-      		'mail' => bt('Mail address for this account to add'),
-        	'password' => bt('The password to use for the given user account. Leave blank to generate a random password.'),
+      'description' => 'Create a user account with the specified name.',
+      'callback' => 'user_bee_create_callback',
+      'group' => 'users',
+      'aliases' => array('ucrt'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'arguments' => array(
+        'username' => bt('The name of the account to add'),
+        'mail' => bt('Mail address for this account to add'),
+        'password' => bt('The password to use for the given user account. Leave blank to generate a random password.'),
     	),
       'optional_arguments' => array('password'),
       'examples' => array(
@@ -151,9 +151,9 @@ function users_bee_callback($arguments, $options) {
     if ($user->uid == 0) {
       continue;
     }
-    $roles='';
+    $roles = '';
     foreach($user->roles as $role){
-      $roles=$roles.$role.', ';
+      $roles = $roles.$role.', ';
     }
     // Add row.
     $rows[] = array(
@@ -187,6 +187,9 @@ function users_bee_callback($arguments, $options) {
   );
 }
 
+/**
+ * Command callback: Create a user.
+ */
 function user_bee_create_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if ($user) {
@@ -231,6 +234,10 @@ function user_bee_create_callback($arguments, $options) {
         )), 'error');
     }
 }
+
+/**
+ * Command callback: Delete/cancel a given user.
+ */
 function user_cancel_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
@@ -256,7 +263,9 @@ function user_cancel_bee_callback($arguments, $options) {
   )), 'success');
 }
 
-
+/**
+ * Command callback: Block a given user.
+ */
 function user_block_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
@@ -274,6 +283,10 @@ function user_block_bee_callback($arguments, $options) {
     '!user' => $user->name,
   )), 'success');
 }
+
+/**
+ * Command callback: Unblock a given user.
+ */
 function user_unblock_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
@@ -292,6 +305,9 @@ function user_unblock_bee_callback($arguments, $options) {
   )), 'success');
 }
 
+/**
+ * Command callback: Add a role to a given user.
+ */
 function user_add_role_bee_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
@@ -320,6 +336,9 @@ function user_add_role_bee_callback($arguments, $options) {
        }
   }
 }
+/**
+ * Command callback: Remove a role from a given user.
+ */
 function user_remove_role_bee_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
