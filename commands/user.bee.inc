@@ -225,7 +225,7 @@ function user_bee_create_callback($arguments, $options) {
   if ($account = entity_create('user', $new_user)) {
     $account->save();
     bee_message(bt("User '!user' has been created, with password !pass", array(
-     '!user' => $arguments['username'], '!pass' => $password,
+      '!user' => $arguments['username'], '!pass' => $password,
     )), 'success');
   }else {
     bee_message(bt("Could not create a new user account with the name, !user", array(
@@ -248,11 +248,11 @@ function user_cancel_bee_callback($arguments, $options) {
   }
 
   user_cancel(array(
-   'user_cancel_notify' => TRUE,
-   'user_cancel_method' => 'user_cancel_delete',
+    'user_cancel_notify' => TRUE,
+    'user_cancel_method' => 'user_cancel_delete',
   ), $user->uid, 'user_cancel_delete');
 
-// Invoke the Batch API, disable backdrop_goto(), and execute.
+  // Invoke the Batch API, disable backdrop_goto(), and execute.
   $batch = &batch_get();
   $batch['progressive'] = FALSE;
   batch_process();
@@ -327,7 +327,7 @@ function user_add_role_bee_callback($arguments, $options) {
         bee_message(bt("The role !role has been assigned to user '!user'.", array(
           '!user' => $user->name, '!role' => $arguments['role']
         )), 'success');
-          }else{
+      }else{
             bee_message(bt("The role !role has allready been assigned to user '!user'.", array(
               '!user' => $user->name, '!role' => $arguments['role']
             )));
@@ -347,7 +347,7 @@ function user_remove_role_bee_callback($arguments, $options) {
     return;
   }
   if (in_array($arguments['role'], $user->roles)) {
-    if (($key = array_search($arguments['role'], $user->roles)) !== false) {
+    if (($key = array_search($arguments['role'], $user->roles)) !== FALSE) {
       unset($user->roles[$key]);
     }
     user_save($user);
