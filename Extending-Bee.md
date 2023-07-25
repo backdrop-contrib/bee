@@ -6,7 +6,8 @@ Source: https://github.com/backdrop-contrib/bee/blob/1.x-1.x/API.md
 --------------------
 This hook can be invoked to provide additional commands to Bee. It should reside
 in a `bee` command file (*HOOK.bee.inc*) which should be placed in a
-custom/contrib module, or in the `.bee` folder in the user's HOME directory.
+custom/contrib module, in the `.bee` folder in the user's HOME directory or in
+the `.bee` folder in the parent folder of the Backdrop root directory.
 
 Implementations of this hook should return an associative array of command
 descriptors, where the keys are unique command names and the values are
