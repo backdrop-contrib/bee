@@ -26,17 +26,17 @@ function user_bee_command() {
       'aliases' => array('ucrt'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'arguments' => array(
-        'username' => bt('The name of the account to add'),
+        'username' => bt('The username of the account being created.'),
     	),
       'options' => array(
         'mail' => array(
-          'description' => bt("The email address for the new account, must be unique and valid in this installation"),
-          'value' => bt('Mailaddress'),
+          'description' => bt("The email address for the new account; it must be unique and valid in this installation."),
+          'value' => bt('Email'),
         ),
-         'password' => array(
-           'description' => bt("The password for the new account"),
+        'password' => array(
+           'description' => bt("The password for the new account."),
            'value' => bt('Password'),
-        ),
+         ),
       ),
       'examples' => array(
         'bee user-create joe joe@example.com ' => bt("Create the 'joe' user account. A random password will be generated."),
@@ -49,7 +49,7 @@ function user_bee_command() {
       'callback' => 'user_cancel_bee_callback',
       'group' => 'users',
       'arguments' => array(
-        'username' => bt('A user account to cancel/remove.'),
+        'username' => bt('The username of the account to cancel/remove.'),
       ),
       'aliases' => array('ucan'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -62,7 +62,7 @@ function user_bee_command() {
       'callback' => 'user_block_bee_callback',
       'group' => 'users',
       'arguments' => array(
-        'username' => bt('A user account to block.'),
+        'username' => bt('The username of the account to block.'),
       ),
       'aliases' => array('ublk'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -75,7 +75,7 @@ function user_bee_command() {
       'callback' => 'user_unblock_bee_callback',
       'group' => 'users',
       'arguments' => array(
-        'username' => bt('The username of the user account to unblock.'),
+        'username' => bt('The username of the account to unblock.'),
       ),
       'aliases' => array('uublk'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -89,12 +89,12 @@ function user_bee_command() {
       'group' => 'users',
       'arguments' => array(
         'role' => bt('Role to add'),
-        'username' => bt('Add role to user.'),
+        'username' => bt('The username of the account to add role to.'),
       ),
       'aliases' => array('urole','urol'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee user-add-role editor joe' => bt("Add role 'editor' to account joe."),
+        'bee user-add-role editor joe' => bt("Add role 'editor' to account 'joe'."),
       ),
     ),
     'user-remove-role' => array(
@@ -103,7 +103,7 @@ function user_bee_command() {
       'group' => 'users',
       'arguments' => array(
         'role' => bt('Role to remove'),
-        'username' => bt('The user to remove the role '),
+        'username' => bt('The username of the account to remove the role from.'),
       ),
       'aliases' => array('urrole','urrol'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -159,7 +159,7 @@ function users_bee_callback($arguments, $options) {
     if ($user->uid == 0) {
       continue;
     }
-    //Add roles
+    // Add roles.
     if (($key = array_search('authenticated', $user->roles)) !== FALSE) {
       unset($user->roles[$key]);
     }
@@ -202,21 +202,21 @@ function users_bee_callback($arguments, $options) {
 function user_create_bee_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if ($user) {
-    bee_message(bt("User account '!user' allready exists.", array(
+    bee_message(bt("User account '!user' already exists.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
   }
   if (!isset($options['mail'])) {
-    bee_message(bt("Mail option missing!", array()), 'error');
+    bee_message(bt("Mail option missing."), 'error');
     return;
   }
   if (!valid_email_address($options['mail'])) {
-    bee_message(bt("Mail address !mail is not valid!", array('!mail' => $options['mail'])), 'error');
+    bee_message(bt("Email address '!mail' is not valid.", array('!mail' => $options['mail'])), 'error');
     return;
   }
   if (user_load_by_mail($options['mail'])->mail == $options['mail']) {
-    bee_message(bt("A user account with mail '!mail' allready exists.", array(
+    bee_message(bt("A user account with mail '!mail' already exists.", array(
       '!mail' => $options['mail'],
     )), 'error');
     return;
@@ -351,7 +351,7 @@ function user_add_role_bee_callback($arguments, $options) {
         )), 'success');
       }
       else{
-            bee_message(bt("The role !role has allready been assigned to user '!user'.", array(
+            bee_message(bt("The role !role has already been assigned to user '!user'.", array(
               '!user' => $user->name,
               '!role' => $arguments['role']
             )));
@@ -382,13 +382,13 @@ function user_remove_role_bee_callback($arguments, $options) {
       unset($user->roles[$key]);
     }
     user_save($user);
-      bee_message(bt("The role !role has been removed from  user '!user'.", array(
+      bee_message(bt("The '!role' role has been removed from user '!user'.", array(
         '!user' => $user->name,
         '!role' => $arguments['role']
       )), 'success');
   }
   else{
-    bee_message(bt("The role !role has allready been removed from  user '!user'.", array(
+    bee_message(bt("The role !role has already been removed from  user '!user'.", array(
       '!user' => $user->name, '!role' => $arguments['role']
      )));
   }
