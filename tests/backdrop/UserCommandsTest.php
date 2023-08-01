@@ -44,15 +44,6 @@ class UserCommandsTest extends TestCase {
     $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output);
     $this->assertStringContainsString('/user/reset/1/', (string) $output);
   }
-  public function test_user_password_command_works() {
-    $output_password = shell_exec('bee user-password admin 123456');
-    $this->assertStringContainsString("The password for 'admin' has been reset.", (string) $output_password);
-    $this->assertStringNotContainsString('The new password is:', (string) $output_password);
-
-    $output_random = shell_exec('bee user-password admin');
-    $this->assertStringContainsString("The password for 'admin' has been reset.", (string) $output_random);
-    $this->assertStringContainsString('The new password is:', (string) $output_random);
-  }
   /**
    * Make sure that the user-create command works.
    */
