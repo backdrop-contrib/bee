@@ -39,9 +39,9 @@ function user_bee_command() {
          ),
       ),
       'examples' => array(
-        'bee user-create joe joe@example.com ' => bt("Create the 'joe' user account. A random password will be generated."),
-        'bee user-create joe joe@example.com P@55w0rd' => bt("Create the 'joe' user account with a defined password."),
-        'bee user-create joe joe@example.com "Correct Horse Battery Staple"' => bt("Create the 'joe' user account with a pass phrase that has spaces."),
+        'bee user-create joe --mail=joe@example.com ' => bt("Create the 'joe' user account. A random password will be generated."),
+        'bee user-create joe --mail=joe@example.com --password=P@55w0rd' => bt("Create the 'joe' user account with a defined password."),
+        'bee user-create joe --mail=joe@example.com --password="Correct Horse Battery Staple"' => bt("Create the 'joe' user account with a pass phrase that has spaces."),
       ),
     ),
     'user-cancel' => array(
@@ -249,7 +249,7 @@ function user_cancel_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
@@ -283,7 +283,7 @@ function user_block_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
@@ -304,7 +304,7 @@ function user_unblock_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
@@ -324,38 +324,39 @@ function user_unblock_bee_callback($arguments, $options) {
 function user_add_role_bee_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
   }
   $roles = user_roles(TRUE);
   if (empty($roles[$arguments['role']])) {
-    $answer = bee_confirm(bt("The role !role doesn't exists, would you like to create it?", array(
-      '!role' => $arguments['role'],
-      )), FALSE);
-    if (!$answer) {
+    if ($roles['authenticated']) {
+      unset($roles['authenticated']);
+    }
+    $rolestxt = implode(",", $roles);
+      bee_message(bt("The role '!role' could not be found. Valid roles available: !roles", array(
+        '!role' => $arguments['role'],
+        '!roles' => $rolestxt,
+      )), 'error');
       return;
-    } 
   }
   $role = new stdClass();
   $role->name = $arguments['role'];
   $role->label = $arguments['role'];
-  if (user_role_save($role)) {
-    if (!user_has_role($arguments['role'])) {
-      if (!in_array($arguments['role'], $user->roles)) {
-        $user->roles[] = $arguments['role'];
-        user_save($user);
-        bee_message(bt("The role !role has been assigned to user '!user'.", array(
-          '!user' => $user->name, '!role' => $arguments['role']
-        )), 'success');
-      }
-      else{
-            bee_message(bt("The role !role has already been assigned to user '!user'.", array(
-              '!user' => $user->name,
-              '!role' => $arguments['role']
-            )));
-      }
+  if (!user_has_role($arguments['role'])) {
+    if (!in_array($arguments['role'], $user->roles)) {
+      $user->roles[] = $arguments['role'];
+      user_save($user);
+      bee_message(bt("The role !role has been assigned to user '!user'.", array(
+        '!user' => $user->name, '!role' => $arguments['role']
+      )), 'success');
+    }
+    else{
+          bee_message(bt("The role !role has already been assigned to user '!user'.", array(
+            '!user' => $user->name,
+            '!role' => $arguments['role']
+          )));
     }
   }
 }
@@ -365,7 +366,7 @@ function user_add_role_bee_callback($arguments, $options) {
 function user_remove_role_bee_callback($arguments, $options) {
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
@@ -401,7 +402,7 @@ function user_password_bee_callback($arguments, $options) {
   // Load the user account.
   $user = user_load_by_name($arguments['username']);
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
@@ -447,7 +448,7 @@ function user_login_bee_callback($arguments, $options) {
     $user = user_load(1);
   }
   if (!$user) {
-    bee_message(bt("User account '!user' cound not be found.", array(
+    bee_message(bt("User account '!user' could not be found.", array(
       '!user' => $arguments['username'],
     )), 'error');
     return;
