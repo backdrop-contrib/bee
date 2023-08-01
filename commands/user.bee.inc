@@ -34,9 +34,9 @@ function user_bee_command() {
           'value' => bt('Email'),
         ),
         'password' => array(
-           'description' => bt("The password for the new account."),
-           'value' => bt('Password'),
-         ),
+          'description' => bt("The password for the new account."),
+          'value' => bt('Password'),
+        ),
       ),
       'examples' => array(
         'bee user-create joe --mail=joe@example.com ' => bt("Create the 'joe' user account. A random password will be generated."),
@@ -256,10 +256,10 @@ function user_cancel_bee_callback($arguments, $options) {
   }
   $answer = bee_confirm(bt("Are you sure to delete the user !user?", array(
     '!user' => $arguments['username'],
-    )), FALSE);
+  )), FALSE);
   if (!$answer) {
     return;
-  } 
+  }
 
   user_cancel(array(
     'user_cancel_notify' => TRUE,
