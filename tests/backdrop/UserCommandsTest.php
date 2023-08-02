@@ -48,46 +48,46 @@ class UserCommandsTest extends TestCase {
    * Make sure that the user-create command works.
    */
   public function test_user_create_command_works() {
-    $output_user = shell_exec('bee user-create joe --mail=joe@example.com --password=P@55w0rd');
-    $this->assertStringContainsString("User 'joe' has been created, with password P@55w0rd", (string) $output_user);
+    $output_user = shell_exec('bee user-create haedoke --mail=haedoke@example.com --password=P@55w0rd');
+    $this->assertStringContainsString("User 'haedoke' has been created, with password P@55w0rd", (string) $output_user);
 
-    $output_random = shell_exec('bee user-create joe --mail=joe@example.com');
-    $this->assertStringContainsString("User 'joe' has been created, with password", (string) $output_random);
+    $output_random = shell_exec('bee user-create haedoke --mail=haedoke@example.com');
+    $this->assertStringContainsString("User 'haedoke' has been created, with password", (string) $output_random);
   }
   /**
    * Make sure that the user-cancel command works.
    */
   public function test_user_cancel_command_works() {
-    $output_user = shell_exec('bee user-cancel -y joe');
-    $this->assertStringContainsString("User account 'joe' has been removed.", (string) $output_user);
+    $output_user = shell_exec('bee user-cancel -y haedoke');
+    $this->assertStringContainsString("User account 'haedoke' has been removed.", (string) $output_user);
   }
   /**
    * Make sure that the user-block command works.
    */
   public function test_user_block_command_works() {
-    $output_user = shell_exec('bee user-block joe');
-    $this->assertStringContainsString("User 'joe' has been blocked.", (string) $output_user);
+    $output_user = shell_exec('bee user-block haedoke');
+    $this->assertStringContainsString("User 'haedoke' has been blocked.", (string) $output_user);
   }
   /**
    * Make sure that the user-unblock command works.
    */
   public function test_user_unblock_command_works() {
-    $output_user = shell_exec('bee user-unblock joe');
-    $this->assertStringContainsString("User 'joe' has been unblocked.", (string) $output_user);
+    $output_user = shell_exec('bee user-unblock haedoke');
+    $this->assertStringContainsString("User 'haedoke' has been unblocked.", (string) $output_user);
   }
   /**
    * Make sure that the user-add-role command works.
    */
   public function test_user_add_role_command_works() {
-    $output_user = shell_exec('bee user-add-role editor joe');
-    $this->assertStringContainsString("The role editor has been assigned to user 'joe'.", (string) $output_user);
+    $output_user = shell_exec('bee user-add-role editor haedoke');
+    $this->assertStringContainsString("The role editor has been assigned to user 'haedoke'.", (string) $output_user);
   }
   /**
    * Make sure that the user-remove-role command works.
    */
   public function test_user_remove_role_command_works() {
-    $output_user = shell_exec('bee user-remove-role editor joe');
-    $this->assertStringContainsString("The 'editor' role has been removed from user 'joe'.", (string) $output_user);
+    $output_user = shell_exec('bee user-remove-role editor haedoke');
+    $this->assertStringContainsString("The 'editor' role has been removed from user 'haedoke'.", (string) $output_user);
   }
 
 }
