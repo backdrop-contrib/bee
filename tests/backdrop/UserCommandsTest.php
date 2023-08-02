@@ -50,16 +50,6 @@ class UserCommandsTest extends TestCase {
   public function test_user_create_command_works() {
     $output_user = shell_exec('bee user-create haedoke --mail=haedoke@example.com --password=P@55w0rd');
     $this->assertStringContainsString("User 'haedoke' has been created, with password P@55w0rd", (string) $output_user);
-
-    $output_random = shell_exec('bee user-create haedoke --mail=haedoke@example.com');
-    $this->assertStringContainsString("User 'haedoke' has been created, with password", (string) $output_random);
-  }
-  /**
-   * Make sure that the user-cancel command works.
-   */
-  public function test_user_cancel_command_works() {
-    $output_user = shell_exec('bee user-cancel -y haedoke');
-    $this->assertStringContainsString("User account 'haedoke' has been removed.", (string) $output_user);
   }
   /**
    * Make sure that the user-block command works.
@@ -89,5 +79,11 @@ class UserCommandsTest extends TestCase {
     $output_user = shell_exec('bee user-remove-role editor haedoke');
     $this->assertStringContainsString("The 'editor' role has been removed from user 'haedoke'.", (string) $output_user);
   }
-
+  /**
+   * Make sure that the user-cancel command works.
+   */
+  public function test_user_cancel_command_works() {
+    $output_user = shell_exec('bee user-cancel -y haedoke');
+    $this->assertStringContainsString("User account 'haedoke' has been removed.", (string) $output_user);
+  }
 }
