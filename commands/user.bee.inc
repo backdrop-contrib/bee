@@ -335,7 +335,7 @@ function user_add_role_bee_callback($arguments, $options) {
       unset($roles['authenticated']);
     }
     $rolestxt = implode(",", $roles);
-      bee_message(bt("The role '!role' could not be found. Valid roles available: !roles", array(
+      bee_message(bt("The '!role' role could not be found. Valid roles available: !roles", array(
         '!role' => $arguments['role'],
         '!roles' => $rolestxt,
       )), 'error');
@@ -348,14 +348,15 @@ function user_add_role_bee_callback($arguments, $options) {
     if (!in_array($arguments['role'], $user->roles)) {
       $user->roles[] = $arguments['role'];
       user_save($user);
-      bee_message(bt("The role !role has been assigned to user '!user'.", array(
-        '!user' => $user->name, '!role' => $arguments['role']
+      bee_message(bt("The '!role' role has been assigned to user '!user'.", array(
+        '!user' => $user->name,
+        '!role' => $arguments['role'],
       )), 'success');
     }
-    else{
-          bee_message(bt("The role !role has already been assigned to user '!user'.", array(
+    else {
+          bee_message(bt("The '!role' role has already been assigned to user '!user'.", array(
             '!user' => $user->name,
-            '!role' => $arguments['role']
+            '!role' => $arguments['role'],
           )));
     }
   }
@@ -373,8 +374,8 @@ function user_remove_role_bee_callback($arguments, $options) {
   }
   $roles = user_roles(TRUE);
   if (empty($roles[$arguments['role']])) {
-    bee_message(bt("The role !role doesn't exists!", array(
-      '!role' => $arguments['role']
+    bee_message(bt("The '!role' role doesn't exists!", array(
+      '!role' => $arguments['role'],
     )), 'error');
     return;
   }
@@ -385,12 +386,13 @@ function user_remove_role_bee_callback($arguments, $options) {
     user_save($user);
       bee_message(bt("The '!role' role has been removed from user '!user'.", array(
         '!user' => $user->name,
-        '!role' => $arguments['role']
+        '!role' => $arguments['role'],
       )), 'success');
   }
-  else{
-    bee_message(bt("The role !role has already been removed from  user '!user'.", array(
-      '!user' => $user->name, '!role' => $arguments['role']
+  else {
+    bee_message(bt("The '!role' role has already been removed from  user '!user'.", array(
+      '!user' => $user->name,
+      '!role' => $arguments['role'],
      )));
   }
 }

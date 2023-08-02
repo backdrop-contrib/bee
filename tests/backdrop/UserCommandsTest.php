@@ -44,6 +44,7 @@ class UserCommandsTest extends TestCase {
     $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output);
     $this->assertStringContainsString('/user/reset/1/', (string) $output);
   }
+
   /**
    * Make sure that the user-create command works.
    */
@@ -51,6 +52,7 @@ class UserCommandsTest extends TestCase {
     $output_user = shell_exec('bee user-create haedoke --mail=haedoke@example.com --password=P@55w0rd');
     $this->assertStringContainsString("User 'haedoke' has been created, with password P@55w0rd", (string) $output_user);
   }
+
   /**
    * Make sure that the user-block command works.
    */
@@ -58,6 +60,7 @@ class UserCommandsTest extends TestCase {
     $output_user = shell_exec('bee user-block haedoke');
     $this->assertStringContainsString("User 'haedoke' has been blocked.", (string) $output_user);
   }
+
   /**
    * Make sure that the user-unblock command works.
    */
@@ -65,13 +68,15 @@ class UserCommandsTest extends TestCase {
     $output_user = shell_exec('bee user-unblock haedoke');
     $this->assertStringContainsString("User 'haedoke' has been unblocked.", (string) $output_user);
   }
+
   /**
    * Make sure that the user-add-role command works.
    */
   public function test_user_add_role_command_works() {
     $output_user = shell_exec('bee user-add-role editor haedoke');
-    $this->assertStringContainsString("The role editor has been assigned to user 'haedoke'.", (string) $output_user);
+    $this->assertStringContainsString("The 'editor' role has been assigned to user 'haedoke'.", (string) $output_user);
   }
+
   /**
    * Make sure that the user-remove-role command works.
    */
@@ -79,6 +84,7 @@ class UserCommandsTest extends TestCase {
     $output_user = shell_exec('bee user-remove-role editor haedoke');
     $this->assertStringContainsString("The 'editor' role has been removed from user 'haedoke'.", (string) $output_user);
   }
+
   /**
    * Make sure that the user-cancel command works.
    */
