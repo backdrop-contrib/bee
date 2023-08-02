@@ -393,7 +393,7 @@ function user_remove_role_bee_callback($arguments, $options) {
     bee_message(bt("The '!role' role has already been removed from  user '!user'.", array(
       '!user' => $user->name,
       '!role' => $arguments['role'],
-     )));
+    )));
   }
 }
 
