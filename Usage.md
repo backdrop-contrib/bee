@@ -304,6 +304,68 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee --yes db-drop` - Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.
 
 ### Users
+#### `user-create`
+*Description:* Create a user account with the specified name.  
+*Aliases:* `ucrt`  
+*Arguments:*
+- `username` - The username of the account being created.  
+
+*Options:*
+- `--mail=EMAIL` - The email address for the new account; it must be unique and valid in this installation.  
+- `--password=PASSWORD` - The password for the new account.  
+
+*Examples:*  
+- `bee user-create joe --mail=joe@example.com` - Create the 'joe' user account. A random password will be generated.
+- `bee user-create joe --mail=joe@example.com --password=P@55w0rd` - Create the 'joe' user account with a defined password.
+- `bee user-create joe --mail=joe@example.com --password="Correct Horse Battery Staple"` - Create the 'joe' user account with a pass phrase that has spaces.
+
+#### `user-cancel`
+*Description:* Cancel/remove a user.  
+*Aliases:* `ucan`  
+*Arguments:*
+- `username` - The username of the account to cancel/remove.
+
+*Examples:*  
+- `bee user-cancel joe` - Cancel/remove the 'joe' user account.
+
+#### `user-block`
+*Description:* Block a user.  
+*Aliases:* `ublk`  
+*Arguments:*
+- `username` - The username of the account to block.
+
+*Examples:*  
+- `bee user-block joe` - Block the 'joe' user account.
+
+#### `user-unblock`
+*Description:* Unblock a user.  
+*Aliases:* `uublk`  
+*Arguments:*
+- `username` - The username of the account to unblock.
+
+*Examples:*  
+- `bee user-block joe` - Unblock the 'joe' user account.
+
+#### `user-add-role`
+*Description:* Add role to user.  
+*Aliases:* `urole`, `urol`  
+*Arguments:*
+- `role` - Role to add.
+- `username` - The username of the account to add role to.
+
+*Examples:*  
+- `bee user-add-role editor joe` - Add role 'editor' to account 'joe'.
+
+#### `user-remove-role`
+*Description:* Remove a role from a user.  
+*Aliases:* `urrole`,`urrol`  
+*Arguments:*
+- `role` - Role to remove.
+- `username` - The username of the account to remove the role from.
+
+*Examples:*  
+- `bee user-remove-role joe editor` - Remove role 'editor' from account joe.
+
 #### `user-login`
 *Description:* Display a one-time login link for a given user.  
 *Aliases:* `uli`   
