@@ -16,6 +16,7 @@
       <file>backdrop/UpdateCommandsTest.php</file>
       <file>backdrop/UserCommandsTest.php</file>
       <file>backdrop/RolesCommandsTest.php</file>
+      <file>backdrop/NodesCommandsTest.php</file>
     </testsuite>
     <testsuite name="multisite">
       <file>multisite/MultisiteTest.php</file>
