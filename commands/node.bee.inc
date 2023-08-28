@@ -92,6 +92,77 @@ function node_bee_command() {
         'bee node-delete --nid=3' => bt("Delete node 3."),
       ),
     ),
+    'menus' => array(
+      'description' => bt('List all menus.'),
+      'callback' => 'menu_bee_callback',
+      'group' => 'node',
+      'aliases' => array('menu-list'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee menus' => bt('Display a list of all links.'),
+      ),
+    ),
+    'menu-update' => array(
+      'description' => bt('Update or create a menu link.'),
+      'callback' => 'menu_update_bee_callback',
+      'group' => 'node',
+      'aliases' => array('mu'),
+      'options' => array(
+        'nid' => array(
+          'description' => bt("(required for new link) Node id (int)"),
+          'value' => bt('nid'),
+        ),
+        'menu' => array(
+          'description' => bt("(optional) Menu name, otherwise default to main-menu.(string)"),
+          'value' => bt('menu'),
+        ),
+        'title' => array(
+          'description' => bt("(optional) Menu title, otherwise use the title of the node. (string) "),
+          'value' => bt('title'),
+        ),
+        'mlid' => array(
+          'description' => bt("(optional) Menu link identifier, the primary integer key for each menu link. Can be set to an existing value, or to 0 or empty to insert a new link. (int)"),
+          'value' => bt('mlid'),
+        ),
+        'plid' => array(
+          'description' => bt("(optional) The mlid for the parent. (int)"),
+          'value' => bt('plid'),
+        ),
+        'hide' => array(
+          'description' => bt("(optional) Hide menu link (0/1)"),
+          'value' => bt('hide'),
+        ),
+        'weight' => array(
+          'description' => bt("(optional) Integer to determine position in menu. Default is 0. (int)"),
+          'value' => bt('weight'),
+        ),
+      ),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee menu-update --menu=main-menu --nid=10' => bt('Add node 10 to menu main-menu'),
+        'bee mu  --mlid=363 --plid=355 --weight=10 --title=\'Yet anthor test page\'' => bt('Move link 363 to the link 355 as parent with title "Yet anthor test page" and move to position 10'),
+      ),
+    ),
+    'menu-delete' => array(
+      'description' => bt('Delete a menu link.'),
+      'callback' => 'menu_delete_bee_callback',
+      'group' => 'node',
+      'aliases' => array('md'),
+      'options' => array(
+        'mlid' => array(
+          'description' => bt("(one of required) Give the mlid of the menu to delete. (int)"),
+          'value' => bt('mlid'),
+        ),
+        'path' => array(
+          'description' => bt("(one of required) Give the path  of the menu to delete. (string)"),
+          'value' => bt('path'),
+        ),
+      ),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee menu-delete --mlid=300' => bt("Delete menu link 300"),
+      ),
+    ),
   );
 }
 
@@ -106,6 +177,7 @@ function node_bee_callback($arguments, $options) {
       '!text' => "\n".preg_replace('/\<br(\s*)?\/?\>/i', "\n", $node->body['und'][0]['value']),
       '!node' => $options['nid'],
     )));
+
   }
   else {
     $rows = array();
@@ -113,6 +185,7 @@ function node_bee_callback($arguments, $options) {
     $nodes = node_load_multiple(FALSE);
     foreach ($nodes as $node) {
       $rows[] = array(
+
       array('value' => $node->nid),
       array('value' => $node->title),
       array('value' => $node->type),
@@ -274,3 +347,167 @@ function node_delete_bee_callback($arguments, $options) {
     return;
   }
 }
+
+/**
+ * Command callback:  list all menu links ordered by weight
+ */
+function menu_bee_callback($arguments, $options) {
+  $rows = array();
+  foreach (menu_get_menus() as $menu => $name) {
+    $tree = menu_tree_all_data($menu);
+    $rowsmenu = _output_menu_nested_tree($tree);
+    if (!empty($rowsmenu) && is_array($rowsmenu)) {
+      $rows = array_merge($rows, $rowsmenu);
+    }
+    $rows[] = array(
+       array('value' => ''),
+       array('value' => ''),
+       array('value' => ''),
+       array('value' => ''),
+       array('value' => ''),
+    );
+  }
+  $header = array(
+    array('value' => bt('Menu')),
+    array('value' => bt('Weight')),
+    array('value' => bt('Link')),
+    array('value' => bt('Title')),
+    array('value' => bt('Hidden')),
+  );
+  return array(
+    array(
+      'type' => 'table',
+      'variables' => array(
+        'rows' => $rows,
+        'header' => $header,
+      ),
+    ),
+  );
+}
+
+/**
+ * Command callback: add/update menu links.
+ */
+function menu_update_bee_callback($arguments, $options) {
+  if (!empty($options['mlid'])) {
+    $item = menu_link_load($options['mlid']);
+    $item['link_path'] = !empty($options['link_path']) ? $options['link_path'] : $item['link_path'];
+    $item['link_title'] = !empty($options['title']) ? $options['title'] : $item['link_title'];
+    $item['menu_name'] = !empty($options['menu']) ? $options['menu'] : $item['menu_name'];
+    $item['weight'] = !empty($options['weight']) ? $options['weight'] : $item['weight'];
+    $item['plid'] = !empty($options['plid']) ? $options['plid'] : $item['plid'];
+    if ( menu_link_save($item)) {
+      bee_message(bt("!menu menu has been updated", array(
+        '!menu' => $options['mlid'],
+      )), 'success');
+      menu_rebuild();
+    }
+    else {
+      bee_message(bt("!menu updated failed!.", array(
+        '!menu' => $options['mlid'],
+      )), 'error');
+    }
+  }
+  else {
+    if (!empty($options['nid'])) {
+      $node = node_load($options['nid']);
+      if (!$node) {
+        bee_message(bt("!nid node doesn't exists!.", array(
+          '!nid' => $options['nid'],
+        )), 'error');
+        return;
+      }
+      $node = node_load($options['nid']);
+      $item = array( 'link_path' => 'node/' . $node->nid,
+        'link_title' => !empty($options['title']) ? $options['title'] : $node->title,
+        'menu_name' => !empty($options['menu']) ? $options['menu'] : '',
+        'weight' => !empty($options['weight']) ? $options['weight'] : 0,
+        'plid' => !empty($options['mlid']) ? $options['mlid'] : '',
+        'mlid' => !empty($options['mlid']) ? $options['mlid'] : '',
+      );
+      if ( $mlid = menu_link_save($item)) {
+        menu_rebuild();
+        bee_message(bt("Menu has been created"), 'success');
+      }
+      else {
+        bee_message(bt("!menu failed!.", array(
+          '!menu' => $item['link_title'],
+        )), 'error');
+      }
+    }
+    else {
+        bee_message(bt("!nid node doesn't exists!.", array(
+          '!nid' => $options['nid'],
+        )), 'error');
+      return;
+    }
+  }
+}
+
+/**
+ * Command callback: Delete a menu link or links.
+ */
+function menu_delete_bee_callback($arguments, $options) {
+  if (!empty($options['mlid']) && empty($options['path'])) {
+    if (menu_link_delete($options['mlid'], $PATH = NULL)) {
+      bee_message(bt("Menu has been deleted"), 'success');
+    }
+  }
+  elseif (!empty($options['path']) && empty($options['mlid'])) {
+    if (menu_link_delete($mlid = NULL, $options['path'])) {
+      bee_message(bt("Menu has been deleted"), 'success');
+    }
+  }
+  else {
+    bee_message(bt("Either option mlid or path", array(
+    )), 'error');
+  }
+}
+
+/**
+ * Sub function for listing menu links.
+ */
+function _output_menu_nested_tree($tree,$parent=FALSE) {
+  if (count($tree)) {
+    foreach ($tree as $item) {
+
+      $menu_link = $item['link'];
+      if (empty($parent)) {
+        $link_path = $menu_link['link_path'].'('.$menu_link['mlid'].')';
+      }
+      else {
+        $link_path = $parent.$menu_link['link_path'].'('.$menu_link['mlid'].')';
+      }
+      $rows[] = array(
+        array('value' => $menu_link['menu_name']),
+        array('value' => $menu_link['weight']),
+        array('value' => $link_path),
+        array('value' => $menu_link['title']),
+        array('value' => $menu_link['hidden']),
+      );
+      if (!empty($item['below'])) {
+        if (empty($parent)) {
+          $parent = $menu_link['link_path'].'('.$menu_link['mlid'].')->/';
+        }
+        else {
+          $parent .= $menu_link['link_path'].'('.$menu_link['mlid'].')->/';
+        }
+        $rowschild = _output_menu_nested_tree($item['below'], $parent);
+        if (!empty($rowschild) && is_array($rowschild)) {
+          $rows = array_merge($rows, $rowschild);
+        }
+      }
+      if (empty($item['below'][0])) {
+          unset($parent);
+      }
+    }
+  }
+  if (!empty($rows) && is_array($rows)) {
+    asort($rows);
+    return($rows);
+  }
+  else {
+    return;
+  }
+}
+
