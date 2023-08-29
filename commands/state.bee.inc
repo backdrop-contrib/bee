@@ -105,7 +105,7 @@ function state_get_bee_callback($arguments, $options) {
       ),
     );
   }
-  catch(ParseError $e) {
+  catch (ParseError $e) {
     // This is more readable than the default error we would get from PHP.
     $err_msg = bt('!msg in: !state', array(
       '!msg' => $e->getMessage(),
@@ -211,7 +211,7 @@ function state_set_bee_callback($arguments, $options) {
     bee_message((string) $msg, 'success');
     return;
   }
-  catch(ParseError $e) {
+  catch (ParseError $e) {
     // This is more readable than the default error we would get from PHP.
     $err_msg = bt('!msg in: !state', array(
       '!msg' => $e->getMessage(),
@@ -265,7 +265,7 @@ function maintenance_mode_bee_callback($arguments, $options) {
         ));
         bee_message((string) $msg, 'success');
       }
-      catch(ParseError $e) {
+      catch (ParseError $e) {
         // This is more readable than the default error we would get from PHP.
         $err_msg = bt('!msg in: !value', array(
           '!msg' => $e->getMessage(),
