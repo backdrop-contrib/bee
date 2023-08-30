@@ -31,6 +31,10 @@ function download_bee_command() {
           'description' => bt('Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.'),
           'short' => 'f',
         ),
+        'github-token' => array(
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend to GitHub API rate.'),
+          'value' => bt('The token.'),
+        ),
       ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
@@ -52,6 +56,10 @@ function download_bee_command() {
           'description' => bt('Deprecated, will get removed in a future version.'),
           'short' => 'h',
         ),
+        'github-token' => array(
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend to GitHub API rate.'),
+          'value' => bt('The token.'),
+        ),
       ),
       'aliases' => array('dl-core'),
       'examples' => array(
@@ -68,6 +76,23 @@ function download_bee_callback($arguments, $options) {
   global $_bee_backdrop_root, $_bee_backdrop_site;
 
   $allow_multisite_copy = (!empty($options['allow-multisite-copy'])) ? TRUE : FALSE;
+
+  // Set the GitHub Token if entered.
+  $github_api_token = $options['github-token'] ?? '';
+
+  // Estimate the number of API calls. We need TWO for each project. We also
+  // need TWO for each dependency but we cannot know until we get the info file
+  // for each project and also check which dependencies already exist in the
+  // file system. We therefore will use a multiplier of THREE on the number of
+  // projects entered at the command line to try and ensure we have enough
+  // quota to complete. This won't always work but we will catch exceptions
+  // before each call.
+  $api_call_estimate = count($arguments['projects']) * 3;
+
+  // Check GitHub API quota to ensure we can complete.
+  if (!check_github_api_quota($github_api_token, $api_call_estimate)) {
+    return;
+  }
 
   // Get list of all core projects so we don't try to download core dependencies
   // when we download a named project.
@@ -111,8 +136,15 @@ function download_bee_callback($arguments, $options) {
       )), 'error');
     }
     else {
-      $info = download_bee_git_info($project);
-
+      $info = download_bee_git_info($project, $github_api_token);
+      if (empty($info)) {
+        // If getting the info file has failed, show an error message here and
+        // exit.
+        bee_message(bt("The info file for !project cannot be retrieved at this time.", array(
+          '!project' => $project,
+        )), 'error');
+        return;
+      }
       // Get the list of dependencies and add to list of projects.
       if (!empty($info['dependencies'])) {
         $dependencies = $info['dependencies'];
@@ -127,7 +159,16 @@ function download_bee_callback($arguments, $options) {
           // check contrib dependencies.
           if (!$dependency_is_core) {
             // Get information about the dependency project.
-            $dependency_info = download_bee_git_info($dependency);
+            $dependency_info = download_bee_git_info($dependency, $github_api_token);
+            if (empty($dependency_info)) {
+              // If getting the info file has failed, show an error message here
+              // and exit.
+              bee_message(bt("!dependency is a dependency of !project but the info file for !dependency cannot be retrieved at this time.", array(
+                '!project' => $project,
+                '!dependency' => $dependency,
+              )), 'error');
+              continue;
+            }
             // Check whether the dependency exists within the site file system.
             $dependency_existing_location = download_bee_check_project_exists($dependency, $dependency_info['type']);
             $dependency_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $dependency_existing_location);
@@ -233,7 +274,18 @@ function download_bee_callback($arguments, $options) {
  * Command callback: Download Backdrop core.
  */
 function download_core_bee_callback($arguments, $options) {
-  $info = download_bee_git_info('backdrop');
+  // Set the GitHub Token if entered.
+  $github_api_token = $options['github-token'] ?? '';
+
+  // Estimate the number of API calls. Only 1 is needed for Backdrop Core.
+  $api_call_estimate = 1;
+
+  // Check GitHub API quota to ensure we can complete.
+  if (!check_github_api_quota($github_api_token, $api_call_estimate)) {
+    return;
+  }
+
+  $info = download_bee_git_info('backdrop', $github_api_token);
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
@@ -266,6 +318,8 @@ function download_core_bee_callback($arguments, $options) {
  *
  * @param string $project
  *   The name of the project.
+ * @param string $github_api_token
+ *   The GitHub API Personal Access Token to apply to API calls.
  *
  * @return array
  *   An associative array of information about the project, possibly containing:
@@ -273,7 +327,7 @@ function download_core_bee_callback($arguments, $options) {
  *   - branch: The default branch of the project.
  *   - type: The 'type' of project (e.g. module, theme or layout).
  */
-function download_bee_git_info($project) {
+function download_bee_git_info($project, $github_api_token = '') {
   $info = array();
   $organisation = ($project == 'backdrop') ? 'backdrop' : 'backdrop-contrib';
   $api_url = 'https://api.github.com/repos';
@@ -300,7 +354,18 @@ function download_bee_git_info($project) {
 
     if ($answer) {
       $repo_info = FALSE;
+      // Check GitHub API quota to ensure we can continue.
+      if (!check_github_api_quota($github_api_token)) {
+        return;
+      }
       if ($curl_handle = curl_init("$api_url/$organisation/$project")) {
+        // If a token has been passed, add this to the header.
+        if (!empty($github_api_token)) {
+          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            "Authorization: token " . $github_api_token,
+          ));
+        }
         curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -333,7 +398,18 @@ function download_bee_git_info($project) {
   // Get the 'type' and any dependencies of project.
   if ($project != 'backdrop') {
     $files = FALSE;
+    // Check GitHub API quota to ensure we can continue.
+    if (!check_github_api_quota($github_api_token)) {
+      return;
+    }
     if ($curl_handle = curl_init("$api_url/$organisation/$project/contents")) {
+      // If a token has been passed, add this to the header.
+      if (!empty($github_api_token)) {
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+          'Content-Type: application/json',
+          "Authorization: token " . $github_api_token,
+        ));
+      }
       curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
       curl_setopt($curl_handle, CURLOPT_HEADER, 0);
       curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -347,11 +423,29 @@ function download_bee_git_info($project) {
     }
     foreach ($files as $file) {
       if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
+        // Check GitHub API quota to ensure we can continue.
+        if (!check_github_api_quota($github_api_token)) {
+          return;
+        }
         $curl_handle = curl_init("$api_url/$organisation/$project/contents/" . $file['name']);
+
+        if (!empty($github_api_token)) {
+          // If a token has been passed, add this to the header.
+          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+            "Authorization: token $github_api_token",
+            'Accept: application/vnd.github.v3.raw',
+          ));
+        }
+        else {
+          // If no token has been passed, add the standard header.
+          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+            'Accept: application/vnd.github.v3.raw',
+          ));
+        }
         curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Accept: application/vnd.github.v3.raw'));
+
         $info_file = curl_exec($curl_handle);
         curl_close($curl_handle);
         $lines = explode("\n", $info_file);
@@ -558,4 +652,88 @@ function download_bee_check_multisite_copy($allow_multisite_copy, $existing_loca
     // If no site defined then this check should always return FALSE.
     return FALSE;
   }
+}
+
+/**
+ * Get quota information for the GitHub API anonymous user or token.
+ *
+ * @param string $github_api_token
+ *   The GitHub Personal Access Token to check. Anonymous if left blank.
+ * @param int $minimum_quota
+ *   If it is known (or estimated) how much quota is needed then we can pass
+ *   that number to the function to check. Otherwise it will return true if
+ *   there is more than zero.
+ *
+ * @return bool
+ *   If there
+ */
+function check_github_api_quota($github_api_token = '', int $minimum_quota = 1) {
+  // Try to initiate a curl connection to the GitHub Rate Limit API. This does
+  // not use any quota.
+  $is_token = FALSE;
+  if ($curl_handle = curl_init("https://api.github.com/rate_limit")) {
+    // If a token has been passed, add this to the header.
+    if (!empty($github_api_token)) {
+      curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        "Authorization: token " . $github_api_token,
+      ));
+      $is_token = TRUE;
+    }
+    // Set the other curl options.
+    curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
+    curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+    curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+    // Get the rate information.
+    $data = curl_exec($curl_handle);
+    curl_close($curl_handle);
+    $data = json_decode($data, TRUE);
+    if (empty($data)) {
+      bee_message(bt('GitHub API Rate Limit information cannot be retrieved at this time. Please try again later.'), 'error');
+      return FALSE;
+    }
+    // Return the core quota details.
+    $rate_info = $data['resources']['core'];
+    $reset_time = date('H:m T', $rate_info['reset']);
+    $used = $rate_info['used'];
+    $remaining = $rate_info['remaining'];
+    $quota = $rate_info['limit'];
+    // Create a debug message with details about the quota.
+    bee_message(bt('GitHub API Rate Limit: !used/!quota used with !remaining remaining. Quota will reset at !reset_time.', array(
+      '!used' => $used,
+      '!remaining' => $remaining,
+      '!quota' => $quota,
+      '!reset_time' => $reset_time,
+    )), 'log');
+    // Check the amount remaining.
+    if ($remaining < $minimum_quota) {
+      if ($remaining == 0) {
+        // If there is no quota remaining, provide a meaningful error message.
+        bee_message(bt('You have reached your rate limit (!quota/hour) for the GitHub API. Your quota will reset at !reset_time.', array(
+          '!quota' => $quota,
+          '!reset_time' => $reset_time,
+        )), 'error');
+      }
+      else {
+        // If there is some quota remaining, but not enough for the estimated
+        // number of calls, provide a meaningful error message.
+        bee_message(bt('You have nearly reached your rate limit (!quota/hour) for the GitHub API and it is estimated that the amount remaining will not be enough to complete this operation. Your quota will reset at !reset_time.', array(
+          '!quota' => $quota,
+          '!reset_time' => $reset_time,
+        )), 'error');
+      }
+      // If there is not a token in use, then also provide an information
+      // message about using a token.
+      if (!$is_token) {
+        bee_message(bt('The GitHub API rate limit is 60/hour for anonymous use. You can increase this by using a token. See the help or wiki for more information.'), 'info');
+      }
+      return FALSE;
+    }
+    else {
+      // There is still enough quota remaining.
+      return TRUE;
+    }
+  }
+  // If we can't initiate the curl connection then return FALSE.
+  return FALSE;
 }
