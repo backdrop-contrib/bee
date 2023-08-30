@@ -60,3 +60,4 @@ class RolesCommandsTest extends TestCase {
   }
 
 }
+
