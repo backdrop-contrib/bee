@@ -38,11 +38,11 @@ function dbq_bee_callback($arguments, $options) {
     $result = db_query($arguments['code'], array());
     $output = $result->fetchAll(PDO::FETCH_ASSOC);
     if (!empty($output[0])) {
-      // display the output as CSV rows.
+      // Display the output as CSV rows.
       foreach ($output as $row) {
         if (!empty($row)) {
           $f = fopen('php://memory', 'r+');
-          if (fputcsv($f, $row) === false) {
+          if (fputcsv($f, $row) === FALSE) {
               continue;
           }
           rewind($f);
