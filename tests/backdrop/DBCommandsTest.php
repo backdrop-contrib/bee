@@ -52,7 +52,7 @@ class DBCommandsTest extends TestCase {
    * Make sure that the db-query command works.
    */
   public function test_db_query_command_works() {
-    $output = shell_exec('bee db-query "SELECT * FROM {users} WHERE uid = 1"');
-    $this->assertStringContainsString("1,", (string) $output);
+    $output = shell_exec('bee db-query "SELECT type, filename FROM {system} WHERE name = \'system\'"');
+    $this->assertStringContainsString("module,core/modules/system/system.module", (string) $output);
   }
 }
