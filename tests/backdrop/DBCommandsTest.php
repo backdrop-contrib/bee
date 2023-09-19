@@ -47,4 +47,12 @@ class DBCommandsTest extends TestCase {
     // Remove DB export for future tests.
     exec('rm /app/backdrop/database.sql.gz');
   }
+
+  /**
+   * Make sure that the db-query command works.
+   */
+  public function test_db_query_command_works() {
+    $output = shell_exec('bee db-query "SELECT * FROM {users} WHERE uid = 1"');
+    $this->assertStringContainsString("1,", (string) $output);
+  }
 }
