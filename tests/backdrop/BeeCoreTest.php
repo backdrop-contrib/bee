@@ -68,13 +68,14 @@ class BeeCoreTest extends TestCase {
    * option, and then with the '--base-url' option.
    */
   public function test_base_url_global_option_works() {
+    global $bee_test_backdrop_base_url;
     $output_no_base_url = shell_exec('bee user-login admin');
     $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output_no_base_url);
     $this->assertStringContainsString('http://backdrop/user/reset/1/', (string) $output_no_base_url);
 
-    $output_base_url = shell_exec('bee --base-url=https://bee.lndo.site user-login admin');
+    $output_base_url = shell_exec("bee --base-url=$bee_test_backdrop_base_url user-login admin");
     $this->assertStringContainsString("Use the following link to login as 'admin':", (string) $output_base_url);
-    $this->assertStringContainsString('https://bee.lndo.site/user/reset/1/', (string) $output_base_url);
+    $this->assertStringContainsString("$bee_test_backdrop_base_url/user/reset/1/", (string) $output_base_url);
   }
 
   /**
