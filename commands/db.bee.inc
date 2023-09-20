@@ -61,7 +61,8 @@ function db_bee_command() {
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
       'examples' => array(
         'bee sql' => bt('Open a command-line for the current database.'),
-        'bee sql < backup.sql' => bt('Import an SQL file into the current database.'),
+        'bee sql < ../backup.sql' => bt('Use SQL statements in a file to import data into the current database.'),
+        'bee sql < ../scripts/sanitize.sql' => bt('Use SQL statements in a file to complete operations with the current database.'),
       ),
     ),
     'db-query' => array(
