@@ -487,3 +487,12 @@ Omitting the value will return the current maintenance mode status.
 *Examples:*
 - `bee sql` - Open a command-line for the current database.
 - `bee sql < backup.sql` - Import an SQL file into the current database.
+
+#### `db-query`
+*Description:* Execute a query using `db_query()`.  
+*Aliases:* `dbq`  
+*Examples:*
+- `bee db-query "SELECT * FROM {users} WHERE uid = 1"` - Browse user record. Note that table prefixes are honored.
+- `bee db-query "UPDATE {users} SET mail = 'me@example.com' WHERE uid = 1"` - Update a user's email address.
+- `bee db-query "DELETE FROM {users} WHERE uid = 2"` - Delete a user record from the db.
+- `bee db-query "SELECT name, mail FROM {users} WHERE uid > 0 LIMIT 2"` - Show the name and email for the first 2 users.
