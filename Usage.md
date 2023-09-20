@@ -486,7 +486,8 @@ Omitting the value will return the current maintenance mode status.
 *Aliases:* `sqlc` , `sql-cli` , `db-cli`  
 *Examples:*
 - `bee sql` - Open a command-line for the current database.
-- `bee sql < backup.sql` - Import an SQL file into the current database.
+- `bee sql < ../backup.sql` - Use SQL statements in a file to import data into the current database.
+- `bee sql < ../scripts/sanitize.sql` - Use SQL statements in a file to complete operations with the current database.
 
 #### `db-query`
 *Description:* Execute a query using `db_query()`.  
