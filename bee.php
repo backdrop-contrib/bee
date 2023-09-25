@@ -10,7 +10,7 @@
 if (!bee_is_cli()) {
   echo "<title>Bee Gone!</title>";
   echo "<img src='./images/bee.png' align='right' width='150' height='157' style='max-width: 100%;'>";
-  echo "<h1>Bee gone!</h1>";
+  echo "<h1>Bee Gone!</h1>";
   echo "<p>Bee is a command line tool only and will not work in the browser.</p>";
   die();
 }
