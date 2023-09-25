@@ -5,6 +5,13 @@
  * A command line utility for Backdrop CMS.
  */
 
+// Exit gracefully with a meaningful message if installed within a web
+// accessible location and accessed in the browser.
+if (!bee_is_cli()) {
+  echo "Bee gone! Bee is a command line tool only and will not work in the browser.";
+  die();
+}
+
 // Set custom error handler.
 set_error_handler('bee_error_handler');
 
@@ -56,4 +63,11 @@ function bee_error_handler($errno, $message, $filename, $line, array $context = 
     echo "$message\n";
     echo " $filename:$line\n\n";
   }
+}
+
+/**
+ * Detects whether the current script is running in a command-line environment.
+ */
+function bee_is_cli() {
+  return (empty($_SERVER['SERVER_SOFTWARE']) && (php_sapi_name() == 'cli' || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)));
 }
