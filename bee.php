@@ -8,7 +8,10 @@
 // Exit gracefully with a meaningful message if installed within a web
 // accessible location and accessed in the browser.
 if (!bee_is_cli()) {
-  echo "Bee gone! Bee is a command line tool only and will not work in the browser.";
+  echo "<html><head><title>Bee Gone!</title></head><body>";
+  echo "<img src='./images/bee.png' align='right' width='150' height='157' style='max-width: 100%;'>";
+  echo "<h1>Bee gone!</h1>";
+  echo "<p>Bee is a command line tool only and will not work in the browser.</p></body>";
   die();
 }
 
