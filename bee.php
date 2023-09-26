@@ -8,11 +8,20 @@
 // Exit gracefully with a meaningful message if installed within a web
 // accessible location and accessed in the browser.
 if (!bee_is_cli()) {
-  echo "<title>Bee Gone!</title>";
-  echo "<div style='background-color:white;position:absolute;width:200px;height:2rem;top:0;left:0;z-index:100;'>&nbsp;</div>";
-  echo "<img src='./images/bee.png' align='right' width='150' height='157' style='max-width: 100%;'>";
-  echo "<h1>Bee Gone!</h1>";
-  echo "<p>Bee is a command line tool only and will not work in the browser.</p>";
+  // Set the title to use in h1 and title elements.
+  $title = "Bee Gone!";
+  // Place a white block over "#!/usr/bin/env php" as this is output before
+  // anything else.
+  $browser_output = "<div style='background-color:white;position:absolute;width:15rem;height:3rem;top:0;left:0;z-index:9;'>&nbsp;</div>";
+  // Add the bee logo and style appropriately.
+  $browser_output .= "<img src='./images/bee.png' align='right' width='150' height='157' style='max-width:100%;margin-top:3rem;'>";
+  // Add meaningful text.
+  $browser_output .= "<h1 style='font-family:Tahoma;'>$title</h1>";
+  $browser_output .= "<p style='font-family:Verdana;'>Bee is a command line tool only and will not work in the browser.</p>";
+  // Add the document title using javascript when the window loads.
+  $browser_output .= "<script>window.onload = function(){document.title='$title';}</script>";
+  // Output the combined string.
+  echo $browser_output;
   die();
 }
 
