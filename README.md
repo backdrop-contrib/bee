@@ -20,7 +20,8 @@ Microsoft Windows.
 
 - Download (or clone) Bee to your computer/server.  
   This will create a folder called `bee` with lots of files inside. Your home
-  directory is a good location for this folder.
+  directory is a good location for this folder. It is neither required nor
+  recommended to place this folder within the Backdrop web root.
 
 - Make sure `bee/bee.php` is executable.  
   It should be by default, but it doesn't hurt to double-check.

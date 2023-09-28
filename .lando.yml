@@ -1,7 +1,7 @@
 name: bee
 recipe: backdrop
 config:
-  php: 7.4
+  php: 8.2
   webroot: backdrop
   database: mysql
   # Although Drush isn't needed/used, the version that Lando includes by default
@@ -22,7 +22,7 @@ services:
       # Run setup tasks.
       - /app/.lando/setup.sh setup
   multisite:
-    type: php:7.4
+    type: php:8.2
     webroot: multisite
 events:
   pre-rebuild:
