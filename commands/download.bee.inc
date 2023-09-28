@@ -359,13 +359,14 @@ function download_bee_git_info($project, $github_api_token = '') {
         return;
       }
       if ($curl_handle = curl_init("$api_url/$organisation/$project")) {
+        // Prepare headers for curl request.
+        $curlopt_httpheader = array();
+        $curlopt_httpheader[] = 'Content-Type: application/json';
         // If a token has been passed, add this to the header.
         if (!empty($github_api_token)) {
-          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            "Authorization: token " . $github_api_token,
-          ));
+          $curlopt_httpheader[] = "Authorization: token $github_api_token";
         }
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
         curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -407,7 +408,7 @@ function download_bee_git_info($project, $github_api_token = '') {
       if (!empty($github_api_token)) {
         curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
           'Content-Type: application/json',
-          "Authorization: token " . $github_api_token,
+          "Authorization: token $github_api_token",
         ));
       }
       curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
@@ -428,20 +429,14 @@ function download_bee_git_info($project, $github_api_token = '') {
           return;
         }
         $curl_handle = curl_init("$api_url/$organisation/$project/contents/" . $file['name']);
-
+        // Prepare headers for curl request.
+        $curlopt_httpheader = array();
+        $curlopt_httpheader[] = 'Accept: application/vnd.github.v3.raw';
+        // If a token has been passed, add this to the header.
         if (!empty($github_api_token)) {
-          // If a token has been passed, add this to the header.
-          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-            "Authorization: token $github_api_token",
-            'Accept: application/vnd.github.v3.raw',
-          ));
+          $curlopt_httpheader[] = "Authorization: token $github_api_token";
         }
-        else {
-          // If no token has been passed, add the standard header.
-          curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-            'Accept: application/vnd.github.v3.raw',
-          ));
-        }
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
         curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
@@ -672,14 +667,15 @@ function check_github_api_quota($github_api_token = '', int $minimum_quota = 1) 
   // not use any quota.
   $is_token = FALSE;
   if ($curl_handle = curl_init("https://api.github.com/rate_limit")) {
+    // Prepare headers for curl request.
+    $curlopt_httpheader = array();
+    $curlopt_httpheader[] = 'Content-Type: application/json';
     // If a token has been passed, add this to the header.
     if (!empty($github_api_token)) {
-      curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        "Authorization: token " . $github_api_token,
-      ));
+      $curlopt_httpheader[] = "Authorization: token $github_api_token";
       $is_token = TRUE;
     }
+    curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
     // Set the other curl options.
     curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
     curl_setopt($curl_handle, CURLOPT_HEADER, 0);
