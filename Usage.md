@@ -4,11 +4,28 @@
 bee [global-options] <command> [options] [arguments]
 ```
 
+<details>
+<summary>Use within Lando, DDEV or Docksal</summary>
+
 ### Lando
 
 ```bash
 lando bee [global-options] <command> [options] [arguments]
 ```
+
+### DDEV
+
+```bash
+ddev bee [global-options] <command> [options] [arguments]
+```
+
+### Docksal
+
+```bash
+fin bee [global-options] <command> [options] [arguments]
+```
+
+</details>
 
 ## Global Options
 
@@ -105,6 +122,7 @@ options in a given file.
 - `projects` - One or more contrib projects to download.
 
 *Options:*
+- `--github-token` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
 - `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
 - `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
 
@@ -223,6 +241,7 @@ options in a given file.
 *Arguments:*
 - `directory` - (optional) The directory to download and extract Backdrop into. Leave blank to use the current directory.
 *Options:*
+- `--github-token` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
 - `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
 
 *Examples:*
@@ -472,8 +491,8 @@ Omitting the value will return the current maintenance mode status.
 - `bee eval "file_unmanaged_copy('$HOME/Pictures/image.jpg', 'public://image.jpg');"` - Copies a file whose path is determined by an environment's variable. Note the use of double quotes so the variable $HOME gets replaced by its value.  
 
 #### `php-script`
-*Description:* Execute an arbitrary PHP file after bootstrapping Backdrop.
-*Aliases:* `scr`
+*Description:* Execute an arbitrary PHP file after bootstrapping Backdrop.  
+*Aliases:* `scr`  
 *Arguments:*
 - `file` - The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.  
 
