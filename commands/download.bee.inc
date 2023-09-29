@@ -57,7 +57,7 @@ function download_bee_command() {
           'short' => 'h',
         ),
         'github-token' => array(
-          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend to GitHub API rate.'),
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
           'value' => bt('The token.'),
         ),
       ),
