@@ -89,7 +89,7 @@ function bee_initialize_console() {
   }
 
   // Provide a warning if bee is installed within the Backdrop web root.
-  if (stripos(__DIR__, $_bee_backdrop_root) !== FALSE) {
+  if ($_bee_backdrop_installed && stripos(__DIR__, $_bee_backdrop_root) !== FALSE) {
     bee_message(bt("Bee has detected that it is installed within the Backdrop root. This is not recommended. It is recommended to install Bee in your home directory (e.g. '~/bee/)."),
     'warning');
   }
