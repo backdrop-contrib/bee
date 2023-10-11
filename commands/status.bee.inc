@@ -98,38 +98,49 @@ function status_bee_callback($arguments, $options) {
 
         // States directly from database, as state_get() requires a higher
         // bootstrap level with caching and locking.
-        $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
-        foreach ($states as $name => $serialized) {
-          switch ($name) {
-            case 'cron_last':
-              $rows[] = array(
-                array('value' => bt('Cron last run')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+        try {
+          $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
+          foreach ($states as $name => $serialized) {
+            switch ($name) {
+              case 'cron_last':
+                $rows[] = array(
+                  array('value' => bt('Cron last run')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
-            case 'install_time':
-              $rows[] = array(
-                array('value' => bt('Install time')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+              case 'install_time':
+                $rows[] = array(
+                  array('value' => bt('Install time')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
-            case 'maintenance_mode':
-              $rows[] = array(
-                array('value' => bt('Maintenance mode')),
-                array('value' => (unserialize($serialized)) ? 'on' : 'off'),
-              );
-              break;
+              case 'maintenance_mode':
+                $rows[] = array(
+                  array('value' => bt('Maintenance mode')),
+                  array('value' => (unserialize($serialized)) ? 'on' : 'off'),
+                );
+                break;
 
-            case 'update_last_check':
-              $rows[] = array(
-                array('value' => bt('Update last check')),
-                array('value' => bee_format_date(unserialize($serialized))),
-              );
-              break;
+              case 'update_last_check':
+                $rows[] = array(
+                  array('value' => bt('Update last check')),
+                  array('value' => bee_format_date(unserialize($serialized))),
+                );
+                break;
 
+            }
           }
+        }
+        // If the database query fails then add a simple row about database
+        // status and a warning message.
+        catch (Exception $e) {
+          $rows[] = array(
+            array('value' => bt('Database status')),
+            array('value' => bt('Empty')),
+          );
+          bee_message(bt('The database is currently empty.'), 'warning');
         }
       }
     }
