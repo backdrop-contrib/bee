@@ -8,7 +8,7 @@ clean_up() {
   cd /app
 
   # Remove Backdrop installations.
-  rm -rf backdrop/ multisite/
+  rm -rf backdrop/ multisite/ current/ directory/
 
   # Drop databases.
   mysql -h database -u root -e "DROP DATABASE backdrop;"
