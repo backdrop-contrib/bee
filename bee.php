@@ -56,7 +56,12 @@ function bee_error_handler($errno, $message, $filename, $line, array $context = 
     // 'bee' commands.
     if (version_compare(PHP_VERSION, '8', '>=')) {
       $trace = debug_backtrace();
-      if (isset($trace[2]) && $trace[2]['function'] == 'url_stat') {
+      $suppress_functions = array(
+        'url_stat',
+        'filemtime',
+        'stat',
+      );
+      if (isset($trace[1]) && in_array($trace[1]['function'], $suppress_functions)) {
         return;
       }
     }
