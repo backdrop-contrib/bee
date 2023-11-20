@@ -23,7 +23,7 @@ function bee_print_messages() {
       continue;
     }
 
-    list($symbol, $color) = bee_type_info($type);
+    list($symbol, $color) = bee_message_type_info($type);
 
     // Prepare `$rows` array for table output.
     foreach ($type_messages as $message) {
@@ -58,7 +58,7 @@ function bee_print_messages() {
  *   An array of two elements, a textual symbol and a string identifying its
  *   color.
  */
-function bee_type_info($type) {
+function bee_message_type_info($type) {
   switch ($type) {
     case 'success':
       $symbol = '[✔]';

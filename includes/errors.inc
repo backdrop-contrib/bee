@@ -65,19 +65,19 @@ function _bee_log_error($error, $fatal = FALSE) {
   // backdrop_error_levels. Map this to a bee_message type.
   switch ($error['severity_level']) {
     case WATCHDOG_ERROR:
-      $type_info = bee_type_info('error');
+      $type_info = bee_message_type_info('error');
       break;
 
     case WATCHDOG_WARNING:
-      $type_info = bee_type_info('warning');
+      $type_info = bee_message_type_info('warning');
       break;
 
     case WATCHDOG_NOTICE:
-      $type_info = bee_type_info('info');
+      $type_info = bee_message_type_info('info');
       break;
 
     case WATCHDOG_DEBUG:
-      $type_info = bee_type_info('log');
+      $type_info = bee_message_type_info('log');
       break;
   }
 
