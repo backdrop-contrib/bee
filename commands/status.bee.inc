@@ -50,7 +50,11 @@ function status_bee_callback($arguments, $options) {
       array('value' => BEE_VERSION),
     );
     $rows[] = array(
-      array('value' => bt('Root directory')),
+      array('value' => bt('Bee root directory')),
+      array('value' => substr(__DIR__, 0, strlen(__DIR__) - 9)),
+    );
+    $rows[] = array(
+      array('value' => bt('Site root directory')),
       array('value' => $_bee_backdrop_root),
     );
 
