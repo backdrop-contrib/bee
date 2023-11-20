@@ -60,7 +60,7 @@ function _bee_error_handler_real($error_level, $message, $filename, $line, array
  * @see _backdrop_log_error()
  */
 function _bee_log_error($error, $fatal = FALSE) {
-x
+
   // $severity_level is one of the WATCHDOG_* constants defined in
   // backdrop_error_levels. Map this to a bee_message type.
   switch ($error['severity_level']) {
