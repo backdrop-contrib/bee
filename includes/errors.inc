@@ -51,16 +51,16 @@ function _bee_error_handler_real($error_level, $message, $filename, $line, array
 /**
  * Logs a PHP error or exception to the console.
  *
- * @param $error
+ * @param array $error
  *   An array with the following keys: !type, !message, !function, !file, !line
  *   and severity_level. All the parameters are plain-text.
- * @param $fatal
+ * @param bool $fatal
  *   TRUE if the error is fatal.
  *
  * @see _backdrop_log_error()
  */
 function _bee_log_error($error, $fatal = FALSE) {
-
+x
   // $severity_level is one of the WATCHDOG_* constants defined in
   // backdrop_error_levels. Map this to a bee_message type.
   switch ($error['severity_level']) {
@@ -90,13 +90,13 @@ function _bee_log_error($error, $fatal = FALSE) {
 /**
  * Gets the last caller from a backtrace.
  *
- * @param $backtrace
+ * @param array $backtrace
  *   A standard PHP backtrace.
  *
- * @return
+ * @return array
  *   An associative array with keys 'file', 'line' and 'function'.
  *
- * @see _backdrop_get_last_caller().
+ * @see _backdrop_get_last_caller()
  */
 function _bee_get_last_caller($backtrace) {
   // Errors that occur inside PHP internal functions do not generate

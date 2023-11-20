@@ -47,7 +47,7 @@ exit();
  *   An array of all variables from where the error was triggered.
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
- * @see _backdrop_error_handler().
+ * @see _backdrop_error_handler()
  */
 function bee_error_handler($error_level, $message, $filename, $line, array $context = NULL) {
   require_once __DIR__ . '/includes/errors.inc';
