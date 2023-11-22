@@ -166,9 +166,9 @@ function update_bee_callback($arguments) {
       return;
     }
     foreach ($data as $item) {
-      $folder = backdrop_get_path($item['project_type'], $item['name']);
+      $folder = download_get_project_destination($item['name'], $item['project_type']);
       if (is_dir($folder)) {
-         bee_delete($folder);
+        bee_delete($folder);
       }
       download_bee_callback(array('projects' => array($item['name']),), []);
       echo '';
