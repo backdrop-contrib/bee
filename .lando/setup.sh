@@ -8,7 +8,7 @@ clean_up() {
   cd /app
 
   # Remove Backdrop installations.
-  rm -rf backdrop/ multisite/
+  rm -rf backdrop/ multisite/ current/ directory/
 
   # Drop databases.
   mysql -h database -u root -e "DROP DATABASE backdrop;"
@@ -26,6 +26,7 @@ set_up() {
   mysql -h database -u root -e "CREATE DATABASE multi_one; GRANT ALL PRIVILEGES ON multi_one.* TO 'backdrop'@'%' IDENTIFIED by 'backdrop';"
   mysql -h database -u root -e "CREATE DATABASE multi_two; GRANT ALL PRIVILEGES ON multi_two.* TO 'backdrop'@'%' IDENTIFIED by 'backdrop';"
   mysql -h database -u root -e "CREATE DATABASE install_test; GRANT ALL PRIVILEGES ON install_test.* TO 'backdrop'@'%' IDENTIFIED by 'backdrop';"
+  mysql -h database -u root -e "FLUSH PRIVILEGES;"
 
   # Configure Backdrop installation.
   unzip -q backdrop.zip && mv backdrop-1.x backdrop

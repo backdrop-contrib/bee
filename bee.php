@@ -5,6 +5,13 @@
  * A command line utility for Backdrop CMS.
  */
 
+// Exit gracefully with a meaningful message if installed within a web
+// accessible location and accessed in the browser.
+if (!bee_is_cli()) {
+  echo bee_browser_load_html();
+  die();
+}
+
 // Set custom error handler.
 set_error_handler('bee_error_handler');
 
@@ -56,4 +63,34 @@ function bee_error_handler($errno, $message, $filename, $line, array $context = 
     echo "$message\n";
     echo " $filename:$line\n\n";
   }
+}
+
+/**
+ * Detects whether the current script is running in a command-line environment.
+ */
+function bee_is_cli() {
+  return (empty($_SERVER['SERVER_SOFTWARE']) && (php_sapi_name() == 'cli' || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)));
+}
+
+/**
+ * Return the HTML to display if this page is loaded in the browser.
+ *
+ * @return string
+ *   The concatentated html to display.
+ */
+function bee_browser_load_html() {
+  // Set the title to use in h1 and title elements.
+  $title = "Bee Gone!";
+  // Place a white block over "#!/usr/bin/env php" as this is output before
+  // anything else.
+  $browser_output = "<div style='background-color:white;position:absolute;width:15rem;height:3rem;top:0;left:0;z-index:9;'>&nbsp;</div>";
+  // Add the bee logo and style appropriately.
+  $browser_output .= "<img src='./images/bee.png' align='right' width='150' height='157' style='max-width:100%;margin-top:3rem;'>";
+  // Add meaningful text.
+  $browser_output .= "<h1 style='font-family:Tahoma;'>$title</h1>";
+  $browser_output .= "<p style='font-family:Verdana;'>Bee is a command line tool only and will not work in the browser.</p>";
+  // Add the document title using javascript when the window loads.
+  $browser_output .= "<script>window.onload = function(){document.title='$title';}</script>";
+  // Output the combined string.
+  return $browser_output;
 }

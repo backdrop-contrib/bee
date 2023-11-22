@@ -50,7 +50,7 @@ function eval_bee_callback($arguments, $options) {
     // phpcs:ignore Squiz.PHP.Eval -- integral part of the command
     eval($arguments['code'] . ';');
   }
-  catch(ParseError $e) {
+  catch (ParseError $e) {
     // This is more readable than the default error we would get from PHP.
     $err_msg = bt('!msg in: !code', array(
       '!msg' => $e->getMessage(),
