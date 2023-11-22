@@ -135,12 +135,19 @@ function update_bee_callback($arguments) {
     foreach ($data as $item) {
       if ($item['name'] == 'backdrop') {
         unset($data['backdrop']);
+        continue;
       }
       if (!empty($arguments['projects']) && !in_array($item['name'], $arguments['projects'])) {
         unset($data[$item['name']]);
+        continue;
+      }
+      if (!isset($item['latest_version'])) {
+        unset($data[$item['name']]);
+        continue;
       }
       if ($item['existing_version'] == $item['latest_version']) {
         unset($data[$item['name']]);
+        continue;
       }
     }
   }
