@@ -24,8 +24,11 @@ function update_bee_command() {
       'callback' => 'update_bee_callback',
       'aliases' => array('up', 'pm-update'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
-      'optional_arguments' => array('project'),
-      'multiple_argument' => 'project',
+      'arguments' => array(
+        'projects' => bt('One or more projects to update.'),
+      ),
+      'optional_arguments' => array('projects'),
+      'multiple_argument' => 'projects',
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
@@ -120,7 +123,7 @@ function update_db_bee_callback() {
  * @todo  Consider a way to download first, check the download has worked before delete.
  *
  */
-function update_bee_callback() {
+function update_bee_callback($arguments) {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
   $data = NULL;
@@ -132,6 +135,9 @@ function update_bee_callback() {
     foreach ($data as $item) {
       if ($item['name'] == 'backdrop') {
         unset($data['backdrop']);
+      }
+      if (!empty($arguments['projects']) && !in_array($item['name'], $arguments['projects'])) {
+        unset($data[$item['name']]);
       }
       if ($item['existing_version'] == $item['latest_version']) {
         unset($data[$item['name']]);
