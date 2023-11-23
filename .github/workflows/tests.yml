@@ -1,9 +1,9 @@
 on:
   # Trigger on push or pull request events, but only for the 1.x-1.x branch.
   push:
-    branches: [ 1.x-1.x ]
+    branches: [ 1.x-1.x, issue-111-update-command ]
   pull_request:
-    branches: [ 1.x-1.x ]
+    branches: [ 1.x-1.x, issue-111-update-command ]
 
 jobs:
   tests:
