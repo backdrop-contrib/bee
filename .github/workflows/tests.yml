@@ -1,16 +1,16 @@
 on:
   # Trigger on push or pull request events, but only for the 1.x-1.x branch.
   push:
-    branches: [ 1.x-1.x ]
+    branches: [ 1.x-1.x, issue-111-update-command ]
   pull_request:
-    branches: [ 1.x-1.x ]
+    branches: [ 1.x-1.x, issue-111-update-command ]
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
       # Checks-out repo under $GITHUB_WORKSPACE.
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Installs and starts Lando.
       - name: Lando

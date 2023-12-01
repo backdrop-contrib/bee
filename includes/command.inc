@@ -206,7 +206,7 @@ function bee_command_file_paths() {
   static $search_paths = array();
 
   if (empty($search_paths)) {
-    global $_bee_backdrop_installed;
+    global $_bee_backdrop_installed, $_bee_backdrop_root;
 
     // Add `bee/commands` directory.
     $search_paths[] = dirname(__DIR__) . '/commands';
@@ -215,6 +215,12 @@ function bee_command_file_paths() {
     $home = getenv('HOME') . '/.bee';
     if (is_dir($home)) {
       $search_paths[] = $home;
+    }
+
+    // Add `.bee` folder in the folder above the Backdrop root.
+    $parent = dirname($_bee_backdrop_root) . '/.bee';
+    if (is_dir($parent)) {
+      $search_paths[] = $parent;
     }
 
     // Add enabled modules' directories.

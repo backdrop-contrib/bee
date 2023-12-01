@@ -24,8 +24,11 @@ function update_bee_command() {
       'callback' => 'update_bee_callback',
       'aliases' => array('up', 'pm-update'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
-      'optional_arguments' => array('project'),
-      'multiple_argument' => 'project',
+      'arguments' => array(
+        'projects' => bt('One or more projects to update.'),
+      ),
+      'optional_arguments' => array('projects'),
+      'multiple_argument' => 'projects',
       'options' => array(
         'security-only' => array(
           'description' => bt('Only update modules that have security updates available.'),
@@ -144,9 +147,19 @@ function update_bee_callback($arguments, $options) {
     foreach ($data as $item) {
       if ($item['name'] == 'backdrop') {
         unset($data['backdrop']);
+        continue;
+      }
+      if (!empty($arguments['projects']) && !in_array($item['name'], $arguments['projects'])) {
+        unset($data[$item['name']]);
+        continue;
+      }
+      if (!isset($item['latest_version'])) {
+        unset($data[$item['name']]);
+        continue;
       }
       if ($item['existing_version'] == $item['latest_version']) {
         unset($data[$item['name']]);
+        continue;
       }
       if (isset($options['security-only']) && $item['status'] !== UPDATE_NOT_SECURE) {
         unset($data[$item['name']]);

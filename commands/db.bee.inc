@@ -61,7 +61,24 @@ function db_bee_command() {
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
       'examples' => array(
         'bee sql' => bt('Open a command-line for the current database.'),
-        'bee sql < backup.sql' => bt('Import an SQL file into the current database.'),
+        'bee sql < ../backup.sql' => bt('Use SQL statements in a file to import data into the current database.'),
+        'bee sql < ../scripts/sanitize.sql' => bt('Use SQL statements in a file to complete operations with the current database.'),
+      ),
+    ),
+    'db-query' => array(
+      'description' => bt('Execute a query using db_query().'),
+      'callback' => 'dbq_bee_callback',
+      'group' => 'advanced',
+      'arguments' => array(
+        'query' => bt("An SQL query as passed to db_query() (no placeholders)."),
+      ),
+      'aliases' => array('dbq'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee db-query "SELECT * FROM {users} WHERE uid = 1"' => bt('Browse user record. Note that table prefixes are honored.'),
+        'bee db-query "UPDATE {users} SET mail = \'me@example.com\' WHERE uid = 1"' => bt('Update a user\'s email address.'),
+        'bee db-query "DELETE FROM {users} WHERE uid = 2"' => bt('Delete a user record from the db.'),
+        'bee db-query "SELECT name, mail FROM {users} WHERE uid > 0 LIMIT 2"' => bt('Show the name and email for the first 2 users.'),
       ),
     ),
   );
@@ -292,4 +309,42 @@ function db_bee_mysql_options(array $db_info, $include_db = TRUE) {
   $options['filename'] = $temp_filename;
 
   return $options;
+}
+
+/**
+ * Command callback: Pass to db_query() after bootstrapping Backdrop.
+ *
+ * @see sql.drush.inc
+ */
+function dbq_bee_callback($arguments, $options) {
+  try {
+    $result = db_query($arguments['query'], array());
+    $rows = $result->fetchAll(PDO::FETCH_ASSOC);
+    $output = array();
+    if (!empty($rows[0])) {
+      // Display the output as CSV rows.
+      foreach ($rows as $row) {
+        if (!empty($row)) {
+          $f = fopen('php://memory', 'r+');
+          if (fputcsv($f, $row) === FALSE) {
+              continue;
+          }
+          rewind($f);
+          $csv_line = stream_get_contents($f);
+          $text = rtrim($csv_line);
+          $output[] = array(
+            'type' => 'text',
+            'variables' => array(
+              'value' => $text,
+            ),
+            'newline' => TRUE,
+          );
+        }
+      }
+    }
+    return $output;
+  }
+  catch (PDOException $e) {
+    bee_message($e->getMessage(), 'error');
+  }
 }

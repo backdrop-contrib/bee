@@ -1,4 +1,14 @@
 <phpunit colors="true" testdox="true">
+  <php>
+    <var name="bee_test_root" value="/app"/>
+    <var name="bee_test_db_host" value="database"/>
+    <var name="bee_test_backdrop_db_name" value="backdrop"/>
+    <var name="bee_test_backdrop_base_url" value='https://bee.lndo.site'/>
+    <var name="bee_test_multisite_multi_1_db_name" value='multi_one'/>
+    <var name="bee_test_multisite_multi_2_db_name" value='multi_two'/>
+    <var name="bee_test_multisite_install_test_db_name" value='install_test'/>
+    <var name="bee_test_multisite_multi_2_domain" value='multi-2.lndo.site'/>
+  </php>
   <testsuites>
     <testsuite name="backdrop">
       <file>backdrop/BeeCoreTest.php</file>
