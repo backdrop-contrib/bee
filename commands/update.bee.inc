@@ -33,13 +33,6 @@ function update_bee_command() {
         'security-only' => array(
           'description' => bt('Only update modules that have security updates available.'),
         ),
-        'report-only' => array(
-          'description' => bt('Output a list of modules with available updates rather than updating them.'),
-        ),
-        'output-format' => array(
-          'description' => bt('Format to output update information in. Options are "table" (default), "list".'),
-          'value' => bt('Format'),
-        ),
       ),
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
@@ -167,14 +160,22 @@ function update_bee_callback($arguments, $options) {
     }
   }
   if ($data != NULL) {
-    if (isset($options['output-format']) && $options['output-format'] === 'list') {
-      update_bee_render_list_output($data);
-    } else {
-      update_bee_render_table_output($data);
+    foreach ($data as $item) {
+      $rows[] = array(
+        array('value' => $item['name']),
+        array('value' => $item['existing_version']),
+        array('value' => $item['latest_version']),
+      );
     }
-    if (isset($options['report-only'])) {
-      return;
-    }
+    bee_render_text(array('value' => bt("These are the items being updated:\n")));
+    bee_render_table(array(
+      'rows' => $rows,
+      'header' => array(
+        array('value' => bt('Module')),
+        array('value' => bt('Existing')),
+        array('value' => bt('Latest')),
+      ),
+    ));
     // Prompt to continue.
     if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
       return;
@@ -189,30 +190,5 @@ function update_bee_callback($arguments, $options) {
     }
   } else {
     bee_message(bt('No Modules or Themes to Update'));
-  }
-}
-
-function update_bee_render_table_output($data) {
-  foreach ($data as $item) {
-    $rows[] = array(
-      array('value' => $item['name']),
-      array('value' => $item['existing_version']),
-      array('value' => $item['latest_version']),
-    );
-  }
-  bee_render_text(array('value' => bt("These are the items being updated:\n")));
-  bee_render_table(array(
-    'rows' => $rows,
-    'header' => array(
-      array('value' => bt('Module')),
-      array('value' => bt('Existing')),
-      array('value' => bt('Latest')),
-    ),
-  ));
-}
-
-function update_bee_render_list_output($data) {
-  foreach ($data as $item) {
-    bee_render_text(array('value' => $item['name']));
   }
 }
