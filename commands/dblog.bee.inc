@@ -102,7 +102,7 @@ function log_bee_callback($arguments, $options) {
  * Display a list of the latest log messages.
  */
 function dblog_bee_show_messages($options) {
-  $severity_levels = watchdog_severity_levels();
+  $severity_levels = array_map('strtolower', watchdog_severity_levels());
 
   // Set default value.
   if (!isset($options['count'])) {
