@@ -29,8 +29,15 @@ function update_bee_command() {
       ),
       'optional_arguments' => array('projects'),
       'multiple_argument' => 'projects',
+      'options' => array(
+        'security-only' => array(
+          'description' => bt('Only update modules that have security updates available.'),
+          'short' => 's',
+        ),
+      ),
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
+        'bee update --security-only' => bt('Update everything that is a security update only'),
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
       ),
     ),
@@ -123,7 +130,7 @@ function update_db_bee_callback() {
  * @todo  Consider a way to download first, check the download has worked before delete.
  *
  */
-function update_bee_callback($arguments) {
+function update_bee_callback($arguments, $options) {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
   $data = NULL;
@@ -148,6 +155,9 @@ function update_bee_callback($arguments) {
       if ($item['existing_version'] == $item['latest_version']) {
         unset($data[$item['name']]);
         continue;
+      }
+      if ((isset($options['security-only']) || isset($options['s'])) && $item['status'] !== UPDATE_NOT_SECURE) {
+        unset($data[$item['name']]);
       }
     }
   }
