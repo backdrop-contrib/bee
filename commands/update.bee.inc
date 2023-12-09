@@ -32,10 +32,12 @@ function update_bee_command() {
       'options' => array(
         'security-only' => array(
           'description' => bt('Only update modules that have security updates available.'),
+          'short' => 's',
         ),
       ),
       'examples' => array(
         'bee update' => bt('Update everything with a new release.'),
+        'bee update --security-only' => bt('Update everything that is a security update only'),
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
       ),
     ),
@@ -154,7 +156,7 @@ function update_bee_callback($arguments, $options) {
         unset($data[$item['name']]);
         continue;
       }
-      if (isset($options['security-only']) && $item['status'] !== UPDATE_NOT_SECURE) {
+      if ((isset($options['security-only']) || isset($options['s'])) && $item['status'] !== UPDATE_NOT_SECURE) {
         unset($data[$item['name']]);
       }
     }
