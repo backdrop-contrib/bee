@@ -196,6 +196,17 @@ function update_list_bee_callback($arguments, $options) {
   }
 }
 
+/**
+ * Get an array of available project updates.
+ *
+ * @param array $arguments
+ *   A list of arguments passed to the command.
+ * @param array $options
+ *   A list of options passed to the command.
+ *
+ * @return array|NULL
+ *   An array of projects with updates available, or NULL if there are none.
+ */
 function update_bee_get_available_updates($arguments, $options) {
   $data = NULL;
   if ($available = update_get_available(TRUE)) {
@@ -228,6 +239,14 @@ function update_bee_get_available_updates($arguments, $options) {
   return $data;
 }
 
+/**
+ * Render available updates as a table.
+ *
+ * @param array $data
+ *   An array of projects with updates available.
+ *
+ * @return void
+ */
 function update_bee_render_table_output($data) {
   foreach ($data as $item) {
     $rows[] = array(
@@ -247,6 +266,14 @@ function update_bee_render_table_output($data) {
   ));
 }
 
+/**
+ * Render available updates as a list.
+ *
+ * @param array $data
+ *   An array of projects with updates available.
+ *
+ * @return void
+ */
 function update_bee_render_list_output($data) {
   foreach ($data as $item) {
     bee_render_text(array('value' => $item['name']));
