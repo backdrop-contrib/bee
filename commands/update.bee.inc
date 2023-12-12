@@ -41,6 +41,31 @@ function update_bee_command() {
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
       ),
     ),
+    'update-status' => array(
+      'description' => bt('Lists available updates for backdrop, modules, themes and layouts with new releases'),
+      'callback' => 'update_list_bee_callback',
+      'aliases' => array('ups', 'pm-updatestatus'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'arguments' => array(
+        'projects' => bt('One or more projects to list updates for.'),
+      ),
+      'optional_arguments' => array('projects'),
+      'multiple_argument' => 'projects',
+      'options' => array(
+        'security-only' => array(
+          'description' => bt('Only update modules that have security updates available.'),
+        ),
+        'format' => array(
+          'description' => bt('Format to output update information in. Options are "table" (default), "list".'),
+          'value' => bt('table'),
+        ),
+      ),
+      'examples' => array(
+        'bee update-status' => bt('List updates for everything with a new release.'),
+        'bee update-status --security-only' => bt('List only security updates for everything with a new release.'),
+        'bee update-status webform tatsu' => bt('List updates for the Webform module and Tatsu theme only'),
+      ),
+    ),
   );
 }
 
@@ -133,6 +158,44 @@ function update_db_bee_callback() {
 function update_bee_callback($arguments, $options) {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
+  $data = update_bee_gather_available_updates($arguments, $options);
+  if ($data != NULL) {
+    update_bee_render_table_output($data);
+    // Prompt to continue.
+    if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
+      return;
+    }
+    foreach ($data as $item) {
+      $folder = backdrop_get_path($item['project_type'], $item['name']);
+      if (is_dir($folder)) {
+         bee_delete($folder);
+      }
+      download_bee_callback(array('projects' => array($item['name']),), []);
+      echo '';
+    }
+  } else {
+    bee_message(bt('No Modules or Themes to Update'));
+  }
+}
+
+/**
+ * Command callback: Show module and theme updates.
+ */
+function update_list_bee_callback($arguments, $options) {
+  $data = update_bee_gather_available_updates($arguments, $options);
+  $is_list_format = isset($options['format']) && $options['format'] === 'list';
+  if ($data === NULL && !$is_list_format) {
+    bee_message(bt('No Modules or Themes to Update'));
+    return;
+  }
+  if ($is_list_format) {
+    update_bee_render_list_output($data);
+  } else {
+    update_bee_render_table_output($data);
+  }
+}
+
+function update_bee_gather_available_updates($arguments, $options) {
   $data = NULL;
   if ($available = update_get_available(TRUE)) {
     module_load_include('inc', 'update', 'update.compare');
@@ -161,36 +224,30 @@ function update_bee_callback($arguments, $options) {
       }
     }
   }
-  if ($data != NULL) {
-    foreach ($data as $item) {
-      $rows[] = array(
-        array('value' => $item['name']),
-        array('value' => $item['existing_version']),
-        array('value' => $item['latest_version']),
-      );
-    }
-    bee_render_text(array('value' => bt("These are the items being updated:\n")));
-    bee_render_table(array(
-      'rows' => $rows,
-      'header' => array(
-        array('value' => bt('Module')),
-        array('value' => bt('Existing')),
-        array('value' => bt('Latest')),
-      ),
-    ));
-    // Prompt to continue.
-    if (!bee_confirm(bt('Would you like to continue?'), FALSE)) {
-      return;
-    }
-    foreach ($data as $item) {
-      $folder = backdrop_get_path($item['project_type'], $item['name']);
-      if (is_dir($folder)) {
-         bee_delete($folder);
-      }
-      download_bee_callback(array('projects' => array($item['name']),), []);
-      echo '';
-    }
-  } else {
-    bee_message(bt('No Modules or Themes to Update'));
+  return $data;
+}
+
+function update_bee_render_table_output($data) {
+  foreach ($data as $item) {
+    $rows[] = array(
+      array('value' => $item['name']),
+      array('value' => $item['existing_version']),
+      array('value' => $item['latest_version']),
+    );
+  }
+  bee_render_text(array('value' => bt("These are the items being updated:\n")));
+  bee_render_table(array(
+    'rows' => $rows,
+    'header' => array(
+      array('value' => bt('Module')),
+      array('value' => bt('Existing')),
+      array('value' => bt('Latest')),
+    ),
+  ));
+}
+
+function update_bee_render_list_output($data) {
+  foreach ($data as $item) {
+    bee_render_text(array('value' => $item['name']));
   }
 }
