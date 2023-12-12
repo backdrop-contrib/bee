@@ -23,32 +23,7 @@ function bee_print_messages() {
       continue;
     }
 
-    switch ($type) {
-      case 'success':
-        $symbol = '[✔]';
-        $color = 'green';
-        break;
-
-      case 'warning':
-        $symbol = '[!]';
-        $color = 'yellow';
-        break;
-
-      case 'error':
-        $symbol = '[✘]';
-        $color = 'red';
-        break;
-
-      case 'log':
-        $symbol = '[-]';
-        $color = 'magenta';
-        break;
-
-      case 'info':
-      default:
-        $symbol = '[i]';
-        $color = 'blue';
-    }
+    list($symbol, $color) = bee_message_type_info($type);
 
     // Prepare `$rows` array for table output.
     foreach ($type_messages as $message) {
@@ -71,6 +46,46 @@ function bee_print_messages() {
     'delimiter_left' => ' ',
     'delimiter_right' => ' ',
   ));
+}
+
+/**
+ * Return the symbol and color for a bee message type.
+ *
+ * @param string $type
+ *   A string that identifies the type of message.
+ *
+ * @return array
+ *   An array of two elements, a textual symbol and a string identifying its
+ *   color.
+ */
+function bee_message_type_info($type) {
+  switch ($type) {
+    case 'success':
+      $symbol = '[✔]';
+      $color = 'green';
+      break;
+
+    case 'warning':
+      $symbol = '[!]';
+      $color = 'yellow';
+      break;
+
+    case 'error':
+      $symbol = '[✘]';
+      $color = 'red';
+      break;
+
+    case 'log':
+      $symbol = '[-]';
+      $color = 'magenta';
+      break;
+
+    case 'info':
+    default:
+      $symbol = '[i]';
+      $color = 'blue';
+  }
+  return array($symbol, $color);
 }
 
 /**
