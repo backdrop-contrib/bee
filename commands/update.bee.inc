@@ -54,6 +54,7 @@ function update_bee_command() {
       'options' => array(
         'security-only' => array(
           'description' => bt('Only update modules that have security updates available.'),
+          'short' => 's',
         ),
         'format' => array(
           'description' => bt('Format to output update information in. Options are "table" (default), "list".'),
