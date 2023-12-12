@@ -159,7 +159,7 @@ function update_db_bee_callback() {
 function update_bee_callback($arguments, $options) {
   global $_bee_backdrop_root;
   require_once $_bee_backdrop_root . '/core/includes/file.inc';
-  $data = update_bee_gather_available_updates($arguments, $options);
+  $data = update_bee_get_available_updates($arguments, $options);
   if ($data != NULL) {
     update_bee_render_table_output($data);
     // Prompt to continue.
@@ -183,7 +183,7 @@ function update_bee_callback($arguments, $options) {
  * Command callback: Show module and theme updates.
  */
 function update_list_bee_callback($arguments, $options) {
-  $data = update_bee_gather_available_updates($arguments, $options);
+  $data = update_bee_get_available_updates($arguments, $options);
   $is_list_format = isset($options['format']) && $options['format'] === 'list';
   if ($data === NULL && !$is_list_format) {
     bee_message(bt('No Modules or Themes to Update'));
@@ -196,7 +196,7 @@ function update_list_bee_callback($arguments, $options) {
   }
 }
 
-function update_bee_gather_available_updates($arguments, $options) {
+function update_bee_get_available_updates($arguments, $options) {
   $data = NULL;
   if ($available = update_get_available(TRUE)) {
     module_load_include('inc', 'update', 'update.compare');
