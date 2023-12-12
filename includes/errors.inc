@@ -99,7 +99,7 @@ function _bee_log_error(array $error, $fatal = FALSE) {
  *
  * @see _backdrop_get_last_caller()
  */
-function _bee_get_last_caller($backtrace) {
+function _bee_get_last_caller(array $backtrace) {
   // Errors that occur inside PHP internal functions do not generate
   // information about file and line. Ignore disallowed functions.
   $denylist = array('debug', 'bee_error_handler', '_bee_exception_handler');
