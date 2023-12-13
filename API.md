@@ -35,6 +35,11 @@ associative arrays, containing:
   - **value**: (optional) A translated word describing the value a user needs to
     provide for this option. This will be displayed to the user in uppercase
     after the option name.
+  - **short**: (optional) A short code for an option that does not require a
+    value. These will be prepended with '-' when displayed to the user. Any
+    short options are converted to the full option before being passed to the
+    command callback so you only need to check for the full option in your
+    function.
 - **aliases**: (optional) An array of alternate command names.
 - **bootstrap**: (optional) The bootstrap level required to run this command.
   See *includes/globals.inc* for possible values.
@@ -61,6 +66,7 @@ function poetry_bee_command() {
         ),
         'short' => array(
           'description' => bt('Display a shorter poem.'),
+          'short' => 's',
         ),
       ),
       'aliases' => array('p'),
