@@ -291,17 +291,17 @@ function bee_validate_command(array $descriptor) {
       // Check for long form command options.
       if (!isset($descriptor['options'][$name])) {
         // Check for short form command options.
-        $short_option_match = FALSE;
-        foreach ($descriptor['options'] as $command_option) {
+        foreach ($descriptor['options'] as $command_option_key => $command_option) {
           // Check if short option exists and it matches the provided option.
           if (isset($command_option['short']) && $command_option['short'] == $name) {
-            $short_option_match = TRUE;
+            // If it does, set the long form command option.
+            $_bee_options[$command_option_key] = TRUE;
           }
         }
-        // Unset the option if it doesn't match long or short options.
-        if (!$short_option_match) {
-          unset($_bee_options[$name]);
-        }
+        // Unset the option if it doesn't match long form options now that all
+        // short form options have been converted to their long form
+        // equivalent.
+        unset($_bee_options[$name]);
       }
     }
   }
