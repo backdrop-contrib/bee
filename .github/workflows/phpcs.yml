@@ -28,4 +28,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run CodeSniffer
-        run: phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
+        run: phpcs --standard=../phpcs/Backdrop --report=.github/misc/Github.php --basepath=. *
