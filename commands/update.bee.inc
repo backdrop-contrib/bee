@@ -41,10 +41,10 @@ function update_bee_command() {
         'bee update webform tatsu' => bt('Updates the Webform module and Tatsu theme only'),
       ),
     ),
-    'update-status' => array(
+    'update-list' => array(
       'description' => bt('Lists available updates for backdrop, modules, themes and layouts with new releases'),
       'callback' => 'update_list_bee_callback',
-      'aliases' => array('ups', 'pm-updatestatus'),
+      'aliases' => array('ups', 'pm-updatestatus', 'update-status', 'upl'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'arguments' => array(
         'projects' => bt('One or more projects to list updates for.'),
@@ -53,7 +53,7 @@ function update_bee_command() {
       'multiple_argument' => 'projects',
       'options' => array(
         'security-only' => array(
-          'description' => bt('Only update modules that have security updates available.'),
+          'description' => bt('Only list updates for modules that have security updates available.'),
           'short' => 's',
         ),
         'format' => array(
@@ -62,9 +62,9 @@ function update_bee_command() {
         ),
       ),
       'examples' => array(
-        'bee update-status' => bt('List updates for everything with a new release.'),
-        'bee update-status --security-only' => bt('List only security updates for everything with a new release.'),
-        'bee update-status webform tatsu' => bt('List updates for the Webform module and Tatsu theme only'),
+        'bee update-list' => bt('List updates for everything with a new release.'),
+        'bee update-list --security-only' => bt('List only security updates for everything with a new release.'),
+        'bee update-list webform tatsu' => bt('List updates for the Webform module and Tatsu theme only'),
       ),
     ),
   );
@@ -185,8 +185,10 @@ function update_bee_callback($arguments, $options) {
 function update_list_bee_callback($arguments, $options) {
   $data = update_bee_get_available_updates($arguments, $options);
   $is_list_format = isset($options['format']) && $options['format'] === 'list';
-  if ($data === NULL && !$is_list_format) {
-    bee_message(bt('No Modules or Themes to Update'));
+  if ($data == NULL) {
+    if (!$is_list_format) {
+      bee_message(bt('No Modules or Themes to Update'));
+    }
     return;
   }
   if ($is_list_format) {
@@ -231,7 +233,7 @@ function update_bee_get_available_updates($arguments, $options) {
         unset($data[$item['name']]);
         continue;
       }
-      if ((isset($options['security-only']) || isset($options['s'])) && $item['status'] !== UPDATE_NOT_SECURE) {
+      if (isset($options['security-only']) && $item['status'] !== UPDATE_NOT_SECURE) {
         unset($data[$item['name']]);
       }
     }
@@ -244,8 +246,6 @@ function update_bee_get_available_updates($arguments, $options) {
  *
  * @param array $data
  *   An array of projects with updates available.
- *
- * @return void
  */
 function update_bee_render_table_output($data) {
   foreach ($data as $item) {
@@ -271,8 +271,6 @@ function update_bee_render_table_output($data) {
  *
  * @param array $data
  *   An array of projects with updates available.
- *
- * @return void
  */
 function update_bee_render_list_output($data) {
   foreach ($data as $item) {
