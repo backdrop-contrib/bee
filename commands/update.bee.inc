@@ -182,7 +182,7 @@ function update_bee_callback($arguments, $options) {
 /**
  * Command callback: Show module and theme updates.
  */
-function update_list_bee_callback($arguments, $options) {
+function update_list_bee_callback(array $arguments, array $options) {
   $data = update_bee_get_available_updates($arguments, $options);
   $is_list_format = isset($options['format']) && $options['format'] === 'list';
   if ($data == NULL) {
@@ -209,7 +209,7 @@ function update_list_bee_callback($arguments, $options) {
  * @return array|NULL
  *   An array of projects with updates available, or NULL if there are none.
  */
-function update_bee_get_available_updates($arguments, $options) {
+function update_bee_get_available_updates(array $arguments, array $options) {
   $data = NULL;
   if ($available = update_get_available(TRUE)) {
     module_load_include('inc', 'update', 'update.compare');
@@ -247,7 +247,7 @@ function update_bee_get_available_updates($arguments, $options) {
  * @param array $data
  *   An array of projects with updates available.
  */
-function update_bee_render_table_output($data) {
+function update_bee_render_table_output(array $data) {
   foreach ($data as $item) {
     $rows[] = array(
       array('value' => $item['name']),
@@ -272,7 +272,7 @@ function update_bee_render_table_output($data) {
  * @param array $data
  *   An array of projects with updates available.
  */
-function update_bee_render_list_output($data) {
+function update_bee_render_list_output(array $data) {
   foreach ($data as $item) {
     bee_render_text(array('value' => $item['name']));
   }
