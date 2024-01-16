@@ -32,6 +32,25 @@ The purpose of this command is to ...
 #### Details
 [Memcache](https://github.com/backdrop-contrib/memcache)
 
+### Read Only Mode
+Read Only Mode allows site administrators and developers to lock down or
+freeze a production server so that maintenance or large deployments can occur
+without taking the site offline.
+
+#### Functions
+- Enable: `bee readonlymode TRUE`
+- Disable: `bee readonlymode FALSE`
+- Check the status: `bee readonlymode`
+
+It supports the aliases `rom` and `ro` and setting the value is
+case-insensitive as well as supporting `0` and `1`.
+
+See the [section in the README file](https://github.com/backdrop-contrib/readonlymode?tab=readme-ov-file#bee-support) for more details
+
+#### Details
+- [Read Only Mode](https://github.com/backdrop-contrib/readonlymode)
+
+
 ### Template - use the module name
 #### Functions
 - What the bee commands do or should do
