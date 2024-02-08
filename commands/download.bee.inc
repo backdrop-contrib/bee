@@ -221,26 +221,13 @@ function download_bee_callback($arguments, $options) {
         )), 'error');
         return;
       }
-      else {
-        // Add an 's' to the end of the type name.
-        $type_folder = $info['type'] . 's';
-      }
 
-      // Get the directory to download the project into.
-      if (!empty($_bee_backdrop_site)) {
-        $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $type_folder;
-      }
-      elseif (!empty($_bee_backdrop_root)) {
-        $destination = "$_bee_backdrop_root/" . $type_folder;
-      }
-      else {
+      $destination = download_get_project_destination($project, $info['type']);
+      if (empty($destination)) {
         bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
         return;
       }
-      if (file_exists("$destination/contrib")) {
-        $destination .= '/contrib';
-      }
-      $destination .= "/$project";
+
       // Check if the project exists within the site file system.
       $project_existing_location = download_bee_check_project_exists($project, $info['type']);
       $project_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $project_existing_location);
@@ -268,6 +255,36 @@ function download_bee_callback($arguments, $options) {
     }
     $project_count++;
   }
+}
+
+/**
+ * A function to format the directory path of a project.
+ *
+ * @param string $project
+ *   The name of the project.
+ * @param string $type
+ *   The project type of the project.
+ * @return string The location where the project will be downloaded.
+ */
+function download_get_project_destination($project, $type) {
+  global $_bee_backdrop_root, $_bee_backdrop_site;
+
+  if (!empty($_bee_backdrop_site)) {
+    $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $type . 's';
+  }
+  elseif (!empty($_bee_backdrop_root)) {
+    $destination = "$_bee_backdrop_root/" . $type . 's';
+  }
+  else {
+    return '';
+  }
+
+  if (file_exists("$destination/contrib")) {
+    $destination .= '/contrib';
+  }
+  $destination .= "/$project";
+
+  return $destination;
 }
 
 /**
