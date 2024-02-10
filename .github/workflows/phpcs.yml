@@ -11,7 +11,7 @@ jobs:
         with:
           php-version: 8.1
           # No composer, but we need our commandline tool.
-          tools: none, phpcs:3.7
+          tools: none, phpcs
 
       # The checkout action refuses to put it outside, so we have to do it in
       # two steps.
