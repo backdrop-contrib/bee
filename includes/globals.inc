@@ -104,4 +104,4 @@ define('BEE_BOOTSTRAP_FULL', 8);
  * is generated.
  */
 // Current version of Bee.
-define('BEE_VERSION', '1.x-1.x');
+define('BEE_VERSION', '1.x-1.0.1');

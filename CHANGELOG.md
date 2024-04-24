@@ -2,11 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows the
 [Backdrop CMS versioning standard](https://github.com/backdrop-ops/contrib#releases).
 
 ## [Unreleased]
+
+### [1.x-1.0.1] - 2024-04-24
 
 ### Added
 - PHP eval command
@@ -62,5 +64,6 @@ and this project follows the
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...HEAD
+[1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
 [1.x-1.0.0-beta]: https://github.com/backdrop-contrib/bee/compare/v0.0.0...1.x-1.0.0-beta
