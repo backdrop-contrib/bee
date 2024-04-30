@@ -1,0 +1,14 @@
+{
+  "chmod": "0755",
+  "directories": [
+    "commands",
+    "includes"
+  ],
+  "compactors": [
+    "KevinGH\\Box\\Compactor\\Php"
+  ],
+  "git-version": "package_version",
+  "main": "bee.php",
+  "output": "bee.phar",
+  "stub": true
+}
