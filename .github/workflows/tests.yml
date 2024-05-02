@@ -16,8 +16,12 @@ jobs:
       - name: Lando
         run: |
           # For downloading latest DEB file, see: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
-          curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
-          sudo dpkg -i --ignore-depends=docker-ce lando.deb
+          # Issue 368 - Temporarily set to 3.20.8 until can understand how to update for Lando's new approach to install and update.
+          # curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
+          # sudo dpkg -i --ignore-depends=docker-ce lando.deb
+          curl -fsSL https://get.lando.dev/setup-lando.sh -o setup-lando.sh
+          chmod +x ./setup-lando.sh
+          bash setup-lando.sh
           cd $GITHUB_WORKSPACE
           lando start
 
