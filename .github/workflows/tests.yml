@@ -16,7 +16,7 @@ jobs:
       - name: Lando Setup
         uses: lando/setup-lando@v3
         with:
-          lando-version: stable
+          lando-version: latest
       # Run Lando
       - name: Lando
         run: |
