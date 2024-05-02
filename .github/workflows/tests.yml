@@ -12,12 +12,14 @@ jobs:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v3
 
-      # Installs and starts Lando.
+      # Installs Lando. @see https://docs.lando.dev/install/gha.html
+      - name: Lando Setup
+        uses: lando/setup-lando@v3
+        with:
+          lando-version: stable
+      # Run Lando
       - name: Lando
-        run: |
-          curl -fsSL https://get.lando.dev/setup-lando.sh -o setup-lando.sh
-          chmod +x ./setup-lando.sh
-          bash setup-lando.sh
+        run:
           cd $GITHUB_WORKSPACE
           lando start
 
