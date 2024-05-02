@@ -11,7 +11,9 @@ config:
 services:
   appserver:
     build:
-      # Make symlink for `bee`.
+      # Remove existing symlink for `bee`
+      - rm -f /usr/local/bin/bee
+      # Make symlink for `bee` pointing to this version.
       - ln -s /app/bee.php /usr/local/bin/bee
       # Download Backdrop.
       - wget -q --show-progress -O /app/backdrop.zip https://github.com/backdrop/backdrop/archive/1.x.zip

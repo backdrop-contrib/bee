@@ -12,12 +12,14 @@ jobs:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v3
 
-      # Installs and starts Lando.
+      # Installs Lando. @see https://docs.lando.dev/install/gha.html
+      - name: Lando Setup
+        uses: lando/setup-lando@v3
+        with:
+          lando-version: latest
+      # Run Lando
       - name: Lando
         run: |
-          # For downloading latest DEB file, see: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
-          curl -Lo lando.deb $(curl -s https://api.github.com/repos/lando/lando/releases/latest | grep deb | grep https | awk '{ print $2 }' | sed 's/"//g')
-          sudo dpkg -i --ignore-depends=docker-ce lando.deb
           cd $GITHUB_WORKSPACE
           lando start
 
