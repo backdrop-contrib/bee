@@ -20,6 +20,9 @@ services:
       # Download PHPUnit.
       - wget -q --show-progress -O /app/phpunit https://phar.phpunit.de/phpunit-8.5.phar
       - chmod +x /app/phpunit
+      # Download Box
+      - wget -q --show-progress -O /app/box "https://github.com/box-project/box/releases/download/4.4.0/box.phar"
+      - chmod +x /app/box
     run:
       # Run setup tasks.
       - /app/.lando/setup.sh setup
@@ -31,16 +34,19 @@ events:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
 tooling:
   bee:
     service: appserver
     cmd: bee
+  box:
+    service: appserver
+    cmd: /app/box
   reset:
     service: appserver
     cmd: /app/.lando/setup.sh
