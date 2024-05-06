@@ -1,4 +1,4 @@
-Bee can be used with your existing [Lando](https://lando.dev/) setup:
+Bee can be used with your existing [Lando](https://lando.dev/) setup.  From Lando v3.21.0, Bee is included within the default Backdrop recipe; it currently uses the HEAD version so you will get the latest changes at every rebuild. You may need to run `lando rebuild -y` if you have just upgraded.  If you are using an earlier version or want to install another version manually.
 
 ## Installation
 1. Add some build steps that download and install Bee:
