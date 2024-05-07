@@ -58,3 +58,7 @@ Check all new commands and changes to existing commands are reflected in the Wik
 - Delete `PACKAGING_ERRORS.txt` from the release files
 - In `includes/globals.inc`, update the constant `BEE_VERSION` to '1.x-1.x'.
 - Add a commit with the name 'Reset version after release 1.x-1.0.2'
+- `git pull` to get latest version of `1.x-1.x` branch which will also update tags
+- Switch to the latest tag `checkout 1.x-1.0.2`
+- Compile the Phar file - `lando box compile`
+- Edit the release and upload the `bee.phar` file that has been generated.
