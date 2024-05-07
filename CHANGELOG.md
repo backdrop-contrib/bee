@@ -8,6 +8,13 @@ and this project follows the
 
 ## [Unreleased]
 
+### Added
+- Configuration and tool (Box) to build Phar files
+### Changed
+- Updated Lando file to reflect Lando v3.21.0
+### Fixed 
+- GitHub Action tests failing
+
 ### [1.x-1.0.1] - 2024-04-24
 
 ### Added
