@@ -9,6 +9,14 @@ config:
   bee: false
 services:
   appserver:
+    build_as_root:
+      # As bee is now added by default, we need to remove any existing versions
+      # of bee if you tested a versioned install of bee by adding in the config
+      # section above.
+      # Remove the parent folder if it exists.
+      - rm -rf /var/www/.bee
+      # Remove the symlink if it exists.
+      - rm -f /usr/local/bin/bee
     build:
       # Make symlink for `bee` pointing to this version.
       - ln -s /app/bee.php /usr/local/bin/bee
