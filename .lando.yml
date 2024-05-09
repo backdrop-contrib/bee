@@ -1,18 +1,23 @@
 name: bee
 recipe: backdrop
+keys: false
 config:
   php: 8.2
   webroot: backdrop
   database: mysql
-  # Although Drush isn't needed/used, the version that Lando includes by default
-  # has a bug that causes all build steps to fail. We therefore need to update
-  # Drush to the latest version just to make sure that build steps run properly.
-  backdrush: 1.x-1.x
+  # Need to disable bee so can use the version in the repo.
+  bee: false
 services:
   appserver:
-    build:
-      # Remove existing symlink for `bee`
+    build_as_root:
+      # As bee is now added by default, we need to remove any existing versions
+      # of bee if you tested a versioned install of bee by adding in the config
+      # section above.
+      # Remove the parent folder if it exists.
+      - rm -rf /var/www/.bee
+      # Remove the symlink if it exists.
       - rm -f /usr/local/bin/bee
+    build:
       # Make symlink for `bee` pointing to this version.
       - ln -s /app/bee.php /usr/local/bin/bee
       # Download Backdrop.
@@ -20,6 +25,9 @@ services:
       # Download PHPUnit.
       - wget -q --show-progress -O /app/phpunit https://phar.phpunit.de/phpunit-8.5.phar
       - chmod +x /app/phpunit
+      # Download Box
+      - wget -q --show-progress -O /app/box "https://github.com/box-project/box/releases/download/4.4.0/box.phar"
+      - chmod +x /app/box
     run:
       # Run setup tasks.
       - /app/.lando/setup.sh setup
@@ -30,17 +38,20 @@ events:
   pre-rebuild:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
-    # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    # Remove `bee` symlink, Backdrop, PHPUnit, Box and any created bee.phar files.
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
-    # Remove `bee` symlink, Backdrop and PHPUnit.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit
+    # Remove `bee` symlink, Backdrop, PHPUnit, Box and any created bee.phar files.
+    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
 tooling:
   bee:
     service: appserver
     cmd: bee
+  box:
+    service: appserver
+    cmd: /app/box
   reset:
     service: appserver
     cmd: /app/.lando/setup.sh
@@ -49,9 +60,6 @@ tooling:
     cmd:
       - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
       - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
-  # check-code:
-  #   service: appserver
-  #   cmd: /app/b/vendor/bin/phpcs --standard=/app/b/vendor/backdrop/coder/coder_sniffer/Backdrop --ignore=vendor/* /app/b
 proxy:
   appserver:
     - bee.lndo.site

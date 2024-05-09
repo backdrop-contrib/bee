@@ -97,7 +97,7 @@ function status_bee_callback($arguments, $options) {
         );
         $rows[] = array(
           array('value' => bt('Database port')),
-          array('value' => $info['port']),
+          array('value' => array_key_exists('port', $info) ? $info['port'] : NULL),
         );
 
         // States directly from database, as state_get() requires a higher
