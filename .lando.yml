@@ -31,6 +31,8 @@ services:
     run:
       # Run setup tasks.
       - /app/.lando/setup.sh setup
+  database:
+    healthcheck: mysql --defaults-extra-file=/app/.lando/mysql.cnf --silent --execute "SHOW DATABASES;"
   multisite:
     type: php:8.2
     webroot: multisite
