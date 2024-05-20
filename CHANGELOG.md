@@ -9,9 +9,10 @@ and this project follows the
 ## [Unreleased]
 
 ### Added
-- Configuration and tool (Box) to build Phar files
+- Configuration and tool (Box) to build Phar files.
+- Support for reporting database config storage in status command.
 ### Changed
-- Updated Lando file to reflect Lando v3.21.0
+- Updated Lando file to reflect Lando v3.21.0.
 - Lando dev/testing recipe updated to allow to switch bee version with rebuild.
 ### Fixed 
 - GitHub Action tests failing.
