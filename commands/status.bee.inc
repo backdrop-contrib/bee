@@ -158,16 +158,38 @@ function status_bee_callback($arguments, $options) {
       array('value' => bt('Drupal compatibility')),
       array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
     );
-    if ($config_directories['active'] && is_dir($config_directories['active'])) {
+    // Active config storage.
+    $config_active_class = isset($settings['config_active_class']) ? $settings['config_active_class'] : 'ConfigFileStorage';
+    $config_active_storage = '';
+    if ($config_active_class == 'ConfigDatabaseStorage') {
+      $config_active_storage = 'Database';
+    }
+    else {
+      if ($config_directories['active'] && is_dir($config_directories['active'])) {
+        $config_active_storage = realpath($config_directories['active']);
+      }
+    }
+    if ($config_active_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir active')),
-        array('value' => realpath($config_directories['active'])),
+        array('value' => bt('Config storage active')),
+        array('value' => $config_active_storage),
       );
     }
-    if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+    // Staging config storage.
+    $config_staging_class = isset($settings['config_staging_class']) ? $settings['config_staging_class'] : 'ConfigFileStorage';
+    $config_staging_storage = '';
+    if ($config_staging_class == 'ConfigDatabaseStorage') {
+      $config_staging_storage = 'Database';
+    }
+    else {
+      if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+        $config_staging_storage = realpath($config_directories['staging']);
+      }
+    }
+    if ($config_staging_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir staging')),
-        array('value' => realpath($config_directories['staging'])),
+        array('value' => bt('Config storage staging')),
+        array('value' => $config_staging_storage),
       );
     }
 
