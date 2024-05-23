@@ -8,12 +8,16 @@ and this project follows the
 
 ## [Unreleased]
 
+## [1.x-1.0.2]
+
 ### Added
 - Configuration and tool (Box) to build Phar files.
 - Support for reporting database config storage in status command.
+
 ### Changed
 - Updated Lando file to reflect Lando v3.21.0.
 - Lando dev/testing recipe updated to allow to switch bee version with rebuild.
+
 ### Fixed
 - GitHub Action tests failing.
 - Warning if database settings in array and port not included.
@@ -75,6 +79,7 @@ and this project follows the
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...HEAD
+[1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
 [1.x-1.0.0-beta]: https://github.com/backdrop-contrib/bee/compare/v0.0.0...1.x-1.0.0-beta
