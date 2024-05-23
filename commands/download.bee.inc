@@ -96,6 +96,7 @@ function download_bee_callback($arguments, $options) {
 
   // Get list of all core projects so we don't try to download core dependencies
   // when we download a named project.
+  $core_project_list = array();
   if (!empty($_bee_backdrop_root)) {
     // Look in folders for core modules, themes and layouts.
     $project_types = array('module', 'theme', 'layout');
@@ -536,18 +537,23 @@ function download_bee_download_project($project, array $info, $destination) {
  *   The type of project to list:
  *    - module
  *    - theme
- *    - layout
- *   This will find projects in both core and contrib.
+ *    - layout.
+ * @param array $locations
+ *   Array of 'locations'. These are not path locations, but location types. By
+ *   default, this is 'core' and 'contrib', but you could limit to just 'core'
+ *   or just 'contrib'.
  *
  * @return array
  *   An associative array of all projects with their locations, together with
  *   the location type and project type.
  */
 function download_bee_find_all_projects($type,
-                                        $locations = array('core', 'contrib')) {
+  array $locations = array('core', 'contrib')) {
   global $_bee_backdrop_root, $_bee_backdrop_site;
   // Create an empty array for files.
   $files = array();
+  // Create an empty array for projects.
+  $projects = array();
   // Set the pattern to look for .info files.
   $pattern = '#\.info$#';
   // Check if we need to add 'site_contrib' to list of locations.
@@ -575,7 +581,6 @@ function download_bee_find_all_projects($type,
     );
     $files = bee_file_scan_directory($path, $pattern, $options);
     // Modify each record to meet our needs.
-    $projects = array();
     foreach ($files as &$file) {
       // Add the revised project record to a common list of projects.
       $key = $file->name;
