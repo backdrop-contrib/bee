@@ -14,9 +14,10 @@ and this project follows the
 ### Changed
 - Updated Lando file to reflect Lando v3.21.0.
 - Lando dev/testing recipe updated to allow to switch bee version with rebuild.
-### Fixed 
+### Fixed
 - GitHub Action tests failing.
 - Warning if database settings in array and port not included.
+- Failure to find existing core submodule dependencies.
 
 ### [1.x-1.0.1] - 2024-04-24
 
