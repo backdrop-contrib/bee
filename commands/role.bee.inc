@@ -53,7 +53,7 @@ function role_bee_command() {
       'aliases' => array('rcrt'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee role-create editor' => bt("Add role 'editor'."),
+        'bee role-create manager' => bt("Add role 'manager'."),
       ),
     ),
     'role-delete' => array(
@@ -66,7 +66,7 @@ function role_bee_command() {
       'aliases' => array('rdel'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee role-delete editor' => bt("Delete role 'editor'."),
+        'bee role-delete manager' => bt("Delete role 'manager'."),
       ),
     ),
     'role-add-perm' => array(
@@ -121,6 +121,7 @@ function roles_bee_callback($arguments, $options) {
     )));
   }
   else {
+    $str = '';
     foreach ($roles as $key => $item) {
       if (!empty($key)) {
         $str .= $key.',';
