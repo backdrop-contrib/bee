@@ -37,7 +37,7 @@ class RolesCommandsTest extends TestCase {
   /**
    * Make sure that the role-add-perm command works.
    */
-  public function test_role_add_perm_command_works() {
+  public function test_role_add_permission_command_works() {
     $output_user = shell_exec('bee role-add-perm \'administer blocks\' example');
     $this->assertStringContainsString("The example role has the following permissions granted: 'administer blocks'", (string) $output_user);
     $output_user = shell_exec('bee role-add-perm \'administer comment settings\' example');
@@ -47,14 +47,14 @@ class RolesCommandsTest extends TestCase {
   /**
    * Make sure that the role-remove-perm command works.
    */
-  public function test_role_remove_perm_command_works() {
+  public function test_role_remove_permission_command_works() {
     $output_user = shell_exec('bee role-remove-perm "\'administer blocks\',\'administer comment settings\'" example');
     $this->assertStringContainsString("The example role has the following permissions granted:", (string) $output_user);
   }
   /**
    * Make sure that the role-delete command works.
    */
-  public function test_role_delete_perm_command_works() {
+  public function test_role_delete_permission_command_works() {
     $output_user = shell_exec('bee role-delete example');
     $this->assertStringContainsString("The example role has been deleted.", (string) $output_user);
   }
