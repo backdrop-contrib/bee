@@ -181,10 +181,12 @@ function permissions_bee_callback($arguments, $options) {
           $perms = '\''.$perms.'\'';
         }
       }
-      $rows[] = array(
-        array('value' => $module),
-        array('value' => $perms),
-      );
+      if (!empty($perms)){
+        $rows[] = array(
+          array('value' => $module),
+          array('value' => $perms),
+        );
+      }
     }
     $header = array(
       array('value' => bt('Module')),
