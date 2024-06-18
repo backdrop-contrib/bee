@@ -181,7 +181,7 @@ function permissions_bee_callback($arguments, $options) {
           $perms = '\''.$perms.'\'';
         }
       }
-      if (!empty($perms)){
+      if (!empty($perms)) {
         $rows[] = array(
           array('value' => $module),
           array('value' => $perms),
