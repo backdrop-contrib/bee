@@ -119,8 +119,14 @@ function db_export_bee_callback($arguments, $options) {
     $extra = '--no-tablespaces ';
   }
 
+  $export_command = executable_for('mysqldump');
+  if (is_null($export_command)) {
+    bee_message("The MySQL export command 'mysqldump' cannot be found in " .
+                "this system. Please install it and try again.", 'error');
+    return null;
+  }
   // Export and compress the database.
-  $export_command = 'mysqldump ';
+  $export_command .= ' ';
   $export_command .= $connection_string;
   $export_command .= ' ';
   $export_command .= $extra;
@@ -172,11 +178,23 @@ function db_import_bee_callback($arguments, $options) {
   }
 
   // Import the database.
+  $mysql_bin = executable_for('mysql');
+  if (is_null($mysql_bin)) {
+    bee_message("The MySQL client command 'mysql' cannot be found in " .
+                "this system. Please install it and try again.", 'error');
+    return null;
+  }
   $import_command = '';
   if ($gzip) {
-    $import_command .= "gunzip -c $filename | ";
+    $gunzip_bin = executable_for('gunzip');
+    if (is_null($gunzip_bin)) {
+      bee_message("The gzip decompressor command 'gunzip' cannot be found in " .
+                  "this system. Please install it and try again.", 'error');
+      return null;
+    }
+    $import_command .= "$gunzip_bin -c $filename | ";
   }
-  $import_command .= 'mysql ' . $connection_string;
+  $import_command .= $mysql_bin . ' ' . $connection_string;
   if (!$gzip) {
     $import_command .= " < $filename";
   }
@@ -218,7 +236,13 @@ function db_drop_bee_callback($arguments, $options) {
   $connection_file = $connection_details['filename'];
 
   // Drop the existing backdrop database as configured.
-  $command = 'mysql ' . $connection_string . ' -e "drop database ' . $db_database . '";';
+  $mysql_command = executable_for('mysql');
+  if (is_null($mysql_command)) {
+    bee_message("The MySQL client command 'mysql' cannot be found in " .
+                "this system. Please install it and try again.", 'error');
+    return null;
+  }
+  $command = $mysql_command . ' ' . $connection_string . ' -e "drop database ' . $db_database . '";';
   $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 
   if ($result == -1) {
@@ -233,7 +257,7 @@ function db_drop_bee_callback($arguments, $options) {
   }
 
   // Re-create the existing backdrop database as configured.
-  $command = 'mysql ' . $connection_string . ' -e "create database ' . $db_database . '";';
+  $command = $mysql_command .' ' . $connection_string . ' -e "create database ' . $db_database . '";';
   $result = proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
 
   if ($result == -1) {
@@ -265,7 +289,13 @@ function sql_bee_callback($arguments, $options) {
   $connection_file = $connection_details['filename'];
 
   // Open SQL command-line.
-  $command = 'mysql ' . $connection_string;
+  $mysql_command = executable_for('mysql');
+  if (is_null($mysql_command)) {
+    bee_message("The MySQL client command 'mysql' cannot be found in " .
+                "this system. Please install it and try again.", 'error');
+    return null;
+  }
+  $command = $mysql_command . ' ' . $connection_string;
   proc_close(proc_open($command, array(STDIN, STDOUT, STDERR), $pipes));
   // Remove the temporary mysql options file.
   bee_delete($connection_file);
@@ -347,4 +377,18 @@ function dbq_bee_callback($arguments, $options) {
   catch (PDOException $e) {
     bee_message($e->getMessage(), 'error');
   }
+}
+
+/**
+ * Checks whether a command exists in the PATH, and if so, returns the
+ * full path. Returns null if no such command is available.
+ */
+function executable_for($cmd) {
+    foreach (explode(":", getenv('PATH')) as $dir) {
+        $candidate = "$dir/$cmd";
+        if (is_executable($candidate)) {
+            return $candidate;
+        }
+    }
+    return null;
 }
