@@ -156,7 +156,6 @@ function roles_bee_callback($arguments, $options) {
  * Command callback: List all permissions of the modules.
  */
 function permissions_bee_callback($arguments, $options) {
-  $rows = array();
   $module_list = module_list();
   if (!empty($options['module'])) {
     $perms = module_invoke($options['module'], 'permission');
