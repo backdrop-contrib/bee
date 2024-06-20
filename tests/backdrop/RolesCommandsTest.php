@@ -23,7 +23,7 @@ class RolesCommandsTest extends TestCase {
    */
   public function test_permissions_command_works() {
     $output = shell_exec('bee permissions');
-    $this->assertRegExp('/| block | \'administer blocks\' +|/', (string) $output);
+    $this->assertStringContainsString("BLOCK: 'administer blocks'", (string) $output);
   }
 
   /**
