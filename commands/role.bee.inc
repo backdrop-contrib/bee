@@ -111,13 +111,13 @@ function roles_bee_callback($arguments, $options) {
   unset($roles['authenticated']);
   if (!empty($options['role'])) {
     $role = array($options['role']);
-    $perms = implode('\',\'', user_role_permissions($role));
-    if (!empty($perms)) {
-      $perms = '\''.$perms.'\'';
+    $permissions = implode('\',\'', user_role_permissions($role));
+    if (!empty($permissions)) {
+      $permissions = '\''.$permissions.'\'';
     }
-    bee_message(bt("The !role role has the following permissions granted: !perms", array(
+    bee_message(bt("The !role role has the following permissions granted: !permissions", array(
       '!role' => $options['role'],
-      '!perms' => $perms,
+      '!permissions' => $permissions,
     )));
   }
   else {
@@ -126,13 +126,13 @@ function roles_bee_callback($arguments, $options) {
       if (!empty($key)) {
         $str .= $key.',';
         $keyarray = array($key);
-        $perms = implode('\' , \'', user_role_permissions($keyarray));
-        if (!empty($perms)) {
-          $perms = '\''.$perms.'\'';
+        $permissions = implode('\' , \'', user_role_permissions($keyarray));
+        if (!empty($permissions)) {
+          $permissions = '\''.$permissions.'\'';
         }
         $rows[] = array(
          array('value' => $key),
-         array('value' => $perms),
+         array('value' => $permissions),
         );
       }
     }
@@ -300,18 +300,18 @@ function role_add_permission_bee_callback($arguments, $options) {
   }
   // Do the permission exists?
   $module_list = module_list();
-  $perms = array();
+  $permissions = array();
   foreach ($module_list as $key => $module) {
-    $modperms = module_invoke($module, 'permission');
-    if (!empty($modperms)) {
-      $perms = array_merge($perms, array_keys($modperms));
+    $modify_permission = module_invoke($module, 'permission');
+    if (!empty($modify_permission)) {
+      $permissions = array_merge($permissions, array_keys($modify_permission));
     }
   }
   $permissions = explode(',', (str_replace('\'', '', (str_replace('"', '', $arguments['permissions'])))));
-  foreach ($permissions as $perm) {
-    if (! in_array("$perm", $perms)) {
-      bee_message(bt("The !perm permission could not be found!", array(
-        '!perm' => $perm,
+  foreach ($permissions as $permission) {
+    if (! in_array("$permission", $permissions)) {
+      bee_message(bt("The !permission permission could not be found!", array(
+        '!permission' => $permission,
       )), 'error');
       return;
     }
@@ -319,13 +319,13 @@ function role_add_permission_bee_callback($arguments, $options) {
   // Grant the permissions.
   user_role_grant_permissions($arguments['role'], $permissions);
   $role = array($arguments['role']);
-  $perms = implode('\',\'', user_role_permissions($role));
-  if (!empty($perms)) {
-    $perms = '\''.$perms.'\'';
+  $permissions = implode('\',\'', user_role_permissions($role));
+  if (!empty($permissions)) {
+    $permissions = '\''.$permissions.'\'';
   }
-  bee_message(bt("The !role role has the following permissions granted: !perms", array(
+  bee_message(bt("The !role role has the following permissions granted: !permissions", array(
     '!role' => $arguments['role'],
-    '!perms' => $perms,
+    '!permissions' => $permissions,
   )), 'success');
 }
 
@@ -340,35 +340,35 @@ function role_remove_permission_bee_callback($arguments, $options) {
     )));
     return;
   }
-  $grantperms = array();
+  $grant_permissions = array();
   $permissions = explode(',', (str_replace('\'', '', (str_replace('"', '', $arguments['permissions'])))));
   $role = array($arguments['role']);
-  $currentperms = user_role_permissions($role);
+  $current_permissions = user_role_permissions($role);
   // First set all to TRUE.
   // Any value that evaluates to TRUE will cause the permission to be granted.
-  if ( ! empty($currentperms)) {
-    foreach ($permissions as $perm) {
-      $grantperms[$perm] = TRUE;
+  if ( ! empty($current_permissions)) {
+    foreach ($permissions as $permission) {
+      $grant_permissions[$permission] = TRUE;
     }
   }
-  foreach ($permissions as $perm) {
-    if (! in_array("$perm", $currentperms)) {
-      bee_message(bt("The !perm permission has not be granted!", array(
-        '!perm' => $perm,
+  foreach ($permissions as $permission) {
+    if (! in_array("$permission", $current_permissions)) {
+      bee_message(bt("The !permssion permission has not be granted!", array(
+        '!permission' => $permssion,
       )), 'error');
       return;
     }
     else {
-      $grantperms[$perm] = FALSE;
+      $grant_permissions[$permission] = FALSE;
     }
   }
-  user_role_change_permissions($arguments['role'], $grantperms);
-  $perms = implode('\',\'', user_role_permissions($role));
-  if (!empty($perms)) {
-    $perms = '\''.$perms.'\'';
+  user_role_change_permissions($arguments['role'], $grant_permissions);
+  $permissions = implode('\',\'', user_role_permissions($role));
+  if (!empty($permissions)) {
+    $permissions = '\''.$permissions.'\'';
   }
   bee_message(bt("The !role role has the following permissions granted: !perms", array(
     '!role' => $arguments['role'],
-    '!perms' => $perms,
+    '!perms' => $permissions,
   )), 'success');
 }
