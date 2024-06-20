@@ -158,48 +158,63 @@ function roles_bee_callback($arguments, $options) {
 function permissions_bee_callback($arguments, $options) {
   $module_list = module_list();
   if (!empty($options['module'])) {
-    $perms = module_invoke($options['module'], 'permission');
-    if (!empty($perms)) {
-      $perms = implode('\',\'', array_keys($perms));
-      if (!empty($perms)) {
-        $perms = '\''.$perms.'\'';
-      }
+    // If a module has been specified, check it is active, and return error if
+    // not.
+    $module = strtolower($options['module']);
+    if (!array_key_exists($module, $module_list)) {
+      bee_message(bt("The module '!module' is not enabled.", array(
+        '!module' => $module,
+      )), 'error');
+      return;
     }
-    bee_message(bt("The module !mod has the following permissions: !perms ", array(
-      '!mod' => $options['module'],
-      '!perms' => $perms,
-    )));
-    return;
+    // Check if the module has permissions defined.
+    $permissions = module_invoke($module, 'permission');
+    if (!empty($permissions)) {
+      // Convert the permissions array to a comma separated list of quoted
+      // permissions.
+      $permissions = implode('\',\'', array_keys($permissions));
+      $permissions = '\'' . $permissions . '\'';
+      // Prepare the command output.
+      $output = array(array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => bt("The module '!module' has the following permissions: !permissions ", array(
+            '!module' => $module,
+            '!permissions' => $permissions,
+          )),
+        ),
+      ),);
+      return $output;
+    }
+    else {
+      // If the module has no defined permissions, return an error.
+      bee_message(bt("The module '!module' has no permissions defined.", array(
+        '!module' => $module,
+      )), 'error');
+      return;
+    }
   }
   else {
+    // If no module is defined, show all modules with permissions.
+    $output = array();
+    // Check all active modules for defined permissions.
     foreach ($module_list as $key => $module) {
-      $perms = module_invoke($module, 'permission');
-      if (!empty($perms)) {
-        $perms = implode('\',\'', array_keys($perms));
-        if (!empty($perms)) {
-          $perms = '\''.$perms.'\'';
-        }
-      }
-      if (!empty($perms)) {
-        $rows[] = array(
-          array('value' => $module),
-          array('value' => $perms),
+      $permissions = module_invoke($module, 'permission');
+      if (!empty($permissions)) {
+        // If permissions exist for the module, convert the permissions array
+        // to a comma separated list of quoted permissions.
+        $permissions = implode('\',\'', array_keys($permissions));
+        $permissions = '\''.$permissions.'\'';
+        // Prepare the command output.
+        $output[] = array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => strtoupper($module) . ': ' . $permissions ,
+          ),
         );
       }
     }
-    $header = array(
-      array('value' => bt('Module')),
-      array('value' => bt('Permissions')),
-    );
-    return array(
-      array(
-        'type' => 'table',
-        'variables' => array(
-          'rows' => $rows,
-          'header' => $header,
-        ),
-      ),
-    );
+    return $output;
   }
 }
 
