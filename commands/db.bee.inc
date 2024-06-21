@@ -379,7 +379,7 @@ function dbq_bee_callback($arguments, $options) {
  * path. Returns FALSE if no such command is available.
  *
  * @param string $cmd
- *   Name of the command to be searched
+ *   Name of the command to be searched.
  *
  * @return string
  *   Full path to the first occurence of $cmd in the search path.
