@@ -121,8 +121,7 @@ function db_export_bee_callback($arguments, $options) {
 
   $export_command = executable_for('mysqldump');
   if (!$export_command) {
-    bee_message("The MySQL export command 'mysqldump' cannot be found in " .
-                "this system. Please install it and try again.", 'error');
+      bee_message(bt("The MySQL export command 'mysqldump' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
   // Export and compress the database.
@@ -180,16 +179,14 @@ function db_import_bee_callback($arguments, $options) {
   // Import the database.
   $mysql_bin = executable_for('mysql');
   if (!$mysql_bin) {
-    bee_message("The MySQL client command 'mysql' cannot be found in this " .
-                "system. Please install it and try again.", 'error');
+    bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
   $import_command = '';
   if ($gzip) {
     $gunzip_bin = executable_for('gunzip');
     if (!$gunzip_bin) {
-      bee_message("The gzip decompressor command 'gunzip' cannot be found " .
-                  "in this system. Please install it and try again.", 'error');
+      bee_message(bt("The gzip decompressor command 'gunzip' cannot be found in this system. Please install it and try again."), 'error');
       return FALSE;
     }
     $import_command .= "$gunzip_bin -c $filename | ";
@@ -238,8 +235,7 @@ function db_drop_bee_callback($arguments, $options) {
   // Drop the existing backdrop database as configured.
   $mysql_command = executable_for('mysql');
   if (!$mysql_command) {
-    bee_message("The MySQL client command 'mysql' cannot be found in this " .
-                "system. Please install it and try again.", 'error');
+    bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
   $command = $mysql_command . ' ' . $connection_string . ' -e "drop database ' . $db_database . '";';
@@ -291,8 +287,7 @@ function sql_bee_callback($arguments, $options) {
   // Open SQL command-line.
   $mysql_command = executable_for('mysql');
   if (!$mysql_command) {
-    bee_message("The MySQL client command 'mysql' cannot be found in this " .
-                "system. Please install it and try again.", 'error');
+    bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
   $command = $mysql_command . ' ' . $connection_string;
