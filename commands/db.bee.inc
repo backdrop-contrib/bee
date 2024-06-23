@@ -119,7 +119,7 @@ function db_export_bee_callback($arguments, $options) {
     $extra = '--no-tablespaces ';
   }
 
-  $export_command = executable_for('mysqldump');
+  $export_command = bee_get_executable_path('mysqldump');
   if (!$export_command) {
       bee_message(bt("The MySQL export command 'mysqldump' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
@@ -177,14 +177,14 @@ function db_import_bee_callback($arguments, $options) {
   }
 
   // Import the database.
-  $mysql_bin = executable_for('mysql');
+  $mysql_bin = bee_get_executable_path('mysql');
   if (!$mysql_bin) {
     bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
   $import_command = '';
   if ($gzip) {
-    $gunzip_bin = executable_for('gunzip');
+    $gunzip_bin = bee_get_executable_path('gunzip');
     if (!$gunzip_bin) {
       bee_message(bt("The gzip decompressor command 'gunzip' cannot be found in this system. Please install it and try again."), 'error');
       return FALSE;
@@ -233,7 +233,7 @@ function db_drop_bee_callback($arguments, $options) {
   $connection_file = $connection_details['filename'];
 
   // Drop the existing backdrop database as configured.
-  $mysql_command = executable_for('mysql');
+  $mysql_command = bee_get_executable_path('mysql');
   if (!$mysql_command) {
     bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
@@ -285,7 +285,7 @@ function sql_bee_callback($arguments, $options) {
   $connection_file = $connection_details['filename'];
 
   // Open SQL command-line.
-  $mysql_command = executable_for('mysql');
+  $mysql_command = bee_get_executable_path('mysql');
   if (!$mysql_command) {
     bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
@@ -372,25 +372,4 @@ function dbq_bee_callback($arguments, $options) {
   catch (PDOException $e) {
     bee_message($e->getMessage(), 'error');
   }
-}
-
-/**
- * Checks whether a command exists in the PATH, and if so, returns the full
- * path. Returns FALSE if no such command is available.
- *
- * @param string $cmd
- *   Name of the command to be searched.
- *
- * @return string
- *   Full path to the first occurence of $cmd in the search path.
- *   Returns FALSE if no matching command is found.
- */
-function executable_for($cmd) {
-  foreach (explode(":", getenv('PATH')) as $dir) {
-    $candidate = "$dir/$cmd";
-    if (is_executable($candidate)) {
-      return $candidate;
-    }
-  }
-  return FALSE;
 }
