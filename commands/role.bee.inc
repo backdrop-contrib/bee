@@ -110,8 +110,17 @@ function roles_bee_callback($arguments, $options) {
   $roles = user_roles(TRUE);
   unset($roles['authenticated']);
   if (!empty($options['role'])) {
-    $role = array($options['role']);
-    $permissions = implode('\',\'', user_role_permissions($role));
+    // If a role has been specified, check if exists, and return error if
+    // not.
+    $role = strtolower($options['role']);
+    if (!array_key_exists($role, $roles)) {
+      bee_message(bt("The role '!role' doesn't exists!", array(
+        '!role' => $role,
+      )), 'error');
+      return;
+    }
+    $role_array = array(strtolower($options['role']));
+    $permissions = implode('\',\'', user_role_permissions($role_array));
     if (!empty($permissions)) {
       $permissions = '\''.$permissions.'\'';
     }
@@ -121,34 +130,29 @@ function roles_bee_callback($arguments, $options) {
     )));
   }
   else {
-    $str = '';
-    foreach ($roles as $key => $item) {
-      if (!empty($key)) {
-        $str .= $key.',';
-        $keyarray = array($key);
-        $permissions = implode('\' , \'', user_role_permissions($keyarray));
+    $output = array();
+    foreach ($roles as $role => $value) {
+      if (!empty($role)) {
+        $role_array = array($role);
+        $permissions = implode('\' , \'', user_role_permissions($role_array));
         if (!empty($permissions)) {
           $permissions = '\''.$permissions.'\'';
         }
-        $rows[] = array(
-         array('value' => $key),
-         array('value' => $permissions),
+        $output[] = array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => strtoupper($role) . ': ' . $permissions ,
+          ),
+        );
+        $output[] = array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => '' ,
+          ),
         );
       }
     }
-    $header = array(
-      array('value' => bt('Role')),
-      array('value' => bt('Permissions')),
-    );
-    return array(
-      array(
-        'type' => 'table',
-        'variables' => array(
-          'rows' => $rows,
-          'header' => $header,
-        ),
-      ),
-    );
+    return($output);
   }
 }
 
@@ -210,6 +214,12 @@ function permissions_bee_callback($arguments, $options) {
           'type' => 'text',
           'variables' => array(
             'value' => strtoupper($module) . ': ' . $permissions ,
+          ),
+        );
+        $output[] = array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => '' ,
           ),
         );
       }
@@ -292,6 +302,7 @@ function role_delete_bee_callback($arguments, $options) {
  */
 function role_add_permission_bee_callback($arguments, $options) {
   $roles = user_roles(TRUE);
+  // Do the role exists?
   if (empty($roles[$arguments['role']])) {
     bee_message(bt("The !role role  does not exits.", array(
       '!role' => $arguments['role'],
@@ -334,6 +345,7 @@ function role_add_permission_bee_callback($arguments, $options) {
  */
 function role_remove_permission_bee_callback($arguments, $options) {
   $roles = user_roles(TRUE);
+  // Do the role exists?
   if (empty($roles[$arguments['role']])) {
     bee_message(bt("The !role role  does not exits.", array(
       '!role' => $arguments['role'],
