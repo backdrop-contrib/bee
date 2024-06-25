@@ -23,6 +23,7 @@ function role_bee_command() {
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
         'bee roles' => bt('Display a list of all roles with the permissions for the current site.'),
+        'bee roles --role=editor' => bt('Display all the permissions for the editor role'),
       ),
     ),
     'permissions' => array(
