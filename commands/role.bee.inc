@@ -110,7 +110,6 @@ function roles_bee_callback($arguments, $options) {
   $rows = array();
   // Get a list of all roles including the anonymous role.
   $roles = user_roles(TRUE);
-  unset($roles['authenticated']);
   if (!empty($options['role'])) {
     // If a role has been specified, check if exists, and return error if
     // not.
@@ -140,13 +139,7 @@ function roles_bee_callback($arguments, $options) {
       $output[] = array(
         'type' => 'text',
         'variables' => array(
-          'value' => strtoupper($role) . ': ' . $permissions ,
-        ),
-      );
-      $output[] = array(
-        'type' => 'text',
-        'variables' => array(
-          'value' => '' ,
+          'value' => strtoupper($role) . ': ' . $permissions  . "\n",
         ),
       );
     }
@@ -211,13 +204,7 @@ function permissions_bee_callback($arguments, $options) {
         $output[] = array(
           'type' => 'text',
           'variables' => array(
-            'value' => strtoupper($module) . ': ' . $permissions ,
-          ),
-        );
-        $output[] = array(
-          'type' => 'text',
-          'variables' => array(
-            'value' => '' ,
+            'value' => strtoupper($module) . ': ' . $permissions  . "\n",
           ),
         );
       }
