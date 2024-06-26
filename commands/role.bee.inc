@@ -133,24 +133,22 @@ function roles_bee_callback($arguments, $options) {
   else {
     $output = array();
     foreach ($roles as $role => $value) {
-      if (!empty($role)) {
-        $permissions = implode('\' , \'', user_role_permissions(array($role)));
-        if (!empty($permissions)) {
-          $permissions = '\''.$permissions.'\'';
-        }
-        $output[] = array(
-          'type' => 'text',
-          'variables' => array(
-            'value' => strtoupper($role) . ': ' . $permissions ,
-          ),
-        );
-        $output[] = array(
-          'type' => 'text',
-          'variables' => array(
-            'value' => '' ,
-          ),
-        );
+      $permissions = implode('\' , \'', user_role_permissions(array($role)));
+      if (!empty($permissions)) {
+        $permissions = '\''.$permissions.'\'';
       }
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => strtoupper($role) . ': ' . $permissions ,
+        ),
+      );
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => '' ,
+        ),
+      );
     }
     return($output);
   }
