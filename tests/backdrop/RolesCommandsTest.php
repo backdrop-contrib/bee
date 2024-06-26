@@ -15,7 +15,7 @@ class RolesCommandsTest extends TestCase {
    */
   public function test_roles_command_works() {
     $output = shell_exec('bee roles');
-    $this->assertRegExp('/| administrator | \'administer blocks\' +|/', (string) $output);
+    $this->assertStringContainsString("ADMINISTRATOR: 'administer blocks'", (string) $output);
   }
 
   /**
