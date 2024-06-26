@@ -121,8 +121,7 @@ function roles_bee_callback($arguments, $options) {
       )), 'error');
       return;
     }
-    $role_array = array(strtolower($options['role']));
-    $permissions = implode('\',\'', user_role_permissions($role_array));
+    $permissions = implode('\',\'', user_role_permissions(array($role)));
     if (!empty($permissions)) {
       $permissions = '\''.$permissions.'\'';
     }
