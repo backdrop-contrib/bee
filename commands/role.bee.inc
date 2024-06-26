@@ -108,6 +108,7 @@ function role_bee_command() {
  */
 function roles_bee_callback($arguments, $options) {
   $rows = array();
+  // Get a list of all roles including the anonymous role.
   $roles = user_roles(TRUE);
   unset($roles['authenticated']);
   if (!empty($options['role'])) {
