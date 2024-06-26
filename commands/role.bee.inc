@@ -123,7 +123,7 @@ function roles_bee_callback($arguments, $options) {
     }
     $permissions = implode('\',\'', user_role_permissions(array($role)));
     if (!empty($permissions)) {
-      $permissions = '\''.$permissions.'\'';
+      $permissions = '\'' . $permissions . '\'';
     }
     bee_message(bt("The !role role has the following permissions granted: !permissions", array(
       '!role' => $options['role'],
