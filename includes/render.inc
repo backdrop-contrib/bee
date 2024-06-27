@@ -5,12 +5,11 @@
  */
 
 /**
- * Format and display all messages to the user.
+ * Format and display all post operation messages to the user.
  */
 function bee_print_messages() {
   global $_bee_messages, $_bee_debug_mode;
   $rows = array();
-
   // Exit if there are no messages.
   if (empty($_bee_messages)) {
     return;
@@ -61,28 +60,33 @@ function bee_print_messages() {
 function bee_message_type_info($type) {
   switch ($type) {
     case 'success':
-      $symbol = '[✔]';
+      $symbol = BEE_SYMBOL_SUCCESS;
       $color = 'green';
       break;
 
     case 'warning':
-      $symbol = '[!]';
+      $symbol = BEE_SYMBOL_WARNING;
       $color = 'yellow';
       break;
 
     case 'error':
-      $symbol = '[✘]';
+      $symbol = BEE_SYMBOL_ERROR;
       $color = 'red';
       break;
 
     case 'log':
-      $symbol = '[-]';
+      $symbol = BEE_SYMBOL_LOG;
       $color = 'magenta';
+      break;
+
+    case 'debug':
+      $symbol = BEE_SYMBOL_DEBUG;
+      $color = '92';
       break;
 
     case 'info':
     default:
-      $symbol = '[i]';
+      $symbol = BEE_SYMBOL_INFO;
       $color = 'blue';
   }
   return array($symbol, $color);
@@ -134,6 +138,65 @@ function bee_render_text(array $variables, $newline = TRUE) {
   // Format and output the text.
   echo bee_format_text($text, $color, $bold);
   if ($newline) {
+    echo "\n";
+  }
+}
+
+/**
+ * Output information and messages as the code happens.
+ *
+ * In many ways, this function is similar to 'bee_message()' but there are some
+ * key differences:
+ *   - This function will output the message and optional data at the point in
+ *     the code when it happens rather than at the end.
+ *   - It includes the ability to output an array of data after the message for
+ *     'debug' messages.
+ *   - It includes the calling function and line number for 'debug' messages.
+ * @param string $message
+ *   The translated message to display.
+ * @param string $type
+ *   The type of message to display (this determines the formatting used). One
+ *   of: info, success, warning, error, log, debug. Defaults to 'info'.
+ *   Note that 'log' and 'debug' messages are only displayed when `debug` mode
+ *   is enabled.
+ * @param array $data
+ *   An optional array of data that will be outputted after the message for
+ *   'debug' types only (Ignored for other types). Defaults to empty array.
+ */
+function bee_instant_message($message, $type = 'info', array $data = array()) {
+  global $_bee_debug_mode;
+
+  // Exit the function if not debug mode and type is 'log' or 'debug'.
+  if (!$_bee_debug_mode && in_array($type, array('log','debug'))) {
+    return;
+  }
+
+  // Add the symbol.
+  $symbol = bee_message_type_info($type);
+  echo ' ' . bee_format_text($symbol[0], $symbol[1]);
+
+  // If debug mode and type is 'debug' get the calling information.
+  if ($_bee_debug_mode && $type == 'debug') {
+    // Get the calling function and line. Need to get two functions.
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+    $function = $backtrace[1]['function'];
+    $line = $backtrace[0]['line'];
+
+    // Output the function name and line it is called from.
+    echo " [$function:$line]";
+  }
+
+  // Output the string.
+  echo " $message";
+
+  // Output newline.
+  echo "\n";
+
+  // If debug mode AND type is 'debug' AND data array is populated, output the
+  // array.
+  if ($_bee_debug_mode && $type == 'debug' && !empty($data)) {
+    // phpcs:ignore Squiz.PHP.DiscouragedFunctions -- integral part of the command
+    print_r($data);
     echo "\n";
   }
 }
