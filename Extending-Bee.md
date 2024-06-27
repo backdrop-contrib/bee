@@ -1,9 +1,7 @@
-API Information
-===============
+# API Information
 Source: https://github.com/backdrop-contrib/bee/blob/1.x-1.x/API.md
 
-`HOOK_bee_command()`
---------------------
+## `HOOK_bee_command()`
 This hook can be invoked to provide additional commands to Bee. It should reside
 in a `bee` command file (*HOOK.bee.inc*) which should be placed in a
 custom/contrib module, in the `.bee` folder in the user's HOME directory or in
@@ -16,6 +14,9 @@ associative arrays, containing:
 - **description**: The translated description of the command.
 - **callback**: The name of the function that runs the command. Should be of the
   form `COMMAND_bee_callback`.
+- **group**: The name of the group the command belongs to (used when listing all
+  commands together). Group names should be lowercase with individual words
+  separated by an underscore. See `bee help` for a list of existing groups.
 - **arguments**: (optional) An array of required arguments for the command,
   where the keys are argument names and the values are translated argument
   descriptions.
@@ -33,6 +34,11 @@ associative arrays, containing:
   - **value**: (optional) A translated word describing the value a user needs to
     provide for this option. This will be displayed to the user in uppercase
     after the option name.
+  - **short**: (optional) A short code for an option that does not require a
+    value. These will be prepended with '-' when displayed to the user. Any
+    short options are converted to the full option before being passed to the
+    command callback so you only need to check for the full option in your
+    function.
 - **aliases**: (optional) An array of alternate command names.
 - **bootstrap**: (optional) The bootstrap level required to run this command.
   See *includes/globals.inc* for possible values.
@@ -48,6 +54,7 @@ function poetry_bee_command() {
     'poem' => array(
       'description' => bt('Displays a customised poem.'),
       'callback' => 'poem_bee_callback',
+      'group' => 'poetry',
       'arguments' => array(
         'name' => bt('The name to use in the poem.'),
       ),
@@ -58,6 +65,7 @@ function poetry_bee_command() {
         ),
         'short' => array(
           'description' => bt('Display a shorter poem.'),
+          'short' => 's',
         ),
       ),
       'aliases' => array('p'),
@@ -71,8 +79,7 @@ function poetry_bee_command() {
 }
 ```
 
-`COMMAND_bee_callback()`
-------------------------
+## `COMMAND_bee_callback()`
 This function is called when the user runs the given command (see
 `HOOK_bee_command()`). It is highly recommended to adhere to the suggested
 `COMMAND_bee_callback()` format to avoid collisions with other Backdrop function
@@ -133,22 +140,38 @@ function poem_bee_callback($arguments, $options) {
 }
 ```
 
-Helper functions
-----------------
+## Helper functions
 There are a number of helper functions that can be called to assist in
 performing various tasks. Read the documentation for them in their respective
 files.
 
 - **`bee_message()`** (*includes/miscellaneous.inc*)  
-  Any time a message needs to be shown to the user, this function should be
-  used. It collects all messages and then displays them to the user at the
-  appropriate time. A message, as opposed to regular text, has a type; being one
-  of: status, success, warning, error or log. Note that 'log' messages are only
-  displayed to the user when 'debug' mode is enabled.
+  Any time a message needs to be shown to the user at completion of the
+  operation, this function should be used. It collects all messages and then
+  displays them to the user at the conclusion of the operation. A message, as
+  opposed to regular text, has a type; being one of: status, success, warning,
+  error or log. Note that 'log' messages are only displayed to the user when
+  'debug' mode is enabled.
+
+- **`bee_instant_message()`** (*includes/render.inc*)  
+  If a message needs to be displayed to users as the code happens, this
+  function should be used. This could be to output a message to say something
+  is going to happen before it happens, for example, downloading a file or
+  completing a database operation. It can also be used for more advanced
+  debugging as the message will output at the time of code execution and
+  and therefore can output information before a fatal error. It includes an
+  additional message type of 'debug'.
+  In many ways, this function is similar to 'bee_message()' but there are some
+  key differences:
+    - This function will output the message and optional data at the point in
+      the code when it happens rather than at the end.
+    - It includes the ability to output an array of data after the message for
+      'debug' messages.
+    - It includes the calling function and line number for 'debug' messages.
 
 - **`bt()`** (*includes/miscellaneous.inc*)  
   All text that can be translated into other languages should be run through
-  this function. This is the Backdrop Console equivalent of the `t()` function.
+  this function. This is the Bee equivalent of Backdrop's `t()` function.
 
 - **`bee_get_temp()`** (*includes/filesystem.inc*)  
   If a temporary directory is needed (e.g. for downloading files, etc. before
