@@ -110,3 +110,27 @@ define('BEE_BACKUP_DIRECTORY', '../bee-backup/');
  */
 // Current version of Bee.
 define('BEE_VERSION', '1.x-1.x');
+
+/**
+ * Define constants for symbols to be used within Bee.
+ */
+// Bee (U+1F41D, Honeybee)
+define('BEE_SYMBOL_BEE', '🐝');
+
+// Success (U+2714, Heavy Check Mark)
+define('BEE_SYMBOL_SUCCESS', '✔ ');
+
+// Warning (U+26A0, Warning Sign)
+define('BEE_SYMBOL_WARNING', '⚠️');
+
+// Error (U+2718, Heavy Ballot X)
+define('BEE_SYMBOL_ERROR', '✘ ');
+
+// Info (U+2139, Information Source)
+define('BEE_SYMBOL_INFO', 'ℹ ');
+
+// Debug (U+1F575, Sleuth or Spy)
+define('BEE_SYMBOL_DEBUG', '🕵');
+
+// Log (U+1F4DD, Memo)
+define('BEE_SYMBOL_LOG', '📝');

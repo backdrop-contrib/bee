@@ -8,6 +8,19 @@ and this project follows the
 
 ## [Unreleased]
 
+### Added
+- A new function to whether or not an executable exists in the system.
+- A new function to display messages and data at the point they happen in code.
+
+### Changed
+- Call the install script using the PHP_BINARY constant to avoid issues if the
+execute permissions have not been added to the file.
+- Symbols now defined as constants that can be used anywhere.
+
+### Fixed
+- Add error handling if the executables called in the database commands does
+not exist.
+
 ## [1.x-1.0.2]
 
 ### Added
