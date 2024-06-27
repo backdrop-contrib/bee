@@ -98,6 +98,11 @@ define('BEE_BOOTSTRAP_LANGUAGE', 7);
 define('BEE_BOOTSTRAP_FULL', 8);
 
 /**
+ * Define constant for path to backup directory.
+ */
+define('BEE_BACKUP_DIRECTORY', '../bee-backup/');
+
+/**
  * Define constant for Bee's current version.
  *
  * This will normally be '1.x-1.x' but will be changed briefly when a release
