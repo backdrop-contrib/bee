@@ -14,7 +14,7 @@ function cache_bee_command() {
       'callback' => 'cache_clear_bee_command',
       'group' => 'miscellaneous',
       'arguments' => array(
-        'cache' => bt('The name of the cache to clear. Leave blank to see a list of available caches.'),
+        'cache' => bt('The name of the cache to clear (not case sensitive). Leave blank to see a list of available caches.'),
       ),
       'optional_arguments' => array('cache'),
       'aliases' => array('cc'),
@@ -22,6 +22,7 @@ function cache_bee_command() {
       'examples' => array(
         'bee cache-clear menu' => bt('Clear the menu cache.'),
         'bee cache-clear all' => bt('Clear all caches.'),
+        'bee cache-clear css_js' => bt('Clear the CSS & JS cache.'),
         'bee cache-clear' => bt('Select the cache to clear from a list of available ones.'),
       ),
     ),
@@ -36,7 +37,7 @@ function cache_clear_bee_command($arguments, $options) {
   $cache_list = array(
     'all' => bt('All'),
     'core' => bt('Core (page, admin bar, etc.)'),
-    'css_js' => bt('CSS & JS'),
+    'css_js' => bt('CSS & JS [css_js]'),
     'entity' => bt('Entity'),
     'layout' => bt('Layout'),
     'menu' => bt('Menu'),
@@ -47,10 +48,19 @@ function cache_clear_bee_command($arguments, $options) {
   );
 
   // Get the cache to clear.
-  if (isset($arguments['cache'])) {
-    $cache = $arguments['cache'];
+  $cache = isset($arguments['cache']) ? strtolower($arguments['cache']) : NULL;
+
+  // Check the cache.
+  if (!is_null($cache) && !isset($cache_list[$cache])) {
+    bee_instant_message(bt("'!cache' is not a valid cache to clear.", array(
+      "!cache" => $cache,
+    )) . "\n", 'warning'); // Add additional linebreak before select list.
+    $cache = NULL;
   }
-  else {
+
+  // If either no cache was entered or an invalid cache was entered, offer a
+  // choice of caches to clear.
+  if (is_null($cache)) {
     $cache = bee_choice($cache_list, bt('Select a cache to clear:'), 'all');
   }
 
