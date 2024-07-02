@@ -123,8 +123,6 @@ function roles_bee_callback($arguments, $options) {
     $permissions = implode('\',\'', user_role_permissions(array($role)));
     if (!empty($permissions)) {
       $permissions = '\'' . $permissions . '\'';
-    }
-    if (!empty($permissions)) {
       $output = array(array(
         'type' => 'text',
         'variables' => array(
