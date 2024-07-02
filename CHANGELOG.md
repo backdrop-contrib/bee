@@ -11,15 +11,22 @@ and this project follows the
 ### Added
 - A new function to whether or not an executable exists in the system.
 - A new function to display messages and data at the point they happen in code.
+- New commands for roles and permissions:
+  - List all roles with permissions
+  - List all permissions by module
+  - Create or delete roles
+  - Add or remove permissions from roles
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
 execute permissions have not been added to the file.
 - Symbols now defined as constants that can be used anywhere.
+- Changed the help output to text rather than tables.
 
 ### Fixed
-- Add error handling if the executables called in the database commands does
+- Unhandled Error if the executables called in the database commands does
 not exist.
+- Unhandled Warning if argument for 'cache-clear' wasn't in the list
 
 ## [1.x-1.0.2]
 
