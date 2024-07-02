@@ -15,13 +15,6 @@ define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
 define('BEE_GITHUB_API_URL', 'https://api.github.com/');
 
 /**
- * Include the common functions file so we can re-use some Backdrop functions
- * for handling .info files and dependencies.
- */
-global $_bee_backdrop_root;
-require_once $_bee_backdrop_root . '/core/includes/common.inc';
-
-/**
  * Implements hook_bee_command().
  */
 function download_bee_command() {
@@ -35,9 +28,16 @@ function download_bee_command() {
       ),
       'multiple_argument' => 'projects',
       'options' => array(
-        'hide-progress' => array(
-          'description' => bt('Deprecated, will get removed in a future version.'),
-          'short' => 'h',
+        'release' => array(
+          'description' => bt("Specify a release tag or one of the following keywords:")
+          . "\n - " . bt("'dev' (download the dev version from the default branch.)")
+          . "\n - " . bt("'branch' (download the dev version from an alternative branch. Specified using the 'branch' option.)")
+          . "\n - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)"),
+          'value' => bt("The release tag or keyword."),
+        ),
+        'branch' => array(
+          'description' => bt("If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise."),
+          'value' => bt('The branch name.'),
         ),
         'allow-multisite-copy' => array(
           'description' => bt('Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.'),
@@ -64,9 +64,11 @@ function download_bee_command() {
       ),
       'optional_arguments' => array('directory'),
       'options' => array(
-        'hide-progress' => array(
-          'description' => bt('Deprecated, will get removed in a future version.'),
-          'short' => 'h',
+        'release' => array(
+          'description' => bt("Specify a release tag or one of the following keywords:")
+          . "\n - " . bt("'dev' (download the dev version from the default branch.)")
+          . "\n - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)"),
+          'value' => bt("The release tag or keyword."),
         ),
         'github-token' => array(
           'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
@@ -623,12 +625,12 @@ function download_bee_get_project_info($project, $organization, $release = '', $
   bee_instant_message('$endpoint:' . $endpoint, 'debug');
   // // Retrieve the info file as an array of lines.
   $info_file = download_bee_github_api_call($endpoint, $github_api_token, 'raw');
-  $info_parsed = backdrop_parse_info_format($info_file[0]);
+  $info_parsed = bee_parse_info_format($info_file[0]);
   bee_instant_message(bt('The info file data:'), 'debug', $info_parsed);
   $info['type'] = $info_parsed['type'];
   if (isset($info_parsed['dependencies'])) {
     foreach ($info_parsed['dependencies'] as $dependency) {
-      $dependency = backdrop_parse_dependency($dependency);
+      $dependency = bee_parse_dependency($dependency);
       $info['dependencies'][] = $dependency;
     }
   }
