@@ -21,10 +21,12 @@ and this project follows the
 - Call the install script using the PHP_BINARY constant to avoid issues if the
 execute permissions have not been added to the file.
 - Symbols now defined as constants that can be used anywhere.
+- Changed the help output to text rather than tables.
 
 ### Fixed
-- Add error handling if the executables called in the database commands does
+- Unhandled Error if the executables called in the database commands does
 not exist.
+- Unhandled Warning if argument for 'cache-clear' wasn't in the list
 
 ## [1.x-1.0.2]
 

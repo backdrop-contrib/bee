@@ -62,22 +62,63 @@ function help_bee_callback($arguments, $options) {
   $option_rows = array();
   $command_rows = array();
 
+  // Display Bee with the symbol.
+  $output = array(
+    array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => BEE_SYMBOL_BEE . " " . bt('Bee'),
+        '#bold' => TRUE,
+      ),
+    ),
+  );
+
+  // Display the usage pattern.
+  $output[] = array(
+    'type' => 'text',
+    'variables' => array(
+      'value' => bt('Usage: bee [global-options] <command> [options] [arguments]') . "\n",
+    ),
+  );
+
+  // Display the global options.
+  $output[] = array(
+    'type' => 'text',
+    'variables' => array(
+      'value' => bt('Global Options:'),
+      '#bold' => TRUE,
+    ),
+  );
+
   foreach ($_bee_global_options as $option => $descriptor) {
     $value = '--' . $option;
     if (isset($descriptor['short'])) {
       $value .= ', -' . $descriptor['short'];
     }
-    $option_rows[] = array(
-      array(
-        'value' => $value,
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => " $value",
         '#color' => 'blue',
         '#bold' => TRUE,
       ),
-      array('value' => $descriptor['description']),
     );
-
-    $option_rows[] = array();
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => " " . $descriptor['description'] . "\n",
+      ),
+    );
   }
+
+  // Add the Commands.
+  $output[] = array(
+    'type' => 'text',
+    'variables' => array(
+      'value' => "\n" . bt('Commands:'),
+      '#bold' => TRUE,
+    ),
+  );
 
   // Get all commands in groups.
   $commands = bee_all_commands(TRUE);
@@ -91,84 +132,50 @@ function help_bee_callback($arguments, $options) {
   foreach ($commands as $group => $grouped_commands) {
     ksort($grouped_commands);
 
-    $command_rows[] = array(
-      array('value' => strtoupper(str_replace('_', ' ', $group))),
-      array('value' => ''),
+    // Output the Group heading.
+    $output[] = array(
+      'type' => 'text',
+      'variables' => array(
+        'value' => " " . strtoupper(str_replace('_', ' ', $group)),
+        '#bold' => TRUE,
+      ),
     );
 
+    // Loop through each command in the group.
     foreach ($grouped_commands as $command => $descriptor) {
-      $command_rows[] = array(
-        array(
-          'value' => ' ' . $command,
+      // Output the command.
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => "  " . $command,
           '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => $descriptor['description']),
       );
 
+      // Output aliases if they exist.
       $aliases = array_keys($_bee_command_aliases, $command);
       if (!empty($aliases)) {
-        $command_rows[] = array(
-          array(
-            'value' => ' ' . implode(', ', $aliases),
+        $output[] = array(
+          'type' => 'text',
+          'variables' => array(
+            'value' => '   ' . implode(', ', $aliases),
             '#color' => 'magenta',
             '#bold' => TRUE,
           ),
-          array('value' => ''),
         );
       }
 
-      $command_rows[] = array();
+      // Output the command description.
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => "   " . $descriptor['description'] . "\n",
+        ),
+      );
     }
   }
-
-  return array(
-    array(
-      'type' => 'text',
-      'variables' => array(
-        'value' => bt('Bee'),
-        '#bold' => TRUE,
-      ),
-    ),
-    array(
-      'type' => 'text',
-      'variables' => array(
-        'value' => bt('Usage: bee [global-options] <command> [options] [arguments]') . "\n",
-      ),
-    ),
-    array(
-      'type' => 'text',
-      'variables' => array(
-        'value' => bt('Global Options:'),
-        '#bold' => TRUE,
-      ),
-    ),
-    array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $option_rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    ),
-    array(
-      'type' => 'text',
-      'variables' => array(
-        'value' => bt('Commands:'),
-        '#bold' => TRUE,
-      ),
-    ),
-    array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $command_rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    ),
-  );
+  return $output;
 }
 
 /**
@@ -221,31 +228,26 @@ function help_bee_command_help(array $descriptor) {
       ),
     );
 
-    $rows = array();
     foreach ($descriptor['arguments'] as $argument_name => $argument_description) {
       if (!empty($descriptor['optional_arguments']) && in_array($argument_name, $descriptor['optional_arguments'])) {
         $argument_description = bt('(optional) ') . $argument_description;
       }
 
-      $rows[] = array(
-        array(
-          'value' => $argument_name,
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $argument_name",
           '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => $argument_description),
+      );
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " $argument_description\n",
+        ),
       );
     }
-
-    $output[] = array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    );
   }
 
   // Options.
@@ -258,31 +260,26 @@ function help_bee_command_help(array $descriptor) {
       ),
     );
 
-    $rows = array();
     foreach ($descriptor['options'] as $option_name => $option) {
       $value = !empty($option['value']) ? '=' . strtoupper($option['value']) : '';
       if (isset($option['short'])) {
         $option_name .= ', -' . $option['short'];
       }
-      $rows[] = array(
-        array(
-          'value' => '--' . $option_name . $value,
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " --$option_name" . $value,
           '#color' => 'blue',
           '#bold' => TRUE,
         ),
-        array('value' => $option['description']),
+      );
+      $output[] = array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => " " . $option['description'] . "\n",
+        ),
       );
     }
-
-    $output[] = array(
-      'type' => 'table',
-      'variables' => array(
-        'rows' => $rows,
-        'delimiter' => '   ',
-        'delimiter_left' => ' ',
-        'delimiter_right' => ' ',
-      ),
-    );
   }
 
   // Examples.
