@@ -11,6 +11,11 @@ and this project follows the
 ### Added
 - A new function to whether or not an executable exists in the system.
 - A new function to display messages and data at the point they happen in code.
+- New commands for roles and permissions:
+  - List all roles with permissions
+  - List all permissions by module
+  - Create or delete roles
+  - Add or remove permissions from roles
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
