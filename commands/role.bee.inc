@@ -124,14 +124,29 @@ function roles_bee_callback($arguments, $options) {
     if (!empty($permissions)) {
       $permissions = '\'' . $permissions . '\'';
     }
-    bee_message(bt("The !role role has the following permissions granted: !permissions", array(
-      '!role' => $options['role'],
-      '!permissions' => $permissions,
-    )));
+    if (!empty($permissions)) {
+      $output = array(array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => bt("The !role role has the following permissions granted: !permissions", array(
+            '!role' => $options['role'],
+            '!permissions' => $permissions,
+          )),
+        ),
+      ),);
+      return $output;
+    }
+    else {
+      bee_message(bt("The role '!role' doesn't have any permissions?", array(
+        '!role' => $options['role'],
+      )), 'info');
+      return;
+    }
+    return $output;
   }
   else {
     $output = array();
-    foreach ($roles as $role => $value) {
+    foreach ($roles as $role => $role_label) {
       $permissions = implode('\' , \'', user_role_permissions(array($role)));
       if (!empty($permissions)) {
         $permissions = '\''.$permissions.'\'';
