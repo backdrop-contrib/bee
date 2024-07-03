@@ -1,9 +1,17 @@
 on:
-  # Trigger on push or pull request events, but only for the 1.x-1.x branch.
+  # Trigger on pull request events. Also trigger on push events for feature branches.
   push:
-    branches: [ 1.x-1.x, issue-111-update-command ]
+    branches: [ issue-111-update-command ]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'images/**'
   pull_request:
     branches: [ 1.x-1.x, issue-111-update-command ]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'images/**'
 
 jobs:
   tests:
