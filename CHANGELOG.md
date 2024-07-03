@@ -43,7 +43,7 @@ not exist.
 - Warning if database settings in array and port not included.
 - Failure to find existing core submodule dependencies.
 
-### [1.x-1.0.1] - 2024-04-24
+## [1.x-1.0.1] - 2024-04-24
 
 ### Added
 - PHP eval command
