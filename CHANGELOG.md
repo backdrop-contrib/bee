@@ -26,7 +26,8 @@ execute permissions have not been added to the file.
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
 not exist.
-- Unhandled Warning if argument for 'cache-clear' wasn't in the list
+- Unhandled Warning if argument for 'cache-clear' wasn't in the list.
+- 'Headers already sent' warning if Yes mode or Debug mode enabled.
 
 ## [1.x-1.0.2] - 2024-05-23
 
