@@ -50,11 +50,54 @@ See the [section in the README file](https://github.com/backdrop-contrib/readonl
 #### Details
 - [Read Only Mode](https://github.com/backdrop-contrib/readonlymode)
 
+### Rules
+#### Functions
+- What the bee commands do or should do TBC
 
-### Template - use the module name
+#### Details
+- [Rules](https://github.com/backdrop-contrib/rules)
+
+### Backup Migrate
+#### Functions
+* `bam-backup`: Backup a specified source associated with a Backdrop CMS website.
+* `bam-destinations`: Get a list of available destinations.
+* `bam-profiles`: Get a list of available settings profiles.
+* `bam-restore`: Restore a saved backup to a specified source.
+* `bam-saved`: Get a list of previously created backup files.
+* `bam-sources`: Get a list of available sources.
+
+#### Details
+- [Backup Migrate](https://github.com/backdrop-contrib/backup_migrate)
+
+### S3 File System
+#### Functions
+- What the bee commands do or should do TBC
+
+#### Details
+- [s3fs](https://github.com/backdrop-contrib/s3fs)
+
+### Tweet Feed
+#### Functions
+- What the bee commands do or should do TBC
+
+#### Details
+- [Tweet Feed](https://github.com/backdrop-contrib/tweet_feed)
+
+### Node Access Rebuild Progressive
+#### Functions
+- `bee node-access-rebuild-progressive`
+
+or for short,
+
+- `bee narp`
+
+#### Details
+- [Node Access Rebuild Progressive](https://github.com/backdrop-contrib/node_access_rebuild_progressive)
+
+
+### Template
 #### Functions
 - What the bee commands do or should do
--
 
 #### Details
 - Link to request in module queue or link to module
