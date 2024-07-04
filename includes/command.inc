@@ -56,7 +56,7 @@ function bee_parse_input() {
  * Get the callback function for the command and process it.
  */
 function bee_process_command() {
-  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases, $_bee_output;
+  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases, $_bee_output, $_bee_yes_mode, $_bee_debug_mode;
 
   // Display help text if no command is given.
   if (empty($_bee_command)) {
@@ -88,6 +88,14 @@ function bee_process_command() {
       }
 
       if ($ready) {
+        // Notify about Yes mode and Debug mode if enabled. This must be done
+        // after Backdrop has been bootstrapped, if applicable.
+        if ($_bee_yes_mode) {
+          bee_instant_message(bt("'Yes' mode enabled."));
+        }
+        if ($_bee_debug_mode) {
+          bee_instant_message(bt("'Debug' mode enabled."));
+        }
         $_bee_output = $callback($_bee_arguments, $_bee_options);
       }
       else {

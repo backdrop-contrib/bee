@@ -152,6 +152,12 @@ function bee_render_text(array $variables, $newline = TRUE) {
  *   - It includes the ability to output an array of data after the message for
  *     'debug' messages.
  *   - It includes the calling function and line number for 'debug' messages.
+ *
+ * WARNING: If you insert a call to this function in the core bee code before
+ *          a command that requires Backdrop to be boostrapped, it will produce
+ *          'Headers already sent' warnings so only use temporarily for debug
+ *          purposes.
+ *
  * @param string $message
  *   The translated message to display.
  * @param string $type

@@ -28,7 +28,7 @@ execute permissions have not been added to the file.
 not exist.
 - Unhandled Warning if argument for 'cache-clear' wasn't in the list
 
-## [1.x-1.0.2]
+## [1.x-1.0.2] - 2024-05-23
 
 ### Added
 - Configuration and tool (Box) to build Phar files.
@@ -43,7 +43,7 @@ not exist.
 - Warning if database settings in array and port not included.
 - Failure to find existing core submodule dependencies.
 
-### [1.x-1.0.1] - 2024-04-24
+## [1.x-1.0.1] - 2024-04-24
 
 ### Added
 - PHP eval command
