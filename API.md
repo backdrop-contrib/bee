@@ -1,8 +1,6 @@
-API Information
-===============
+# API Information
 
-`HOOK_bee_command()`
---------------------
+## `HOOK_bee_command()`
 This hook can be invoked to provide additional commands to Bee. It should reside
 in a `bee` command file (*HOOK.bee.inc*) which should be placed in a
 custom/contrib module, in the `.bee` folder in the user's HOME directory or in
@@ -80,8 +78,7 @@ function poetry_bee_command() {
 }
 ```
 
-`COMMAND_bee_callback()`
-------------------------
+## `COMMAND_bee_callback()`
 This function is called when the user runs the given command (see
 `HOOK_bee_command()`). It is highly recommended to adhere to the suggested
 `COMMAND_bee_callback()` format to avoid collisions with other Backdrop function
@@ -142,18 +139,34 @@ function poem_bee_callback($arguments, $options) {
 }
 ```
 
-Helper functions
-----------------
+## Helper functions
 There are a number of helper functions that can be called to assist in
 performing various tasks. Read the documentation for them in their respective
 files.
 
 - **`bee_message()`** (*includes/miscellaneous.inc*)  
-  Any time a message needs to be shown to the user, this function should be
-  used. It collects all messages and then displays them to the user at the
-  appropriate time. A message, as opposed to regular text, has a type; being one
-  of: status, success, warning, error or log. Note that 'log' messages are only
-  displayed to the user when 'debug' mode is enabled.
+  Any time a message needs to be shown to the user at completion of the
+  operation, this function should be used. It collects all messages and then
+  displays them to the user at the conclusion of the operation. A message, as
+  opposed to regular text, has a type; being one of: status, success, warning,
+  error or log. Note that 'log' messages are only displayed to the user when
+  'debug' mode is enabled.
+
+- **`bee_instant_message()`** (*includes/render.inc*)  
+  If a message needs to be displayed to users as the code happens, this
+  function should be used. This could be to output a message to say something
+  is going to happen before it happens, for example, downloading a file or
+  completing a database operation. It can also be used for more advanced
+  debugging as the message will output at the time of code execution and
+  and therefore can output information before a fatal error. It includes an
+  additional message type of 'debug'.
+  In many ways, this function is similar to 'bee_message()' but there are some
+  key differences:
+    - This function will output the message and optional data at the point in
+      the code when it happens rather than at the end.
+    - It includes the ability to output an array of data after the message for
+      'debug' messages.
+    - It includes the calling function and line number for 'debug' messages.
 
 - **`bt()`** (*includes/miscellaneous.inc*)  
   All text that can be translated into other languages should be run through

@@ -8,7 +8,27 @@ and this project follows the
 
 ## [Unreleased]
 
-## [1.x-1.0.2]
+### Added
+- A new function to whether or not an executable exists in the system.
+- A new function to display messages and data at the point they happen in code.
+- New commands for roles and permissions:
+  - List all roles with permissions
+  - List all permissions by module
+  - Create or delete roles
+  - Add or remove permissions from roles
+
+### Changed
+- Call the install script using the PHP_BINARY constant to avoid issues if the
+execute permissions have not been added to the file.
+- Symbols now defined as constants that can be used anywhere.
+- Changed the help output to text rather than tables.
+
+### Fixed
+- Unhandled Error if the executables called in the database commands does
+not exist.
+- Unhandled Warning if argument for 'cache-clear' wasn't in the list
+
+## [1.x-1.0.2] - 2024-05-23
 
 ### Added
 - Configuration and tool (Box) to build Phar files.
@@ -23,7 +43,7 @@ and this project follows the
 - Warning if database settings in array and port not included.
 - Failure to find existing core submodule dependencies.
 
-### [1.x-1.0.1] - 2024-04-24
+## [1.x-1.0.1] - 2024-04-24
 
 ### Added
 - PHP eval command

@@ -17,14 +17,14 @@ $_bee_global_options = array(
     'description' => bt("Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory."),
   ),
   'base-url' => array(
-    'description' => bt("Specify the base URL of the Backdrop site, such as https://example.com/backdrop. May be useful with commands that output URLs to pages on the site."),
+    'description' => bt("Specify the base URL of the Backdrop site, such as https://example.com. May be useful with commands that output URLs to pages on the site."),
   ),
   'yes' => array(
     'description' => bt("Answer 'yes' to questions without prompting."),
     'short' => 'y',
   ),
   'debug' => array(
-    'description' => bt("Enables 'debug' mode, in which 'log' type messages will be displayed (in addition to all other messages)."),
+    'description' => bt("Enables 'debug' mode, in which 'debug' and 'log' type messages will be displayed (in addition to all other messages)."),
     'short' => 'd',
   ),
 );
@@ -105,3 +105,27 @@ define('BEE_BOOTSTRAP_FULL', 8);
  */
 // Current version of Bee.
 define('BEE_VERSION', '1.x-1.x');
+
+/**
+ * Define constants for symbols to be used within Bee.
+ */
+// Bee (U+1F41D, Honeybee)
+define('BEE_SYMBOL_BEE', '🐝');
+
+// Success (U+2714, Heavy Check Mark)
+define('BEE_SYMBOL_SUCCESS', '✔ ');
+
+// Warning (U+26A0, Warning Sign)
+define('BEE_SYMBOL_WARNING', '⚠️');
+
+// Error (U+2718, Heavy Ballot X)
+define('BEE_SYMBOL_ERROR', '✘ ');
+
+// Info (U+2139, Information Source)
+define('BEE_SYMBOL_INFO', 'ℹ ');
+
+// Debug (U+1F575, Sleuth or Spy)
+define('BEE_SYMBOL_DEBUG', '🕵');
+
+// Log (U+1F4DD, Memo)
+define('BEE_SYMBOL_LOG', '📝');
