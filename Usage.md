@@ -322,6 +322,71 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee db-drop` - Drop the current database and recreate an empty database with the same details.  You will then be prompted to confirm.
 - `bee --yes db-drop` - Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.
 
+### Roles
+#### `permissions`
+*Description:* List all permissions of the modules.
+*Aliases:*`pls`, `permissions-list`
+*Options:*
+- `--module=MODULE` - Get the permissions for this module.
+
+*Examples:*
+- `bee permissions` - Display a list of all permissions of the modules for the current site.
+- `bee permissions --module=node` - Display a list of all permissions from the 'node' module for the current site.
+
+#### `roles`
+*Description:* List all roles with the permissions.
+*Aliases:*`rls`, `roles-list`
+*Options:*
+- `--role=ROLE` - Get the permissions granted to this role.
+
+*Examples:*
+- `bee roles` - Display a list of all roles with the permissions for the current site.
+- `bee roles --role=editor` - Display all the permissions for the editor role.
+
+#### `role-create`
+*Description:* Add a role.
+*Aliases:*`rcrt`
+
+*Arguments:*
+- `role` - Role to add.
+
+*Examples:*
+- `bee role-create manager` - Add role 'manager'.
+
+#### `role-delete`
+*Description:* Delete a role.
+*Aliases:*`rdel`
+
+*Arguments:*
+- `role` - Role to delete.
+
+*Examples:*
+- `bee role-delete manager` - Delete role 'manager'.
+
+#### `role-add-perm`
+*Description:* Grant specified permission(s) to a role.
+*Aliases:*`rap`
+
+*Arguments:*
+- `permissions` - Permissions
+- `role` - Role
+
+*Examples:*
+- `bee role-add-perm  'post comments' 'anonymous'` - Allow anonymous users to post comments.
+- `bee role-add-perm  "'view own unpublished content' , 'view any unpublished content' , 'view revisions'" 'anonymous'` - Grant multiple permissions to the 'anonymous' role.
+
+#### `role-remove-perm`
+*Description:* Remove specified permission(s) from a role.
+*Aliases:*`rrp`
+
+*Arguments:*
+- `permissions` - Permissions
+- `role` - Role
+
+*Examples:*
+- `bee role-remove-perm 'access content' 'anonymous'` - Hide content from anonymous users.
+- `bee role-remove-perm  "'view own unpublished content' , 'view any unpublished content' , 'view revisions'" 'anonymous'` - Remove multiple permissions from the 'anonymous' role.
+
 ### Users
 #### `user-create`
 *Description:* Create a user account with the specified name.  
