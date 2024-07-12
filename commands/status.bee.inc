@@ -37,8 +37,12 @@ function status_bee_callback($arguments, $options) {
   $rows = array();
 
   if (!empty($_bee_backdrop_root)) {
-    // Backdrop core.
     global $settings, $config_directories;
+    $rows[] = array(
+      array('value' => BEE_SYMBOL_BEE),
+      array('value' => ''),
+    );
+    // Backdrop core.
     if (defined('BACKDROP_VERSION')) {
       $rows[] = array(
         array('value' => bt('Backdrop CMS')),
@@ -48,6 +52,10 @@ function status_bee_callback($arguments, $options) {
     $rows[] = array(
       array('value' => bt('Bee version')),
       array('value' => BEE_VERSION),
+    );
+    $rows[] = array(
+      array('value' => bt('Bee latest release')),
+      array('value' => BEE_LATEST_RELEASE),
     );
     $rows[] = array(
       array('value' => bt('Bee root directory')),
