@@ -60,6 +60,9 @@ $_bee_yes_mode = FALSE;
 // A boolean indicating whether or not `Debug` mode is enabled.
 $_bee_debug_mode = FALSE;
 
+// A constant indicating the bootstrap level of the current command.
+$_bee_bootstrap_level = -1;
+
 // A list of messages to display to the user, grouped by type.
 $_bee_messages = array();
 
@@ -68,8 +71,16 @@ $_bee_messages = array();
 $_bee_output = array();
 
 /**
+ * The useragent string used for HTTP requests via cURL.
+ */
+define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
+
+/**
  * Define constants for bootstrap phases.
  */
+// No bootstrap.
+define('BEE_BOOTSTRAP_NONE', $_bee_bootstrap_level);
+
 // 1st phase: Initialize configuration.
 define('BEE_BOOTSTRAP_CONFIGURATION', 0);
 
