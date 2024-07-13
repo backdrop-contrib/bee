@@ -16,12 +16,14 @@ and this project follows the
   - List all permissions by module
   - Create or delete roles
   - Add or remove permissions from roles
+- An implementation of Backdrop's telemetry function.
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
 execute permissions have not been added to the file.
 - Symbols now defined as constants that can be used anywhere.
 - Changed the help output to text rather than tables.
+- Changed the version number normally present to be more meaningful and added the latest version number
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
