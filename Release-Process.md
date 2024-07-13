@@ -4,16 +4,21 @@
 
 ```php
 /**
- * Define constant for Bee's current version.
- *
- * This will normally be '1.x-1.x' but will be changed briefly when a release
- * is generated.
+ * Define constants for Bee's current version and latest release.
  */
 // Current version of Bee.
-define('BEE_VERSION', '1.x-1.x');
+// This will normally be based on the next minor release (e.g '1.x-1.1.x-dev')
+// but will be changed briefly when a release is generated.
+define('BEE_VERSION', '1.x-1.1.x-dev');
+
+// Latest release.
+// This will be updated at each release.
+define('BEE_LATEST_RELEASE', '1.x-1.0.2');
 ```
 
-- In `includes/globals.inc`, update the constant `BEE_VERSION` to the new version number (e.g. '1.x-1.0.2').
+- In `includes/globals.inc`:
+  - Update the constant `BEE_VERSION` to the new version number (e.g. '1.x-1.0.2').
+  - Update the constant `BEE_LATEST_RELEASE` to the new version number (e.g. '1.x-1.0.2').
 
 ### Changelog
 
@@ -55,10 +60,13 @@ Check all new commands and changes to existing commands are reflected in the Wik
 - Release
 
 ## After Release
-- Delete `PACKAGING_ERRORS.txt` from the release files
-- In `includes/globals.inc`, update the constant `BEE_VERSION` to '1.x-1.x'.
+- In `includes/globals.inc`, update the constant `BEE_VERSION` according to the next minor release (e.g. '1.x-1.1.x-dev').
 - Add a commit with the name 'Reset version after release 1.x-1.0.2'
-- `git pull` to get latest version of `1.x-1.x` branch which will also update tags
-- Switch to the latest tag `checkout 1.x-1.0.2`
-- Compile the Phar file - `lando box compile`
-- Edit the release and upload the `bee.phar` file that has been generated.
+- On local with Lando development environment:
+  - Make sure you are in the `1.x-1.x` branch
+  - `git pull` to get latest version of `1.x-1.x` branch which will also update tags
+  - Switch to the latest tag `git checkout 1.x-1.0.2`
+  - Compile the Phar file - `lando box compile`
+- Edit the release on GitHub:
+  - Delete `PACKAGING_ERRORS.txt` from the release files
+  - Upload the `bee.phar` file that has been generated.
