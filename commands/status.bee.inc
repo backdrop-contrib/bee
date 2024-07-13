@@ -108,9 +108,13 @@ function status_bee_callback($arguments, $options) {
           array('value' => array_key_exists('port', $info) ? $info['port'] : NULL),
         );
 
-        // States directly from database, as state_get() requires a higher
-        // bootstrap level with caching and locking.
         try {
+          // Check if telemetry is enabled.
+          $telemetry_query = "SELECT `status` FROM {system} WHERE `name` = 'telemetry'";
+          $telemetry_status = (bool) db_query($telemetry_query)->fetchField();
+
+          // States directly from database, as state_get() requires a higher
+          // bootstrap level with caching and locking.
           $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
           foreach ($states as $name => $serialized) {
             switch ($name) {
@@ -142,6 +146,8 @@ function status_bee_callback($arguments, $options) {
                 );
                 break;
 
+              case 'bee_telemetry_last':
+                $bee_telemetry_last = bee_format_date(unserialize($serialized));
             }
           }
         }
@@ -264,6 +270,36 @@ function status_bee_callback($arguments, $options) {
       array('value' => bt('PHP ini path')),
       array('value' => php_ini_loaded_file()),
     );
+
+    // Telemetry.
+    $rows[] = array(
+      array('value' => ''),
+      array('value' => ''),
+    );
+    $rows[] = array(
+      array('value' => BEE_SYMBOL_INFO . ' ' . bt('TELEMETRY')),
+      array('value' => ''),
+    );
+    $rows[] = array(
+      array('value' => bt('Status')),
+      array('value' => $telemetry_status ? 'on' : 'off'),
+    );
+    if ($telemetry_status) {
+      $data_summary = json_encode(bee_telemetry_get_data());
+    }
+    else {
+      $data_summary = bt('None');
+    }
+    $rows[] = array(
+      array('value' => bt('Data')),
+      array('value' => $data_summary),
+    );
+    if ($telemetry_status) {
+      $rows[] = array(
+        array('value' => bt('Last sent')),
+        array('value' => $bee_telemetry_last),
+      );
+    }
 
     echo "\n";
     return array(

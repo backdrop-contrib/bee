@@ -5,11 +5,6 @@
  */
 
 /**
- * The useragent string used for HTTP requests via cURL.
- */
-define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
-
-/**
  * Implements hook_bee_command().
  */
 function download_bee_command() {
