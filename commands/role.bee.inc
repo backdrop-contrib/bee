@@ -16,31 +16,31 @@ function role_bee_command() {
       'aliases' => array('rls', 'roles-list'),
       'options' => array(
         'role' => array(
-          'description' => bt("Get the permissions granted to this role."),
+          'description' => bt('Get the permissions granted to this role.'),
           'value' => bt('Role'),
         ),
       ),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
         'bee roles' => bt('Display a list of all roles with the permissions for the current site.'),
-        'bee roles --role=editor' => bt('Display all the permissions for the editor role'),
+        'bee roles --role=editor' => bt('Display all the permissions for the editor role.'),
       ),
     ),
     'permissions' => array(
-      'description' => bt('List all permissons of the modules.'),
+      'description' => bt('List all permissions of the modules.'),
       'callback' => 'permissions_bee_callback',
       'group' => 'roles',
       'aliases' => array('pls', 'permissions-list'),
       'options' => array(
         'module' => array(
-          'description' => bt("Get the permissions for this module."),
+          'description' => bt('Get the permissions for this module.'),
           'value' => bt('Module'),
         ),
       ),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
         'bee permissions' => bt('Display a list of all permissions of the modules for the current site.'),
-        'bee permissions --module=node' => bt('Display a list of all permissions  from the module node for the current site.'),
+        'bee permissions --module=node' => bt("Display a list of all permissions from the 'node' module for the current site."),
       ),
     ),
 
@@ -49,7 +49,7 @@ function role_bee_command() {
       'callback' => 'role_add_bee_callback',
       'group' => 'roles',
       'arguments' => array(
-        'role' => bt('Role to add'),
+        'role' => bt('Role to add.'),
       ),
       'aliases' => array('rcrt'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -62,7 +62,7 @@ function role_bee_command() {
       'callback' => 'role_delete_bee_callback',
       'group' => 'roles',
       'arguments' => array(
-        'role' => bt('Role to delete'),
+        'role' => bt('Role to delete.'),
       ),
       'aliases' => array('rdel'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
@@ -81,8 +81,8 @@ function role_bee_command() {
       'aliases' => array('rap'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee role-add-perm  \'post comments\' \'anonymous user\'' => bt("Allow anon users to post comments."),
-        'bee role-add-perm  "\'view own unpublished content\' , \'view any unpublished content\' , \'view revisions\'" \'anonymous user\'' => bt("Grant multiple permissions to the anon users"),
+        'bee role-add-perm  \'post comments\' \'anonymous\'' => bt('Allow anonymous users to post comments.'),
+        'bee role-add-perm  "\'view own unpublished content\' , \'view any unpublished content\' , \'view revisions\'" \'anonymous\'' => bt("Grant multiple permissions to the 'anonymous' role."),
       ),
     ),
     'role-remove-perm' => array(
@@ -96,8 +96,8 @@ function role_bee_command() {
       'aliases' => array('rrp'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee role-remove-perm \'access content\' \'anonymous user\'' => bt("Hide content from anon users."),
-        'bee role-remove-perm  "\'view own unpublished content\' , \'view any unpublished content\' , \'view revisions\'" \'anonymous user\'' => bt("Remove multiple permissions from the anon users"),
+        'bee role-remove-perm \'access content\' \'anonymous\'' => bt("Hide content from anonymous users."),
+        'bee role-remove-perm  "\'view own unpublished content\' , \'view any unpublished content\' , \'view revisions\'" \'anonymous\'' => bt("Remove multiple permissions from the 'anonymous' role."),
       ),
     ),
   );
@@ -109,13 +109,13 @@ function role_bee_command() {
 function roles_bee_callback($arguments, $options) {
   $rows = array();
   // Get a list of all roles including the anonymous role.
-  $roles = user_roles(TRUE);
+  $roles = user_roles(FALSE);
   if (!empty($options['role'])) {
     // If a role has been specified, check if exists, and return error if
     // not.
     $role = strtolower($options['role']);
     if (!array_key_exists($role, $roles)) {
-      bee_message(bt("The role '!role' doesn't exists!", array(
+      bee_message(bt("The role '!role' doesn't exist!", array(
         '!role' => $role,
       )), 'error');
       return;
@@ -126,7 +126,7 @@ function roles_bee_callback($arguments, $options) {
       $output = array(array(
         'type' => 'text',
         'variables' => array(
-          'value' => bt("The !role role has the following permissions granted: !permissions", array(
+          'value' => bt("The '!role' role has the following permissions granted: !permissions", array(
             '!role' => $options['role'],
             '!permissions' => $permissions,
           )),
@@ -135,7 +135,7 @@ function roles_bee_callback($arguments, $options) {
       return $output;
     }
     else {
-      bee_message(bt("The role '!role' doesn't have any permissions?", array(
+      bee_message(bt("The role '!role' doesn't have any permissions.", array(
         '!role' => $options['role'],
       )), 'info');
       return;
@@ -230,24 +230,24 @@ function permissions_bee_callback($arguments, $options) {
  * Command callback: Add a role
  */
 function role_add_bee_callback($arguments, $options) {
-  $roles = user_roles(TRUE);
+  $roles = user_roles(FALSE);
   if (empty($roles[$arguments['role']])) {
     $role = new stdClass();
     $role->name = $arguments['role'];
     $role->label = $arguments['role'];
     if (user_role_save($role)) {
-      bee_message(bt("The !role role has been created.", array(
+      bee_message(bt("The '!role' role has been created.", array(
         '!role' => $arguments['role'],
       )), 'success');
     }
     else {
-      bee_message(bt("The !role role creation failed.", array(
+      bee_message(bt("The '!role' role creation failed.", array(
         '!role' => $arguments['role'],
       )), 'error');
     }
   }
   else {
-    bee_message(bt("The !role role allready exists.", array(
+    bee_message(bt("The '!role' role already exists.", array(
       '!role' => $arguments['role'],
     )), 'error');
   }
@@ -257,13 +257,29 @@ function role_add_bee_callback($arguments, $options) {
  * Command callback: Delete a role
  */
 function role_delete_bee_callback($arguments, $options) {
-  $roles = user_roles(TRUE);
+  $roles = user_roles(FALSE);
   if (empty($roles[$arguments['role']])) {
-    bee_message(bt("The !role role does not exits.", array(
+    bee_message(bt("The '!role' role does not exist.", array(
       '!role' => $arguments['role'],
     )));
     return;
   }
+
+  // Is the role a system role?
+  $admin_role = config_get('system.core', 'user_admin_role');
+  $system_roles = array(
+    'anonymous',
+    'authenticated',
+    $admin_role,
+  );
+
+  if (in_array($arguments['role'], $system_roles)) {
+    bee_message(bt("The '!role' role is required by the system and cannot be deleted.", array(
+      '!role' => $arguments['role'],
+    )), 'error');
+    return;
+  }
+
   // Is the role in use by an user?
   $users = entity_load_multiple('user');
 
@@ -273,7 +289,7 @@ function role_delete_bee_callback($arguments, $options) {
       continue;
     }
     if (in_array($arguments['role'], $user->roles)) {
-      bee_message(bt("The !role role is in use by user !user", array(
+      bee_message(bt("The '!role' role is in use by user '!user'.", array(
         '!role' => $arguments['role'],
         '!user' => $user->name,
       )), 'error');
@@ -282,14 +298,14 @@ function role_delete_bee_callback($arguments, $options) {
   }
   // Delete the role.
   user_role_delete($arguments['role']);
-  $roles = user_roles(TRUE);
+  $roles = user_roles(FALSE);
   if (empty($roles[$arguments['role']])) {
-    bee_message(bt("The !role role has been deleted.", array(
+    bee_message(bt("The '!role' role has been deleted.", array(
       '!role' => $arguments['role'],
     )), 'success');
   }
   else {
-    bee_message(bt("The !role role could not be deleted", array(
+    bee_message(bt("The '!role' role could not be deleted.", array(
       '!role' => $arguments['role'],
     )), 'error');
   }
@@ -299,15 +315,15 @@ function role_delete_bee_callback($arguments, $options) {
  * Command callback: Add permission(s) to a role
  */
 function role_add_permission_bee_callback($arguments, $options) {
-  $roles = user_roles(TRUE);
-  // Do the role exists?
+  $roles = user_roles(FALSE);
+  // Does the role exist?
   if (empty($roles[$arguments['role']])) {
-    bee_message(bt("The !role role  does not exits.", array(
+    bee_message(bt("The '!role' role does not exist.", array(
       '!role' => $arguments['role'],
     )));
     return;
   }
-  // Do the permission exists?
+  // Do the permission exist?
   $module_list = module_list();
   $permissions = array();
   foreach ($module_list as $key => $module) {
@@ -319,7 +335,7 @@ function role_add_permission_bee_callback($arguments, $options) {
   $permissions = explode(',', (str_replace('\'', '', (str_replace('"', '', $arguments['permissions'])))));
   foreach ($permissions as $permission) {
     if (! in_array("$permission", $permissions)) {
-      bee_message(bt("The !permission permission could not be found!", array(
+      bee_message(bt("The '!permission' permission could not be found!", array(
         '!permission' => $permission,
       )), 'error');
       return;
@@ -332,20 +348,20 @@ function role_add_permission_bee_callback($arguments, $options) {
   if (!empty($permissions)) {
     $permissions = '\''.$permissions.'\'';
   }
-  bee_message(bt("The !role role has the following permissions granted: !permissions", array(
+  bee_message(bt("The '!role' role has the following permissions granted: !permissions", array(
     '!role' => $arguments['role'],
     '!permissions' => $permissions,
   )), 'success');
 }
 
 /**
- * Command callback: Remove permission(s) from a role
+ * Command callback: Remove permission(s) from a role.
  */
 function role_remove_permission_bee_callback($arguments, $options) {
-  $roles = user_roles(TRUE);
+  $roles = user_roles(FALSE);
   // Do the role exists?
   if (empty($roles[$arguments['role']])) {
-    bee_message(bt("The !role role  does not exits.", array(
+    bee_message(bt("The '!role' role does not exist.", array(
       '!role' => $arguments['role'],
     )));
     return;
@@ -363,8 +379,8 @@ function role_remove_permission_bee_callback($arguments, $options) {
   }
   foreach ($permissions as $permission) {
     if (! in_array("$permission", $current_permissions)) {
-      bee_message(bt("The !permssion permission has not be granted!", array(
-        '!permission' => $permssion,
+      bee_message(bt("The '!permission' permission has not be granted!", array(
+        '!permission' => $permission,
       )), 'error');
       return;
     }
@@ -377,7 +393,7 @@ function role_remove_permission_bee_callback($arguments, $options) {
   if (!empty($permissions)) {
     $permissions = '\''.$permissions.'\'';
   }
-  bee_message(bt("The !role role has the following permissions granted: !perms", array(
+  bee_message(bt("The '!role' role has the following permissions granted: !perms", array(
     '!role' => $arguments['role'],
     '!perms' => $permissions,
   )), 'success');

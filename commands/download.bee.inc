@@ -4,10 +4,7 @@
  * Command(s) for downloading Backdrop projects.
  */
 
-/**
- * The useragent string used for HTTP requests via cURL.
- */
-define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
+
 
 /**
  * The API URL used for GitHub API calls.
