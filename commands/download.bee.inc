@@ -4,8 +4,6 @@
  * Command(s) for downloading Backdrop projects.
  */
 
-
-
 /**
  * The API URL used for GitHub API calls.
  */
