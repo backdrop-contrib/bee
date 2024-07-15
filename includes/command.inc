@@ -56,7 +56,8 @@ function bee_parse_input() {
  * Get the callback function for the command and process it.
  */
 function bee_process_command() {
-  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases, $_bee_output, $_bee_yes_mode, $_bee_debug_mode;
+  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases;
+  global $_bee_output, $_bee_yes_mode, $_bee_debug_mode, $_bee_bootstrap_level;
 
   // Display help text if no command is given.
   if (empty($_bee_command)) {
@@ -84,7 +85,8 @@ function bee_process_command() {
     if (function_exists($callback)) {
       $ready = TRUE;
       if (isset($descriptor['bootstrap'])) {
-        $ready = bee_bootstrap($descriptor['bootstrap']);
+        $_bee_bootstrap_level = $descriptor['bootstrap'];
+        $ready = bee_bootstrap($_bee_bootstrap_level);
       }
 
       if ($ready) {
@@ -96,6 +98,12 @@ function bee_process_command() {
         if ($_bee_debug_mode) {
           bee_instant_message(bt("'Debug' mode enabled."));
         }
+
+        // Send telemetry if enabled and if interval has passed since the last
+        // time telemetry was sent.
+        bee_invoke_telemetry();
+
+        // Invoke the command.
         $_bee_output = $callback($_bee_arguments, $_bee_options);
       }
       else {
