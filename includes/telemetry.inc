@@ -250,6 +250,7 @@ function bee_telemetry_get_data() {
   $data = array(
     'bee' => array(
       'version' => BEE_VERSION,
+      'bee_version' => BEE_VERSION,
       'php_version' => PHP_VERSION,
       'multisite' => !empty($_bee_multisites) ? 'Yes' : 'No',
     ),

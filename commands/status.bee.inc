@@ -285,21 +285,18 @@ function status_bee_callback($arguments, $options) {
       array('value' => $telemetry_status ? 'on' : 'off'),
     );
     if ($telemetry_status) {
-      $data_summary = json_encode(bee_telemetry_get_data());
-    }
-    else {
-      $data_summary = bt('None');
-    }
-    $rows[] = array(
-      array('value' => bt('Data')),
-      array('value' => $data_summary),
-    );
-    if ($telemetry_status) {
       $rows[] = array(
         array('value' => bt('Last sent')),
         array('value' => $bee_telemetry_last),
       );
     }
+    if ($telemetry_status) {
+      $data_summary = json_encode(bee_telemetry_get_data());
+    }
+    else {
+      $data_summary = bt('None');
+    }
+    $data_string = " Data: $data_summary\n";
 
     echo "\n";
     return array(
@@ -310,6 +307,12 @@ function status_bee_callback($arguments, $options) {
           'delimiter' => '   ',
           'delimiter_left' => ' ',
           'delimiter_right' => ' ',
+        ),
+      ),
+      array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => $data_string,
         ),
       ),
     );
