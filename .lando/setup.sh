@@ -34,7 +34,7 @@ set_up() {
 
   # Disable sending of telemetry data from GitHub Action runners. Override if
   # testing telemetry locally.
-  echo '$settings['telemetry_enabled'] = FALSE;' >> backdrop/settings.php
+  echo '$settings["telemetry_enabled"] = FALSE;' >> backdrop/settings.php
 
   # Configure multisite installation.
   cp -r backdrop multisite
