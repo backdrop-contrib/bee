@@ -32,6 +32,10 @@ set_up() {
   unzip -q backdrop.zip && mv backdrop-1.x backdrop
   echo 'if (isset($_SERVER["BACKDROP_SETTINGS"])) unset($_SERVER["BACKDROP_SETTINGS"]);' >> backdrop/settings.php
 
+  # Disable sending of telemetry data from GitHub Action runners. Override if
+  # testing telemetry locally.
+  echo '$settings['telemetry_enabled'] = FALSE;' >> backdrop/settings.php
+
   # Configure multisite installation.
   cp -r backdrop multisite
   cd multisite
