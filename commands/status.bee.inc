@@ -111,7 +111,9 @@ function status_bee_callback($arguments, $options) {
         try {
           // Check if telemetry is enabled.
           $telemetry_query = "SELECT `status` FROM {system} WHERE `name` = 'telemetry'";
-          $telemetry_status = (bool) db_query($telemetry_query)->fetchField();
+          $telemetry_module = (bool) db_query($telemetry_query)->fetchField();
+          $telemetry_override = isset($settings['telemetry_enabled']) ? $settings['telemetry_enabled'] : TRUE;
+          $telemetry_status = $telemetry_module && $telemetry_override;
 
           // States directly from database, as state_get() requires a higher
           // bootstrap level with caching and locking.
