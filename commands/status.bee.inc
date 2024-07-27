@@ -111,7 +111,9 @@ function status_bee_callback($arguments, $options) {
         try {
           // Check if telemetry is enabled.
           $telemetry_query = "SELECT `status` FROM {system} WHERE `name` = 'telemetry'";
-          $telemetry_status = (bool) db_query($telemetry_query)->fetchField();
+          $telemetry_module = (bool) db_query($telemetry_query)->fetchField();
+          $telemetry_override = isset($settings['telemetry_enabled']) ? $settings['telemetry_enabled'] : TRUE;
+          $telemetry_status = $telemetry_module && $telemetry_override;
 
           // States directly from database, as state_get() requires a higher
           // bootstrap level with caching and locking.
@@ -285,21 +287,18 @@ function status_bee_callback($arguments, $options) {
       array('value' => $telemetry_status ? 'on' : 'off'),
     );
     if ($telemetry_status) {
-      $data_summary = json_encode(bee_telemetry_get_data());
-    }
-    else {
-      $data_summary = bt('None');
-    }
-    $rows[] = array(
-      array('value' => bt('Data')),
-      array('value' => $data_summary),
-    );
-    if ($telemetry_status) {
       $rows[] = array(
         array('value' => bt('Last sent')),
         array('value' => $bee_telemetry_last),
       );
     }
+    if ($telemetry_status) {
+      $data_summary = json_encode(bee_telemetry_get_data());
+    }
+    else {
+      $data_summary = bt('None');
+    }
+    $data_string = " Data: $data_summary\n";
 
     echo "\n";
     return array(
@@ -310,6 +309,12 @@ function status_bee_callback($arguments, $options) {
           'delimiter' => '   ',
           'delimiter_left' => ' ',
           'delimiter_right' => ' ',
+        ),
+      ),
+      array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => $data_string,
         ),
       ),
     );
