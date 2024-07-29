@@ -215,7 +215,8 @@ function config_set_bee_callback($arguments, $options) {
 }
 
 /**
- * Command callback: Clear the value of a specific config option in a given file.
+ * Command callback: Clear the value of a specific config option in a given
+ * file.
  */
 function config_clear_bee_callback($arguments, $options) {
   // Get the config value.
