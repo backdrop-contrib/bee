@@ -40,6 +40,20 @@ function config_bee_command() {
         'bee config-set image.style.thumbnail effects.0.data.width 200' => bt('Change the width of the Thumbnail image style.'),
       ),
     ),
+    'config-clear' => array(
+      'description' => bt('Clear the value of an option in a config file.'),
+      'callback' => 'config_clear_bee_callback',
+      'group' => 'configuration',
+      'arguments' => array(
+        'file' => bt("The name of the config object to retrieve. This is the name of the config file, less the '.json' suffix."),
+        'option' => bt('The name of the config option within the file to clear. This may contain periods to indicate levels within the config file.'),
+      ),
+      'aliases' => array('cclr'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee config-clear somefile somevalue' => bt('Clear the option somevalue in the file somefile.json.'),
+      ),
+    ),
     'config-import' => array(
       'description' => bt('Import config into the site.'),
       'callback' => 'config_import_bee_callback',
@@ -112,17 +126,18 @@ function config_set_bee_callback($arguments, $options) {
       return;
     }
   }
+
+  // Check the existing value and type.
+  $existing_value = $config->get($arguments['option']);
+  $existing_type = gettype($existing_value);
+
   // Disallow setting the value of complex data types (e.g. arrays).
-  elseif (!is_scalar($config->get($arguments['option']))) {
+  if (!is_scalar($existing_value) && $existing_type != 'NULL') {
     bee_message(bt("'!option' is a complex data type and cannot be set via the command line.", array(
       '!option' => $arguments['option'],
     )), 'error');
     return;
   }
-
-  // Check the existing type.
-  $existing_value = $config->get($arguments['option']);
-  $existing_type = gettype($existing_value);
 
   // Attempt to set the config item using the correct type.
   $value = $arguments['value'];
@@ -195,6 +210,36 @@ function config_set_bee_callback($arguments, $options) {
   bee_message(bt("'!option' was set to '!value' in '!file'.", array(
     '!option' => $arguments['option'],
     '!value' => $arguments['value'],
+    '!file' => $arguments['file'],
+  )), 'success');
+}
+
+/**
+ * Command callback: Clear the value of a specific config option in a given file.
+ */
+function config_clear_bee_callback($arguments, $options) {
+  // Get the config value.
+  $value = config_get($arguments['file'], $arguments['option']);
+
+  // Display errors for blank/missing values.
+  if (!empty($arguments['option']) && is_null($value)) {
+    bee_message(bt("'!option' could not be found in the '!file' config file.", array(
+      '!option' => $arguments['option'],
+      '!file' => $arguments['file'],
+    )), 'error');
+    return;
+  }
+  elseif (empty($arguments['option']) && empty($value)) {
+    bee_message(bt("The '!file' config file could not be found.", array(
+      '!file' => $arguments['file'],
+    )), 'error');
+    return;
+  }
+
+  // Clear the value.
+  config_clear($arguments['file'], $arguments['option']);
+  bee_message(bt("'!option' has been cleared from '!file'.", array(
+    '!option' => $arguments['option'],
     '!file' => $arguments['file'],
   )), 'success');
 }

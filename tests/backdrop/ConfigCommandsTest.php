@@ -31,8 +31,10 @@ class ConfigCommandsTest extends TestCase {
     $value = 'home';
     $new = 'about';
     $option2 = 'preprocess_css';
+    $option3 = 'foobar';
     $value2 = 1;
     $new2 = 0;
+    $new3 = 'bazvalue';
 
     // Make sure the current homepage is 'home'.
     $output = shell_exec("bee config-get $file $option");
@@ -49,6 +51,14 @@ class ConfigCommandsTest extends TestCase {
     // Make sure 'empty' values can be set.
     $output = shell_exec("bee config-set $file $option2 $new2");
     $this->assertStringContainsString("'$option2' was set to '$new2' in '$file'.", (string) $output);
+
+    // Make sure nonexistent values can be set.
+    $output = shell_exec("bee config-set $file $option3 $new3");
+    $this->assertStringContainsString("'$option3' was set to '$new3' in '$file'.", (string) $output);
+
+    // Make sure values can be cleared.
+    $output = shell_exec("bee config-clear $file $option3");
+    $this->assertStringContainsString("'$option3' has been cleared from '$file'.", (string) $output);
 
     // Reset config values for future tests.
     exec("bee config-set $file $option $value");
