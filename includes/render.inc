@@ -27,33 +27,17 @@ function bee_print_messages() {
 
     list($symbol, $color) = bee_message_type_info($type);
 
-    // Prepare `$rows` array for table output.
+    // Output the symbol and text for each message.
     foreach ($type_messages as $message) {
-      bee_render_text(array(
-        'value' => "$symbol $message",
-      ), TRUE);
-      // $rows[] = array(
-      //   array(
-      //     'value' => $symbol,
-      //     '#color' => $color,
-      //     '#bold' => TRUE,
-      //   ),
-      //   array('value' => $message),
-      // );
+      echo bee_format_text(" $symbol", $color) . " $message";
+
+      // Add a newline after each message.
+      echo "\n";
     }
   }
 
-    // Add a new line after the messages.
-    echo "\n";
-
-  // // Render messages in a table.
-  // echo "\n";
-  // bee_render_table(array(
-  //   'rows' => $rows,
-  //   'delimiter' => ' ',
-  //   'delimiter_left' => ' ',
-  //   'delimiter_right' => ' ',
-  // ));
+  // Add a new line after the messages.
+  echo "\n";
 }
 
 /**
