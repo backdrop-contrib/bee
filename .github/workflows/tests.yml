@@ -13,12 +13,12 @@ on:
       - '.gitignore'
       - 'images/**'
 
-env:
-  COLUMNS: 120
 
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+      COLUMNS: 120
     steps:
       # Checks-out repo under $GITHUB_WORKSPACE.
       - uses: actions/checkout@v3
