@@ -87,3 +87,8 @@ something, ask before making a change.
 
 If you feel the Wiki is missing something but you don't know what the answer
 is, feel free to ask a question in the issue queue.
+
+Changes to the wiki are made by making an edit to the page with the `docs`
+folder of the repository and creating a pull request linked to an issue to
+merge it. This process was introduced to make it easier to build wiki updates
+into the process of adding or changing commands.
