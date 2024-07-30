@@ -13,6 +13,9 @@ on:
       - '.gitignore'
       - 'images/**'
 
+env:
+  COLUMNS: 120
+
 jobs:
   tests:
     runs-on: ubuntu-latest
