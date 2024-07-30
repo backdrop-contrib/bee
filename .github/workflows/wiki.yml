@@ -1,0 +1,20 @@
+name: Deploy Wiki
+on:
+  push:
+    paths:
+      # Trigger only when wiki directory changes
+      - 'docs/**'
+    branches: [1.x-1.x]
+concurrency:
+  group: publish-wiki
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  deploy-wiki:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: Andrew-Chen-Wang/github-wiki-action@v4
+      with:
+        path: docs
