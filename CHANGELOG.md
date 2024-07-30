@@ -28,6 +28,7 @@ execute permissions have not been added to the file.
 - Changed the help output to text rather than tables.
 - Changed the version number normally present to be more meaningful and added the latest version number.
 - Messages output at the conclusion of the operation are now output as text rather than tables.
+- The Wiki is now edited via the `docs` folder of the main repo. Pages can be edited as part of a pull request.
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
