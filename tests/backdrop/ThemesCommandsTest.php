@@ -38,13 +38,13 @@ class ThemesCommandsTest extends TestCase {
    */
   public function test_theme_debug_commands_works() {
 
-    $output = shell_exec('bee theme-enable-debug');
-    $theme_debug = config_get('system.core', 'theme_debug');
-    $this->assertEquals(1, $theme_debug);
+    shell_exec('bee theme-enable-debug');
+    $output = shell_exec('bee cget system.core theme_debug');
+    $this->assertStringContainsString("1", (string) $output);
 
-    $output = shell_exec('bee theme-disable-debug');
-    $theme_debug = config_get('system.core', 'theme_debug');
-    $this->assertEquals(0, $theme_debug);
+    shell_exec('bee theme-disable-debug');
+    $output = shell_exec('bee cget system.core theme_debug');
+    $this->assertStringContainsString("0", (string) $output);
   }
 
 }
