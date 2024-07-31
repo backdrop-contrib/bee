@@ -191,6 +191,20 @@ options in a given file.
 
 *Examples:*
 - `bee theme-default bartik` - Set Bartik as the default theme.
+   
+#### `theme-enable-debug`
+*Description:* Turn on theme debugging.
+*Aliases:* `ted`  
+
+*Examples:*
+- `bee theme-enable-debug` - Turn on theme debugging.
+   
+ #### `theme-disable-debug`
+*Description:* Turn off theme debugging.
+*Aliases:* `tdd`  
+
+*Examples:*
+- `bee theme-disable-debug` - Turn off theme debugging.
          
 ### Information
 #### `version`
