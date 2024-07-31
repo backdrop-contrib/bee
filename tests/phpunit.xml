@@ -23,6 +23,7 @@
       <file>backdrop/ProjectsCommandsTest.php</file>
       <file>backdrop/RolesCommandsTest.php</file>
       <file>backdrop/StateCommandsTest.php</file>
+      <file>backdrop/ThemesCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
       <file>backdrop/UpdateCommandsTest.php</file>
       <file>backdrop/UserCommandsTest.php</file>
