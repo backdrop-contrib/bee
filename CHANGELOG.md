@@ -35,6 +35,7 @@ execute permissions have not been added to the file.
 not exist.
 - Unhandled Warning if argument for 'cache-clear' wasn't in the list.
 - Error if config-set used to set a new configuration item.
+- Unhandled Warning on `user-create` with mail option.
 
 ## [1.x-1.0.2] - 2024-05-23
 
