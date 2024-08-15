@@ -215,7 +215,11 @@ function user_create_bee_callback($arguments, $options) {
     bee_message(bt("Email address '!mail' is not valid.", array('!mail' => $options['mail'])), 'error');
     return;
   }
-  if (user_load_by_mail($options['mail'])->mail == $options['mail']) {
+
+  // Check if a user exists with that email address.
+  $user_mail = user_load_by_mail($options['mail']);
+  $user_mail_exists = !$user_mail ? FALSE : TRUE;
+  if ($user_mail_exists) {
     bee_message(bt("A user account with mail '!mail' already exists.", array(
       '!mail' => $options['mail'],
     )), 'error');
