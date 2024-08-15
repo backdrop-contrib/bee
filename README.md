@@ -11,11 +11,33 @@ developers to interact with Backdrop sites, performing actions like:
 - Downloading, enabling and disabling projects
 - Viewing information about a site and/or available projects
 
-Please note that Bee is under active development and, as such, **breaking
-changes may occur**. Please see the release notes for a list of any major
-changes between versions. Also note that Bee will not run natively on
-Microsoft Windows; it will run within WSL2 or other Linux based virtual
-machines.
+See the Release notes and the Changelog for details of changes between
+versions.
+
+## Requirements
+### Operating System
+
+![Static Badge](https://img.shields.io/badge/os%20compatibility-555555?style=flat-square)
+![Static Badge](https://img.shields.io/badge/linux-blue?logo=linux&logoColor=white&style=flat-square)
+![Static Badge](https://img.shields.io/badge/macOS-blue?logo=apple&logoColor=white&style=flat-square)
+![Static Badge](https://img.shields.io/badge/WSL2-blue?logo=linux&logoColor=white&style=flat-square)
+
+- Bee will work in most Linux based environments.
+- Bee will NOT work natively in Windows but can be used inside Linux based
+virtual environments such as WSL2.
+- Bee requires the `mysql` and `mysqldump` executables to be installed for most
+database operations (i.e. `db-export`, `db-import`, `db-drop`, `sql` but NOT
+`db-query`).
+
+### PHP
+![Static Badge](https://img.shields.io/badge/php%20compatibility-555555?logo=php&logoColor=white&style=flat-square)
+![Static Badge](https://img.shields.io/badge/8.2-blue?style=flat-square)
+![Static Badge](https://img.shields.io/badge/8.1-blue?style=flat-square)
+![Static Badge](https://img.shields.io/badge/8.0-blue?style=flat-square)
+![Static Badge](https://img.shields.io/badge/7.4-blue?style=flat-square)
+
+- Bee is tested and works from `7.4` up to `8.2`. It may work on `8.3`; if you
+try and find errors, please report in the issue queue.
 
 ## Installation
 

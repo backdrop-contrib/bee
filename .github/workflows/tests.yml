@@ -4,12 +4,14 @@ on:
     branches: [ issue-111-update-command ]
     paths-ignore:
       - '**.md'
+      - 'docs/**'
       - '.gitignore'
       - 'images/**'
   pull_request:
     branches: [ 1.x-1.x, issue-111-update-command ]
     paths-ignore:
       - '**.md'
+      - 'docs/**'
       - '.gitignore'
       - 'images/**'
 

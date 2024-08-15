@@ -56,6 +56,23 @@ class ConfigCommandsTest extends TestCase {
   }
 
   /**
+   * Make sure that the config-clear command works.
+   */
+  public function test_config_clear_command_works() {
+    $file = 'system.core';
+    $option = 'foobar';
+    $new = 'bazvalue';
+
+    // Make sure nonexistent values can be set.
+    $output = shell_exec("bee config-set $file $option $new");
+    $this->assertStringContainsString("'$option' was set to '$new' in '$file'.", (string) $output);
+
+    // Make sure values can be cleared.
+    $output = shell_exec("bee config-clear $file $option");
+    $this->assertStringContainsString("'$option' has been cleared from '$file'.", (string) $output);
+  }
+
+  /**
    * Make sure that the config-export command works.
    */
   public function test_config_export_command_works() {

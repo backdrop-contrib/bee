@@ -148,8 +148,14 @@ function bee_get_headers_from_curl_response($response_header_content) {
  *   TRUE if module is enabled, FALSE otherwise.
  */
 function bee_telemetry_enabled() {
-  global $_bee_bootstrap_level;
+  global $_bee_bootstrap_level, $settings;
   $status = FALSE;
+
+  $bee_telemetry_override_setting = isset($settings['telemetry_enabled']) ? $settings['telemetry_enabled'] : TRUE;
+  if (!$bee_telemetry_override_setting) {
+    return $status;
+  }
+
   if ($_bee_bootstrap_level == BEE_BOOTSTRAP_FULL) {
     // If full bootstrap we can use the Backdrop function.
     $status = module_exists('telemetry');
@@ -250,6 +256,7 @@ function bee_telemetry_get_data() {
   $data = array(
     'bee' => array(
       'version' => BEE_VERSION,
+      'bee_version' => BEE_VERSION,
       'php_version' => PHP_VERSION,
       'multisite' => !empty($_bee_multisites) ? 'Yes' : 'No',
     ),

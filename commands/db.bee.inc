@@ -319,6 +319,10 @@ function db_bee_mysql_options(array $db_info, $include_db = TRUE) {
     . "password='" . rawurldecode($db_info['password']) . "'" . PHP_EOL
     . "host=" . $db_info['host'] . PHP_EOL;
 
+  if (isset($db_info['port']) && is_numeric($db_info['port'])) {
+    $temp_file_contents .= "port=" . $db_info['port'] . PHP_EOL;
+  }
+
   // Get the temporary directory.
   $temp_dir = bee_get_temp();
   // Create a temporary file for the username, password and host.
