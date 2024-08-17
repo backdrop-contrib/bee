@@ -169,7 +169,10 @@ function bee_message($message, $type = 'info') {
  */
 function bt($string, array $args = array()) {
   if (function_exists('t')) {
-    return t($string, $args);
+    $options = array(
+      'context' => 'Bee',
+    );
+    return t($string, $args, $options);
   }
   else {
     if (!empty($args)) {
