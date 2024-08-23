@@ -291,6 +291,7 @@ function bee_validate_command(array $descriptor) {
         bee_message(bt("Argument '!name' is required.", array(
           '!name' => $name,
         )), 'error');
+        bee_command_show_help();
         return FALSE;
       }
     }
@@ -326,4 +327,22 @@ function bee_validate_command(array $descriptor) {
   }
 
   return TRUE;
+}
+
+/**
+ * Show the help text for a command.
+ */
+function bee_command_show_help() {
+  global $_bee_command, $_bee_output;
+
+  // Get the command descriptor.
+  $commands = bee_all_commands();
+  $command_descriptor = $commands[$_bee_command];
+
+  // The help function we call expects the command key to exist within the
+  // descriptor containing the command.
+  $command_descriptor['command'] = $_bee_command;
+
+  // Set the output to be the help text for the command.
+  $_bee_output = help_bee_command_help($command_descriptor);
 }
