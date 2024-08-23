@@ -30,6 +30,7 @@ execute permissions have not been added to the file.
 - Messages output at the conclusion of the operation are now output as text rather than tables.
 - The Wiki is now edited via the `docs` folder of the main repo. Pages can be edited as part of a pull request.
 - Added 'context' of 'Bee' to any translatable strings passed to `t()`.
+- Moved 'theme' commands and tests from 'projects' to dedicated files.
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
