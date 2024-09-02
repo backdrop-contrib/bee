@@ -209,6 +209,7 @@ function user_create_bee_callback($arguments, $options) {
   }
   if (!isset($options['mail'])) {
     bee_message(bt("Mail option missing."), 'error');
+    bee_command_show_help();
     return;
   }
   if (!valid_email_address($options['mail'])) {
