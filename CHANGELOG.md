@@ -20,6 +20,7 @@ system for each contributed module, theme and layout.
   - Add or remove permissions from roles
 - An implementation of Backdrop's telemetry function.
 - A config-clear command.
+- A new command to enable and disable the theme debug setting.
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
