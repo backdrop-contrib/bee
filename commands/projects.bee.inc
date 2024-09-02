@@ -97,32 +97,6 @@ function projects_bee_command() {
         'bee uninstall simplify thesis bamboo' => bt('Uninstall the Simplify module, Thesis theme, and Bamboo layout.'),
       ),
     ),
-    'theme-default' => array(
-      'description' => bt('Set the default theme.'),
-      'callback' => 'theme_default_bee_callback',
-      'group' => 'themes',
-      'arguments' => array(
-        'theme' => bt('The theme to set as the default theme. It will be enabled, if not already.'),
-      ),
-      'aliases' => array('default-theme'),
-      'bootstrap' => BEE_BOOTSTRAP_FULL,
-      'examples' => array(
-        'bee theme-default bartik' => bt('Set Bartik as the default theme.'),
-      ),
-    ),
-    'theme-admin' => array(
-      'description' => bt('Set the admin theme.'),
-      'callback' => 'theme_admin_bee_callback',
-      'group' => 'themes',
-      'arguments' => array(
-        'theme' => bt('The theme to set as the admin theme. It will be enabled, if not already.'),
-      ),
-      'aliases' => array('admin-theme'),
-      'bootstrap' => BEE_BOOTSTRAP_FULL,
-      'examples' => array(
-        'bee theme-admin basis' => bt('Set Basis as the admin theme.'),
-      ),
-    ),
   );
 }
 
@@ -488,70 +462,6 @@ function uninstall_bee_callback($arguments, $options) {
   if ($flush_caches) {
     backdrop_flush_all_caches();
   }
-}
-
-/**
- * Command callback: Set the default theme.
- */
-function theme_default_bee_callback($arguments, $options) {
-  // Get theme info.
-  $theme_name = $arguments['theme'];
-  $themes = system_rebuild_theme_data();
-  if (!isset($themes[$theme_name])) {
-    bee_message(bt("The '!name' theme could not be found.", array(
-      '!name' => $theme_name,
-    )), 'error');
-    return;
-  }
-  $theme = $themes[$theme_name];
-
-  // Enable if not already.
-  if (!$theme->status) {
-    theme_enable(array($theme_name));
-  }
-
-  // Set as default theme.
-  config_set('system.core', 'theme_default', $theme_name);
-
-  // Display success message.
-  bee_message(bt("'!name' was set as the default theme.", array(
-    '!name' => $theme->info['name'],
-  )), 'success');
-
-  // Flush caches.
-  backdrop_flush_all_caches();
-}
-
-/**
- * Command callback: Set the admin theme.
- */
-function theme_admin_bee_callback($arguments, $options) {
-  // Get theme info.
-  $theme_name = $arguments['theme'];
-  $themes = system_rebuild_theme_data();
-  if (!isset($themes[$theme_name])) {
-    bee_message(bt("The '!name' theme could not be found.", array(
-      '!name' => $theme_name,
-    )), 'error');
-    return;
-  }
-  $theme = $themes[$theme_name];
-
-  // Enable if not already.
-  if (!$theme->status) {
-    theme_enable(array($theme_name));
-  }
-
-  // Set as admin theme.
-  config_set('system.core', 'admin_theme', $theme_name);
-
-  // Display success message.
-  bee_message(bt("'!name' was set as the admin theme.", array(
-    '!name' => $theme->info['name'],
-  )), 'success');
-
-  // Flush caches.
-  backdrop_flush_all_caches();
 }
 
 /**

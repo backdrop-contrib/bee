@@ -4,12 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows the
-[Backdrop CMS versioning standard](https://github.com/backdrop-ops/contrib#releases).
+[Backdrop CMS versioning standard](https://github.com/backdrop-ops/contrib#releases)
+which is based on the major version of Backdrop CMS with a semantic version
+system for each contributed module, theme and layout.
 
 ## [Unreleased]
 
 ### Added
-- A new function to whether or not an executable exists in the system.
+- A new function to check whether or not an executable exists in the system.
 - A new function to display messages and data at the point they happen in code.
 - New commands for roles and permissions:
   - List all roles with permissions
@@ -17,19 +19,26 @@ and this project follows the
   - Create or delete roles
   - Add or remove permissions from roles
 - An implementation of Backdrop's telemetry function.
+- A config-clear command.
+- A new command to enable and disable the theme debug setting.
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
 execute permissions have not been added to the file.
 - Symbols now defined as constants that can be used anywhere.
 - Changed the help output to text rather than tables.
-- Changed the version number normally present to be more meaningful and added the latest version number
+- Changed the version number normally present to be more meaningful and added the latest version number.
+- Messages output at the conclusion of the operation are now output as text rather than tables.
+- The Wiki is now edited via the `docs` folder of the main repo. Pages can be edited as part of a pull request.
+- Added 'context' of 'Bee' to any translatable strings passed to `t()`.
+- Moved 'theme' commands and tests from 'projects' to dedicated files.
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
 not exist.
 - Unhandled Warning if argument for 'cache-clear' wasn't in the list.
-- 'Headers already sent' warning if Yes mode or Debug mode enabled.
+- Error if config-set used to set a new configuration item.
+- Unhandled Warning on `user-create` with mail option.
 
 ## [1.x-1.0.2] - 2024-05-23
 

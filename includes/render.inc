@@ -15,6 +15,9 @@ function bee_print_messages() {
     return;
   }
 
+  // Add a new line before starting.
+  echo "\n";
+
   // Style each type of message differently.
   foreach ($_bee_messages as $type => $type_messages) {
     // Skip 'log' messages if `debug` mode is disabled.
@@ -24,27 +27,17 @@ function bee_print_messages() {
 
     list($symbol, $color) = bee_message_type_info($type);
 
-    // Prepare `$rows` array for table output.
+    // Output the symbol and text for each message.
     foreach ($type_messages as $message) {
-      $rows[] = array(
-        array(
-          'value' => $symbol,
-          '#color' => $color,
-          '#bold' => TRUE,
-        ),
-        array('value' => $message),
-      );
+      echo bee_format_text(" $symbol", $color) . " $message";
+
+      // Add a newline after each message.
+      echo "\n";
     }
   }
 
-  // Render messages in a table.
+  // Add a new line after the messages.
   echo "\n";
-  bee_render_table(array(
-    'rows' => $rows,
-    'delimiter' => ' ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  ));
 }
 
 /**
