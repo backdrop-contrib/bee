@@ -2,7 +2,7 @@ name: bee
 recipe: backdrop
 keys: false
 config:
-  php: 8.2
+  php: 8.3
   webroot: backdrop
   database: mysql
   # Need to disable bee so can use the version in the repo.
