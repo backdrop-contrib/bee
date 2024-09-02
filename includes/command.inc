@@ -335,6 +335,9 @@ function bee_validate_command(array $descriptor) {
 function bee_command_show_help() {
   global $_bee_command, $_bee_output;
 
+  // Show a message to give context to the following help.
+  bee_message(bt('To help you get it right, here is the help text for this command:'), 'info');
+
   // Get the command descriptor.
   $commands = bee_all_commands();
   $command_descriptor = $commands[$_bee_command];
