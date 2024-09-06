@@ -191,7 +191,21 @@ options in a given file.
 
 *Examples:*
 - `bee theme-default bartik` - Set Bartik as the default theme.
-         
+
+#### `theme-debug`
+*Description:* Enable or disable "Theme debug" for Backdrop.  
+*Aliases:*`td`  
+
+*Arguments:*
+- `value` - (optional) A boolean value to enable (true/1) or disable (false/0) theme debug. Omitting the value will return the current theme debug status.
+
+*Examples:*
+- `bee theme-debug true` - Enable theme debug for the site (not case-sensitive).
+- `bee theme-debug FALSE` - Disable theme debug for the site (not case-sensitive).
+- `bee theme-debug 1` - Enable theme debug for the site.
+- `bee theme-debug 0` - Disable theme debug for the site.
+- `bee theme-debug` - Get the theme debug status for the site.
+
 ### Information
 #### `version`
 *Description:* Display the current version of Bee.

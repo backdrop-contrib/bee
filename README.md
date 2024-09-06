@@ -31,13 +31,13 @@ database operations (i.e. `db-export`, `db-import`, `db-drop`, `sql` but NOT
 
 ### PHP
 ![Static Badge](https://img.shields.io/badge/php%20compatibility-555555?logo=php&logoColor=white&style=flat-square)
+![Static Badge](https://img.shields.io/badge/8.3-blue?style=flat-square)
 ![Static Badge](https://img.shields.io/badge/8.2-blue?style=flat-square)
 ![Static Badge](https://img.shields.io/badge/8.1-blue?style=flat-square)
 ![Static Badge](https://img.shields.io/badge/8.0-blue?style=flat-square)
 ![Static Badge](https://img.shields.io/badge/7.4-blue?style=flat-square)
 
-- Bee is tested and works from `7.4` up to `8.2`. It may work on `8.3`; if you
-try and find errors, please report in the issue queue.
+- Bee is tested and works from `7.4` up to `8.3`.
 
 ## Installation
 

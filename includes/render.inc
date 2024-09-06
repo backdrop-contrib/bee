@@ -360,6 +360,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
       }
     }
   }
+  bee_instant_message(bt('Column widths:'), 'debug', $widths);
 
   // Get the widest column, and calculate the width of the table.
   $widest_column = 0;
@@ -379,6 +380,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   // SSH command) then 'tput cols' on its own will create an error. This
   // provides an alternative if 'tput cols' create an error.
   $terminal_width = exec('if tput cols &>/dev/null; then  echo $(tput cols); else $(echo $COLUMNS); fi');
+  bee_instant_message(bt('The terminal width is: ') . $terminal_width, 'debug');
   if ($terminal_width && $table_width > $terminal_width) {
     $diff = $table_width - $terminal_width;
     $widths[$widest_column] -= $diff;
@@ -432,7 +434,7 @@ function bee_get_remaining_rows(array $row, array $column_widths) {
   $row_rendered = array();
 
   foreach ($column_widths as $index => $width) {
-    if ($index == $row['index']) {
+    if ($row && $index == $row['index']) {
       $column = $row;
 
       if (mb_strlen((string) $column['value']) > $width) {
