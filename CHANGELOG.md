@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased]
+## [Unreleased] - 2024-09-06
 
 ### Added
 - A new function to check whether or not an executable exists in the system.
@@ -39,6 +39,8 @@ not exist.
 - Unhandled Warning if argument for 'cache-clear' wasn't in the list.
 - Error if config-set used to set a new configuration item.
 - Unhandled Warning on `user-create` with mail option.
+- Notice/Warning when long values (e.g. long module names, long config
+filenames) are included in table output.
 
 ## [1.x-1.0.2] - 2024-05-23
 
