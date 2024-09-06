@@ -21,6 +21,7 @@ system for each contributed module, theme and layout.
 - An implementation of Backdrop's telemetry function.
 - A config-clear command.
 - A new command to enable and disable the theme debug setting.
+- A changelog command to display the current CHANGELOG for the installed version of Bee.
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
@@ -32,6 +33,7 @@ execute permissions have not been added to the file.
 - The Wiki is now edited via the `docs` folder of the main repo. Pages can be edited as part of a pull request.
 - Added 'context' of 'Bee' to any translatable strings passed to `t()`.
 - Moved 'theme' commands and tests from 'projects' to dedicated files.
+- Changed the version command to include the latest "Unreleased" date for dev versions.
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does

@@ -3,6 +3,9 @@
     "commands",
     "includes"
   ],
+  "files": [
+    "CHANGELOG.md"
+  ],
   "compactors": [
     "KevinGH\\Box\\Compactor\\Php"
   ],
