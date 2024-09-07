@@ -114,11 +114,11 @@ define('BEE_BOOTSTRAP_FULL', 8);
 // Current version of Bee.
 // This will normally be based on the next minor release (e.g '1.x-1.1.x-dev')
 // but will be changed briefly when a release is generated.
-define('BEE_VERSION', '1.x-1.1.x-dev');
+define('BEE_VERSION', '1.x-1.1.0');
 
 // Latest release.
 // This will be updated at each release.
-define('BEE_LATEST_RELEASE', '1.x-1.0.2');
+define('BEE_LATEST_RELEASE', '1.x-1.1.0');
 
 /**
  * Define constants for symbols to be used within Bee.

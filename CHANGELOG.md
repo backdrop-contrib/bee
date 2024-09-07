@@ -8,7 +8,8 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-09-06
+## [Unreleased] - 2024-09-07
+## [1.x-1.1.0] - 2024-09-07
 
 ### Added
 - A new function to check whether or not an executable exists in the system.
@@ -115,7 +116,8 @@ filenames) are included in table output.
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...HEAD
+[1.x-1.1.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...1.x-1.1.0
 [1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
 [1.x-1.0.0-beta]: https://github.com/backdrop-contrib/bee/compare/v0.0.0...1.x-1.0.0-beta
