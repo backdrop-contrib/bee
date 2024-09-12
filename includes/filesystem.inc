@@ -373,3 +373,29 @@ function bee_copy($source, $destination, $self = TRUE) {
 
   return TRUE;
 }
+
+/**
+ * Get the full path for a command executable if it exists in PATH.
+ *
+ * If your function calls an executable on the system rather than using `bee`,
+ * `backdrop` or `php` functions, you can use this function to get the full
+ * path of the executable or return FALSE if the executable doesn't exist. The
+ * result can then be checked in your calling function, and you can exit with a
+ * user friendly error message if the executable doesn't exist in the system.
+ *
+ * @param string $command
+ *   Name of the command to be searched.
+ *
+ * @return string|FALSE
+ *   Full path to the first occurence of $command in the search path.
+ *   Returns FALSE if no matching command is found.
+ */
+function bee_get_executable_path($command) {
+  foreach (explode(":", getenv('PATH')) as $directory) {
+    $candidate = "$directory/$command";
+    if (is_executable($candidate)) {
+      return $candidate;
+    }
+  }
+  return FALSE;
+}

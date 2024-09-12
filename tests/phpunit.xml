@@ -21,8 +21,10 @@
       <file>backdrop/HelpCommandsTest.php</file>
       <file>backdrop/PHPCommandsTest.php</file>
       <file>backdrop/ProjectsCommandsTest.php</file>
+      <file>backdrop/RolesCommandsTest.php</file>
       <file>backdrop/StateCommandsTest.php</file>
       <!-- There's no Status command test, since that command is used in other tests already. -->
+      <file>backdrop/ThemeCommandsTest.php</file>
       <file>backdrop/UpdateCommandsTest.php</file>
       <file>backdrop/UserCommandsTest.php</file>
     </testsuite>

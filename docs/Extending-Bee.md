@@ -1,4 +1,5 @@
 # API Information
+Source: https://github.com/backdrop-contrib/bee/blob/1.x-1.x/API.md
 
 ## `HOOK_bee_command()`
 This hook can be invoked to provide additional commands to Bee. It should reside

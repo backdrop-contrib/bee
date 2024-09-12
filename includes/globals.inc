@@ -17,14 +17,14 @@ $_bee_global_options = array(
     'description' => bt("Specify the directory name or URL of the Backdrop site to use (as defined in 'sites.php'). If not set, will try to find the Backdrop site automatically based on the current directory."),
   ),
   'base-url' => array(
-    'description' => bt("Specify the base URL of the Backdrop site, such as https://example.com/backdrop. May be useful with commands that output URLs to pages on the site."),
+    'description' => bt("Specify the base URL of the Backdrop site, such as https://example.com. May be useful with commands that output URLs to pages on the site."),
   ),
   'yes' => array(
     'description' => bt("Answer 'yes' to questions without prompting."),
     'short' => 'y',
   ),
   'debug' => array(
-    'description' => bt("Enables 'debug' mode, in which 'log' type messages will be displayed (in addition to all other messages)."),
+    'description' => bt("Enables 'debug' mode, in which 'debug' and 'log' type messages will be displayed (in addition to all other messages)."),
     'short' => 'd',
   ),
 );
@@ -60,6 +60,9 @@ $_bee_yes_mode = FALSE;
 // A boolean indicating whether or not `Debug` mode is enabled.
 $_bee_debug_mode = FALSE;
 
+// A constant indicating the bootstrap level of the current command.
+$_bee_bootstrap_level = -1;
+
 // A list of messages to display to the user, grouped by type.
 $_bee_messages = array();
 
@@ -68,8 +71,16 @@ $_bee_messages = array();
 $_bee_output = array();
 
 /**
+ * The useragent string used for HTTP requests via cURL.
+ */
+define('BEE_USERAGENT', 'Bee - the command line tool for Backdrop CMS');
+
+/**
  * Define constants for bootstrap phases.
  */
+// No bootstrap.
+define('BEE_BOOTSTRAP_NONE', $_bee_bootstrap_level);
+
 // 1st phase: Initialize configuration.
 define('BEE_BOOTSTRAP_CONFIGURATION', 0);
 
@@ -98,10 +109,37 @@ define('BEE_BOOTSTRAP_LANGUAGE', 7);
 define('BEE_BOOTSTRAP_FULL', 8);
 
 /**
- * Define constant for Bee's current version.
- *
- * This will normally be '1.x-1.x' but will be changed briefly when a release
- * is generated.
+ * Define constants for Bee's current version and latest release.
  */
 // Current version of Bee.
-define('BEE_VERSION', '1.x-1.x');
+// This will normally be based on the next minor release (e.g '1.x-1.1.x-dev')
+// but will be changed briefly when a release is generated.
+define('BEE_VERSION', '1.x-1.2.x-dev');
+
+// Latest release.
+// This will be updated at each release.
+define('BEE_LATEST_RELEASE', '1.x-1.1.0');
+
+/**
+ * Define constants for symbols to be used within Bee.
+ */
+// Bee (U+1F41D, Honeybee)
+define('BEE_SYMBOL_BEE', '🐝 ');
+
+// Success (U+2714, Heavy Check Mark)
+define('BEE_SYMBOL_SUCCESS', '✔ ');
+
+// Warning (U+26A0, Warning Sign)
+define('BEE_SYMBOL_WARNING', '⚠️ ');
+
+// Error (U+2718, Heavy Ballot X)
+define('BEE_SYMBOL_ERROR', '✘ ');
+
+// Info (U+2139, Information Source)
+define('BEE_SYMBOL_INFO', 'ℹ ');
+
+// Debug (U+1F575, Sleuth or Spy)
+define('BEE_SYMBOL_DEBUG', '🕵 ');
+
+// Log (U+1F4DD, Memo)
+define('BEE_SYMBOL_LOG', '📝 ');

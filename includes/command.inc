@@ -56,7 +56,8 @@ function bee_parse_input() {
  * Get the callback function for the command and process it.
  */
 function bee_process_command() {
-  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases, $_bee_output;
+  global $_bee_command, $_bee_arguments, $_bee_options, $_bee_command_aliases;
+  global $_bee_output, $_bee_yes_mode, $_bee_debug_mode, $_bee_bootstrap_level;
 
   // Display help text if no command is given.
   if (empty($_bee_command)) {
@@ -84,10 +85,25 @@ function bee_process_command() {
     if (function_exists($callback)) {
       $ready = TRUE;
       if (isset($descriptor['bootstrap'])) {
-        $ready = bee_bootstrap($descriptor['bootstrap']);
+        $_bee_bootstrap_level = $descriptor['bootstrap'];
+        $ready = bee_bootstrap($_bee_bootstrap_level);
       }
 
       if ($ready) {
+        // Notify about Yes mode and Debug mode if enabled. This must be done
+        // after Backdrop has been bootstrapped, if applicable.
+        if ($_bee_yes_mode) {
+          bee_instant_message(bt("'Yes' mode enabled."));
+        }
+        if ($_bee_debug_mode) {
+          bee_instant_message(bt("'Debug' mode enabled."));
+        }
+
+        // Send telemetry if enabled and if interval has passed since the last
+        // time telemetry was sent.
+        bee_invoke_telemetry();
+
+        // Invoke the command.
         $_bee_output = $callback($_bee_arguments, $_bee_options);
       }
       else {
@@ -275,6 +291,7 @@ function bee_validate_command(array $descriptor) {
         bee_message(bt("Argument '!name' is required.", array(
           '!name' => $name,
         )), 'error');
+        bee_command_show_help();
         return FALSE;
       }
     }
@@ -291,12 +308,17 @@ function bee_validate_command(array $descriptor) {
       // Check for long form command options.
       if (!isset($descriptor['options'][$name])) {
         // Check for short form command options.
-        foreach ($descriptor['options'] as $command_option) {
-          if (!isset($command_option['short']) || $command_option['short'] != $name) {
-            // Remove any that don't match either long or short form options.
-            unset($_bee_options[$name]);
+        foreach ($descriptor['options'] as $command_option_key => $command_option) {
+          // Check if short option exists and it matches the provided option.
+          if (isset($command_option['short']) && $command_option['short'] == $name) {
+            // If it does, set the long form command option.
+            $_bee_options[$command_option_key] = TRUE;
           }
         }
+        // Unset the option if it doesn't match long form options now that all
+        // short form options have been converted to their long form
+        // equivalent.
+        unset($_bee_options[$name]);
       }
     }
   }
@@ -305,4 +327,25 @@ function bee_validate_command(array $descriptor) {
   }
 
   return TRUE;
+}
+
+/**
+ * Show the help text for a command.
+ */
+function bee_command_show_help() {
+  global $_bee_command, $_bee_output;
+
+  // Show a message to give context to the following help.
+  bee_message(bt('To help you get it right, here is the help text for this command:'), 'info');
+
+  // Get the command descriptor.
+  $commands = bee_all_commands();
+  $command_descriptor = $commands[$_bee_command];
+
+  // The help function we call expects the command key to exist within the
+  // descriptor containing the command.
+  $command_descriptor['command'] = $_bee_command;
+
+  // Set the output to be the help text for the command.
+  $_bee_output = help_bee_command_help($command_descriptor);
 }

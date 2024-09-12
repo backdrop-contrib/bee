@@ -1,0 +1,3 @@
+If your module has Drush integration via a `MODULE.drush.inc` file, you can use that as a basis for creating a `MODULE.bee.inc` integration. See [Extending Bee](https://github.com/backdrop-contrib/bee/wiki/Extending-Bee) for some background. Not every Drush internal function has a Bee equivalent (though the maintainer is open to adding more functions if it's helpful), and the command definition might be slightly different too.
+
+One example is the [S3 File System module](https://github.com/backdrop-contrib/s3fs), which has integrations for both Drush and Bee.

@@ -223,7 +223,10 @@ function install_bee_callback($arguments, $options) {
 
   // Run the install script.
   bee_render_text(array('value' => bt("\nInstalling Backdrop. This may take a moment...\n")));
-  $result = exec("cd $_bee_backdrop_root && ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
+  // The core/scripts/install.sh binary is not installed as executable by
+  // default. Call it explicitly via the currently-specified PHP binary.
+  $php_bin = PHP_BINARY;
+  $result = exec("cd $_bee_backdrop_root && $php_bin ./core/scripts/install.sh $url $db $db_prefix $username $password $email $site_name $site_mail $langcode $clean_urls $profile");
   // Strip tags to prevent HTML code being output.
   bee_render_text(array('value' => strip_tags($result)));
 

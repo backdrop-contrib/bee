@@ -37,8 +37,12 @@ function status_bee_callback($arguments, $options) {
   $rows = array();
 
   if (!empty($_bee_backdrop_root)) {
-    // Backdrop core.
     global $settings, $config_directories;
+    $rows[] = array(
+      array('value' => BEE_SYMBOL_BEE),
+      array('value' => ''),
+    );
+    // Backdrop core.
     if (defined('BACKDROP_VERSION')) {
       $rows[] = array(
         array('value' => bt('Backdrop CMS')),
@@ -48,6 +52,10 @@ function status_bee_callback($arguments, $options) {
     $rows[] = array(
       array('value' => bt('Bee version')),
       array('value' => BEE_VERSION),
+    );
+    $rows[] = array(
+      array('value' => bt('Bee latest release')),
+      array('value' => BEE_LATEST_RELEASE),
     );
     $rows[] = array(
       array('value' => bt('Bee root directory')),
@@ -86,7 +94,7 @@ function status_bee_callback($arguments, $options) {
           array('value' => bt('Database username')),
           array('value' => rawurldecode($info['username'])),
         );
-        $status_show_password = (isset($options['show-password']) || isset($options['p']));
+        $status_show_password = isset($options['show-password']);
         $rows[] = array(
           array('value' => bt('Database password')),
           array('value' => $status_show_password ? rawurldecode($info['password']) : '**********'),
@@ -97,12 +105,18 @@ function status_bee_callback($arguments, $options) {
         );
         $rows[] = array(
           array('value' => bt('Database port')),
-          array('value' => $info['port']),
+          array('value' => array_key_exists('port', $info) ? $info['port'] : NULL),
         );
 
-        // States directly from database, as state_get() requires a higher
-        // bootstrap level with caching and locking.
         try {
+          // Check if telemetry is enabled.
+          $telemetry_query = "SELECT `status` FROM {system} WHERE `name` = 'telemetry'";
+          $telemetry_module = (bool) db_query($telemetry_query)->fetchField();
+          $telemetry_override = isset($settings['telemetry_enabled']) ? $settings['telemetry_enabled'] : TRUE;
+          $telemetry_status = $telemetry_module && $telemetry_override;
+
+          // States directly from database, as state_get() requires a higher
+          // bootstrap level with caching and locking.
           $states = db_query('SELECT name, value FROM {state}')->fetchAllKeyed();
           foreach ($states as $name => $serialized) {
             switch ($name) {
@@ -134,6 +148,8 @@ function status_bee_callback($arguments, $options) {
                 );
                 break;
 
+              case 'bee_telemetry_last':
+                $bee_telemetry_last = bee_format_date(unserialize($serialized));
             }
           }
         }
@@ -158,16 +174,38 @@ function status_bee_callback($arguments, $options) {
       array('value' => bt('Drupal compatibility')),
       array('value' => ($settings['backdrop_drupal_compatibility']) ? 'on' : 'off'),
     );
-    if ($config_directories['active'] && is_dir($config_directories['active'])) {
+    // Active config storage.
+    $config_active_class = isset($settings['config_active_class']) ? $settings['config_active_class'] : 'ConfigFileStorage';
+    $config_active_storage = '';
+    if ($config_active_class == 'ConfigDatabaseStorage') {
+      $config_active_storage = 'Database';
+    }
+    else {
+      if ($config_directories['active'] && is_dir($config_directories['active'])) {
+        $config_active_storage = realpath($config_directories['active']);
+      }
+    }
+    if ($config_active_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir active')),
-        array('value' => realpath($config_directories['active'])),
+        array('value' => bt('Config storage active')),
+        array('value' => $config_active_storage),
       );
     }
-    if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+    // Staging config storage.
+    $config_staging_class = isset($settings['config_staging_class']) ? $settings['config_staging_class'] : 'ConfigFileStorage';
+    $config_staging_storage = '';
+    if ($config_staging_class == 'ConfigDatabaseStorage') {
+      $config_staging_storage = 'Database';
+    }
+    else {
+      if ($config_directories['staging'] && is_dir($config_directories['staging'])) {
+        $config_staging_storage = realpath($config_directories['staging']);
+      }
+    }
+    if ($config_staging_storage) {
       $rows[] = array(
-        array('value' => bt('Config dir staging')),
-        array('value' => realpath($config_directories['staging'])),
+        array('value' => bt('Config storage staging')),
+        array('value' => $config_staging_storage),
       );
     }
 
@@ -235,6 +273,33 @@ function status_bee_callback($arguments, $options) {
       array('value' => php_ini_loaded_file()),
     );
 
+    // Telemetry.
+    $rows[] = array(
+      array('value' => ''),
+      array('value' => ''),
+    );
+    $rows[] = array(
+      array('value' => BEE_SYMBOL_INFO . ' ' . bt('TELEMETRY')),
+      array('value' => ''),
+    );
+    $rows[] = array(
+      array('value' => bt('Status')),
+      array('value' => $telemetry_status ? 'on' : 'off'),
+    );
+    if ($telemetry_status) {
+      $rows[] = array(
+        array('value' => bt('Last sent')),
+        array('value' => $bee_telemetry_last),
+      );
+    }
+    if ($telemetry_status) {
+      $data_summary = json_encode(bee_telemetry_get_data());
+    }
+    else {
+      $data_summary = bt('None');
+    }
+    $data_string = " Data: $data_summary\n";
+
     echo "\n";
     return array(
       array(
@@ -244,6 +309,12 @@ function status_bee_callback($arguments, $options) {
           'delimiter' => '   ',
           'delimiter_left' => ' ',
           'delimiter_right' => ' ',
+        ),
+      ),
+      array(
+        'type' => 'text',
+        'variables' => array(
+          'value' => $data_string,
         ),
       ),
     );

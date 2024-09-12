@@ -97,11 +97,9 @@ function bee_initialize_console() {
   // Turn on various 'modes' as appropriate.
   if (!empty($_bee_options['yes']) || !empty($_bee_options['y'])) {
     $_bee_yes_mode = TRUE;
-    bee_message(bt("'Yes' mode enabled."), 'log');
   }
   if (!empty($_bee_options['debug']) || !empty($_bee_options['d'])) {
     $_bee_debug_mode = TRUE;
-    bee_message(bt("'Debug' mode enabled."), 'log');
   }
 }
 
@@ -171,7 +169,10 @@ function bee_message($message, $type = 'info') {
  */
 function bt($string, array $args = array()) {
   if (function_exists('t')) {
-    return t($string, $args);
+    $options = array(
+      'context' => 'Bee',
+    );
+    return t($string, $args, $options);
   }
   else {
     if (!empty($args)) {

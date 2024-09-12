@@ -5,16 +5,18 @@
  */
 
 /**
- * Format and display all messages to the user.
+ * Format and display all post operation messages to the user.
  */
 function bee_print_messages() {
   global $_bee_messages, $_bee_debug_mode;
   $rows = array();
-
   // Exit if there are no messages.
   if (empty($_bee_messages)) {
     return;
   }
+
+  // Add a new line before starting.
+  echo "\n";
 
   // Style each type of message differently.
   foreach ($_bee_messages as $type => $type_messages) {
@@ -23,54 +25,64 @@ function bee_print_messages() {
       continue;
     }
 
-    switch ($type) {
-      case 'success':
-        $symbol = '[✔]';
-        $color = 'green';
-        break;
+    list($symbol, $color) = bee_message_type_info($type);
 
-      case 'warning':
-        $symbol = '[!]';
-        $color = 'yellow';
-        break;
-
-      case 'error':
-        $symbol = '[✘]';
-        $color = 'red';
-        break;
-
-      case 'log':
-        $symbol = '[-]';
-        $color = 'magenta';
-        break;
-
-      case 'info':
-      default:
-        $symbol = '[i]';
-        $color = 'blue';
-    }
-
-    // Prepare `$rows` array for table output.
+    // Output the symbol and text for each message.
     foreach ($type_messages as $message) {
-      $rows[] = array(
-        array(
-          'value' => $symbol,
-          '#color' => $color,
-          '#bold' => TRUE,
-        ),
-        array('value' => $message),
-      );
+      echo bee_format_text(" $symbol", $color) . " $message";
+
+      // Add a newline after each message.
+      echo "\n";
     }
   }
 
-  // Render messages in a table.
+  // Add a new line after the messages.
   echo "\n";
-  bee_render_table(array(
-    'rows' => $rows,
-    'delimiter' => ' ',
-    'delimiter_left' => ' ',
-    'delimiter_right' => ' ',
-  ));
+}
+
+/**
+ * Return the symbol and color for a bee message type.
+ *
+ * @param string $type
+ *   A string that identifies the type of message.
+ *
+ * @return array
+ *   An array of two elements, a textual symbol and a string identifying its
+ *   color.
+ */
+function bee_message_type_info($type) {
+  switch ($type) {
+    case 'success':
+      $symbol = BEE_SYMBOL_SUCCESS;
+      $color = 'green';
+      break;
+
+    case 'warning':
+      $symbol = BEE_SYMBOL_WARNING;
+      $color = 'yellow';
+      break;
+
+    case 'error':
+      $symbol = BEE_SYMBOL_ERROR;
+      $color = 'red';
+      break;
+
+    case 'log':
+      $symbol = BEE_SYMBOL_LOG;
+      $color = 'magenta';
+      break;
+
+    case 'debug':
+      $symbol = BEE_SYMBOL_DEBUG;
+      $color = '92';
+      break;
+
+    case 'info':
+    default:
+      $symbol = BEE_SYMBOL_INFO;
+      $color = 'blue';
+  }
+  return array($symbol, $color);
 }
 
 /**
@@ -119,6 +131,71 @@ function bee_render_text(array $variables, $newline = TRUE) {
   // Format and output the text.
   echo bee_format_text($text, $color, $bold);
   if ($newline) {
+    echo "\n";
+  }
+}
+
+/**
+ * Output information and messages as the code happens.
+ *
+ * In many ways, this function is similar to 'bee_message()' but there are some
+ * key differences:
+ *   - This function will output the message and optional data at the point in
+ *     the code when it happens rather than at the end.
+ *   - It includes the ability to output an array of data after the message for
+ *     'debug' messages.
+ *   - It includes the calling function and line number for 'debug' messages.
+ *
+ * WARNING: If you insert a call to this function in the core bee code before
+ *          a command that requires Backdrop to be boostrapped, it will produce
+ *          'Headers already sent' warnings so only use temporarily for debug
+ *          purposes.
+ *
+ * @param string $message
+ *   The translated message to display.
+ * @param string $type
+ *   The type of message to display (this determines the formatting used). One
+ *   of: info, success, warning, error, log, debug. Defaults to 'info'.
+ *   Note that 'log' and 'debug' messages are only displayed when `debug` mode
+ *   is enabled.
+ * @param array $data
+ *   An optional array of data that will be outputted after the message for
+ *   'debug' types only (Ignored for other types). Defaults to empty array.
+ */
+function bee_instant_message($message, $type = 'info', array $data = array()) {
+  global $_bee_debug_mode;
+
+  // Exit the function if not debug mode and type is 'log' or 'debug'.
+  if (!$_bee_debug_mode && in_array($type, array('log','debug'))) {
+    return;
+  }
+
+  // Add the symbol.
+  $symbol = bee_message_type_info($type);
+  echo ' ' . bee_format_text($symbol[0], $symbol[1]);
+
+  // If debug mode and type is 'debug' get the calling information.
+  if ($_bee_debug_mode && $type == 'debug') {
+    // Get the calling function and line. Need to get two functions.
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+    $function = $backtrace[1]['function'];
+    $line = $backtrace[0]['line'];
+
+    // Output the function name and line it is called from.
+    echo " [$function:$line]";
+  }
+
+  // Output the string.
+  echo " $message";
+
+  // Output newline.
+  echo "\n";
+
+  // If debug mode AND type is 'debug' AND data array is populated, output the
+  // array.
+  if ($_bee_debug_mode && $type == 'debug' && !empty($data)) {
+    // phpcs:ignore Squiz.PHP.DiscouragedFunctions -- integral part of the command
+    print_r($data);
     echo "\n";
   }
 }
@@ -283,6 +360,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
       }
     }
   }
+  bee_instant_message(bt('Column widths:'), 'debug', $widths);
 
   // Get the widest column, and calculate the width of the table.
   $widest_column = 0;
@@ -302,6 +380,7 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   // SSH command) then 'tput cols' on its own will create an error. This
   // provides an alternative if 'tput cols' create an error.
   $terminal_width = exec('if tput cols &>/dev/null; then  echo $(tput cols); else $(echo $COLUMNS); fi');
+  bee_instant_message(bt('The terminal width is: ') . $terminal_width, 'debug');
   if ($terminal_width && $table_width > $terminal_width) {
     $diff = $table_width - $terminal_width;
     $widths[$widest_column] -= $diff;
@@ -355,7 +434,7 @@ function bee_get_remaining_rows(array $row, array $column_widths) {
   $row_rendered = array();
 
   foreach ($column_widths as $index => $width) {
-    if ($index == $row['index']) {
+    if ($row && $index == $row['index']) {
       $column = $row;
 
       if (mb_strlen((string) $column['value']) > $width) {
