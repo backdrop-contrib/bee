@@ -63,8 +63,6 @@ tooling:
       - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
       - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
 proxy:
-  appserver:
-    - bee.lndo.site
   multisite:
     - multi-1.lndo.site
     - multi-2.lndo.site
