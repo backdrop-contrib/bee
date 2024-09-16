@@ -13,6 +13,15 @@ associative arrays, containing:
 - **description**: The translated description of the command.
 - **callback**: The name of the function that runs the command. Should be of the
   form `COMMAND_bee_callback`.
+- **command_requirements**: (optional) An array of the following requirements
+  to override the defaults:-
+  - `backdrop_root` - whether the command must be run inside a Backdrop root or
+  using the `--root` global option.
+  - `backdrop_installed` - whether Backdrop must be installed before the
+   command can be run.
+
+  Both have a default value of TRUE and if you need to override one or both,
+  include both values in your command.
 - **group**: The name of the group the command belongs to (used when listing all
   commands together). Group names should be lowercase with individual words
   separated by an underscore. See `bee help` for a list of existing groups.
@@ -53,6 +62,10 @@ function poetry_bee_command() {
     'poem' => array(
       'description' => bt('Displays a customised poem.'),
       'callback' => 'poem_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => FALSE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'poetry',
       'arguments' => array(
         'name' => bt('The name to use in the poem.'),

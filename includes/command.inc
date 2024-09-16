@@ -80,6 +80,39 @@ function bee_process_command() {
 
   // Process the command.
   $descriptor = $commands[$_bee_command];
+
+  // Define default command requirements so we only need to add exceptions to
+  // command definitions where applicable.
+  global $_bee_backdrop_root, $_bee_backdrop_installed;
+  $command_requirements = array(
+    'backdrop_root' => TRUE,
+    'backdrop_installed' => TRUE,
+  );
+
+  // Check to see if the command specifies command requirements.
+  if (isset($descriptor['command_requirements'])) {
+    $command_requirements = $descriptor['command_requirements'];
+  }
+
+  // Check if command requirements are met.
+  // Check if backdrop_root is required and if so, check it is set.
+  if ($command_requirements['backdrop_root']) {
+    if (!$_bee_backdrop_root) {
+      // No Backdrop root found.
+      bee_message(bt("No Backdrop installation found. Run this command again from within a Backdrop installation, or use the '--root' global option."), 'error');
+      return;
+    }
+  }
+  // Check if Backdrop must be installed for command to work and if so check it
+  // is installed.
+  if ($command_requirements['backdrop_installed']) {
+    if (!$_bee_backdrop_installed) {
+      // Backdrop not installed.
+      bee_message(bt("While the Backdrop files are present, Backdrop is not installed. Install Backdrop before running this command again."), 'error');
+      return;
+    }
+  }
+
   if (bee_validate_command($descriptor)) {
     $callback = $descriptor['callback'];
     if (function_exists($callback)) {

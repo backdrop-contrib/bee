@@ -12,6 +12,10 @@ function install_bee_command() {
     'install' => array(
       'description' => bt('Install Backdrop and setup a new site.'),
       'callback' => 'install_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'core',
       'options' => array(
         'db-name' => array(

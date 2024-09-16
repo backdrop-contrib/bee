@@ -12,6 +12,10 @@ function help_bee_command() {
     'help' => array(
       'description' => bt("Provide help and examples for 'bee' and its commands."),
       'callback' => 'help_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => FALSE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'information',
       'arguments' => array(
         'command' => bt("The command to display help for. Leave blank to display help for 'bee' itself."),
