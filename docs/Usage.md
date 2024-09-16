@@ -248,6 +248,11 @@ options in a given file.
 - `bee help status` - Display help for the 'status' command.
 - `bee help` - Display help for 'bee' itself.
 
+#### `changelog`
+*Description:* Display the current CHANGELOG of Bee.  
+*Examples:*  
+- `bee changelog` - Output the current CHANGELOG.
+
 ### Core
 #### `download-core`
 *Description:* Download Backdrop core.  

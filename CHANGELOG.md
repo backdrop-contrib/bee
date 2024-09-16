@@ -8,7 +8,8 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-09-06
+## [Unreleased] - 2024-09-07
+## [1.x-1.1.0] - 2024-09-07
 
 ### Added
 - A new function to check whether or not an executable exists in the system.
@@ -21,6 +22,7 @@ system for each contributed module, theme and layout.
 - An implementation of Backdrop's telemetry function.
 - A config-clear command.
 - A new command to enable and disable the theme debug setting.
+- A changelog command to display the current CHANGELOG for the installed version of Bee.
 
 ### Changed
 - Call the install script using the PHP_BINARY constant to avoid issues if the
@@ -32,6 +34,7 @@ execute permissions have not been added to the file.
 - The Wiki is now edited via the `docs` folder of the main repo. Pages can be edited as part of a pull request.
 - Added 'context' of 'Bee' to any translatable strings passed to `t()`.
 - Moved 'theme' commands and tests from 'projects' to dedicated files.
+- Changed the version command to include the latest "Unreleased" date for dev versions.
 
 ### Fixed
 - Unhandled Error if the executables called in the database commands does
@@ -113,7 +116,8 @@ filenames) are included in table output.
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...HEAD
+[1.x-1.1.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...1.x-1.1.0
 [1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
 [1.x-1.0.0-beta]: https://github.com/backdrop-contrib/bee/compare/v0.0.0...1.x-1.0.0-beta
