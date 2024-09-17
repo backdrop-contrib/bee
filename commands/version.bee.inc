@@ -17,6 +17,10 @@ function version_bee_command() {
     'version' => array(
       'description' => bt('Display the current version of Bee.'),
       'callback' => 'version_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => FALSE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'information',
       'examples' => array(
         'bee version' => bt('Output the current version.'),
@@ -25,6 +29,10 @@ function version_bee_command() {
     'changelog' => array(
       'description' => bt('Display the current CHANGELOG of Bee.'),
       'callback' => 'changelog_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => FALSE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'information',
       'examples' => array(
         'bee changelog' => bt('Output the current CHANGELOG.'),
@@ -68,7 +76,7 @@ function version_bee_callback($arguments, $options) {
   $output[] = array(
     'type' => 'text',
     'variables' => array(
-      'value' => "\n " . BEE_SYMBOL_BEE . ' ' . bt('Bee for Backdrop CMS'),
+      'value' => BEE_SYMBOL_BEE . ' ' . bt('Bee for Backdrop CMS'),
     ),
   );
   $output[] = array(

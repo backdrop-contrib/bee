@@ -12,6 +12,10 @@ function db_bee_command() {
     'db-export' => array(
       'description' => bt('Export the database as a compressed SQL file. This uses the --no-tablespaces option by default.'),
       'callback' => 'db_export_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => TRUE,
+      ),
       'group' => 'database',
       'arguments' => array(
         'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
@@ -34,6 +38,10 @@ function db_bee_command() {
     'db-import' => array(
       'description' => bt('Import an SQL file into the current database.'),
       'callback' => 'db_import_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'database',
       'arguments' => array(
         'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).'),
@@ -47,6 +55,10 @@ function db_bee_command() {
     'db-drop' => array(
       'description' => bt('Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.'),
       'callback' => 'db_drop_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'database',
       'aliases' => array('sql-drop'),
       'examples' => array(
@@ -57,6 +69,10 @@ function db_bee_command() {
     'sql' => array(
       'description' => bt("Open an SQL command-line interface using Backdrop's database credentials."),
       'callback' => 'sql_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'advanced',
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
       'examples' => array(
