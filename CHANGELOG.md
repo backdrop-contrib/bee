@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-09-16
+## [Unreleased] - 2024-09-17
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
