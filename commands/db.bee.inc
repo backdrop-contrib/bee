@@ -46,10 +46,17 @@ function db_bee_command() {
       'arguments' => array(
         'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).'),
       ),
+      'options' => array(
+        'mariadb-compatibility' => array(
+          'description' => bt('Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.'),
+          'short' => 'mdbc',
+        ),
+      ),
       'aliases' => array('dbim', 'sql-import'),
       'examples' => array(
         'bee db-import backup.sql' => bt('Import backup.sql into the current database.'),
         'bee db-import db.sql.gz' => bt('Extract and import db.sql into the current database.'),
+        'bee db-import db.sql.gz --mariadb-compatibility' => bt('Extract and import db.sql into the current database removing any MariaDB sandbox switch first.'),
       ),
     ),
     'db-drop' => array(
@@ -207,11 +214,23 @@ function db_import_bee_callback($arguments, $options) {
     }
     $import_command .= "$gunzip_bin -c $filename | ";
   }
+
+  // Check if MariaDB compatibility option is used and add into the command if
+  // so.
+  $mariadb_compatibility = (!empty($options['mariadb-compatibility'])) ? TRUE : FALSE;
+  if ($mariadb_compatibility) {
+    $grep_bin = bee_get_executable_path('grep');
+    $mariadb_compatibility_command = $grep_bin . ' -vF \'/*!999999\- enable the sandbox mode */ \'';
+    $import_command .= "$mariadb_compatibility_command | ";
+  }
+
   $import_command .= $mysql_bin . ' ' . $connection_string;
   if (!$gzip) {
     $import_command .= " < $filename";
   }
+  $import_command .= " 2>&1";
   exec($import_command, $output, $result);
+  bee_instant_message('Result: ' . $result, 'debug', $output);
   // Remove the temporary mysql options file.
   bee_delete($connection_file);
 
@@ -220,6 +239,12 @@ function db_import_bee_callback($arguments, $options) {
       '!filename' => $filename,
       '!database' => rawurldecode($db_info['database']),
     )), 'success');
+  }
+  else {
+    bee_message(bt('There was an error and the import could not be completed. Check the file is valid.'), 'error');
+    if (strpos($output[0], 'ERROR at line 1: Unknown command \'\-\'') === 0) {
+      bee_message(bt('If the source database was MariaDB, try the "--mariadb-compatibility" option.'), 'info');
+    }
   }
 }
 
