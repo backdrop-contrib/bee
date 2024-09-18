@@ -10,6 +10,11 @@ system for each contributed module, theme and layout.
 
 ## [Unreleased] - 2024-09-17
 
+### Added
+- An option for the `db-import` command to allow import from newer MariaDB
+servers with the enable sandbox command in the dump file if the destination
+database or client does not support it.
+
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
 before installing Backdrop.
