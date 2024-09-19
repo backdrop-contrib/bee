@@ -199,13 +199,18 @@ function db_import_bee_callback($arguments, $options) {
     $gzip = TRUE;
   }
 
-  // Import the database.
+  // Start preparing the import command.
+  $import_command = '';
+
+  // Define the mysql executable.
   $mysql_bin = bee_get_executable_path('mysql');
   if (!$mysql_bin) {
     bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
-  $import_command = '';
+
+  // If the file is a gzip file, define the gunzip executable and add the
+  // command at the start.
   if ($gzip) {
     $gunzip_bin = bee_get_executable_path('gunzip');
     if (!$gunzip_bin) {
@@ -219,18 +224,46 @@ function db_import_bee_callback($arguments, $options) {
   // so.
   $mariadb_compatibility = (!empty($options['mariadb-compatibility'])) ? TRUE : FALSE;
   if ($mariadb_compatibility) {
+    // Define the grep executable.
     $grep_bin = bee_get_executable_path('grep');
+
+    // Define the grep command.
     $mariadb_compatibility_command = $grep_bin . ' -vF \'/*!999999\- enable the sandbox mode */ \'';
-    $import_command .= "$mariadb_compatibility_command | ";
+
+    if ($gzip) {
+      // If the sql file is zipped then we execute the command on the output of
+      // the unzipped file and pipe to mysql.
+      $import_command .= "$mariadb_compatibility_command | ";
+    }
+    else {
+      // If the sql file is not zipped then we execute the command on the file
+      // and pipe to mysql.
+      $import_command .= "$mariadb_compatibility_command $filename | ";
+    }
   }
 
+  // Add the mysql command with connection string.
   $import_command .= $mysql_bin . ' ' . $connection_string;
   if (!$gzip) {
-    $import_command .= " < $filename";
+    if (!$mariadb_compatibility) {
+      // If the MariaDB compatibility fix is not used, then add filename to the
+      // end.
+      $import_command .= " < $filename";
+    }
   }
+
+  // Allow errors from mysql to go to stdout so we can store in a variable.
   $import_command .= " 2>&1";
+
+  // Output the compiled import command as a debug message.
+  bee_instant_message('$import_command: ' . $import_command, 'debug');
+
+  // Execute the command.
   exec($import_command, $output, $result);
+
+  // Output the result code and any output as a debug message.
   bee_instant_message('Result: ' . $result, 'debug', $output);
+
   // Remove the temporary mysql options file.
   bee_delete($connection_file);
 
