@@ -229,6 +229,7 @@ function db_import_bee_callback($arguments, $options) {
 
     // Define the grep command.
     $mariadb_compatibility_command = $grep_bin . ' -vF \'/*!999999\- enable the sandbox mode */ \'';
+
     if ($gzip) {
       // If the sql file is zipped then we execute the command on the output of
       // the unzipped file and pipe to mysql.
