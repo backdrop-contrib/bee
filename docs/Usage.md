@@ -323,7 +323,6 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 #### `db-import`
 *Description:* Import an SQL file into the current database.  
 *Aliases:* `dbim`, `sql-import`  
-
 *Arguments:*
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
 
