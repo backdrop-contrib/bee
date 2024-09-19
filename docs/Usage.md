@@ -330,9 +330,10 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 *Options:*
 - `--mariadb-compatibility`, `-mdbc`` - Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.
 
-*Examples:*
+*Examples:*  
 - `bee db-import backup.sql` - Import backup.sql into the current database.
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
+- `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
 - `bee db-import db.sql.gz --mariadb-compatibility` - Extract and import db.sql into the current database removing any MariaDB sandbox switch first.
 
 #### `db-drop`
