@@ -322,10 +322,12 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 
 #### `db-import`
 *Description:* Import an SQL file into the current database.  
-*Aliases:*`dbim`, `sql-import`
+*Aliases:* `dbim`, `sql-import`  
 
 *Arguments:*
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
+
+Note: The path is always relative to the Backdrop root so if you want to import from a folder above this, use `../` and the filename.
 
 *Options:*
 - `--mariadb-compatibility`, `-mdbc`` - Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.
