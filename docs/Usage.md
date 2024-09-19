@@ -321,7 +321,7 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 - `bee db-export --extra="--no-data --no-tablespaces" db.sql` Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz.
 
 #### `db-import`
-*Description:* Import an SQL file into the current database.
+*Description:* Import an SQL file into the current database.  
 *Aliases:*`dbim`, `sql-import`
 
 *Arguments:*
