@@ -8,12 +8,13 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-09-19
+## [Unreleased] - 2024-09-25
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
 servers with the enable sandbox command in the dump file if the destination
 database or client does not support it.
+- Tooling for the lando recipe to support Xdebug with VS Code.
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or

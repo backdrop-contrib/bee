@@ -5,10 +5,14 @@ config:
   php: 8.3
   webroot: backdrop
   database: mysql
+  # Set Xdebug off by default. We use the tooling below to turn it on as needed.
+  xdebug: false
   # Need to disable bee so can use the version in the repo.
   bee: false
 services:
   appserver:
+    config:
+      php: .lando/php.ini
     build_as_root:
       # As bee is now added by default, we need to remove any existing versions
       # of bee if you tested a versioned install of bee by adding in the config
@@ -31,6 +35,10 @@ services:
     run:
       # Run setup tasks.
       - /app/.lando/setup.sh setup
+    overrides:
+      environment:
+        XDEBUG-CONFIG: "start_with_request=yes"
+        XDEBUG_MODE: 'debug,develop'
   database:
     healthcheck: mysql --defaults-extra-file=/app/.lando/mysql.cnf --silent --execute "SHOW DATABASES;"
   multisite:
@@ -62,6 +70,20 @@ tooling:
     cmd:
       - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
       - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
+  xdebug-on:
+    service: appserver
+    description: Enable Xdebug.
+    user: root
+    cmd:
+      - docker-php-ext-enable xdebug && kill -USR2 $(pgrep -o php-fpm) 2>/dev/null || /etc/init.d/apache2 reload
+      - tput setaf 2 && echo "Xdebug On" && tput sgr 0 && echo
+  xdebug-off:
+    service: appserver
+    description: Disable Xdebug.
+    user: root
+    cmd:
+      - rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && kill -USR2 $(pgrep -o php-fpm) 2>/dev/null || /etc/init.d/apache2 reload
+      - tput setaf 1 && echo "Xdebug Off" && tput sgr 0 && echo
 proxy:
   multisite:
     - multi-1.lndo.site
