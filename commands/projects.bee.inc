@@ -197,6 +197,7 @@ function enable_bee_callback($arguments, $options) {
   $disabled_layouts = array();
   $enable_dependencies = !isset($options['no-dependency-checking']);
   $flush_caches = FALSE;
+  $unique_dependencies = $unique_successful_dependencies = $arguments['projects'];
 
   foreach ($arguments['projects'] as $project) {
     $already_enabled = FALSE;
@@ -222,9 +223,33 @@ function enable_bee_callback($arguments, $options) {
           break;
         }
 
+        if ($enable_dependencies) {
+          $dependencies = bee_get_required_modules($modules, [$module->name]);
+          // Don't report twice because we're checking projects one by one
+          foreach ($dependencies as $key => $dependency) {
+            if (!in_array($dependency, $unique_dependencies)) {
+              // Report info on dependencies to be enabled
+              bee_message(bt("The '!dependency' module will also be enabled, as it is required by the '!current' module.", [
+                '!dependency' => $modules[$dependency]->info['name'],
+                '!current' => $module->info['name']
+              ]), 'info');
+              $unique_dependencies[] = $dependency;
+            }
+          }
+        }
+
         // Enable module.
         if (module_enable(array($project), $enable_dependencies)) {
           $success = TRUE;
+          // Report success on dependencies enabled
+          foreach ($dependencies as $key => $enabled_module) {
+            if (!in_array($enabled_module, $unique_successful_dependencies)) {
+              bee_message(bt("The '!dependency' module was enabled.", [
+                '!dependency' => $modules[$enabled_module]->info['name'],
+              ]), 'success');
+              $unique_successful_dependencies[] = $enabled_module;
+            }
+          }
         }
         else {
           bee_message(bt("The '!name' module could not be enabled due to missing dependencies.", array(
@@ -310,6 +335,7 @@ function disable_bee_callback($arguments, $options) {
   $disabled_layouts = array();
   $disable_dependents = !isset($options['no-dependency-checking']);
   $flush_caches = FALSE;
+  $unique_dependencies = $unique_successful_dependencies = $arguments['projects'];
 
   foreach ($arguments['projects'] as $project) {
     $already_disabled = FALSE;
@@ -335,8 +361,34 @@ function disable_bee_callback($arguments, $options) {
           break;
         }
 
+        if ($disable_dependents) {
+          $dependencies = bee_get_dependent_modules($modules, [$module->name]);
+          // Don't report twice because we're checking projects one by one
+          foreach ($dependencies as $key => $dependency) {
+            if (!in_array($dependency, $unique_dependencies)) {
+              // Report info on dependencies to be disabled
+              bee_message(bt("The '!dependency' module will also be disabled, as it depends on the '!current' module.", [
+                '!dependency' => $modules[$dependency]->info['name'],
+                '!current' => $module->info['name']
+              ]), 'info');
+              $unique_dependencies[] = $dependency;
+            }
+          }
+        }
+
         // Disable module.
         module_disable(array($project), $disable_dependents);
+
+        // Report success on dependencies disabled
+        $dependencies = array_unique($dependencies);
+        foreach ($dependencies as $disabled_module) {
+          if (!in_array($disabled_module, $unique_successful_dependencies)) {
+            bee_message(bt("The '!dependency' module was disabled.", [
+              '!dependency' => $modules[$disabled_module]->info['name'],
+            ]), 'success');
+            $unique_successful_dependencies[] = $disabled_module;
+          }
+        }
         $success = TRUE;
 
         break;
@@ -353,6 +405,7 @@ function disable_bee_callback($arguments, $options) {
 
         // Disable theme.
         theme_disable(array($project));
+
         $success = TRUE;
 
         break;
