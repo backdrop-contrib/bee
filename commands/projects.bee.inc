@@ -225,13 +225,13 @@ function enable_bee_callback($arguments, $options) {
 
         if ($enable_dependencies) {
           $dependencies = bee_get_required_modules($modules, [$module->name]);
-          // Don't report twice because we're checking projects one by one
+          // Don't report twice because we're checking projects one by one.
           foreach ($dependencies as $key => $dependency) {
             if (!in_array($dependency, $unique_dependencies)) {
-              // Report info on dependencies to be enabled
+              // Report info on dependencies to be enabled.
               bee_message(bt("The '!dependency' module will also be enabled, as it is required by the '!current' module.", [
                 '!dependency' => $modules[$dependency]->info['name'],
-                '!current' => $module->info['name']
+                '!current' => $module->info['name'],
               ]), 'info');
               $unique_dependencies[] = $dependency;
             }
@@ -241,7 +241,7 @@ function enable_bee_callback($arguments, $options) {
         // Enable module.
         if (module_enable(array($project), $enable_dependencies)) {
           $success = TRUE;
-          // Report success on dependencies enabled
+          // Report success on dependencies enabled.
           foreach ($dependencies as $key => $enabled_module) {
             if (!in_array($enabled_module, $unique_successful_dependencies)) {
               bee_message(bt("The '!dependency' module was enabled.", [
@@ -363,13 +363,13 @@ function disable_bee_callback($arguments, $options) {
 
         if ($disable_dependents) {
           $dependencies = bee_get_dependent_modules($modules, [$module->name]);
-          // Don't report twice because we're checking projects one by one
+          // Don't report twice because we're checking projects one by one.
           foreach ($dependencies as $key => $dependency) {
             if (!in_array($dependency, $unique_dependencies)) {
-              // Report info on dependencies to be disabled
+              // Report info on dependencies to be disabled.
               bee_message(bt("The '!dependency' module will also be disabled, as it depends on the '!current' module.", [
                 '!dependency' => $modules[$dependency]->info['name'],
-                '!current' => $module->info['name']
+                '!current' => $module->info['name'],
               ]), 'info');
               $unique_dependencies[] = $dependency;
             }
@@ -379,7 +379,7 @@ function disable_bee_callback($arguments, $options) {
         // Disable module.
         module_disable(array($project), $disable_dependents);
 
-        // Report success on dependencies disabled
+        // Report success on dependencies disabled.
         $dependencies = array_unique($dependencies);
         foreach ($dependencies as $disabled_module) {
           if (!in_array($disabled_module, $unique_successful_dependencies)) {

@@ -220,7 +220,7 @@ function bee_format_date($timestamp, $format = 'Y-m-d H:i:s T', $timezone = NULL
  * @return array $module_list
  *   A list of modules and their dependent modules.
  */
-function bee_get_dependent_modules($module_data, $module_list) {
+function bee_get_dependent_modules(array $module_data, array $module_list) {
   // Create an associative array with weights as values.
   $module_list = array_flip(array_values($module_list));
 
@@ -266,7 +266,7 @@ function bee_get_dependent_modules($module_data, $module_list) {
  * @return array $module_list
  *   A list of modules and their required modules.
  */
-function bee_get_required_modules($module_data, $module_list) {
+function bee_get_required_modules(array $module_data, array $module_list) {
   // Create an associative array with weights as values.
   $module_list = array_flip(array_values($module_list));
 
