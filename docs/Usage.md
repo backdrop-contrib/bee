@@ -321,17 +321,22 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 - `bee db-export --extra="--no-data --no-tablespaces" db.sql` Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz.
 
 #### `db-import`
-*Description:* Import an SQL file into the current database.  
-*Aliases:* `dbim` , `sql-import`  
-*Arguments:*  
+*Description:* Import an SQL file into the current database.
+*Aliases:* `dbim`, `sql-import`  
+
+*Arguments:*
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
 
 Note: The path is always relative to the Backdrop root so if you want to import from a folder above this, use `../` and the filename.
 
-*Examples:*  
+*Options:*
+- `--mariadb-compatibility`, `-mdbc`` - Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.
+
+*Examples:*
 - `bee db-import backup.sql` - Import backup.sql into the current database.
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
 - `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
+- `bee db-import db.sql.gz --mariadb-compatibility` - Extract and import db.sql into the current database removing any MariaDB sandbox switch first.
 
 #### `db-drop`
 *Description:* Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.  

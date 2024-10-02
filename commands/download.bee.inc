@@ -25,6 +25,10 @@ function download_bee_command() {
     'download' => array(
       'description' => bt('Download Backdrop contrib projects.'),
       'callback' => 'download_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'projects',
       'arguments' => array(
         'projects' => $projects_description,
@@ -50,6 +54,10 @@ function download_bee_command() {
     'download-core' => array(
       'description' => bt('Download Backdrop core.'),
       'callback' => 'download_core_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => FALSE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'core',
       'arguments' => array(
         'directory' => bt('The directory to download and extract Backdrop into. Leave blank to use the current directory.'),

@@ -12,6 +12,10 @@ function db_bee_command() {
     'db-export' => array(
       'description' => bt('Export the database as a compressed SQL file. This uses the --no-tablespaces option by default.'),
       'callback' => 'db_export_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => TRUE,
+      ),
       'group' => 'database',
       'arguments' => array(
         'file' => bt('The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.'),
@@ -34,19 +38,34 @@ function db_bee_command() {
     'db-import' => array(
       'description' => bt('Import an SQL file into the current database.'),
       'callback' => 'db_import_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'database',
       'arguments' => array(
         'file' => bt('The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).'),
+      ),
+      'options' => array(
+        'mariadb-compatibility' => array(
+          'description' => bt('Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.'),
+          'short' => 'mdbc',
+        ),
       ),
       'aliases' => array('dbim', 'sql-import'),
       'examples' => array(
         'bee db-import backup.sql' => bt('Import backup.sql into the current database.'),
         'bee db-import db.sql.gz' => bt('Extract and import db.sql into the current database.'),
+        'bee db-import db.sql.gz --mariadb-compatibility' => bt('Extract and import db.sql into the current database removing any MariaDB sandbox switch first.'),
       ),
     ),
     'db-drop' => array(
       'description' => bt('Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.'),
       'callback' => 'db_drop_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'database',
       'aliases' => array('sql-drop'),
       'examples' => array(
@@ -57,6 +76,10 @@ function db_bee_command() {
     'sql' => array(
       'description' => bt("Open an SQL command-line interface using Backdrop's database credentials."),
       'callback' => 'sql_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'advanced',
       'aliases' => array('sqlc', 'sql-cli', 'db-cli'),
       'examples' => array(
@@ -176,13 +199,18 @@ function db_import_bee_callback($arguments, $options) {
     $gzip = TRUE;
   }
 
-  // Import the database.
+  // Start preparing the import command.
+  $import_command = '';
+
+  // Define the mysql executable.
   $mysql_bin = bee_get_executable_path('mysql');
   if (!$mysql_bin) {
     bee_message(bt("The MySQL client command 'mysql' cannot be found in this system. Please install it and try again."), 'error');
     return FALSE;
   }
-  $import_command = '';
+
+  // If the file is a gzip file, define the gunzip executable and add the
+  // command at the start.
   if ($gzip) {
     $gunzip_bin = bee_get_executable_path('gunzip');
     if (!$gunzip_bin) {
@@ -191,11 +219,51 @@ function db_import_bee_callback($arguments, $options) {
     }
     $import_command .= "$gunzip_bin -c $filename | ";
   }
+
+  // Check if MariaDB compatibility option is used and add into the command if
+  // so.
+  $mariadb_compatibility = (!empty($options['mariadb-compatibility'])) ? TRUE : FALSE;
+  if ($mariadb_compatibility) {
+    // Define the grep executable.
+    $grep_bin = bee_get_executable_path('grep');
+
+    // Define the grep command.
+    $mariadb_compatibility_command = $grep_bin . ' -vF \'/*!999999\- enable the sandbox mode */ \'';
+
+    if ($gzip) {
+      // If the sql file is zipped then we execute the command on the output of
+      // the unzipped file and pipe to mysql.
+      $import_command .= "$mariadb_compatibility_command | ";
+    }
+    else {
+      // If the sql file is not zipped then we execute the command on the file
+      // and pipe to mysql.
+      $import_command .= "$mariadb_compatibility_command $filename | ";
+    }
+  }
+
+  // Add the mysql command with connection string.
   $import_command .= $mysql_bin . ' ' . $connection_string;
   if (!$gzip) {
-    $import_command .= " < $filename";
+    if (!$mariadb_compatibility) {
+      // If the MariaDB compatibility fix is not used, then add filename to the
+      // end.
+      $import_command .= " < $filename";
+    }
   }
+
+  // Allow errors from mysql to go to stdout so we can store in a variable.
+  $import_command .= " 2>&1";
+
+  // Output the compiled import command as a debug message.
+  bee_instant_message('$import_command: ' . $import_command, 'debug');
+
+  // Execute the command.
   exec($import_command, $output, $result);
+
+  // Output the result code and any output as a debug message.
+  bee_instant_message('Result: ' . $result, 'debug', $output);
+
   // Remove the temporary mysql options file.
   bee_delete($connection_file);
 
@@ -204,6 +272,12 @@ function db_import_bee_callback($arguments, $options) {
       '!filename' => $filename,
       '!database' => rawurldecode($db_info['database']),
     )), 'success');
+  }
+  else {
+    bee_message(bt('There was an error and the import could not be completed. Check the file is valid.'), 'error');
+    if (strpos($output[0], 'ERROR at line 1: Unknown command \'\-\'') === 0) {
+      bee_message(bt('If the source database was MariaDB, try the "--mariadb-compatibility" option.'), 'info');
+    }
   }
 }
 
