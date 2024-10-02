@@ -13,13 +13,14 @@ define('BEE_GITHUB_API_URL', 'https://api.github.com/');
  * Implements hook_bee_command().
  */
 function download_bee_command() {
-  $projects_description = bt('One or more contrib projects to download. You can specify a release tag or branch using the format:');
+  $projects_description = bt('One or more contrib projects to download. You can specify a release tag or branch for each project using the format:');
   $projects_description .= "\n  " . bt('project:release_tag/keyword[:branch]');
   $projects_description .= "\n\n " . bt("Specify a release tag or one of the following keywords:");
   $projects_description .= "\n  - " . bt("'dev' (download the dev version from the default branch.)");
-  $projects_description .= "\n  - " . bt("'branch' (download the dev version from an alternative branch. Specified using the 'branch' option.)");
+  $projects_description .= "\n  - " . bt("'branch' (download the dev version from an alternative branch. Specified with ");
   $projects_description .= "\n  - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)");
   $projects_description .= "\n\n " . bt("If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise.");
+  $projects_description .= "\n\n " . bt("By default, 'latest' is selected if no release is specified. Dependencies will all download the 'latest' so if you do want a different version, download these first.");
 
   return array(
     'download' => array(
@@ -46,9 +47,13 @@ function download_bee_command() {
       ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
-        'bee download webform' => bt('Download the Webform module.'),
+        'bee download webform' => bt('Download the latest version of the Webform module.'),
         'bee download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
         'bee --site=site_name download simplify --allow-multisite-copy' => bt('Download an additional copy of the Simplify module into the site_name multisite module folder.'),
+        'bee download simplify:dev' => bt('Download the dev version of the Simplify module.'),
+        'bee download paragraphs:branch:1.x-1.2' => bt('Download the 1.x-1.2 branch of the Paragraphs module'),
+        'bee download simplify:1.x-1.2.4' => bt('Download the 1.x-1.2.4 release of the Simplify module'),
+        'bee download simplify:select' => bt('Select from a list of releases and the dev version for the Simplify module.'),
       ),
     ),
     'download-core' => array(
@@ -64,9 +69,10 @@ function download_bee_command() {
       ),
       'optional_arguments' => array('directory'),
       'options' => array(
-        'release' => array(
+        'version' => array(
           'description' => bt("Specify a release tag or one of the following keywords:")
           . "\n - " . bt("'dev' (download the dev version from the default branch.)")
+          . "\n - " . bt("'branch' (download the dev version from an alternative branch. Specified by appending ':branch_name')")
           . "\n - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)"),
           'value' => bt("The release tag or keyword."),
         ),
@@ -78,6 +84,10 @@ function download_bee_command() {
       'aliases' => array('dl-core'),
       'examples' => array(
         'bee download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
+        'bee download-core --version=1.28.3' => bt("Download the 1.28.3 release of Backdrop into the current directory."),
+        'bee download-core --version=dev' => bt("Download the dev version of Backdrop into the current directory."),
+        'bee download-core --version=branch:1.29.x' => bt("Download the 1.29.x branch of Backdrop into the current directory."),
+        'bee download-core --version=select' => bt("Select from a list of releases of Backdrop to download into the current directory."),
       ),
     ),
   );
@@ -137,6 +147,7 @@ function download_bee_callback($arguments, $options) {
   while ($project_count < count($projects)) {
     $project = $projects[$project_count];
     $project_details = explode(':', $project);
+    bee_instant_message('$project_details: ', 'debug', $project_details);
     $detail_count = count($project_details);
     switch ($detail_count) {
       case 1:
@@ -288,12 +299,28 @@ function download_bee_callback($arguments, $options) {
 
       // Download the project.
       if (download_bee_download_project($project['name'], $info['download_url'], $destination, $info['branch'])) {
-        bee_message(bt("'!project' (!release) was downloaded into '!directory'. For more information see !url", array(
-          '!project' => $project['name'],
-          '!release' => $info['release']['tag_name'],
-          '!url' => $info['release']['release_url'],
-          '!directory' => $destination,
-        )), 'success');
+        // If the download is successful then display an appropriate message.
+        // Check if a release.
+        if (isset($info['release'])) {
+          // If download is a release, whether latest or defined, show the
+          // release tag and link to release notes.
+          bee_message(bt("'!project' (!release) was downloaded into '!directory'. For more information see !url", array(
+            '!project' => $project['name'],
+            '!release' => $info['release']['tag_name'],
+            '!url' => $info['release']['release_url'],
+            '!directory' => $destination,
+          )), 'success');
+        }
+        else {
+          // If download is not a release it must be a branch so we should show
+          // the branch name.
+          bee_message(bt("'!project' (!branch) was downloaded into '!directory'.", array(
+            '!project' => $project['name'],
+            '!branch' => $info['branch'],
+            '!directory' => $destination,
+          )), 'success');
+        }
+
       }
     }
     $project_count++;
@@ -307,6 +334,34 @@ function download_core_bee_callback($arguments, $options) {
   // Set the GitHub Token if entered.
   $github_api_token = $options['github-token'] ?? '';
 
+  // Get the version details if entered.
+  $version = $options['version'] ?? '';
+
+  if (!empty($version)) {
+    $version_details = explode(':', $version);
+    bee_instant_message('$version_details: ', 'debug', $version_details);
+    $detail_count = count($version_details);
+    switch ($detail_count) {
+      case 1:
+        $core_version = array(
+          'release' => $version_details[0],
+          'branch' => '',
+        );
+        break;
+      case 2:
+        $core_version = array(
+          'release' => $version_details[0],
+        );
+        $core_version['branch'] = ($core_version['release'] == 'branch') ? $version_details[1] : '';
+    }
+  }
+  else {
+    // If version is not specified then set $core_version accordingly.
+    $core_version = array(
+      'release' => '',
+      'branch' => '',
+    );
+  }
   // Estimate the number of API calls. Only 1 is needed for Backdrop Core.
   $api_call_estimate = 1;
 
@@ -315,7 +370,7 @@ function download_core_bee_callback($arguments, $options) {
     return;
   }
 
-  $info = download_bee_get_project_info('backdrop', 'backdrop', '', '', $github_api_token);
+  $info = download_bee_get_project_info('backdrop', 'backdrop', $core_version['release'], $core_version['branch'], $github_api_token);
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
@@ -337,9 +392,25 @@ function download_core_bee_callback($arguments, $options) {
 
   // Download Backdrop.
   if (download_bee_download_project('backdrop', $info['download_url'], $destination, $info['branch'])) {
-    bee_message(bt("Backdrop was downloaded into '!directory'.", array(
-      '!directory' => $destination,
-    )), 'success');
+    // If the download is successful then display an appropriate message.
+    // Check if a release.
+    if (isset($info['release'])) {
+      // If download is a release, whether latest or defined, show the
+      // release tag and link to release notes.
+      bee_message(bt("Backdrop (!release) was downloaded into '!directory'. For more information see !url", array(
+        '!release' => $info['release']['tag_name'],
+        '!url' => $info['release']['release_url'],
+        '!directory' => $destination,
+      )), 'success');
+    }
+    else {
+      // If download is not a release it must be a branch so we should show
+      // the branch name.
+      bee_message(bt("Backdrop (!branch) was downloaded into '!directory'.", array(
+        '!branch' => $info['branch'],
+        '!directory' => $destination,
+      )), 'success');
+    }
   }
 }
 
@@ -462,6 +533,7 @@ function download_bee_get_project_info($project, $organization, $release = '', $
           return FALSE;
         }
       }
+      break;
     case 'select':
       $preferred_option = 'select';
 
@@ -592,6 +664,8 @@ function download_bee_get_project_info($project, $organization, $release = '', $
   // populate the info array with conditional elements.
   switch ($final_option) {
     case 'dev':
+      $ref = $branch;
+      $info['branch'] = $branch;
     case 'branch':
       $ref = $branch;
       $info['branch'] = $branch;
@@ -607,18 +681,26 @@ function download_bee_get_project_info($project, $organization, $release = '', $
   if (!download_bee_check_github_api_quota($github_api_token)) {
     return FALSE;
   }
-  // Compile the endpoint.
-  $endpoint = "$endpoint_base/contents/$project.info?ref=$ref";
-  bee_instant_message('$endpoint:' . $endpoint, 'debug');
-  // // Retrieve the info file as an array of lines.
-  $info_file = download_bee_github_api_call($endpoint, $github_api_token, 'raw');
-  $info_parsed = bee_parse_info_format($info_file[0]);
-  bee_instant_message(bt('The info file data:'), 'debug', $info_parsed);
-  $info['type'] = $info_parsed['type'];
-  if (isset($info_parsed['dependencies'])) {
-    foreach ($info_parsed['dependencies'] as $dependency) {
-      $dependency = bee_parse_dependency($dependency);
-      $info['dependencies'][] = $dependency;
+
+  // If the project is Backdrop it won't have an info file to retrieve.
+  if ($project == 'backdrop') {
+    $info['type'] = 'core';
+  }
+  else {
+    // If not Backdrop then retrieve the info file and process it.
+    // Compile the endpoint.
+    $endpoint = "$endpoint_base/contents/$project.info?ref=$ref";
+    bee_instant_message('$endpoint:' . $endpoint, 'debug');
+    // // Retrieve the info file as an array of lines.
+    $info_file = download_bee_github_api_call($endpoint, $github_api_token, 'raw');
+    $info_parsed = bee_parse_info_format($info_file[0]);
+    bee_instant_message(bt('The info file data:'), 'debug', $info_parsed);
+    $info['type'] = $info_parsed['type'];
+    if (isset($info_parsed['dependencies'])) {
+      foreach ($info_parsed['dependencies'] as $dependency) {
+        $dependency = bee_parse_dependency($dependency);
+        $info['dependencies'][] = $dependency;
+      }
     }
   }
 
@@ -700,9 +782,6 @@ function download_bee_select_version($project, $organization, $github_api_token 
   return $result;
 }
 
-
-
-
 /**
  * Download a project.
  *
@@ -776,6 +855,13 @@ function download_bee_download_project($project, $source_url, $destination, $bra
     bee_instant_message('$temp/$directory:' . "$temp/$directory", 'debug');
   }
   if ($replace) {
+    // If the project is Backdrop we only want to backup and/or replace the
+    // 'core' directory.
+    if ($project == 'backdrop') {
+      $destination .= '/core';
+      $directory .= '/core';
+    }
+
     if ($backup) {
       $backup_destination = "$_bee_backdrop_root/" . BEE_BACKUP_DIRECTORY;
       $backup_destination .= bee_format_date($_SERVER['REQUEST_TIME'], $format = 'YmdHis') . '/';
@@ -1090,7 +1176,6 @@ function download_bee_github_api_call($endpoint, $github_api_token = '', $reques
     // Process the output according to the request type.
     switch ($request_type) {
       case 'raw':
-        // $output = explode("\n", $response);
         $output = array($response);
         break;
       default:
