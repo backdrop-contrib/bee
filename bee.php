@@ -22,6 +22,7 @@ require_once __DIR__ . '/includes/render.inc';
 require_once __DIR__ . '/includes/filesystem.inc';
 require_once __DIR__ . '/includes/input.inc';
 require_once __DIR__ . '/includes/globals.inc';
+require_once __DIR__ . '/includes/info.inc';
 require_once __DIR__ . '/includes/telemetry.inc';
 
 // Main execution code.

@@ -5,9 +5,23 @@
  */
 
 /**
+ * The API URL used for GitHub API calls.
+ */
+define('BEE_GITHUB_API_URL', 'https://api.github.com/');
+
+/**
  * Implements hook_bee_command().
  */
 function download_bee_command() {
+  $projects_description = bt('One or more contrib projects to download. You can specify a release tag or branch for each project using the format:');
+  $projects_description .= "\n  " . bt('project:release_tag/keyword[:branch]');
+  $projects_description .= "\n\n " . bt("Specify a release tag or one of the following keywords:");
+  $projects_description .= "\n  - " . bt("'dev' (download the dev version from the default branch.)");
+  $projects_description .= "\n  - " . bt("'branch' (download the dev version from an alternative branch. Specified with ");
+  $projects_description .= "\n  - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)");
+  $projects_description .= "\n\n " . bt("If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise.");
+  $projects_description .= "\n\n " . bt("By default, 'latest' is selected if no release is specified. Dependencies will all download the 'latest' so if you do want a different version, download these first.");
+
   return array(
     'download' => array(
       'description' => bt('Download Backdrop contrib projects.'),
@@ -18,14 +32,10 @@ function download_bee_command() {
       ),
       'group' => 'projects',
       'arguments' => array(
-        'projects' => bt('One or more contrib projects to download.'),
+        'projects' => $projects_description,
       ),
       'multiple_argument' => 'projects',
       'options' => array(
-        'hide-progress' => array(
-          'description' => bt('Deprecated, will get removed in a future version.'),
-          'short' => 'h',
-        ),
         'allow-multisite-copy' => array(
           'description' => bt('Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.'),
           'short' => 'f',
@@ -37,9 +47,13 @@ function download_bee_command() {
       ),
       'aliases' => array('dl', 'pm-download'),
       'examples' => array(
-        'bee download webform' => bt('Download the Webform module.'),
+        'bee download webform' => bt('Download the latest version of the Webform module.'),
         'bee download simplify thesis bamboo' => bt('Download the Simplify module, Thesis theme, and Bamboo layout.'),
         'bee --site=site_name download simplify --allow-multisite-copy' => bt('Download an additional copy of the Simplify module into the site_name multisite module folder.'),
+        'bee download simplify:dev' => bt('Download the dev version of the Simplify module.'),
+        'bee download paragraphs:branch:1.x-1.2' => bt('Download the 1.x-1.2 branch of the Paragraphs module'),
+        'bee download simplify:1.x-1.2.4' => bt('Download the 1.x-1.2.4 release of the Simplify module'),
+        'bee download simplify:select' => bt('Select from a list of releases and the dev version for the Simplify module.'),
       ),
     ),
     'download-core' => array(
@@ -55,9 +69,12 @@ function download_bee_command() {
       ),
       'optional_arguments' => array('directory'),
       'options' => array(
-        'hide-progress' => array(
-          'description' => bt('Deprecated, will get removed in a future version.'),
-          'short' => 'h',
+        'version' => array(
+          'description' => bt("Specify a release tag or one of the following keywords:")
+          . "\n - " . bt("'dev' (download the dev version from the default branch.)")
+          . "\n - " . bt("'branch' (download the dev version from an alternative branch. Specified by appending ':branch_name')")
+          . "\n - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)"),
+          'value' => bt("The release tag or keyword."),
         ),
         'github-token' => array(
           'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
@@ -67,6 +84,10 @@ function download_bee_command() {
       'aliases' => array('dl-core'),
       'examples' => array(
         'bee download-core ../backdrop' => bt("Download Backdrop into a 'backdrop' directory in the parent folder."),
+        'bee download-core --version=1.28.3' => bt("Download the 1.28.3 release of Backdrop into the current directory."),
+        'bee download-core --version=dev' => bt("Download the dev version of Backdrop into the current directory."),
+        'bee download-core --version=branch:1.29.x' => bt("Download the 1.29.x branch of Backdrop into the current directory."),
+        'bee download-core --version=select' => bt("Select from a list of releases of Backdrop to download into the current directory."),
       ),
     ),
   );
@@ -93,7 +114,7 @@ function download_bee_callback($arguments, $options) {
   $api_call_estimate = count($arguments['projects']) * 3;
 
   // Check GitHub API quota to ensure we can complete.
-  if (!check_github_api_quota($github_api_token, $api_call_estimate)) {
+  if (!download_bee_check_github_api_quota($github_api_token, $api_call_estimate)) {
     return;
   }
 
@@ -122,54 +143,84 @@ function download_bee_callback($arguments, $options) {
   // Iterate through the list of projects manually so any dependencies can be
   // added to the list of projects to download.
   $project_count = 0;
-  while ($project_count < count($arguments['projects'])) {
-    $project = $arguments['projects'][$project_count];
-    // Check if the project exists by trying to get the repo homepage.
-    $organisation = 'backdrop-contrib';
-    $url = "https://github.com/$organisation/$project";
-    $headers = get_headers($url);
-    if (!$headers) {
-      bee_message(bt("Unable to connect to !url.", array(
-        '!url' => $url,
-      )), 'error');
-      continue;
+  $projects = $arguments['projects'];
+  while ($project_count < count($projects)) {
+    $project = $projects[$project_count];
+    $project_details = explode(':', $project);
+    bee_instant_message('$project_details: ', 'debug', $project_details);
+    $detail_count = count($project_details);
+    switch ($detail_count) {
+      case 1:
+        $project = array(
+          'name' => $project_details[0],
+          'release' => '',
+          'branch' => '',
+        );
+        break;
+      case 2:
+        $project = array(
+          'name' => $project_details[0],
+          'release' => $project_details[1],
+          'branch' => '',
+        );
+        break;
+      case 3:
+        $project = array(
+          'name' => $project_details[0],
+          'release' => $project_details[1],
+        );
+        $project['branch'] = ($project['release'] == 'branch') ? $project_details[2] : '';
     }
-    $response = substr($headers[0], 9, 3);
-    if ($response >= 400) {
+
+    // Check if the project exists by trying to get the repo homepage.
+    $organization = 'backdrop-contrib';
+    $url = "https://github.com/$organization/" . $project['name'];
+    if (!download_bee_check_url_exists($url)) {
       bee_message(bt("The '!project' project repository could not be found. Please check your spelling and try again.", array(
-        '!project' => $project,
+        '!project' => $project['name'],
       )), 'error');
     }
     else {
-      $info = download_bee_git_info($project, $github_api_token);
+      $info = download_bee_get_project_info($project['name'], $organization, $project['release'], $project['branch'], $github_api_token);
       if (empty($info)) {
         // If getting the info file has failed, show an error message here and
         // exit.
         bee_message(bt("The info file for !project cannot be retrieved at this time.", array(
-          '!project' => $project,
+          '!project' => $project['name'],
         )), 'error');
         return;
       }
       // Get the list of dependencies and add to list of projects.
       if (!empty($info['dependencies'])) {
         $dependencies = $info['dependencies'];
-        foreach ($dependencies as $dependency) {
-          // Remove any minimum version requirements to get just the project
-          // name.
-          $dependency = explode(" ", $dependency, 2);
-          $dependency = $dependency[0];
+        foreach ($dependencies as $dependency_detail) {
+          $submodule = '';
+
+          // Check whether the dependency is a submodule.
+          if (isset($dependency_detail['project'])) {
+            // If so, get the submodule.
+            $submodule = $dependency_detail['name'];
+            // Get the parent module.
+            $dependency = $dependency_detail['project'];
+          }
+          else {
+            // If not, get the module name.
+            $dependency = $dependency_detail['name'];
+          }
+          // For now, ignoring the version part of dependencies as in most
+          // cases we will be getting the latest versions.
           // Check if the dependency is a core project.
           $dependency_is_core = isset($core_projects[$dependency]);
           // Check if dependency exists in the site file system. Only
           // check contrib dependencies.
           if (!$dependency_is_core) {
             // Get information about the dependency project.
-            $dependency_info = download_bee_git_info($dependency, $github_api_token);
+            $dependency_info = download_bee_get_project_info($dependency, $organization, '', '', $github_api_token);
             if (empty($dependency_info)) {
               // If getting the info file has failed, show an error message here
               // and exit.
               bee_message(bt("!dependency is a dependency of !project but the info file for !dependency cannot be retrieved at this time.", array(
-                '!project' => $project,
+                '!project' => $project['name'],
                 '!dependency' => $dependency,
               )), 'error');
               continue;
@@ -181,24 +232,24 @@ function download_bee_callback($arguments, $options) {
               // If project does not exist in the site file system, or it is
               // but a multisite copy is allowed, then check whether it is
               // already in the download list.
-              if (in_array($dependency, $arguments['projects'])) {
+              if (in_array($dependency, $projects)) {
                 // If project is already in the list to download, do not add to
                 // the list to download again.
-                bee_message(bt("The '!dependency' !dependency_type is also required by the '!project' !project_type.", array(
-                  '!dependency' => $dependency,
-                  '!dependency_type' => $dependency_info['type'],
-                  '!project' => $project,
+                bee_instant_message(bt("The '!dependency' !dependency_type is also required by the '!project' !project_type.", array(
+                  '!dependency' => !empty($submodule) ? "$dependency:$submodule" : $dependency,
+                  '!dependency_type' => (!empty($submodule) ? 'sub' : '') . $dependency_info['type'],
+                  '!project' => $project['name'],
                   '!project_type' => $info['type'],
                 )), 'status');
               }
               else {
                 // If project is not already in download list, then add to list
                 // and prepare message.
-                $arguments['projects'][] = $dependency;
-                bee_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
-                  '!dependency' => $dependency,
-                  '!dependency_type' => $dependency_info['type'],
-                  '!project' => $project,
+                $projects[] = $dependency;
+                bee_instant_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
+                  '!dependency' => !empty($submodule) ? "$dependency:$submodule" : $dependency,
+                  '!dependency_type' => (!empty($submodule) ? 'sub' : '') . $dependency_info['type'],
+                  '!project' => $project['name'],
                   '!project_type' => $info['type'],
                 )), 'status');
               }
@@ -207,10 +258,10 @@ function download_bee_callback($arguments, $options) {
               // If project does exist in the site file system, give a
               // meaningful message so user is aware of the dependency and that
               // it is already met.
-              bee_message(bt("The '!dependency' !dependency_type is required by the '!project' !project_type but already exists at '!dependency_location'.", array(
+              bee_instant_message(bt("The '!dependency' !dependency_type is required by the '!project' !project_type but already exists at '!dependency_location'.", array(
                 '!dependency' => $dependency,
                 '!dependency_type' => $dependency_info['type'],
-                '!project' => $project,
+                '!project' => $project['name'],
                 '!project_type' => $info['type'],
                 '!dependency_location' => $dependency_existing_location,
               )), 'status');
@@ -222,36 +273,19 @@ function download_bee_callback($arguments, $options) {
       // Get the project type.
       if (empty($info['type'])) {
         bee_message(bt("The 'type' of project '!project' could not be determined.", array(
-          '!project' => $project,
+          '!project' => $project['name'],
         )), 'error');
         return;
       }
-      else {
-        // Add an 's' to the end of the type name.
-        $type_folder = $info['type'] . 's';
-      }
 
-      // Get the directory to download the project into.
-      if (!empty($_bee_backdrop_site)) {
-        $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $type_folder;
-      }
-      elseif (!empty($_bee_backdrop_root)) {
-        $destination = "$_bee_backdrop_root/" . $type_folder;
-      }
-      else {
-        bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
-        return;
-      }
-      if (file_exists("$destination/contrib")) {
-        $destination .= '/contrib';
-      }
-      $destination .= "/$project";
+      $destination = download_bee_get_destination_path($project['name'], $info['type']);
+      bee_instant_message('$destination:' . $destination, 'debug');
       // Check if the project exists within the site file system.
-      $project_existing_location = download_bee_check_project_exists($project, $info['type']);
+      $project_existing_location = download_bee_check_project_exists($project['name'], $info['type']);
       $project_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $project_existing_location);
       if ($project_existing_location != FALSE && !$project_allow_multisite_copy) {
         bee_message(bt("'!project' already exists in '!existing_location'.", array(
-          '!project' => $project,
+          '!project' => $project['name'],
           '!existing_location' => $project_existing_location,
         )), 'error');
         return;
@@ -264,11 +298,29 @@ function download_bee_callback($arguments, $options) {
       }
 
       // Download the project.
-      if (download_bee_download_project($project, $info, $destination)) {
-        bee_message(bt("'!project' was downloaded into '!directory'.", array(
-          '!project' => $project,
-          '!directory' => $destination,
-        )), 'success');
+      if (download_bee_download_project($project['name'], $info['download_url'], $destination, $info['branch'])) {
+        // If the download is successful then display an appropriate message.
+        // Check if a release.
+        if (isset($info['release'])) {
+          // If download is a release, whether latest or defined, show the
+          // release tag and link to release notes.
+          bee_message(bt("'!project' (!release) was downloaded into '!directory'. For more information see !url", array(
+            '!project' => $project['name'],
+            '!release' => $info['release']['tag_name'],
+            '!url' => $info['release']['release_url'],
+            '!directory' => $destination,
+          )), 'success');
+        }
+        else {
+          // If download is not a release it must be a branch so we should show
+          // the branch name.
+          bee_message(bt("'!project' (!branch) was downloaded into '!directory'.", array(
+            '!project' => $project['name'],
+            '!branch' => $info['branch'],
+            '!directory' => $destination,
+          )), 'success');
+        }
+
       }
     }
     $project_count++;
@@ -282,15 +334,43 @@ function download_core_bee_callback($arguments, $options) {
   // Set the GitHub Token if entered.
   $github_api_token = $options['github-token'] ?? '';
 
+  // Get the version details if entered.
+  $version = $options['version'] ?? '';
+
+  if (!empty($version)) {
+    $version_details = explode(':', $version);
+    bee_instant_message('$version_details: ', 'debug', $version_details);
+    $detail_count = count($version_details);
+    switch ($detail_count) {
+      case 1:
+        $core_version = array(
+          'release' => $version_details[0],
+          'branch' => '',
+        );
+        break;
+      case 2:
+        $core_version = array(
+          'release' => $version_details[0],
+        );
+        $core_version['branch'] = ($core_version['release'] == 'branch') ? $version_details[1] : '';
+    }
+  }
+  else {
+    // If version is not specified then set $core_version accordingly.
+    $core_version = array(
+      'release' => '',
+      'branch' => '',
+    );
+  }
   // Estimate the number of API calls. Only 1 is needed for Backdrop Core.
   $api_call_estimate = 1;
 
   // Check GitHub API quota to ensure we can complete.
-  if (!check_github_api_quota($github_api_token, $api_call_estimate)) {
+  if (!download_bee_check_github_api_quota($github_api_token, $api_call_estimate)) {
     return;
   }
 
-  $info = download_bee_git_info('backdrop', $github_api_token);
+  $info = download_bee_get_project_info('backdrop', 'backdrop', $core_version['release'], $core_version['branch'], $github_api_token);
 
   // Get or create the directory to download Backdrop into.
   $destination = !empty($arguments['directory']) ? $arguments['directory'] : getcwd();
@@ -311,164 +391,395 @@ function download_core_bee_callback($arguments, $options) {
   }
 
   // Download Backdrop.
-  if (download_bee_download_project('backdrop', $info, $destination)) {
-    bee_message(bt("Backdrop was downloaded into '!directory'.", array(
-      '!directory' => $destination,
-    )), 'success');
+  if (download_bee_download_project('backdrop', $info['download_url'], $destination, $info['branch'])) {
+    // If the download is successful then display an appropriate message.
+    // Check if a release.
+    if (isset($info['release'])) {
+      // If download is a release, whether latest or defined, show the
+      // release tag and link to release notes.
+      bee_message(bt("Backdrop (!release) was downloaded into '!directory'. For more information see !url", array(
+        '!release' => $info['release']['tag_name'],
+        '!url' => $info['release']['release_url'],
+        '!directory' => $destination,
+      )), 'success');
+    }
+    else {
+      // If download is not a release it must be a branch so we should show
+      // the branch name.
+      bee_message(bt("Backdrop (!branch) was downloaded into '!directory'.", array(
+        '!branch' => $info['branch'],
+        '!directory' => $destination,
+      )), 'success');
+    }
   }
 }
 
 /**
- * Get information about a project from GitHub.
+ * Get required information about the project.
  *
  * @param string $project
  *   The name of the project.
+ * @param string $organization
+ *   The name of the GitHub organization.
+ * @param string $release
+ *   A string relating to a release option. Defaults to empty string (''):
+ *   - 'dev': Download the dev version from the default branch.
+ *   - 'branch': Download the dev version from an alternative branch. Specified
+ *     using the $branch parameter.
+ *   - 'latest': Downloads the latest release that is neither a draft nor a
+ *     pre-release. This will be the default anyway if the parameter is left
+ *     blank. If there is not a valid latest release, the dev branch will be
+ *     offered (see 'dev').
+ *   - '1.x-1.2.3': The tag of a given release. If the release cannot be found
+ *     an error message will be given and the function will reu.
+ *   - 'select': A list of valid options will be offered including:
+ *      - dev: (see dev).
+ *      - All releases that are not draft. Latest will be labelled and
+ *        pre-releases will also be labelled.
+ * @param string $branch
+ *   A string containing the name of the branch. Defaults to empty string ('').
  * @param string $github_api_token
- *   The GitHub API Personal Access Token to apply to API calls.
+ *   The GitHub API Personal Access Token to apply to API calls. Defaults to
+ *   empty string ('').
  *
- * @return array
- *   An associative array of information about the project, possibly containing:
- *   - url: The URL to download the project.
- *   - branch: The default branch of the project.
- *   - type: The 'type' of project (e.g. module, theme or layout).
+ * @return array|false
+ *   An associative array of information about the project, including all
+ *   relevant information:
+ *   - 'download_url': The URL to download the project. Always included if
+ *   request is successful.
+ *   - 'type': the project type (i.e. 'module', 'theme' or 'layout'). Always
+ *     included if request is successful.
+ *   - 'branch': The branch of the project to be downloaded. Included if the
+ *     default or another branch is used. Defaults to blank string if not used.
+ *   - 'release': Associative array of key release information:
+ *     - 'tag_name': the tag name selected.
+ *     - 'published_at': the date the release is published.
+ *     - 'release_url': the URL of the release page on GitHub.
+ *     Included if a release is specified or selected from the select screen.
+ *   - 'dependencies': An array of dependency lines. Defaults to blank array if
+ *     no dependencies.
  */
-function download_bee_git_info($project, $github_api_token = '') {
-  $info = array();
-  $organisation = ($project == 'backdrop') ? 'backdrop' : 'backdrop-contrib';
-  $api_url = 'https://api.github.com/repos';
+function download_bee_get_project_info($project, $organization, $release = '', $branch = '', $github_api_token = '') {
 
-  // Get the download URL of the latest release.
-  $url = "https://github.com/$organisation/$project/releases/latest/download/$project.zip";
-  $headers = get_headers($url);
-  if (!$headers) {
-    bee_message(bt("Unable to connect to !url.", array(
-      '!url' => $url,
-    )), 'error');
-    return;
+  // Define the base for all GitHub API calls we may use in this function.
+  $endpoint_base = "repos/$organization/$project";
+
+  // Select the actions based on the release information entered.
+  switch ($release) {
+    case 'latest':
+      // If 'latest' is explicitly entered, it is the same as if release is
+      // left blank.
+    case '':
+      $preferred_option = 'latest';
+      // Check that a valid latest release exists. For GitHub to count a
+      // release as 'latest' it must be published (i.e. not draft) and not a
+      // pre-release.
+      $defined_release_url = "https://github.com/$organization/$project/releases/latest";
+      if (download_bee_check_url_exists($defined_release_url)) {
+        $final_option = 'latest';
+      }
+      else {
+        // If the URL does not exist, offer to get the dev version instead.
+        $choice = bee_confirm(bt("There is no valid latest release for '!organization/!project'. Do you want to download the dev version instead?", array(
+          '!organization' => $organization,
+          '!project' => $project,
+        )), TRUE);
+        if ($choice) {
+          // If 'Yes' mode was enabled or user responded 'Yes', then continue
+          // with dev version.
+          $final_option = 'dev';
+        }
+        else {
+          // If 'Yes' mode was not enabled and user responded 'No', then provide
+          // a message and return FALSE.
+          bee_message(bt("Download operation is cancelled."), 'info');
+          return FALSE;
+        }
+      }
+      break;
+    case 'dev':
+      $preferred_option = 'dev';
+      $final_option = 'dev';
+      break;
+    case 'branch':
+      $preferred_option = 'branch';
+      // Check that a branch has been specified and that it exists.
+      $branch_specified = !empty($branch);
+      if ($branch_specified ) {
+        $branch_url = "https://github.com/$organization/$project/tree/$branch";
+        $check_branch_url = download_bee_check_url_exists($branch_url);
+      }
+      if ($branch_specified && $check_branch_url) {
+        // If both conditions are satisfied, set the final option.
+        $final_option = 'branch';
+      }
+      else {
+        // If the branch is not specified or does not exist, offer to get the
+        // dev version of the default branch instead.
+        $choice = bee_confirm(bt("The branch you have specified (!branch) is not valid for '!organization/!project'. Do you want to download the dev version of the default branch instead?", array(
+          '!branch' => $branch,
+          '!organization' => $organization,
+          '!project' => $project,
+        )), TRUE);
+        if ($choice) {
+          // If 'Yes' mode was enabled or user responded 'Yes', then continue
+          // with dev version.
+          $final_option = 'dev';
+        }
+        else {
+          // If 'Yes' mode was not enabled and user responded 'No', then provide
+          // a message and return FALSE.
+          bee_message(bt("Download operation is cancelled."), 'info');
+          return FALSE;
+        }
+      }
+      break;
+    case 'select':
+      $preferred_option = 'select';
+
+      $selection = download_bee_select_version($project, $organization, $github_api_token);
+
+      // Use the selection to set variables that will be used in the next step.
+      if ($selection['value'] == 'dev') {
+        $final_option = 'dev';
+      }
+      else {
+        $final_option = 'defined_release';
+        $defined_release = $selection['value'];
+        $release_data = $selection['data'];
+      }
+      break;
+    default:
+      // If user has not entered a keyword such as 'dev', 'latest' or 'select'
+      // then, we interpret that as being a release tag and check for it.
+      $preferred_option = 'defined_release';
+      $defined_release = $release;
+      $defined_release_url = "https://github.com/$organization/$project/releases/tag/$defined_release";
+      if (download_bee_check_url_exists($defined_release_url)) {
+        // If the release page exists, then this entry is valid and we can set
+        // the final option.
+        $final_option = 'defined_release';
+        $endpoint = "$endpoint_base/releases/tags/$defined_release";
+        $release_data = download_bee_github_api_call($endpoint, $github_api_token);
+      }
+      else {
+        // If the release page does not exist offer to get the dev version
+        // instead.
+        $choice = bee_confirm(bt("The release you have specified (!release_tag) for '!organization/!project' does not exist. Do you want to select a version instead?", array(
+          '!release_tag' => $defined_release,
+          '!organization' => $organization,
+          '!project' => $project,
+        )), TRUE);
+        if ($choice) {
+          // If 'Yes' mode was enabled or user responded 'Yes', then continue
+          // with selection.
+          $selection = download_bee_select_version($project, $organization, $github_api_token);
+
+          // Use the selection to set variables that will be used in the next
+          // step.
+          if ($selection['value'] == 'dev') {
+            $final_option = 'dev';
+          }
+          else {
+            $final_option = 'defined_release';
+            $defined_release = $selection['value'];
+            $release_data = $selection['data'];
+          }
+        }
+        else {
+          // If 'Yes' mode was not enabled and user responded 'No', then provide
+          // a message and return FALSE.
+          bee_message(bt("Download operation is cancelled."), 'info');
+          return FALSE;
+        }
+      }
+      break;
   }
-  $response = substr($headers[0], 9, 3);
-  if ($response < 400) {
-    $info['url'] = $url;
+  bee_instant_message('$final_option:' . $final_option, 'debug');
+  // Process the final option.
+  switch ($final_option) {
+    case 'latest':
+      // $download_url = "https://github.com/$organization/$project/releases/latest/download/$project.zip";
+      // Check GitHub API quota to ensure we can continue.
+      if (!download_bee_check_github_api_quota($github_api_token)) {
+        return FALSE;
+      }
+      // Get the latest release information.
+      $endpoint = "$endpoint_base/releases/latest";
+      $release_data = download_bee_github_api_call($endpoint, $github_api_token);
+      $defined_release = $release_data['tag_name'];
+      bee_instant_message('$defined_release:' . $defined_release, 'debug');
+      // $defined_release_published_date = $latest_release['published_at'];
+      // $defined_release_url = $latest_release['html_url'];
+      $download_url = "https://github.com/$organization/$project/releases/download/$defined_release/$project.zip";
+      bee_instant_message('$download_url:' . $download_url, 'debug');
+      $release_detail = array(
+        'tag_name' => $defined_release,
+        'published_at' => $release_data['published_at'],
+        'release_url' => $release_data['html_url'],
+      );
+      break;
+    case 'dev':
+      // Check GitHub API quota to ensure we can continue.
+      if (!download_bee_check_github_api_quota($github_api_token)) {
+        return FALSE;
+      }
+      // Get the information about the default branch.
+      $endpoint = "$endpoint_base";
+      $repo_info = download_bee_github_api_call($endpoint, $github_api_token);
+      // Check the results of the API call.
+      if (!$repo_info) {
+        // If information can't be retrieved, display an error and return
+        // FALSE.
+        bee_message(bt("Information about '!project' could not be retrieved. Please try again later.", array(
+          '!project' => $project,
+        )), 'error');
+        return FALSE;
+      }
+      else {
+        $branch = $repo_info['default_branch'];
+        $download_url = "https://github.com/$organization/$project/archive/$branch.zip";
+      }
+      break;
+    case 'branch':
+      $download_url = "https://github.com/$organization/$project/archive/$branch.zip";
+      break;
+    case 'defined_release':
+      $download_url = "https://github.com/$organization/$project/releases/download/$defined_release/$project.zip";
+      $release_detail = array(
+        'tag_name' => $defined_release,
+        'published_at' => $release_data['published_at'],
+        'release_url' => $release_data['html_url'],
+      );
+      break;
+  }
+
+  // Start to populate the info array.
+  $info = array(
+    'download_url' => $download_url,
+    'dependencies' => array(),
+  );
+
+  // Determine the endpoint reference by whether a release or a branch, and
+  // populate the info array with conditional elements.
+  switch ($final_option) {
+    case 'dev':
+      $ref = $branch;
+      $info['branch'] = $branch;
+    case 'branch':
+      $ref = $branch;
+      $info['branch'] = $branch;
+      break;
+    default:
+      $ref = $defined_release;
+      $info['release'] = $release_detail;
+      $info['branch'] = '';
+  }
+  bee_instant_message('$ref:' . $ref, 'debug');
+  // Download the info file to get project type and dependencies.
+  // Check GitHub API quota to ensure we can continue.
+  if (!download_bee_check_github_api_quota($github_api_token)) {
+    return FALSE;
+  }
+
+  // If the project is Backdrop it won't have an info file to retrieve.
+  if ($project == 'backdrop') {
+    $info['type'] = 'core';
   }
   else {
-    // Offer to get the dev version instead.
-    $answer = bee_confirm(bt("There is no release for '!organisation/!project'. Do you you want to download the dev version instead?", array(
-      '!organisation' => $organisation,
-      '!project' => $project,
-    )));
-
-    if ($answer) {
-      $repo_info = FALSE;
-      // Check GitHub API quota to ensure we can continue.
-      if (!check_github_api_quota($github_api_token)) {
-        return;
-      }
-      if ($curl_handle = curl_init("$api_url/$organisation/$project")) {
-        // Prepare headers for curl request.
-        $curlopt_httpheader = array();
-        $curlopt_httpheader[] = 'Content-Type: application/json';
-        // If a token has been passed, add this to the header.
-        if (!empty($github_api_token)) {
-          $curlopt_httpheader[] = "Authorization: token $github_api_token";
-        }
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
-        curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-        $repo_info = curl_exec($curl_handle);
-        curl_close($curl_handle);
-        $repo_info = json_decode($repo_info, TRUE);
-      }
-      if (!is_array($repo_info)) {
-        bee_message(bt('Unable to fetch repo information.'), 'error');
-        return;
-      }
-      // Get the download URL of the dev version.
-      $branch = $repo_info['default_branch'];
-      $url = "https://github.com/$organisation/$project/archive/$branch.zip";
-      $headers = get_headers($url);
-      if (!$headers) {
-        bee_message(bt("Unable to connect to !url.", array(
-          '!url' => $url,
-        )), 'error');
-        return;
-      }
-      $response = substr($headers[0], 9, 3);
-      if ($response < 400) {
-        $info['url'] = $url;
-        $info['branch'] = $branch;
+    // If not Backdrop then retrieve the info file and process it.
+    // Compile the endpoint.
+    $endpoint = "$endpoint_base/contents/$project.info?ref=$ref";
+    bee_instant_message('$endpoint:' . $endpoint, 'debug');
+    // // Retrieve the info file as an array of lines.
+    $info_file = download_bee_github_api_call($endpoint, $github_api_token, 'raw');
+    $info_parsed = bee_parse_info_format($info_file[0]);
+    bee_instant_message(bt('The info file data:'), 'debug', $info_parsed);
+    $info['type'] = $info_parsed['type'];
+    if (isset($info_parsed['dependencies'])) {
+      foreach ($info_parsed['dependencies'] as $dependency) {
+        $dependency = bee_parse_dependency($dependency);
+        $info['dependencies'][] = $dependency;
       }
     }
   }
 
-  // Get the 'type' and any dependencies of project.
-  if ($project != 'backdrop') {
-    $files = FALSE;
-    // Check GitHub API quota to ensure we can continue.
-    if (!check_github_api_quota($github_api_token)) {
-      return;
-    }
-    if ($curl_handle = curl_init("$api_url/$organisation/$project/contents")) {
-      // If a token has been passed, add this to the header.
-      if (!empty($github_api_token)) {
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-          'Content-Type: application/json',
-          "Authorization: token $github_api_token",
-        ));
-      }
-      curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
-      curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-      curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-      $files = curl_exec($curl_handle);
-      curl_close($curl_handle);
-      $files = json_decode($files, TRUE);
-    }
-    if (!is_array($files)) {
-      bee_message(bt('Unable to fetch file information.'), 'error');
-      return;
-    }
-    foreach ($files as $file) {
-      if ($file['type'] == 'file' && preg_match('/\.info$/i', $file['name'])) {
-        // Check GitHub API quota to ensure we can continue.
-        if (!check_github_api_quota($github_api_token)) {
-          return;
-        }
-        $curl_handle = curl_init("$api_url/$organisation/$project/contents/" . $file['name']);
-        // Prepare headers for curl request.
-        $curlopt_httpheader = array();
-        $curlopt_httpheader[] = 'Accept: application/vnd.github.v3.raw';
-        // If a token has been passed, add this to the header.
-        if (!empty($github_api_token)) {
-          $curlopt_httpheader[] = "Authorization: token $github_api_token";
-        }
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
-        curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
-        curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-
-        $info_file = curl_exec($curl_handle);
-        curl_close($curl_handle);
-        $lines = explode("\n", $info_file);
-        // Declare dependencies as array.
-        $info['dependencies'] = array();
-        foreach ($lines as $line) {
-          $values = explode('=', $line);
-          // Get the type of project.
-          if (trim($values[0]) == 'type') {
-            $info['type'] = trim($values[1]);
-          }
-          // Get any dependencies of project.
-          if (trim($values[0]) == 'dependencies[]') {
-            $info['dependencies'][] = trim($values[1]);
-          }
-        }
-        // Exit loop as only need to check .info file.
-        break;
-      }
-    }
-  }
-
+  // Return the info array to the calling function.
   return $info;
+}
+
+/**
+ * Helper function to select version.
+ */
+function download_bee_select_version($project, $organization, $github_api_token = '') {
+  // Create the array for options and hardcode the 'dev' option.
+  $select_options = array(
+    'dev' => bt("Dev - Download the current default branch."),
+  );
+  // Check GitHub API quota to ensure we can continue.
+  if (!download_bee_check_github_api_quota($github_api_token)) {
+    return FALSE;
+  }
+  // Get the list of releases.
+  $endpoint = "repos/$organization/$project/releases";
+  $releases = download_bee_github_api_call($endpoint, $github_api_token);
+  // If one or more releases exist, then loop through them to get more
+  // information.
+  if (!empty($releases)) {
+    foreach ($releases as $release_data) {
+      // Convert the array to being an associative array keyed by tag_name.
+      $releases_by_tag[$release_data['tag_name']] = $release_data;
+      // If the release is not a prerelease, also put into an array to check
+      // for latest release.
+      if (!$release_data['prerelease']) {
+        $full_release_list[] = $release_data['tag_name'];
+      }
+    }
+    // If full releases exist, find the latest release.
+    if (!empty($full_release_list)) {
+      usort($full_release_list, 'version_compare');
+      $latest_release_tag = end($full_release_list);
+      $default = $latest_release_tag;
+    }
+    else {
+      $latest_release_tag = NULL;
+      $default = 'dev';
+    }
+    // Add each release to the list of options.
+    foreach ($releases_by_tag as $key => $release_data) {
+      // Define any suffixes needed for 'latest' or 'pre-release'.
+      $suffix = '';
+      if ($key == $latest_release_tag) {
+        $suffix = bt(" (latest)");
+      }
+      if ($release_data['prerelease']) {
+        $suffix = bt(" (pre-release)");
+      }
+      $select_options[$key] = $key . $suffix;
+    }
+    // Set the message to be used.
+    $message = bt("Select the version you wish to download.");
+  }
+  else {
+    // If no releases exist, tailor the message and default.
+    $message = bt("No releases exist but you can download the dev version.");
+    $default = 'dev';
+  }
+  // Present the choice to the user.
+  $selection = bee_choice($select_options, $message, $default);
+  switch ($selection) {
+    case 'dev':
+      $result = array(
+        'value' => 'dev',
+      );
+      break;
+    default:
+      $result = array(
+        'value' => $selection,
+        'data' => $releases_by_tag[$selection],
+      );
+  }
+  return $result;
 }
 
 /**
@@ -476,38 +787,44 @@ function download_bee_git_info($project, $github_api_token = '') {
  *
  * @param string $project
  *   The name of the project to download.
- * @param array $info
- *   An associative array of information about the project from GitHub. It
- *   should contain:
- *   - url: The URL to download the project.
- *   - branch: The default branch of the project. Needed when downloading the
- *     dev version
- *   - type: The 'type' of project (e.g. module, theme or layout). Needed for
- *     contrib projects.
+ * @param string $source_url
+ *   The URL to download the project from.
  * @param string $destination
  *   The path to the destination directory.
+ * @param string $branch
+ *   If a dev version is being downloaded, branch is needed for the directory
+ *   of the unzipped project. Defaults to empty string.
+ * @param bool $replace
+ *   Specify whether the download replaces an existing version. Defaults to
+ *   FALSE.
+ * @param bool $backup
+ *   Specify, if replacing an existing version, whether or not to backup the
+ *   existing code base.
  *
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
-function download_bee_download_project($project, array $info, $destination) {
+function download_bee_download_project($project, $source_url, $destination, $branch = '', bool $replace = FALSE, bool $backup = TRUE) {
   // Get a temp directory.
   if (!$temp = bee_get_temp($project)) {
     bee_message(bt('Failed to get temp directory.'), 'error');
     return FALSE;
   }
-
+  if (file_exists($temp)) {
+    bee_instant_message('$temp:' . $temp, 'debug');
+  }
   // Get the download URL.
-  if (empty($url = $info['url'])) {
+  if (empty($url = $source_url)) {
     bee_message(bt("The download URL for '!project' could not be found.", array(
       '!project' => $project,
     )), 'error');
     return FALSE;
   }
-
+  bee_instant_message('$url:' . $url, 'debug');
   // Download & extract the project.
   $file = "$temp/$project.zip";
-  $directory = !empty($info['branch']) ? $project . '-' . $info['branch'] : $project;
+  $directory = !empty($branch) ? $project . '-' . $branch : $project;
+  bee_instant_message('$directory:' . $directory, 'debug');
 
   $file_handle = fopen($file, 'w');
   $curl_handle = curl_init($url);
@@ -518,6 +835,9 @@ function download_bee_download_project($project, array $info, $destination) {
   curl_close($curl_handle);
   fclose($file_handle);
 
+  if (file_exists($file)) {
+    bee_instant_message('$file:' . $file, 'debug');
+  }
   $zip = new ZipArchive;
   if ($zip->open($file)) {
     $zip->extractTo($temp);
@@ -527,9 +847,51 @@ function download_bee_download_project($project, array $info, $destination) {
     bee_message(bt('Unable to open zip file.'), 'error');
     return FALSE;
   }
-  bee_copy("$temp/$directory", $destination, FALSE);
-  bee_delete($temp);
 
+  if (file_exists($temp)) {
+    bee_instant_message('$temp:' . $temp, 'debug');
+  }
+  if (file_exists("$temp/$directory")) {
+    bee_instant_message('$temp/$directory:' . "$temp/$directory", 'debug');
+  }
+  if ($replace) {
+    // If the project is Backdrop we only want to backup and/or replace the
+    // 'core' directory.
+    if ($project == 'backdrop') {
+      $destination .= '/core';
+      $directory .= '/core';
+    }
+
+    if ($backup) {
+      $backup_destination = "$_bee_backdrop_root/" . BEE_BACKUP_DIRECTORY;
+      $backup_destination .= bee_format_date($_SERVER['REQUEST_TIME'], $format = 'YmdHis') . '/';
+      $backup_destination .= ($project = 'backdrop') ? 'backdrop/' : 'projects/';
+      if (!mkdir($backup_destination, 0660, TRUE )) {
+        bee_message(bt('Unable to make backup directory.'), 'error');
+        return FALSE;
+      }
+      $backup_copy = bee_copy($destination, $backup_destination);
+      if (!$backup_copy) {
+        bee_message(bt('Unable to make backup copy.'), 'error');
+        return FALSE;
+      }
+    }
+    $existing_delete = bee_delete($destination);
+    if (!$existing_delete) {
+      bee_message(bt('Unable to delete existing files.'), 'error');
+      return FALSE;
+    }
+  }
+  $copy = bee_copy("$temp/$directory", $destination, FALSE);
+  if (!$copy) {
+    bee_message(bt('Unable to copy module files to the destination files.'), 'error');
+    return FALSE;
+  }
+
+  $temp_delete = bee_delete($temp);
+  if (!$temp_delete) {
+    bee_message(bt('Unable to delete temp files.'), 'warning');
+  }
   return TRUE;
 }
 
@@ -659,6 +1021,47 @@ function download_bee_check_multisite_copy($allow_multisite_copy, $existing_loca
 }
 
 /**
+ * Get the destination path for the project.
+ *
+ * @param string $project
+ *   The project system name.
+ * @param string $type
+ *   The type of project: 'module', 'theme' or 'layout'.
+ *
+ * @return string|false
+ *   The absolute destination path. Return FALSE in the event of an error.
+ */
+function download_bee_get_destination_path($project, $type) {
+  global $_bee_backdrop_root, $_bee_backdrop_site;
+  // Add an 's' to the end of the type name.
+  $type_folder = "${type}s";
+
+  // Get the directory to download the project into.
+  if (!empty($_bee_backdrop_site)) {
+    $destination = "$_bee_backdrop_root/sites/$_bee_backdrop_site/" . $type_folder;
+  }
+  elseif (!empty($_bee_backdrop_root)) {
+    $destination = "$_bee_backdrop_root/" . $type_folder;
+  }
+  else {
+    bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
+    return FALSE;
+  }
+
+  // Check if the folder has a "contrib" subfolder within.
+  if (file_exists("$destination/contrib")) {
+    $destination .= '/contrib';
+  }
+
+  // Finally, add the project name to the end.
+  $destination .= "/$project";
+  if (file_exists($destination)) {
+    bee_instant_message('$destination:' . $destination, 'debug');
+  }
+  return $destination;
+}
+
+/**
  * Get quota information for the GitHub API anonymous user or token.
  *
  * @param string $github_api_token
@@ -671,74 +1074,154 @@ function download_bee_check_multisite_copy($allow_multisite_copy, $existing_loca
  * @return bool
  *   If there
  */
-function check_github_api_quota($github_api_token = '', int $minimum_quota = 1) {
-  // Try to initiate a curl connection to the GitHub Rate Limit API. This does
-  // not use any quota.
-  $is_token = FALSE;
-  if ($curl_handle = curl_init("https://api.github.com/rate_limit")) {
+function download_bee_check_github_api_quota($github_api_token = '', int $minimum_quota = 1) {
+
+  $is_token = !empty($github_api_token);
+
+  // Try a call to the GitHub Rate Limit API. This does not use any quota.
+  $endpoint = 'rate_limit';
+  $data = download_bee_github_api_call($endpoint, $github_api_token);
+  if (!$data) {
+    bee_message(bt('GitHub API Rate Limit information cannot be retrieved at this time. Please try again later.'), 'error');
+    bee_instant_message('GitHub API Rate Limit connection failure', 'log');
+    return FALSE;
+  }
+  // Return the core quota details.
+  // var_export($data);
+  $rate_info = $data['resources']['core'];
+  $reset_time = bee_format_date($rate_info['reset']);
+  $used = $rate_info['used'];
+  $remaining = $rate_info['remaining'];
+  $quota = $rate_info['limit'];
+  bee_instant_message("$used/$quota used. Reset at $reset_time", 'debug');
+  // Create a debug message with details about the quota.
+  bee_message(bt('GitHub API Rate Limit: !used/!quota used with !remaining remaining. Quota will reset at !reset_time.', array(
+    '!used' => $used,
+    '!remaining' => $remaining,
+    '!quota' => $quota,
+    '!reset_time' => $reset_time,
+  )), 'log');
+  // Check the amount remaining.
+  if ($remaining < $minimum_quota) {
+    if ($remaining == 0) {
+      // If there is no quota remaining, provide a meaningful error message.
+      bee_message(bt('You have reached your rate limit (!quota/hour) for the GitHub API. Your quota will reset at !reset_time.', array(
+        '!quota' => $quota,
+        '!reset_time' => $reset_time,
+      )), 'error');
+    }
+    else {
+      // If there is some quota remaining, but not enough for the estimated
+      // number of calls, provide a meaningful error message.
+      bee_message(bt('You have nearly reached your rate limit (!quota/hour) for the GitHub API and it is estimated that the amount remaining will not be enough to complete this operation. Your quota will reset at !reset_time.', array(
+        '!quota' => $quota,
+        '!reset_time' => $reset_time,
+      )), 'error');
+    }
+    // If there is not a token in use, then also provide an information
+    // message about using a token.
+    if (!$is_token) {
+      bee_message(bt('The GitHub API rate limit is 60/hour for anonymous use. You can increase this by using a token. See the help or wiki for more information.'), 'info');
+    }
+    return FALSE;
+  }
+  else {
+    // There is still enough quota remaining.
+    return TRUE;
+  }
+}
+
+/**
+ * Call the Github API.
+ *
+ * @param string $endpoint
+ *   The GitHub API endpoint to use.
+ * @param string $github_api_token
+ *   The GitHub Personal Access Token to check. Anonymous if left blank.
+ * @param string $request_type
+ *   Set the request type to be either 'json' (default) or 'raw'.
+ *
+ * @return array|false
+ *   Returns an array of the response if successful; FALSE otherwise.
+ */
+function download_bee_github_api_call($endpoint, $github_api_token = '', $request_type = 'json') {
+
+  if ($curl_handle = curl_init(BEE_GITHUB_API_URL . "$endpoint")) {
     // Prepare headers for curl request.
     $curlopt_httpheader = array();
-    $curlopt_httpheader[] = 'Content-Type: application/json';
+    switch ($request_type) {
+      case 'raw':
+        $curlopt_httpheader[] = 'Accept: application/vnd.github.v3.raw';
+        break;
+      default:
+        $curlopt_httpheader[] = 'Content-Type: application/json';
+        break;
+    }
+
     // If a token has been passed, add this to the header.
     if (!empty($github_api_token)) {
       $curlopt_httpheader[] = "Authorization: token $github_api_token";
-      $is_token = TRUE;
     }
+
+    // Compile the options for the curl request.
     curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $curlopt_httpheader);
-    // Set the other curl options.
     curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
     curl_setopt($curl_handle, CURLOPT_HEADER, 0);
     curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-    // Get the rate information.
-    $data = curl_exec($curl_handle);
+
+    // Execute and close the curl request.
+    $response = curl_exec($curl_handle);
     curl_close($curl_handle);
-    $data = json_decode($data, TRUE);
-    if (empty($data)) {
-      bee_message(bt('GitHub API Rate Limit information cannot be retrieved at this time. Please try again later.'), 'error');
-      return FALSE;
+
+    // Process the output according to the request type.
+    switch ($request_type) {
+      case 'raw':
+        $output = array($response);
+        break;
+      default:
+        $output = json_decode($response, TRUE);
+        break;
     }
-    // Return the core quota details.
-    $rate_info = $data['resources']['core'];
-    $reset_time = date('H:m T', $rate_info['reset']);
-    $used = $rate_info['used'];
-    $remaining = $rate_info['remaining'];
-    $quota = $rate_info['limit'];
-    // Create a debug message with details about the quota.
-    bee_message(bt('GitHub API Rate Limit: !used/!quota used with !remaining remaining. Quota will reset at !reset_time.', array(
-      '!used' => $used,
-      '!remaining' => $remaining,
-      '!quota' => $quota,
-      '!reset_time' => $reset_time,
-    )), 'log');
-    // Check the amount remaining.
-    if ($remaining < $minimum_quota) {
-      if ($remaining == 0) {
-        // If there is no quota remaining, provide a meaningful error message.
-        bee_message(bt('You have reached your rate limit (!quota/hour) for the GitHub API. Your quota will reset at !reset_time.', array(
-          '!quota' => $quota,
-          '!reset_time' => $reset_time,
-        )), 'error');
-      }
-      else {
-        // If there is some quota remaining, but not enough for the estimated
-        // number of calls, provide a meaningful error message.
-        bee_message(bt('You have nearly reached your rate limit (!quota/hour) for the GitHub API and it is estimated that the amount remaining will not be enough to complete this operation. Your quota will reset at !reset_time.', array(
-          '!quota' => $quota,
-          '!reset_time' => $reset_time,
-        )), 'error');
-      }
-      // If there is not a token in use, then also provide an information
-      // message about using a token.
-      if (!$is_token) {
-        bee_message(bt('The GitHub API rate limit is 60/hour for anonymous use. You can increase this by using a token. See the help or wiki for more information.'), 'info');
-      }
-      return FALSE;
-    }
-    else {
-      // There is still enough quota remaining.
-      return TRUE;
-    }
+    return $output;
   }
-  // If we can't initiate the curl connection then return FALSE.
-  return FALSE;
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Check whether a URL exists.
+ *
+ * This helper function provides a simple check for URLs that does require any
+ * use of the GitHub API call quota.
+ *
+ * @param string $url
+ *   The URL to check.
+ *
+ * @return bool
+ *   Returns TRUE if a valid result is returned. FALSE otherwise.
+ */
+function download_bee_check_url_exists($url) {
+  // Initiate the curl request.
+  $curl_handle = curl_init($url);
+
+  // Compile the options for the curl request.
+  // Set the user agent string.
+  curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
+  // Allow curl to follow redirects.
+  curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
+  // Specify that we don't need the body of the response.
+  curl_setopt($curl_handle, CURLOPT_NOBODY, TRUE);
+
+  // Execute the curl request.
+  curl_exec($curl_handle);
+
+  // Get the response code.
+  $return_code = curl_getinfo($curl_handle, CURLINFO_RESPONSE_CODE);
+
+  // Close the curl request.
+  curl_close($curl_handle);
+
+  // Return the result.
+  return $return_code == 200;
 }
