@@ -235,7 +235,7 @@ function download_bee_callback($arguments, $options) {
               if (in_array($dependency, $projects)) {
                 // If project is already in the list to download, do not add to
                 // the list to download again.
-                bee_message(bt("The '!dependency' !dependency_type is also required by the '!project' !project_type.", array(
+                bee_instant_message(bt("The '!dependency' !dependency_type is also required by the '!project' !project_type.", array(
                   '!dependency' => !empty($submodule) ? "$dependency:$submodule" : $dependency,
                   '!dependency_type' => (!empty($submodule) ? 'sub' : '') . $dependency_info['type'],
                   '!project' => $project['name'],
@@ -246,7 +246,7 @@ function download_bee_callback($arguments, $options) {
                 // If project is not already in download list, then add to list
                 // and prepare message.
                 $projects[] = $dependency;
-                bee_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
+                bee_instant_message(bt("The '!dependency' !dependency_type will also be downloaded, as it is required by the '!project' !project_type.", array(
                   '!dependency' => !empty($submodule) ? "$dependency:$submodule" : $dependency,
                   '!dependency_type' => (!empty($submodule) ? 'sub' : '') . $dependency_info['type'],
                   '!project' => $project['name'],
@@ -258,7 +258,7 @@ function download_bee_callback($arguments, $options) {
               // If project does exist in the site file system, give a
               // meaningful message so user is aware of the dependency and that
               // it is already met.
-              bee_message(bt("The '!dependency' !dependency_type is required by the '!project' !project_type but already exists at '!dependency_location'.", array(
+              bee_instant_message(bt("The '!dependency' !dependency_type is required by the '!project' !project_type but already exists at '!dependency_location'.", array(
                 '!dependency' => $dependency,
                 '!dependency_type' => $dependency_info['type'],
                 '!project' => $project['name'],
