@@ -229,7 +229,7 @@ function enable_bee_callback($arguments, $options) {
           foreach ($dependencies as $key => $dependency) {
             if (!in_array($dependency, $unique_dependencies)) {
               // Report info on dependencies to be enabled.
-              bee_message(bt("The '!dependency' module will also be enabled, as it is required by the '!current' module.", [
+              bee_instant_message(bt("The '!dependency' module will also be enabled, as it is required by the '!current' module or one of the modules it requires.", [
                 '!dependency' => $modules[$dependency]->info['name'],
                 '!current' => $module->info['name'],
               ]), 'info');
@@ -367,7 +367,7 @@ function disable_bee_callback($arguments, $options) {
           foreach ($dependencies as $key => $dependency) {
             if (!in_array($dependency, $unique_dependencies)) {
               // Report info on dependencies to be disabled.
-              bee_message(bt("The '!dependency' module will also be disabled, as it depends on the '!current' module.", [
+              bee_instant_message(bt("The '!dependency' module will also be disabled, as it depends on the '!current' module or one of the modules it requires.", [
                 '!dependency' => $modules[$dependency]->info['name'],
                 '!current' => $module->info['name'],
               ]), 'info');

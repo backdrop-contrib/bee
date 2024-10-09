@@ -23,6 +23,7 @@ require_once __DIR__ . '/includes/filesystem.inc';
 require_once __DIR__ . '/includes/input.inc';
 require_once __DIR__ . '/includes/globals.inc';
 require_once __DIR__ . '/includes/telemetry.inc';
+require_once __DIR__ . '/includes/dependencies.inc';
 
 // Main execution code.
 bee_initialize_server();
