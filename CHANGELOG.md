@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-TBC
+## [Unreleased] - 2025-04-17
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -18,13 +18,16 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layouts or Backdrop itself.
 
-### Changed
-- The functions within the download command have been made more flexible and
-better able to support the coming 'update' command.
-
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
 before installing Backdrop.
+
+### Changed
+- Bee will now notify the user of additional modules that will be enabled or disabled based on module dependencies when using the enable and disable commands.
+- The functions within the download command have been made more flexible and
+better able to support the coming 'update' command.
+
+
 
 ## [1.x-1.1.0] - 2024-09-07
 
