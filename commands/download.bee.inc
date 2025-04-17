@@ -182,6 +182,9 @@ function download_bee_callback($arguments, $options) {
     }
     else {
       $info = download_bee_get_project_info($project['name'], $organization, $project['release'], $project['branch'], $github_api_token);
+      if ($info === FALSE) {
+        return;
+      }
       if (empty($info)) {
         // If getting the info file has failed, show an error message here and
         // exit.
@@ -216,6 +219,9 @@ function download_bee_callback($arguments, $options) {
           if (!$dependency_is_core) {
             // Get information about the dependency project.
             $dependency_info = download_bee_get_project_info($dependency, $organization, '', '', $github_api_token);
+            if ($dependency_info === FALSE) {
+              continue;
+            }
             if (empty($dependency_info)) {
               // If getting the info file has failed, show an error message here
               // and exit.
@@ -304,9 +310,11 @@ function download_bee_callback($arguments, $options) {
         if (isset($info['release'])) {
           // If download is a release, whether latest or defined, show the
           // release tag and link to release notes.
-          bee_message(bt("'!project' (!release) was downloaded into '!directory'. For more information see !url", array(
+          bee_instant_message('release data: ', 'debug', $info['release']);
+          bee_message(bt("'!project' (!release, published at !release_date) was downloaded into '!directory'. For more information see !url", array(
             '!project' => $project['name'],
             '!release' => $info['release']['tag_name'],
+            '!release_date' => $info['release']['published_at'],
             '!url' => $info['release']['release_url'],
             '!directory' => $destination,
           )), 'success');
@@ -427,7 +435,8 @@ function download_core_bee_callback($arguments, $options) {
  * @param string $organization
  *   The name of the GitHub organization.
  * @param string $release
- *   A string relating to a release option. Defaults to empty string (''):
+ *   (Optional) A string relating to a release option. Defaults to empty string
+ *   (''):
  *   - 'dev': Download the dev version from the default branch.
  *   - 'branch': Download the dev version from an alternative branch. Specified
  *     using the $branch parameter.
@@ -436,16 +445,17 @@ function download_core_bee_callback($arguments, $options) {
  *     blank. If there is not a valid latest release, the dev branch will be
  *     offered (see 'dev').
  *   - '1.x-1.2.3': The tag of a given release. If the release cannot be found
- *     an error message will be given and the function will reu.
+ *     an error message will be given and the function will return FALSE.
  *   - 'select': A list of valid options will be offered including:
  *      - dev: (see dev).
  *      - All releases that are not draft. Latest will be labelled and
  *        pre-releases will also be labelled.
  * @param string $branch
- *   A string containing the name of the branch. Defaults to empty string ('').
+ *   (Optional) A string containing the name of the branch. Defaults to empty
+ *   string ('').
  * @param string $github_api_token
- *   The GitHub API Personal Access Token to apply to API calls. Defaults to
- *   empty string ('').
+ *   (Optional) The GitHub API Personal Access Token to apply to API calls.
+ *   Defaults to empty string ('').
  *
  * @return array|false
  *   An associative array of information about the project, including all
@@ -544,6 +554,7 @@ function download_bee_get_project_info($project, $organization, $release = '', $
 
       $selection = download_bee_select_version($project, $organization, $github_api_token);
       if (empty($selection)) {
+        bee_message(bt("Download operation is cancelled."), 'info');
         return FALSE;
       }
       // Use the selection to set variables that will be used in the next step.
@@ -596,6 +607,7 @@ function download_bee_get_project_info($project, $organization, $release = '', $
           // with selection.
           $selection = download_bee_select_version($project, $organization, $github_api_token);
           if (empty($selection)) {
+            bee_message(bt("Download operation is cancelled."), 'info');
             return FALSE;
           }
           // Use the selection to set variables that will be used in the next
@@ -643,8 +655,6 @@ function download_bee_get_project_info($project, $organization, $release = '', $
       }
       $defined_release = $release_data['tag_name'];
       bee_instant_message('$defined_release:' . $defined_release, 'debug');
-      // $defined_release_published_date = $latest_release['published_at'];
-      // $defined_release_url = $latest_release['html_url'];
       $download_url = "https://github.com/$organization/$project/releases/download/$defined_release/$project.zip";
       bee_instant_message('$download_url:' . $download_url, 'debug');
       $release_detail = array(
