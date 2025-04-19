@@ -16,7 +16,7 @@ servers with the enable sandbox command in the dump file if the destination
 database or client does not support it.
 - Tooling for the lando recipe to support Xdebug with VS Code.
 - The ability to download specified releases or branches of modules, themes,
-layouts or Backdrop itself.
+layout templates or Backdrop itself.
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
