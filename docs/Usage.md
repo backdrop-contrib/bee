@@ -132,7 +132,7 @@ options in a given file.
  By default, 'latest' is selected if no release is specified. Dependencies will all download the 'latest' so if you do want a different version, download these first.
 
 *Options:*
-- `--allow-multisite-copy`, `-f`` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
+- `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
 - `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
 
 *Examples:*
