@@ -23,11 +23,10 @@ layouts or Backdrop itself.
 before installing Backdrop.
 
 ### Changed
-- Bee will now notify the user of additional modules that will be enabled or disabled based on module dependencies when using the enable and disable commands.
+- Bee will now notify the user of additional modules that will be enabled or disabled
+based on module dependencies when using the enable and disable commands.
 - The functions within the download command have been made more flexible and
 better able to support the coming 'update' command.
-
-
 
 ## [1.x-1.1.0] - 2024-09-07
 
