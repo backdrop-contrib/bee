@@ -172,6 +172,24 @@ function download_bee_callback($arguments, $options) {
         $project['branch'] = ($project['release'] == 'branch') ? $project_details[2] : '';
     }
 
+    // Check if the project exists within the site file system. It is desirable
+    // to do this check before doing checks about what version to download. At
+    // this stage, we don't know if it is a module, theme or layout template so
+    // we need to check each but can exit if found.
+    $types = array('module', 'theme', 'layout');
+    foreach ($types as $type) {
+      $project_existing_location = download_bee_check_project_exists($project['name'], $type);
+      $project_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $project_existing_location);
+      if ($project_existing_location != FALSE && !$project_allow_multisite_copy) {
+        bee_message(bt("'!project' already exists in '!existing_location'.", array(
+          '!project' => $project['name'],
+          '!existing_location' => $project_existing_location,
+        )), 'error');
+        $project_count++;
+        continue 2;
+      }
+    }
+
     // Check if the project exists by trying to get the repo homepage.
     $organization = 'backdrop-contrib';
     $url = "https://github.com/$organization/" . $project['name'];
@@ -183,7 +201,8 @@ function download_bee_callback($arguments, $options) {
     else {
       $info = download_bee_get_project_info($project['name'], $organization, $project['release'], $project['branch'], $github_api_token);
       if ($info === FALSE) {
-        return;
+        $project_count++;
+        continue;
       }
       if (empty($info)) {
         // If getting the info file has failed, show an error message here and
@@ -191,7 +210,8 @@ function download_bee_callback($arguments, $options) {
         bee_message(bt("The info file for !project cannot be retrieved at this time.", array(
           '!project' => $project['name'],
         )), 'error');
-        return;
+        $project_count++;
+        continue;
       }
       // Get the list of dependencies and add to list of projects.
       if (!empty($info['dependencies'])) {
@@ -281,22 +301,14 @@ function download_bee_callback($arguments, $options) {
         bee_message(bt("The 'type' of project '!project' could not be determined.", array(
           '!project' => $project['name'],
         )), 'error');
-        return;
+        $project_count++;
+        continue;
       }
 
+      // Check that the destination can be created.
       $destination = download_bee_get_destination_path($project['name'], $info['type']);
       bee_instant_message('$destination:' . $destination, 'debug');
-      // Check if the project exists within the site file system.
-      $project_existing_location = download_bee_check_project_exists($project['name'], $info['type']);
-      $project_allow_multisite_copy = download_bee_check_multisite_copy($allow_multisite_copy, $project_existing_location);
-      if ($project_existing_location != FALSE && !$project_allow_multisite_copy) {
-        bee_message(bt("'!project' already exists in '!existing_location'.", array(
-          '!project' => $project['name'],
-          '!existing_location' => $project_existing_location,
-        )), 'error');
-        return;
-      }
-      elseif (!mkdir($destination, 0755, TRUE)) {
+      if (!mkdir($destination, 0755, TRUE)) {
         bee_message(bt("The destination directory '!directory' doesn't exist and couldn't be created.", array(
           '!directory' => $destination,
         )), 'error');
