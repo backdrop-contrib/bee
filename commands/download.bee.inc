@@ -391,7 +391,7 @@ function download_core_bee_callback($arguments, $options) {
   }
 
   $info = download_bee_get_project_info('backdrop', 'backdrop', $core_version['release'], $core_version['branch'], $github_api_token);
-
+  bee_instant_message('project_info:', 'debug', $info);
   if (!$info) {
     bee_message(bt("Download operation is cancelled."), 'info');
     return;
@@ -422,9 +422,10 @@ function download_core_bee_callback($arguments, $options) {
     if (isset($info['release'])) {
       // If download is a release, whether latest or defined, show the
       // release tag and link to release notes.
-      bee_message(bt("Backdrop (!release) was downloaded into '!directory'. For more information see !url", array(
+      bee_message(bt("Backdrop (!release, published at !release_date) was downloaded into '!directory'. For more information see !url", array(
         '!release' => $info['release']['tag_name'],
         '!url' => $info['release']['release_url'],
+        '!release_date' => $info['release']['published_at'],
         '!directory' => $destination,
       )), 'success');
     }

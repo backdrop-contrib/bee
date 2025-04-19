@@ -30,8 +30,11 @@ class DownloadCommandsTest extends TestCase {
     $this->assertRegExp($pattern, $output_multiple);
     $this->assertTrue(file_exists("$bee_test_root/backdrop/layouts/bamboo/bamboo.info"));
 
+    // Defined release.
+    $output_defined_release = shell_exec('bee download layout_custom_theme:1.x-1.0.4');
+    $pattern = '/\'layout_custom_theme\' \(1\.x\-1\.0\.4\, published at 2024\-02\-01T[\w\s\.\W]*\) was downloaded into \'' . preg_quote($bee_test_root, '/') . '\/backdrop\/modules\/layout_custom_theme\'/';
     // Cleanup downloads.
-    exec("rm -fr $bee_test_root/backdrop/modules/simplify $bee_test_root/backdrop/themes/lumi $bee_test_root/backdrop/layouts/bamboo");
+    exec("rm -fr $bee_test_root/backdrop/modules/simplify $bee_test_root/backdrop/themes/lumi $bee_test_root/backdrop/layouts/bamboo $bee_test_root/backdrop/modules/layout_custom_theme");
   }
 
   /**
@@ -51,8 +54,14 @@ class DownloadCommandsTest extends TestCase {
     $this->assertRegExp($pattern, $output_directory);
     $this->assertTrue(file_exists("$bee_test_root/directory/index.php"));
 
+    // Download a defined release.
+    $output_defined_release = shell_exec("bee download-core $bee_test_root/defined_release --version=1.30.0");
+    $pattern = '/Backdrop \(1\.30\.0\, published at 2025\-01\-1\dT[\w\s\.\W]*\) was downloaded into \'' . preg_quote($bee_test_root, '/') . '\/defined_release\'/';
+    $this->assertRegExp($pattern, $output_defined_release);
+    $this->assertTrue(file_exists("$bee_test_root/defined_release/index.php"));
+
     // Cleanup downloads.
-    exec("rm -fr $bee_test_root/current $bee_test_root/directory");
+    exec("rm -fr $bee_test_root/current $bee_test_root/directory $bee_test_root/defined_release");
   }
 
 }
