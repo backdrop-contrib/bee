@@ -17,7 +17,7 @@ function download_bee_command() {
   $projects_description .= "\n  " . bt('project:release_tag/keyword[:branch]');
   $projects_description .= "\n\n " . bt("Specify a release tag or one of the following keywords:");
   $projects_description .= "\n  - " . bt("'dev' (download the dev version from the default branch.)");
-  $projects_description .= "\n  - " . bt("'branch' (download the dev version from an alternative branch. Specified with ");
+  $projects_description .= "\n  - " . bt("'branch' (download the dev version from an alternative branch. Specified with ':branch_name'.");
   $projects_description .= "\n  - " . bt("'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)");
   $projects_description .= "\n\n " . bt("If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise.");
   $projects_description .= "\n\n " . bt("By default, 'latest' is selected if no release is specified. Dependencies will all download the 'latest' so if you do want a different version, download these first.");

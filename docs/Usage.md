@@ -124,7 +124,7 @@ options in a given file.
 
  Specify a release tag or one of the following keywords:
   - 'dev' (download the dev version from the default branch.)
-  - 'branch' (download the dev version from an alternative branch. Specified with
+  - 'branch' (download the dev version from an alternative branch. Specified with `:branch_name`.)
   - 'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)
 
  If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise.
