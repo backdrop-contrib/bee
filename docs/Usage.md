@@ -116,20 +116,33 @@ options in a given file.
 - `bee projects` - Show information about all available projects.
 
 #### `download`
-*Description:* Download Backdrop contrib projects together with dependencies.  
-*Aliases:* `dl` , `pm-download`  
+*Description:* Download Backdrop contrib projects.  
+*Aliases:* `dl`, `pm-download`  
 *Arguments:*
-- `projects` - One or more contrib projects to download.
+- `projects` - One or more contrib projects to download. You can specify a release tag or branch for each project using the format:
+  project:release_tag/keyword[:branch]
+
+ Specify a release tag or one of the following keywords:
+  - 'dev' (download the dev version from the default branch.)
+  - 'branch' (download the dev version from an alternative branch. Specified with `:branch_name`.)
+  - 'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)
+
+ If 'branch' is entered for release, then the name of an alternative branch can be entered with this option. It is ignored otherwise.
+
+ By default, 'latest' is selected if no release is specified. Dependencies will all download the 'latest' so if you do want a different version, download these first.
 
 *Options:*
-- `--github-token` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
-- `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
 - `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
+- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
 
 *Examples:*
-- `bee download webform` - Download the Webform module.
+- `bee download webform` - Download the latest version of the Webform module.
 - `bee download simplify thesis bamboo` - Download the Simplify module, Thesis theme, and Bamboo layout.
 - `bee --site=site_name download simplify --allow-multisite-copy` - Download an additional copy of the Simplify module into the site_name multisite module folder.
+- `bee download simplify:dev` - Download the dev version of the Simplify module.
+- `bee download paragraphs:branch:1.x-1.2` - Download the 1.x-1.2 branch of the Paragraphs module
+- `bee download simplify:1.x-1.2.4` - Download the 1.x-1.2.4 release of the Simplify module
+- `bee download simplify:select` - Select from a list of releases and the dev version for the Simplify module.
 
 #### `enable`
 *Description:* Enable one or more projects (modules, themes, layouts).  
@@ -248,19 +261,31 @@ options in a given file.
 - `bee help status` - Display help for the 'status' command.
 - `bee help` - Display help for 'bee' itself.
 
+#### `changelog`
+*Description:* Display the current CHANGELOG of Bee.  
+*Examples:*  
+- `bee changelog` - Output the current CHANGELOG.
+
 ### Core
 #### `download-core`
 *Description:* Download Backdrop core.  
 *Aliases:* `dl-core`  
 *Arguments:*
 - `directory` - (optional) The directory to download and extract Backdrop into. Leave blank to use the current directory.
+
 *Options:*
-- `--github-token` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
-- `--hide-progress`, `-h` - Deprecated, will get removed in a future version.
+- `--version=THE RELEASE TAG OR KEYWORD.` - Specify a release tag or one of the following keywords:
+ - 'dev' (download the dev version from the default branch.)
+ - 'branch' (download the dev version from an alternative branch. Specified by appending ':branch_name')
+ - 'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)
+- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
 
 *Examples:*
 - `bee download-core ../backdrop` - Download Backdrop into a 'backdrop' directory in the parent folder.
-                    
+- `bee download-core --version=1.28.3` - Download the 1.28.3 release of Backdrop into the current directory.
+- `bee download-core --version=dev` - Download the dev version of Backdrop into the current directory.
+- `bee download-core --version=branch:1.29.x` - Download the 1.29.x branch of Backdrop into the current directory.
+- `bee download-core --version=select` - Select from a list of releases of Backdrop to download into the current directory.
 
 #### `install`
 *Description:* Install Backdrop and setup a new site.  
@@ -316,17 +341,22 @@ Note: The path is always relative to the Backdrop root so if you want to export 
 - `bee db-export --extra="--no-data --no-tablespaces" db.sql` Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz.
 
 #### `db-import`
-*Description:* Import an SQL file into the current database.  
-*Aliases:* `dbim` , `sql-import`  
-*Arguments:*  
+*Description:* Import an SQL file into the current database.
+*Aliases:* `dbim`, `sql-import`  
+
+*Arguments:*
 - `file` - The SQL file to import into the database. Can be gzipped (i.e. *.sql.gz).
 
 Note: The path is always relative to the Backdrop root so if you want to import from a folder above this, use `../` and the filename.
 
-*Examples:*  
+*Options:*
+- `--mariadb-compatibility`, `-mdbc`` - Recent MariaDB versions have started including a command to enable sandbox mode, which can cause issues for importing on older versions or into MySQL. Use this option to remove that string before import.
+
+*Examples:*
 - `bee db-import backup.sql` - Import backup.sql into the current database.
 - `bee db-import db.sql.gz` - Extract and import db.sql into the current database.
 - `bee db-import ../db/db_export.sql.gz` - Extract and import db_export.sql from folder ../db into the current database
+- `bee db-import db.sql.gz --mariadb-compatibility` - Extract and import db.sql into the current database removing any MariaDB sandbox switch first.
 
 #### `db-drop`
 *Description:* Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.  

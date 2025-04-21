@@ -12,6 +12,10 @@ function status_bee_command() {
     'status' => array(
       'description' => bt('Provides an overview of the current Backdrop installation/site.'),
       'callback' => 'status_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => FALSE,
+      ),
       'group' => 'information',
       'options' => array(
         'show-password' => array(
@@ -34,7 +38,13 @@ function status_bee_command() {
  */
 function status_bee_callback($arguments, $options) {
   global $_bee_backdrop_root, $_bee_backdrop_site, $_bee_multisites;
+
+  // Initialize the $rows array.
   $rows = array();
+
+  // Set $telemetry_status to FALSE initially in case we can't retrieve status
+  // from database.
+  $telemetry_status = FALSE;
 
   if (!empty($_bee_backdrop_root)) {
     global $settings, $config_directories;

@@ -8,7 +8,27 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2024-09-06
+## [Unreleased] - 2025-04-21
+
+### Added
+- An option for the `db-import` command to allow import from newer MariaDB
+servers with the enable sandbox command in the dump file if the destination
+database or client does not support it.
+- Tooling for the lando recipe to support Xdebug with VS Code.
+- The ability to download specified releases or branches of modules, themes,
+layout templates or Backdrop itself.
+
+### Fixed
+- Unhandled errors and warnings if commands run outside Backdrop root and/or
+before installing Backdrop.
+
+### Changed
+- Bee will now notify the user of additional modules that will be enabled or disabled
+based on module dependencies when using the enable and disable commands.
+- The functions within the download command have been made more flexible and
+better able to support the coming 'update' command.
+
+## [1.x-1.1.0] - 2024-09-07
 
 ### Added
 - A new function to check whether or not an executable exists in the system.
@@ -115,7 +135,8 @@ filenames) are included in table output.
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...HEAD
+[1.x-1.1.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...1.x-1.1.0
 [1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
 [1.x-1.0.0-beta]: https://github.com/backdrop-contrib/bee/compare/v0.0.0...1.x-1.0.0-beta
