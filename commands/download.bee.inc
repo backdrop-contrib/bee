@@ -1106,7 +1106,7 @@ function download_bee_check_multisite_copy($allow_multisite_copy, $existing_loca
 function download_bee_get_destination_path($project, $type) {
   global $_bee_backdrop_root, $_bee_backdrop_site;
   // Add an 's' to the end of the type name.
-  $type_folder = "${type}s";
+  $type_folder = "{$type}s";
 
   // Get the directory to download the project into.
   if (!empty($_bee_backdrop_site)) {
