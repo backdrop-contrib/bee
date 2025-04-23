@@ -391,7 +391,7 @@ function download_core_bee_callback($arguments, $options) {
   }
 
   $info = download_bee_get_project_info('backdrop', 'backdrop', $core_version['release'], $core_version['branch'], $github_api_token);
-  bee_instant_message('project_info:', 'debug', $info);
+
   if (!$info) {
     bee_message(bt("Download operation is cancelled."), 'info');
     return;
