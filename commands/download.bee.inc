@@ -393,7 +393,7 @@ function download_core_bee_callback($arguments, $options) {
   $info = download_bee_get_project_info('backdrop', 'backdrop', $core_version['release'], $core_version['branch'], $github_api_token);
 
   if (!$info) {
-    bee_message(bt("Download operation is cancelled."), 'info');
+    bee_message(bt("Backdrop Core: Download operation is cancelled."), 'info');
     return;
   }
 
@@ -520,7 +520,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
         else {
           // If 'Yes' mode was not enabled and user responded 'No', then provide
           // a message and return FALSE.
-          bee_message(bt("Download operation is cancelled."), 'info');
+          bee_message(bt("!project: Download operation is cancelled.", array(
+            '!project' => $project,
+          )), 'info');
           return FALSE;
         }
       }
@@ -557,7 +559,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
         else {
           // If 'Yes' mode was not enabled and user responded 'No', then provide
           // a message and return FALSE.
-          bee_message(bt("Download operation is cancelled."), 'info');
+          bee_message(bt("!project: Download operation is cancelled.", array(
+            '!project' => $project,
+          )), 'info');
           return FALSE;
         }
       }
@@ -567,7 +571,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
 
       $selection = download_bee_select_version($project, $organization, $github_api_token);
       if (empty($selection)) {
-        bee_message(bt("Download operation is cancelled."), 'info');
+        bee_message(bt("!project: Download operation is cancelled.", array(
+          '!project' => $project,
+        )), 'info');
         return FALSE;
       }
       // Use the selection to set variables that will be used in the next step.
@@ -575,7 +581,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
         $final_option = 'dev';
       }
       elseif ($selection['value'] == 'cancel') {
-        bee_message(bt("Download operation is cancelled."), 'info');
+        bee_message(bt("!project: Download operation is cancelled.", array(
+          '!project' => $project,
+        )), 'info');
         return FALSE;
       }
       else {
@@ -620,7 +628,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
           // with selection.
           $selection = download_bee_select_version($project, $organization, $github_api_token);
           if (empty($selection)) {
-            bee_message(bt("Download operation is cancelled."), 'info');
+            bee_message(bt("!project: Download operation is cancelled.", array(
+              '!project' => $project,
+            )), 'info');
             return FALSE;
           }
           // Use the selection to set variables that will be used in the next
@@ -629,7 +639,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
             $final_option = 'dev';
           }
           elseif ($selection['value'] == 'cancel') {
-            bee_message(bt("Download operation is cancelled."), 'info');
+            bee_message(bt("!project: Download operation is cancelled.", array(
+              '!project' => $project,
+            )), 'info');
             return FALSE;
           }
           else {
@@ -641,7 +653,9 @@ function download_bee_get_project_info($project, $organization, $release = '', $
         else {
           // If 'Yes' mode was not enabled and user responded 'No', then provide
           // a message and return FALSE.
-          bee_message(bt("Download operation is cancelled."), 'info');
+          bee_message(bt("!project: Download operation is cancelled.", array(
+            '!project' => $project,
+          )), 'info');
           return FALSE;
         }
       }
@@ -826,11 +840,15 @@ function download_bee_select_version($project, $organization, $github_api_token 
       $select_options[$key] = $key . $suffix;
     }
     // Set the message to be used.
-    $message = bt("Select the version you wish to download.");
+    $message = bt("!project: Select the version you wish to download.", array(
+      '!project' => $project,
+    ));
   }
   else {
     // If no releases exist, tailor the message and default.
-    $message = bt("No releases exist but you can download the dev version.");
+    $message = bt("!project: No releases exist but you can download the dev version.", array(
+      '!project' => $project,
+    ));
     $default = 'dev';
   }
   $select_options['cancel'] = 'Cancel';
@@ -879,7 +897,9 @@ function download_bee_select_version($project, $organization, $github_api_token 
 function download_bee_download_project($project, $source_url, $destination, $branch = '', bool $replace = FALSE, bool $backup = TRUE) {
   // Get a temp directory.
   if (!$temp = bee_get_temp($project)) {
-    bee_message(bt('Failed to get temp directory.'), 'error');
+    bee_message(bt('!project: Failed to get temp directory.', array(
+      '!project' => $project,
+    )), 'error');
     return FALSE;
   }
   if (file_exists($temp)) {
@@ -916,7 +936,9 @@ function download_bee_download_project($project, $source_url, $destination, $bra
     $zip->close();
   }
   else {
-    bee_message(bt('Unable to open zip file.'), 'error');
+    bee_message(bt('!project: Unable to open zip file.', array(
+      '!project' => $project,
+    )), 'error');
     return FALSE;
   }
 
@@ -939,30 +961,40 @@ function download_bee_download_project($project, $source_url, $destination, $bra
       $backup_destination .= bee_format_date($_SERVER['REQUEST_TIME'], $format = 'YmdHis') . '/';
       $backup_destination .= ($project = 'backdrop') ? 'backdrop/' : 'projects/';
       if (!mkdir($backup_destination, 0660, TRUE )) {
-        bee_message(bt('Unable to make backup directory.'), 'error');
+        bee_message(bt('!project: Unable to make backup directory.', array(
+          '!project' => $project,
+        )), 'error');
         return FALSE;
       }
       $backup_copy = bee_copy($destination, $backup_destination);
       if (!$backup_copy) {
-        bee_message(bt('Unable to make backup copy.'), 'error');
+        bee_message(bt('!project: Unable to make backup copy.', array(
+          '!project' => $project,
+        )), 'error');
         return FALSE;
       }
     }
     $existing_delete = bee_delete($destination);
     if (!$existing_delete) {
-      bee_message(bt('Unable to delete existing files.'), 'error');
+      bee_message(bt('!project: Unable to delete existing files.', array(
+        '!project' => $project,
+      )), 'error');
       return FALSE;
     }
   }
   $copy = bee_copy("$temp/$directory", $destination, FALSE);
   if (!$copy) {
-    bee_message(bt('Unable to copy module files to the destination files.'), 'error');
+    bee_message(bt('!project: Unable to copy module files to the destination files.', array(
+      '!project' => $project,
+    )), 'error');
     return FALSE;
   }
 
   $temp_delete = bee_delete($temp);
   if (!$temp_delete) {
-    bee_message(bt('Unable to delete temp files.'), 'warning');
+    bee_message(bt('!project: Unable to delete temp files.', array(
+      '!project' => $project,
+    )), 'warning');
   }
   return TRUE;
 }
@@ -1116,7 +1148,9 @@ function download_bee_get_destination_path($project, $type) {
     $destination = "$_bee_backdrop_root/" . $type_folder;
   }
   else {
-    bee_message(bt("The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options."), 'error');
+    bee_message(bt("!project: The download destination could not be determined. Re-run the command from within a Backdrop installation, or set the global '--root'/'--site' options.", array(
+      '!project' => $project,
+    )), 'error');
     return FALSE;
   }
 
