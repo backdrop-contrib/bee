@@ -502,8 +502,7 @@ function download_bee_get_project_info($project, $organization, $release = '', $
       // Check that a valid latest release exists. For GitHub to count a
       // release as 'latest' it must be published (i.e. not draft) and not a
       // pre-release.
-      $defined_release_url = "https://github.com/$organization/$project/releases/latest";
-      if (download_bee_check_url_exists($defined_release_url)) {
+      if (download_bee_check_latest_release_exists($project, $organization)) {
         $final_option = 'latest';
       }
       else {
@@ -1330,4 +1329,42 @@ function download_bee_check_url_exists($url) {
 
   // Return the result.
   return $return_code == 200;
+}
+
+/**
+ * Check whether a latest release exists.
+ *
+ * @param string $project
+ *   The project to check for.
+ * @param string $organization
+ *   The organization to check for.
+ *
+ * @return bool
+ *   TRUE if a latest release exists; FALSE if not.
+ */
+function download_bee_check_latest_release_exists($project, $organization) {
+
+  $url = "https://github.com/$organization/$project/releases/latest";
+  // Initiate the curl request.
+  $curl_handle = curl_init($url);
+
+  // Compile the options for the curl request.
+  // Set the user agent string.
+  curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
+  // Allow curl to follow redirects.
+  curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
+  // Specify that we don't need the body of the response.
+  curl_setopt($curl_handle, CURLOPT_NOBODY, TRUE);
+
+  // Execute the curl request.
+  curl_exec($curl_handle);
+
+  // Get the URL that the latest release URL diverts to.
+  $effective_url = curl_getinfo($curl_handle, CURLINFO_EFFECTIVE_URL);
+
+  // Close the curl request.
+  curl_close($curl_handle);
+
+  $no_latest_release_url = "https://github.com/$organization/$project/releases";
+  return $effective_url != $no_latest_release_url;
 }
