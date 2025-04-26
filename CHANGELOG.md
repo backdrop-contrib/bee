@@ -27,6 +27,7 @@ before installing Backdrop.
 based on module dependencies when using the enable and disable commands.
 - The functions within the download command have been made more flexible and
 better able to support the coming 'update' command.
+- Provide default terminal width if `tput cols` fails to get the value.
 
 ## [1.x-1.1.0] - 2024-09-07
 
