@@ -104,6 +104,20 @@ function db_bee_command() {
         'bee db-query "SELECT name, mail FROM {users} WHERE uid > 0 LIMIT 2"' => bt('Show the name and email for the first 2 users.'),
       ),
     ),
+    'utf8mb4-convert' => array(
+      'description' => 'Convert the database and tables to utf8mb4 encoding.',
+      'callback' => 'utf8mb4_convert_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => TRUE,
+      ),
+      'group' => 'database',
+      'aliases' => array('utf8mb4'),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'examples' => array(
+        'bee utf8mb4-convert' => 'Convert the main database to utf8mb4 encoding.',
+      ),
+    ),
   );
 }
 
@@ -450,4 +464,72 @@ function dbq_bee_callback($arguments, $options) {
   catch (PDOException $e) {
     bee_message($e->getMessage(), 'error');
   }
+}
+
+/**
+ * Command callback: utf-8 mb4 conversion.
+ */
+function utf8mb4_convert_bee_callback($arguments, $options) {
+  $connection = Database::getConnection();
+  $messages = array();
+  $utf8mb4_active = $connection->utf8mb4IsActive();
+  $utf8mb4_supported = $connection->utf8mb4IsSupported();
+  $utf8mb4_tables_converted = state_get('database_utf8mb4_active', FALSE);
+
+  if (!$utf8mb4_active || !$utf8mb4_supported) {
+    bee_message('utf8mb4 not supported.', 'error');
+    return;
+  }
+
+  // Already active and supported. Indicate completion.
+  if ($utf8mb4_active && $utf8mb4_supported && $utf8mb4_tables_converted) {
+    bee_message('utf8mb4 is already enabled on your site, no further action is needed.');
+    return;
+  }
+
+  global $databases;
+
+  // Enter maintenance mode.
+  state_set('maintenance_mode', TRUE);
+
+  // Build the list of tables to convert.
+  $database = $databases['default']['default'];
+  $like = '';
+  if (!empty($database['prefix'])) {
+    $like = ' LIKE "' . $database['prefix'] . '%"';
+  }
+  $table_names = db_query('SHOW TABLES' . $like)->fetchCol();
+
+  // Instantiate a character set converter object.
+  $converter = new DatabaseCharsetConverter();
+
+  try {
+    $result = $converter->convertDatabase($databases['default']['default']['database']);
+    if (!$result) {
+      $messages[] = t('The database %name could not be converted.', array('%name' => $databases['default']['default']['database']));
+      bee_message(implode(', ', $messages), 'error');
+      return;
+    }
+  }
+  catch (PDOException $e) {
+    $messages[] = $e->getMessage();
+    bee_message(implode(', ', $messages), 'error');
+    return;
+  }
+
+  foreach ($table_names as $table_name) {
+    try {
+      $result = $converter->convertTable($table_name);
+      if (!$result) {
+        $messages[] = t('The table %name could not be converted.', array('%name' => $table_name));
+      }
+    }
+    catch (PDOException $e) {
+      $messages[] = $e->getMessage();
+    }
+  }
+  bee_message(implode(', ', $messages));
+  state_set('maintenance_mode', FALSE);
+  state_set('database_utf8mb4_active', TRUE);
+  bee_message('Database and tables successfully converted.');
 }
