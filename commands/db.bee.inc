@@ -115,7 +115,8 @@ function db_bee_command() {
       'aliases' => array('utf8mb4'),
       'bootstrap' => BEE_BOOTSTRAP_FULL,
       'examples' => array(
-        'bee utf8mb4-convert' => 'Convert the main database to utf8mb4 encoding.',
+        'bee utf8mb4-convert' => 'Convert the main database to utf8mb4 encoding. You will then be prompted to confirm.',
+        'bee --yes utf8mb4-convert' => 'Convert the main database to utf8mb4 encoding. You will NOT be prompted to confirm.',
       ),
     ),
   );
