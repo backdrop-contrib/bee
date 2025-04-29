@@ -470,6 +470,8 @@ function dbq_bee_callback($arguments, $options) {
  * Command callback: utf-8 mb4 conversion.
  */
 function utf8mb4_convert_bee_callback($arguments, $options) {
+  global $_bee_yes_mode;
+
   $connection = Database::getConnection();
   $messages = array();
   $utf8mb4_active = $connection->utf8mb4IsActive();
@@ -489,11 +491,21 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
 
   global $databases;
 
+    // Build the list of tables to convert.
+  $database = $databases['default']['default'];
+
+  if (!$_bee_yes_mode) {
+    // Prompt to continue.
+    if (!bee_confirm(bt('The upgrade process is irreversible and in the event of an error, you will want to restore a previous version. You are recommended to create a database backup before proceeding; you can do this with the 'db-export' command if you have not already created one. Do you want to proceed with the database conversion of !database now?', array(
+      '!database' => $database,
+    )), FALSE)) {
+      return;
+    }
+  }
+
   // Enter maintenance mode.
   state_set('maintenance_mode', TRUE);
 
-  // Build the list of tables to convert.
-  $database = $databases['default']['default'];
   $like = '';
   if (!empty($database['prefix'])) {
     $like = ' LIKE "' . $database['prefix'] . '%"';
