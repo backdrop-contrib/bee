@@ -497,8 +497,8 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
 
   if (!$_bee_yes_mode) {
     // Prompt to continue.
-    if (!bee_confirm(bt('The upgrade process is irreversible and in the event of an error, you will want to restore a previous version. You are recommended to create a database backup before proceeding; you can do this with the <code>db-export</code> command if you have not already created one. Do you want to proceed with the database conversion of !database now?', array(
-      '!database' => $database,
+    if (!bee_confirm(bt('The upgrade process is irreversible and in the event of an error, you will want to restore a previous version. You are recommended to create a database backup before proceeding; you can do this with the "db-export" command if you have not already created one. Do you want to proceed with the conversion of tables in the "!database" database now?', array(
+      '!database' => $database['database'],
     )), FALSE)) {
       return;
     }
