@@ -491,8 +491,6 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
   }
 
   global $databases;
-
-    // Build the list of tables to convert.
   $database = $databases['default']['default'];
 
   if (!$_bee_yes_mode) {
@@ -507,6 +505,7 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
   // Enter maintenance mode.
   state_set('maintenance_mode', TRUE);
 
+  // Build the list of tables to convert.
   $like = '';
   if (!empty($database['prefix'])) {
     $like = ' LIKE "' . $database['prefix'] . '%"';
