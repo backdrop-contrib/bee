@@ -517,9 +517,9 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
   $converter = new DatabaseCharsetConverter();
 
   try {
-    $result = $converter->convertDatabase($databases['default']['default']['database']);
+    $result = $converter->convertDatabase($database['database']);
     if (!$result) {
-      $messages[] = t('The database %name could not be converted.', array('%name' => $databases['default']['default']['database']));
+      $messages[] = t('The database %name could not be converted.', array('%name' => $database['database']));
       bee_message(implode(', ', $messages), 'error');
       return;
     }
