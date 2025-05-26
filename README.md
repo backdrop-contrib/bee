@@ -90,7 +90,8 @@ https://github.com/backdrop-contrib/bee/issues.
 - Grateful thanks goes to previous maintainers and collaborators who have
 helped bring Bee to where it is today. See the 
 [list of contributors](https://github.com/backdrop-contrib/bee/graphs/contributors)
-for details.
+for details. Contributions by "BWpanda" were made by Peter Anderson and not the
+user who is currently associated with the "BWpanda" user name.
 - Inspired by [Drush](https://github.com/drush-ops/drush).
 - [Bee icon](https://thenounproject.com/aomam/collection/bee-emoticons-line/?i=2257433)
   by AomAm from [the Noun Project](http://thenounproject.com).
