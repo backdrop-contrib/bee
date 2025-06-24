@@ -73,13 +73,11 @@ define('BEE_WATCHDOG_DEPRECATED', 8);
  *   The file that the error came from.
  * @param int $line
  *   The line number the error came from.
- * @param array $context
- *   An array of all variables from where the error was triggered.
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  * @see _backdrop_error_handler_real()
  */
-function _bee_error_handler_real($error_level, $message, $filename, $line, array $context = NULL) {
+function _bee_error_handler_real($error_level, $message, $filename, $line) {
 
   if ($error_level & error_reporting()) {
     $types = _bee_error_levels();
@@ -194,6 +192,7 @@ function _bee_get_last_caller(array $backtrace) {
  *
  * @ingroup bee_logging_severity_levels
  * @see backdrop_error_levels()
+ * @see https://github.com/backdrop/backdrop/commit/f823b3a49ffb2e6b280650583fe8d0ccae6796f5#diff-8fb28e6d2a966106560c58c335bc3f025c9e385e1497030a49b47c2638518b83
  */
 function _bee_error_levels() {
   $types = array(
@@ -208,11 +207,16 @@ function _bee_error_levels() {
     E_USER_ERROR => array('User error', BEE_WATCHDOG_ERROR),
     E_USER_WARNING => array('User warning', BEE_WATCHDOG_WARNING),
     E_USER_NOTICE => array('User notice', BEE_WATCHDOG_NOTICE),
-    E_STRICT => array('Strict warning', BEE_WATCHDOG_DEBUG),
     E_RECOVERABLE_ERROR => array('Recoverable fatal error', BEE_WATCHDOG_ERROR),
     E_DEPRECATED => array('Deprecated function', BEE_WATCHDOG_DEBUG),
     E_USER_DEPRECATED => array('User deprecated function', BEE_WATCHDOG_DEBUG),
   );
+
+  // E_STRICT was removed from PHP 8.4 and higher, but still exists in older
+  // versions.
+  if (version_compare(PHP_VERSION, '8.4.0') < 0) {
+    $types[E_STRICT] = array('Strict warning', BEE_WATCHDOG_DEBUG);
+  }
 
   return $types;
 }

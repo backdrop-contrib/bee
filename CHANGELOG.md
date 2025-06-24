@@ -18,6 +18,7 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
+- Support for PHP 8.4
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
