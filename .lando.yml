@@ -2,7 +2,7 @@ name: bee
 recipe: backdrop
 keys: false
 config:
-  php: 8.3
+  php: 8.4
   webroot: backdrop
   database: mysql
   # Set Xdebug off by default. We use the tooling below to turn it on as needed.
@@ -42,7 +42,7 @@ services:
   database:
     healthcheck: mysql --defaults-extra-file=/app/.lando/mysql.cnf --silent --execute "SHOW DATABASES;"
   multisite:
-    type: php:8.3
+    type: php:8.4
     webroot: multisite
 events:
   pre-rebuild:
