@@ -11,6 +11,9 @@ config:
   bee: false
 services:
   appserver:
+    # Allow scanner to fail faster; http paths often fail locally.
+    scanner:
+      retry: 5
     config:
       php: .lando/php.ini
     build_as_root:
@@ -44,6 +47,10 @@ services:
   multisite:
     type: php:8.4
     webroot: multisite
+    ssl: true
+    # Allow scanner to fail faster; http paths often fail locally.
+    scanner:
+      retry: 5
 events:
   pre-rebuild:
     # Run clean-up tasks.
