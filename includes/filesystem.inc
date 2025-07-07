@@ -393,6 +393,17 @@ function bee_copy($source, $destination, $self = TRUE) {
 function bee_get_executable_path($command) {
   foreach (explode(":", getenv('PATH')) as $directory) {
     $candidate = "$directory/$command";
+    if (in_array($command, array('mysql', 'mysqldump')) && is_link($candidate)) {
+      switch ($command) {
+        case 'mysql':
+          $command = 'mariadb';
+          break;
+        case 'mysqldump':
+          $command = 'mariadb-dump';
+          break;
+      }
+      $candidate = "$directory/$command";
+    }
     if (is_executable($candidate)) {
       return $candidate;
     }

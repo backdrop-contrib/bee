@@ -545,3 +545,37 @@ function utf8mb4_convert_bee_callback($arguments, $options) {
   state_set('database_utf8mb4_active', TRUE);
   bee_message('Database and tables successfully converted.');
 }
+
+/**
+ * Helper function to determine whether to use MySQL or MariaDB executables.
+ * @param bool $is_dump
+ *   TRUE if the executable needed is the dump executable (e.g. mysqldump or
+ *   mariadb-dump); FALSE otherwise. Defaults to FALSE.
+ *
+ * @return string|FALSE
+ *   The executable name to call or FALSE if neither main executable found.
+ */
+function db_bee_get_executable_name(bool $is_dump = FALSE) {
+  // Check the main executable to see if it exists.
+  exec('which mysql', $mysql_output, $mysql_result);
+  $mysql = trim($mysql_output);
+  exec('which mariadb', $mariadb_output, $mariadb_result);
+  $mariadb = trim($mariadb_output);
+  // If neither can be found, return FALSE.
+  if (empty($mysql) && empty($mariadb)) {
+    return FALSE;
+  }
+  // If mysql is found, check if the executable is actually a symlink to
+  // mariadb.
+  if (!empty($mysql)) {
+    $executable_group = is_link($mysql) ? 'mariadb' : 'mysql';
+  }
+  else {
+    $executable_group = 'mariadb';
+    // No mysql executable found so go straight to the mariadb .
+    switch ($is_dump) {
+
+    }
+  }
+
+}
