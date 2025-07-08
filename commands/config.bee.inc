@@ -312,7 +312,7 @@ function config_import_bee_callback($arguments, $options) {
   backdrop_flush_all_caches();
 
   bee_message(bt("Config was imported to '!active'.", array(
-    '!active' => config_get_config_directory('active'),
+    '!active' => config_bee_get_config_location('active'),
   )), 'success');
   bee_message(format_plural(count($rows),
     '1 file was synced.',
@@ -338,6 +338,28 @@ function config_export_bee_callback($arguments, $options) {
   }
 
   bee_message(bt("Config was exported to '!staging'.", array(
-    '!staging' => config_get_config_directory('staging'),
+    '!staging' => config_bee_get_config_location('staging'),
   )), 'success');
+}
+
+/**
+ * Helper function to get config storage location.
+ *
+ * @param string $type
+ *   The type of config location: 'active' or 'staging'.
+ *
+ * @return string
+ *   The selected storage location.
+ */
+function config_bee_get_config_location($type) {
+  $class = settings_get('config_' . $type . '_class', 'ConfigFileStorage');
+  switch ($class) {
+    case 'ConfigDatabaseStorage':
+      $config_location = 'db://default/config_' . $type;
+      break;
+    case 'ConfigFileStorage':
+    default:
+      $config_location = config_get_config_directory($type);
+  }
+  return $config_location;
 }

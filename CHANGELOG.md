@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2025-04-30
+## [Unreleased] - 2025-07-08
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -22,6 +22,7 @@ layout templates or Backdrop itself.
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
 before installing Backdrop.
+- Error if importing config to database config storage.
 
 ### Changed
 - Bee will now notify the user of additional modules that will be enabled or disabled
