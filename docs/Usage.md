@@ -366,6 +366,13 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee db-drop` - Drop the current database and recreate an empty database with the same details.  You will then be prompted to confirm.
 - `bee --yes db-drop` - Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.
 
+#### `utf8mb4-convert`
+*Description:* Convert the database and tables to utf8mb4 encoding.  
+*Aliases:*`utf8mb4`  
+*Examples:*
+- `bee utf8mb4-convert` - Convert the main database to utf8mb4 encoding. You will then be prompted to confirm.
+- `bee --yes utf8mb4-convert` - Convert the main database to utf8mb4 encoding. You will NOT be prompted to confirm.
+
 ### Roles
 #### `permissions`
 *Description:* List all permissions of the modules.

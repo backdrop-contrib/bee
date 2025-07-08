@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2025-04-24
+## [Unreleased] - 2025-07-08
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -17,16 +17,19 @@ database or client does not support it.
 - Tooling for the lando recipe to support Xdebug with VS Code.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
+- Command to convert database to UTF8MB4.
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
 before installing Backdrop.
+- Error if importing config to database config storage.
 
 ### Changed
 - Bee will now notify the user of additional modules that will be enabled or disabled
 based on module dependencies when using the enable and disable commands.
 - The functions within the download command have been made more flexible and
 better able to support the coming 'update' command.
+- Provide default terminal width if `tput cols` fails to get the value.
 
 ## [1.x-1.1.0] - 2024-09-07
 
