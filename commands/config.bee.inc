@@ -299,6 +299,25 @@ function config_import_bee_callback($arguments, $options) {
     return;
   }
 
+  // As of Backdrop 1.32.0, modules and themes may be enabled via config import.
+  // Import the special system.extensions config file first if it exists.
+  if (isset($statuses['system.extensions']) && $statuses['system.extensions'] == 'update') {
+    config_sync_file('system.extensions', 'update');
+
+    // Revalidate the configuration after new modules have been enabled.
+    // Hooks such as hook_config_import_validate() in the newly enabled modules
+    // will be included as module_enable() clears the module_implements() cache.
+    try {
+      foreach ($rows as $row) {
+        config_sync_validate_file($row[0]['value'], $row[1]['value'], $statuses);
+      }
+    }
+    catch (ConfigValidateException $e) {
+      bee_message($e->getMessage(), 'error');
+      return;
+    }
+  }
+
   // Import config.
   foreach ($rows as $row) {
     config_sync_file($row[0]['value'], $row[1]['value']);
