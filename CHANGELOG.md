@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2025-07-08
+## [Unreleased] - 2025-08-30
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -30,6 +30,8 @@ based on module dependencies when using the enable and disable commands.
 - The functions within the download command have been made more flexible and
 better able to support the coming 'update' command.
 - Provide default terminal width if `tput cols` fails to get the value.
+- The `config-import` command will now import `system.extensions` config updates first
+if there are any.
 
 ## [1.x-1.1.0] - 2024-09-07
 
