@@ -1,0 +1,2 @@
+# Get PHP syntax highlighting for these file extensions.
+*.inc linguist-language=php
