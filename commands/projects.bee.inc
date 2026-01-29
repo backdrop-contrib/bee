@@ -204,7 +204,7 @@ function enable_bee_callback($arguments, $options) {
     $success = FALSE;
 
     // Get project type.
-    if (!$type = projects_bee_get_type($project)) {
+    if (!($type = projects_bee_get_type($project))) {
       bee_message(bt("Project '!name' could not be found.", array(
         '!name' => $project,
       )), 'error');
