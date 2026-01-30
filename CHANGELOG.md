@@ -18,6 +18,8 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
+- Defensive coding to prevent warnings if a module or theme exists in the
+`system` table but not in the file system.
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
