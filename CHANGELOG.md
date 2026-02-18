@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-01-30
+## [Unreleased] - 2026-02-18
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
