@@ -46,11 +46,13 @@ exit();
  *   The file that the error came from.
  * @param int $line
  *   The line number the error came from.
+ * @param array|null $context
+ *   An array of all variables from where the error was triggered.
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  * @see _backdrop_error_handler()
  */
-function bee_error_handler($error_level, $message, $filename, $line) {
+function bee_error_handler($error_level, $message, $filename, $line, ?array $context = NULL) {
   require_once __DIR__ . '/includes/errors.inc';
   _bee_error_handler_real($error_level, $message, $filename, $line);
 }

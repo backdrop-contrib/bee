@@ -214,7 +214,13 @@ function enable_bee_callback($arguments, $options) {
     switch ($type) {
       case 'module':
         // Get module info.
-        $module = $modules[$project];
+        $module = $modules[$project] ?? FALSE;
+        if (!$module) {
+          bee_message(bt("Project '!name' could not be found.", array(
+            '!name' => $project,
+          )), 'error');
+          continue 2;
+        }
         $name = $module->info['name'];
 
         // Check if already enabled.
@@ -260,7 +266,13 @@ function enable_bee_callback($arguments, $options) {
         break;
       case 'theme':
         // Get theme info.
-        $theme = $themes[$project];
+        $theme = $themes[$project] ?? FALSE;
+        if (!$theme) {
+          bee_message(bt("Project '!name' could not be found.", array(
+            '!name' => $project,
+          )), 'error');
+          continue 2;
+        }
         $name = $theme->info['name'];
 
         // Check if already enabled.

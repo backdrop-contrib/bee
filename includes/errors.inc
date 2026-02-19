@@ -73,11 +73,13 @@ define('BEE_WATCHDOG_DEPRECATED', 8);
  *   The file that the error came from.
  * @param int $line
  *   The line number the error came from.
+ * @param array|null $context
+ *   An array of all variables from where the error was triggered.
  *
  * @see https://www.php.net/manual/en/function.set-error-handler.php
  * @see _backdrop_error_handler_real()
  */
-function _bee_error_handler_real($error_level, $message, $filename, $line) {
+function _bee_error_handler_real($error_level, $message, $filename, $line, ?array $context = NULL) {
 
   if ($error_level & error_reporting()) {
     $types = _bee_error_levels();
