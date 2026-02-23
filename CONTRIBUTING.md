@@ -69,6 +69,9 @@ There are automated tests which test both functionality and coding standards,
 though the coding standards test is not comprehensive. If tests fail, please
 attempt to fix if you can. If you're not sure why tests have failed, ask.
 
+If you wish to run the tests locally and you are not using Lando you will need
+version 9.6 of PHPUnit.
+
 If you are adding a new command or making changes to the way a command works, a
 new functional test or changes to existing functional tests, respectively, may 
 be required. It is ok to request help if you are unsure about this.

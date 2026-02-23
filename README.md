@@ -96,6 +96,7 @@ user who is currently associated with the "BWpanda" user name.
 - Inspired by [Drush](https://github.com/drush-ops/drush).
 - [Bee icon](https://thenounproject.com/aomam/collection/bee-emoticons-line/?i=2257433)
   by AomAm from [the Noun Project](http://thenounproject.com).
+- Bee uses [PHPUnit](https://github.com/sebastianbergmann/phpunit/) for testing.
 
 ## License
 

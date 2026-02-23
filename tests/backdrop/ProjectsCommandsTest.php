@@ -16,18 +16,18 @@ class ProjectsCommandsTest extends TestCase {
   public function test_projects_command_works() {
     // All projects.
     $output_all = shell_exec('bee projects');
-    $this->assertRegExp('/| admin_bar +| Administration Bar +| module +| Enabled +|/', (string) $output_all);
-    $this->assertRegExp('/| bartik +| Bartik +| theme +| Disabled +|/', (string) $output_all);
-    $this->assertRegExp('/| moscone +| Moscone +| layout +| Enabled +|/', (string) $output_all);
+    $this->assertMatchesRegularExpression('/| admin_bar +| Administration Bar +| module +| Enabled +|/', (string) $output_all);
+    $this->assertMatchesRegularExpression('/| bartik +| Bartik +| theme +| Disabled +|/', (string) $output_all);
+    $this->assertMatchesRegularExpression('/| moscone +| Moscone +| layout +| Enabled +|/', (string) $output_all);
 
     // Specific project.
     $output_project = shell_exec('bee projects contact');
-    $this->assertRegExp('/Name +Contact/', (string) $output_project);
-    $this->assertRegExp('/Description +Enables the use of both personal and site-wide contact forms./', (string) $output_project);
+    $this->assertMatchesRegularExpression('/Name +Contact/', (string) $output_project);
+    $this->assertMatchesRegularExpression('/Description +Enables the use of both personal and site-wide contact forms./', (string) $output_project);
 
     // Just modules.
     $output_modules = shell_exec('bee projects --type=module');
-    $this->assertRegExp('/| taxonomy +| Taxonomy +| module +| Enabled +|/', (string) $output_modules);
+    $this->assertMatchesRegularExpression('/| taxonomy +| Taxonomy +| module +| Enabled +|/', (string) $output_modules);
     $this->assertStringNotContainsString(' | theme ', (string) $output_modules);
     $this->assertStringNotContainsString(' | layout ', (string) $output_modules);
   }

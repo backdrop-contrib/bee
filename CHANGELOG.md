@@ -36,6 +36,7 @@ better able to support the coming 'update' command.
 - Provide default terminal width if `tput cols` fails to get the value.
 - The `config-import` command will now import `system.extensions` config updates first
 if there are any.
+- Updated PHPUnit to 9.6
 
 ## [1.x-1.1.0] - 2024-09-07
 

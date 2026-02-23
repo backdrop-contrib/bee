@@ -29,9 +29,10 @@ services:
       - ln -s /app/bee.php /usr/local/bin/bee
       # Download Backdrop.
       - wget -q --show-progress -O /app/backdrop.zip https://github.com/backdrop/backdrop/archive/1.x.zip
-      # Download PHPUnit.
-      - wget -q --show-progress -O /app/phpunit https://phar.phpunit.de/phpunit-8.5.phar
-      - chmod +x /app/phpunit
+      # Download PHPUnit and extract the source to help validate test code functions.
+      - wget -q --show-progress -O /app/phpunit.phar https://phar.phpunit.de/phpunit-9.6.phar
+      - chmod +x /app/phpunit.phar
+      - mkdir -p /app/phpunit_source && cd /app/phpunit_source && phar extract -f /app/phpunit.phar
       # Download Box
       - wget -q --show-progress -O /app/box "https://github.com/box-project/box/releases/download/4.4.0/box.phar"
       - chmod +x /app/box
@@ -56,12 +57,12 @@ events:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop, PHPUnit, Box and any created bee.phar files.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
+    - rm -rf /usr/local/bin/bee /app/backdrop.zip /app/phpunit.phar /app/phpunit_source /app/box /app/bee.phar
   pre-destroy:
     # Run clean-up tasks.
     - /app/.lando/setup.sh clean
     # Remove `bee` symlink, Backdrop, PHPUnit, Box and any created bee.phar files.
-    - rm -f /usr/local/bin/bee /app/backdrop.zip /app/phpunit /app/box /app/bee.phar
+    - rm -rf /usr/local/bin/bee /app/backdrop.zip /app/phpunit.phar /app/phpunit_source /app/box /app/bee.phar
 tooling:
   bee:
     service: appserver
@@ -75,8 +76,8 @@ tooling:
   run-tests:
     service: appserver
     cmd:
-      - cd /app/backdrop && /app/phpunit --testsuite backdrop --configuration /app/tests
-      - cd /app/multisite && /app/phpunit --testsuite multisite --configuration /app/tests
+      - cd /app/backdrop && /app/phpunit.phar --testsuite backdrop --configuration /app/tests
+      - cd /app/multisite && /app/phpunit.phar --testsuite multisite --configuration /app/tests
   xdebug-on:
     service: appserver
     description: Enable Xdebug.
