@@ -54,7 +54,7 @@ exit();
  */
 function bee_error_handler($error_level, $message, $filename, $line, ?array $context = NULL) {
   require_once __DIR__ . '/includes/errors.inc';
-  _bee_error_handler_real($error_level, $message, $filename, $line, $context);
+  _bee_error_handler_real($error_level, $message, $filename, $line);
 }
 
 /**

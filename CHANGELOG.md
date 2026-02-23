@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-02-18
+## [Unreleased] - 2026-02-23
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -18,6 +18,7 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
+- Support for PHP 8.4
 - Defensive coding to prevent warnings if a module or theme exists in the
 `system` table but not in the file system.
 

@@ -33,9 +33,8 @@ class MultisiteInstallCommandsTest extends TestCase {
     $this->assertRegExp('/Database host +database/', (string) $output_after);
 
     // Cleanup the install.
+    exec('bee --site=install_test db-drop -y');
     exec('rm -r sites/install_test/files');
     exec('cp settings.php sites/install_test');
-    exec("mysql -h $bee_test_db_host -u root -e 'DROP DATABASE $bee_test_multisite_install_test_db_name; CREATE DATABASE $bee_test_multisite_install_test_db_name; GRANT ALL PRIVILEGES ON $bee_test_multisite_install_test_db_name.* TO \"backdrop\"@\"%\" IDENTIFIED by \"backdrop\";'");
   }
-
 }
