@@ -1,8 +1,10 @@
 .DS_Store
-/phpunit
+/phpunit.phar
+/phpunit_source/
 .phpunit.result.cache
 /backdrop/
 /multisite/
+/current/
 /backdrop.zip
 /box
 /bee.phar

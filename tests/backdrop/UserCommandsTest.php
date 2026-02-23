@@ -15,7 +15,7 @@ class UserCommandsTest extends TestCase {
    */
   public function test_users_command_works() {
     $output = shell_exec('bee users');
-    $this->assertRegExp('/| 1 +| admin +| admin@example.com +|/', (string) $output);
+    $this->assertMatchesRegularExpression('/| 1 +| admin +| admin@example.com +|/', (string) $output);
   }
 
   /**
