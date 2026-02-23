@@ -17,8 +17,8 @@ class MultisiteInstallCommandsTest extends TestCase {
     global $bee_test_db_host, $bee_test_multisite_install_test_db_name;
     // Check site status before install.
     $output_before = shell_exec('bee status --site=install_test');
-    $this->assertRegExp('/Site type +Multisite/', (string) $output_before);
-    $this->assertRegExp('/Site directory +install_test/', (string) $output_before);
+    $this->assertMatchesRegularExpression('/Site type +Multisite/', (string) $output_before);
+    $this->assertMatchesRegularExpression('/Site directory +install_test/', (string) $output_before);
     $this->assertStringNotContainsString('Database', (string) $output_before);
 
     // Install the site.
@@ -27,10 +27,10 @@ class MultisiteInstallCommandsTest extends TestCase {
 
     // Check site status after install.
     $output_after = shell_exec('bee status --site=install_test');
-    $this->assertRegExp('/Site type +Multisite/', (string) $output_after);
-    $this->assertRegExp('/Site directory +install_test/', (string) $output_after);
-    $this->assertRegExp('/Database name +install_test/', (string) $output_after);
-    $this->assertRegExp('/Database host +database/', (string) $output_after);
+    $this->assertMatchesRegularExpression('/Site type +Multisite/', (string) $output_after);
+    $this->assertMatchesRegularExpression('/Site directory +install_test/', (string) $output_after);
+    $this->assertMatchesRegularExpression('/Database name +install_test/', (string) $output_after);
+    $this->assertMatchesRegularExpression('/Database host +database/', (string) $output_after);
 
     // Cleanup the install.
     exec('bee --site=install_test db-drop -y');

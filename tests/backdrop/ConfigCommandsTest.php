@@ -105,7 +105,7 @@ class ConfigCommandsTest extends TestCase {
     $this->assertStringContainsString('1 file was synced.', (string) $output);
 
     // Verify config file doesn't exist in active.
-    $this->assertFileNotExists($file);
+    $this->assertFileDoesNotExist($file);
 
     // Put config file back.
     exec('mv dashboard.settings.json files/config_*/active/');
