@@ -24,13 +24,6 @@ services:
       - rm -rf /var/www/.bee
       # Remove the symlink if it exists.
       - rm -f /usr/local/bin/bee
-      # # Ensure that the MySQL client is installed.
-      # - cd /var/www && wget https://dev.mysql.com/get/mysql-apt-config_0.8.34-1_all.deb
-      # - export DEBIAN_FRONTEND=noninteractive && apt update && apt install -y /var/www/mysql-apt-config_0.8.34-1_all.deb
-      # - apt update && apt install -y mysql-client
-      # # Disable column statistics as not supported in this server and will show
-      # # warning on mysqldump.
-      # - echo "[mysqldump]\ncolumn-statistics=0" > /etc/mysql/conf.d/zz-lando.cnf
     build:
       # Make symlink for `bee` pointing to this version.
       - ln -s /app/bee.php /usr/local/bin/bee
