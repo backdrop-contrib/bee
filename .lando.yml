@@ -2,15 +2,18 @@ name: bee
 recipe: backdrop
 keys: false
 config:
-  php: 8.3
+  php: 8.4
   webroot: backdrop
-  database: mysql
+  database: mysql:8.0
   # Set Xdebug off by default. We use the tooling below to turn it on as needed.
   xdebug: false
   # Need to disable bee so can use the version in the repo.
   bee: false
 services:
   appserver:
+    # Allow scanner to fail faster; http paths often fail locally.
+    scanner:
+      retry: 5
     config:
       php: .lando/php.ini
     build_as_root:
@@ -42,8 +45,12 @@ services:
   database:
     healthcheck: mysql --defaults-extra-file=/app/.lando/mysql.cnf --silent --execute "SHOW DATABASES;"
   multisite:
-    type: php:8.3
+    type: php:8.4
     webroot: multisite
+    ssl: true
+    # Allow scanner to fail faster; http paths often fail locally.
+    scanner:
+      retry: 5
 events:
   pre-rebuild:
     # Run clean-up tasks.

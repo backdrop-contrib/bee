@@ -422,7 +422,7 @@ function db_bee_mysql_options(array $db_info, $include_db = TRUE) {
 
   // Create an array for the connection string and filename.
   $options = array();
-  $options['connection'] = "--defaults-file=$temp_filename ";
+  $options['connection'] = "--defaults-extra-file=$temp_filename ";
   $options['connection'] .= ($include_db) ? rawurldecode($db_info['database']) : '';
   $options['filename'] = $temp_filename;
 

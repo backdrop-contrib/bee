@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2025-07-08
+## [Unreleased] - 2026-02-23
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -18,11 +18,15 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
+- Support for PHP 8.4
+- Defensive coding to prevent warnings if a module or theme exists in the
+`system` table but not in the file system.
 
 ### Fixed
 - Unhandled errors and warnings if commands run outside Backdrop root and/or
 before installing Backdrop.
 - Error if importing config to database config storage.
+- Deprecations within error handling for PHP 8.4.
 
 ### Changed
 - Bee will now notify the user of additional modules that will be enabled or disabled
@@ -30,6 +34,8 @@ based on module dependencies when using the enable and disable commands.
 - The functions within the download command have been made more flexible and
 better able to support the coming 'update' command.
 - Provide default terminal width if `tput cols` fails to get the value.
+- The `config-import` command will now import `system.extensions` config updates first
+if there are any.
 
 ## [1.x-1.1.0] - 2024-09-07
 
