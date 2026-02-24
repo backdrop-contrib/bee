@@ -923,7 +923,9 @@ function download_bee_download_project($project, $source_url, $destination, $bra
   curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
   curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
   curl_exec($curl_handle);
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
   fclose($file_handle);
 
   if (file_exists($file)) {
@@ -1276,7 +1278,9 @@ function download_bee_github_api_call($endpoint, $github_api_token = '', $reques
 
     // Execute and close the curl request.
     $response = curl_exec($curl_handle);
-    curl_close($curl_handle);
+    if (version_compare(PHP_VERSION, '8.0') < 0) {
+      curl_close($curl_handle);
+    }
 
     // Process the output according to the request type.
     switch ($request_type) {
@@ -1325,7 +1329,9 @@ function download_bee_check_url_exists($url) {
   $return_code = curl_getinfo($curl_handle, CURLINFO_RESPONSE_CODE);
 
   // Close the curl request.
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
 
   // Return the result.
   return $return_code == 200;
@@ -1363,7 +1369,9 @@ function download_bee_check_latest_release_exists($project, $organization) {
   $effective_url = curl_getinfo($curl_handle, CURLINFO_EFFECTIVE_URL);
 
   // Close the curl request.
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
 
   $no_latest_release_url = "https://github.com/$organization/$project/releases";
   return $effective_url != $no_latest_release_url;
