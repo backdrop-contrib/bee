@@ -18,7 +18,7 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
-- Support for PHP 8.4
+- Support for PHP 8.4 and PHP 8.5
 - Defensive coding to prevent warnings if a module or theme exists in the
 `system` table but not in the file system.
 
@@ -27,6 +27,7 @@ layout templates or Backdrop itself.
 before installing Backdrop.
 - Error if importing config to database config storage.
 - Deprecations within error handling for PHP 8.4.
+- Deprecation notice for `download` (`dl`) function on PHP 8.5
 
 ### Changed
 - Bee will now notify the user of additional modules that will be enabled or disabled
