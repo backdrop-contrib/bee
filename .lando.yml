@@ -2,7 +2,7 @@ name: bee
 recipe: backdrop
 keys: false
 config:
-  php: 8.4
+  php: 8.5
   webroot: backdrop
   database: mysql:8.0
   # Set Xdebug off by default. We use the tooling below to turn it on as needed.
@@ -32,7 +32,7 @@ services:
       # Download PHPUnit and extract the source to help validate test code functions.
       - wget -q --show-progress -O /app/phpunit.phar https://phar.phpunit.de/phpunit-9.6.phar
       - chmod +x /app/phpunit.phar
-      - mkdir -p /app/phpunit_source && cd /app/phpunit_source && phar extract -f /app/phpunit.phar
+      - mkdir -p /app/phpunit_source && cd /app/phpunit_source && phar extract -f /app/phpunit.phar >/dev/null
       # Download Box
       - wget -q --show-progress -O /app/box "https://github.com/box-project/box/releases/download/4.4.0/box.phar"
       - chmod +x /app/box
@@ -46,7 +46,7 @@ services:
   database:
     healthcheck: mysql --defaults-extra-file=/app/.lando/mysql.cnf --silent --execute "SHOW DATABASES;"
   multisite:
-    type: php:8.4
+    type: php:8.5
     webroot: multisite
     ssl: true
     # Allow scanner to fail faster; http paths often fail locally.
