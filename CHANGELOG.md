@@ -8,7 +8,9 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-02-23
+## [Unreleased]
+
+## [1.x-1.2.0] - 2026-02-25
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -145,7 +147,8 @@ filenames) are included in table output.
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.2.0...HEAD
+[1.x-1.2.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...1.x-1.2.0
 [1.x-1.1.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...1.x-1.1.0
 [1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1
