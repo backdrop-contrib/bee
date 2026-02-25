@@ -119,7 +119,7 @@ define('BEE_BACKUP_DIRECTORY', '../bee-backup/');
 // Current version of Bee.
 // This will normally be based on the next minor release (e.g '1.x-1.1.x-dev')
 // but will be changed briefly when a release is generated.
-define('BEE_VERSION', '1.x-1.2.0');
+define('BEE_VERSION', '1.x-1.3.x-dev');
 
 // Latest release.
 // This will be updated at each release.

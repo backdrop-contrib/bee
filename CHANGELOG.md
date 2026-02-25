@@ -8,7 +8,7 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased]
+## [Unreleased] - 2026-02-25
 
 ## [1.x-1.2.0] - 2026-02-25
 
