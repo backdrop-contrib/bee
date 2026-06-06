@@ -13,6 +13,9 @@ system for each contributed module, theme and layout.
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
 
+### Changed
+- Update Download tests to use GitHub Token when running on GitHub.
+
 ## [1.x-1.2.0] - 2026-02-25
 
 ### Added
