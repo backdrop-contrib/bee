@@ -35,6 +35,8 @@ jobs:
 
       # Runs PHPUnit tests.
       - name: PHPUnit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd $GITHUB_WORKSPACE
           lando run-tests
