@@ -8,7 +8,15 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-02-23
+## [Unreleased] - 2026-06-06
+### Fixed
+- Warnings if dependency does not exist in the Backdrop Contributed Modules
+space (e.g. CiviCRM).
+
+### Changed
+- Update Download tests to use GitHub Token when running on GitHub.
+
+## [1.x-1.2.0] - 2026-02-25
 
 ### Added
 - An option for the `db-import` command to allow import from newer MariaDB
@@ -18,7 +26,7 @@ database or client does not support it.
 - The ability to download specified releases or branches of modules, themes,
 layout templates or Backdrop itself.
 - Command to convert database to UTF8MB4.
-- Support for PHP 8.4
+- Support for PHP 8.4 and PHP 8.5
 - Defensive coding to prevent warnings if a module or theme exists in the
 `system` table but not in the file system.
 
@@ -27,6 +35,7 @@ layout templates or Backdrop itself.
 before installing Backdrop.
 - Error if importing config to database config storage.
 - Deprecations within error handling for PHP 8.4.
+- Deprecation notice for `download` (`dl`) function on PHP 8.5
 
 ### Changed
 - Bee will now notify the user of additional modules that will be enabled or disabled
@@ -145,7 +154,8 @@ filenames) are included in table output.
 ### Changed
 - Changed from `b` to `bee`
 
-[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...HEAD
+[Unreleased]: https://github.com/backdrop-contrib/bee/compare/1.x-1.2.0...HEAD
+[1.x-1.2.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.1.0...1.x-1.2.0
 [1.x-1.1.0]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.2...1.x-1.1.0
 [1.x-1.0.2]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.1...1.x-1.0.2
 [1.x-1.0.1]: https://github.com/backdrop-contrib/bee/compare/1.x-1.0.0-beta...1.x-1.0.1

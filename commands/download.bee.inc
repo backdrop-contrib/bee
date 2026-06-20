@@ -244,7 +244,7 @@ function download_bee_callback($arguments, $options) {
             }
             if (empty($dependency_info)) {
               // If getting the info file has failed, show an error message here
-              // and exit.
+              // and exit this dependency.
               bee_message(bt("!dependency is a dependency of !project but the info file for !dependency cannot be retrieved at this time.", array(
                 '!project' => $project['name'],
                 '!dependency' => $dependency,
@@ -488,6 +488,58 @@ function download_core_bee_callback($arguments, $options) {
  *     no dependencies.
  */
 function download_bee_get_project_info($project, $organization, $release = '', $branch = '', $github_api_token = '') {
+
+  // Check that the repo exists in the organization. As it is feasible that a
+  // dependency (e.g. civicrm) might not be downloaded from the same
+  // organization.
+  $url = "https://github.com/$organization/" . $project;
+  if (!download_bee_check_url_exists($url)) {
+    // If the project does not exist at the organization, check the file system.
+    // As only modules have dependencies we only need to check this for modules.
+    $project_existing_location = download_bee_check_project_exists($project, 'module');
+    if (!$project_existing_location) {
+      // If the project also does not exist in the file system display an error
+      // and return FALSE.
+      bee_message(bt("'!project' does not exist at '!url' and cannot be found in the file system so the .info file cannot be retrieved.", array(
+        '!project' => $project,
+        '!url' => "https://github.com/$organization/",
+      )), 'error');
+      return FALSE;
+    }
+    else {
+      // If the project does exist in the file system then get that .info file.
+      bee_instant_message(bt("'!project' does not exist at '!url' but was found in the file system at !path.", array(
+        '!project' => $project,
+        '!url' => "https://github.com/$organization/",
+        '!path' => $project_existing_location,
+      )), 'log');
+      $info_file_location = $project_existing_location . '/' . $project . '.info';
+      if (!file_exists($info_file_location)) {
+        // If the project exists in the file system display but the .info file
+        // cannot be found, display an error and return FALSE.
+        bee_message(bt("'!project' does not exist at '!url' and although it can be found in the file system, the .info file cannot be retrieved.", array(
+          '!project' => $project,
+          '!url' => "https://github.com/$organization/",
+        )), 'error');
+        return FALSE;
+      }
+      $info_file = file_get_contents($info_file_location);
+      $info_parsed = bee_parse_info_format($info_file);
+      $info = array(
+        'download_url' => '',
+        'type' => $info_parsed['type'],
+        'branch' => '',
+        'dependencies' => array(),
+      );
+      if (isset($info_parsed['dependencies'])) {
+        foreach ($info_parsed['dependencies'] as $dependency) {
+          $dependency = bee_parse_dependency($dependency);
+          $info['dependencies'][] = $dependency;
+        }
+      }
+      return $info;
+    }
+  }
 
   // Define the base for all GitHub API calls we may use in this function.
   $endpoint_base = "repos/$organization/$project";
@@ -923,7 +975,9 @@ function download_bee_download_project($project, $source_url, $destination, $bra
   curl_setopt($curl_handle, CURLOPT_USERAGENT, BEE_USERAGENT);
   curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, TRUE);
   curl_exec($curl_handle);
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
   fclose($file_handle);
 
   if (file_exists($file)) {
@@ -956,6 +1010,7 @@ function download_bee_download_project($project, $source_url, $destination, $bra
     }
 
     if ($backup) {
+      global $_bee_backdrop_root;
       $backup_destination = "$_bee_backdrop_root/" . BEE_BACKUP_DIRECTORY;
       $backup_destination .= bee_format_date($_SERVER['REQUEST_TIME'], $format = 'YmdHis') . '/';
       $backup_destination .= ($project = 'backdrop') ? 'backdrop/' : 'projects/';
@@ -1276,7 +1331,9 @@ function download_bee_github_api_call($endpoint, $github_api_token = '', $reques
 
     // Execute and close the curl request.
     $response = curl_exec($curl_handle);
-    curl_close($curl_handle);
+    if (version_compare(PHP_VERSION, '8.0') < 0) {
+      curl_close($curl_handle);
+    }
 
     // Process the output according to the request type.
     switch ($request_type) {
@@ -1325,7 +1382,9 @@ function download_bee_check_url_exists($url) {
   $return_code = curl_getinfo($curl_handle, CURLINFO_RESPONSE_CODE);
 
   // Close the curl request.
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
 
   // Return the result.
   return $return_code == 200;
@@ -1363,7 +1422,9 @@ function download_bee_check_latest_release_exists($project, $organization) {
   $effective_url = curl_getinfo($curl_handle, CURLINFO_EFFECTIVE_URL);
 
   // Close the curl request.
-  curl_close($curl_handle);
+  if (version_compare(PHP_VERSION, '8.0') < 0) {
+    curl_close($curl_handle);
+  }
 
   $no_latest_release_url = "https://github.com/$organization/$project/releases";
   return $effective_url != $no_latest_release_url;

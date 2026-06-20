@@ -153,21 +153,21 @@ options in a given file.
 *Options:*
 - `--no-dependency-checking`, `-n` - Disable dependency-checking and enable module(s) regardless. This could cause problems if there are missing dependencies. Use with caution.
 
-*Examples:*  
+*Examples:*
 - `bee enable webform` - Enable the Webform module.
 - `bee enable --no-dependency-checking rules` - Enable the Rules module, regardless of whether or not its dependencies are available.
 - `bee enable simplify thesis bamboo` - Enable the Simplify module, Thesis theme, and Bamboo layout.
 
-#### `disable`                                   
+#### `disable`
 *Description:* Disable one or more projects (modules, themes, layouts).  
 *Aliases:* `dis` , `pm-disable`  
-*Arguments:*  
+*Arguments:*
 - `projects` - One or more (space separated) projects to disable.
 
 *Options:*
 - `--no-dependency-checking`, `-n` - Disable dependency-checking and disable module(s) regardless. This could cause problems if there are other enabled modules that depend on this one. Use with caution.
 
-*Examples:*  
+*Examples:*
 - `bee disable webform` - Disable the Webform module.
 - `bee disable --no-dependency-checking rules` - Disable the Rules module, regardless of whether or not other modules depend on it.  
 - `bee disable simplify thesis bamboo` - Disable the Simplify module, Thesis theme, and Bamboo layout.  
@@ -208,7 +208,6 @@ options in a given file.
 #### `theme-debug`
 *Description:* Enable or disable "Theme debug" for Backdrop.  
 *Aliases:*`td`  
-
 *Arguments:*
 - `value` - (optional) A boolean value to enable (true/1) or disable (false/0) theme debug. Omitting the value will return the current theme debug status.
 
@@ -221,16 +220,15 @@ options in a given file.
 
 ### Information
 #### `version`
-*Description:* Display the current version of Bee.
-
+*Description:* Display the current version of Bee.  
 *Examples:*
 - `bee version` -    Output the current version.
 
 #### `status`
-*Description:* Provides an overview of the current Backdrop installation/site.   
+*Description:* Provides an overview of the current Backdrop installation/site.  
 *Aliases:*  `st` , `info` , `core-status`  
-*Options:*                                             
-`--show-password`, `-p` - Show the database password.
+*Options:*
+- `--show-password`, `-p` - Show the database password.
 
 *Examples:*
 - `bee status` -    Get an overview of the Backdrop installation.
@@ -263,7 +261,7 @@ options in a given file.
 
 #### `changelog`
 *Description:* Display the current CHANGELOG of Bee.  
-*Examples:*  
+*Examples:*
 - `bee changelog` - Output the current CHANGELOG.
 
 ### Core
@@ -290,7 +288,7 @@ options in a given file.
 #### `install`
 *Description:* Install Backdrop and setup a new site.  
 *Aliases:* `si` , `site-install`  
-*Options:*  
+*Options:*
 - `--db-name=DATABASE_NAME` - The name of the database to install into.
 - `--db-user=DATABASE_USERNAME` - The username for connecting to the database.
 - `--db-pass=DATABASE_PASSWORD` - The password for connecting to the database.
@@ -314,9 +312,9 @@ options in a given file.
 ### Update
 #### `update-db`
 *Description:* Show, and optionally apply, all pending database updates.  
-*Aliases:* `updb` , `updbst` , `updatedb` , `updatedb-status`   
+*Aliases:* `updb` , `updbst` , `updatedb` , `updatedb-status`  
 *Examples:*
-- `bee update-db` - Show a list of any pending database updates. You will then be prompted to apply them. 
+- `bee update-db` - Show a list of any pending database updates. You will then be prompted to apply them.
 
 #### `update`
 TBC see https://github.com/backdrop-contrib/bee/issues/111
@@ -327,21 +325,21 @@ TBC see https://github.com/backdrop-contrib/bee/issues/111
 *Description:* Export the database as a compressed SQL file (.sql.gz). This uses the --no-tablespaces option by default.  
 *Aliases:* `dbex` , `db-dump` , `sql-export` , `sql-dump`  
 *Options:*
-- `--extra=--MYSQLDUMPOPTIONS` - (optional) additional `mysqldump` option(s) that should be used. Enclose multiple options in "". '--no-tablespaces' option is not used unless you add it.   
+- `--extra=--MYSQLDUMPOPTIONS` - (optional) additional `mysqldump` option(s) that should be used. Enclose multiple options in "". '--no-tablespaces' option is not used unless you add it.
 
 *Arguments:*
 - `file` - (optional) The SQL file where the exported database will be saved. Leave blank to use the current date/time as the filename.
 
-Note: The path is always relative to the Backdrop root so if you want to export to a folder above this, use `../` and the filename.
-  
-*Examples:*  
+Note: The path is always relative to the Backdrop root so if you want to export to a folder above this, use `../` and the filename.  
+
+*Examples:*
 - `bee db-export db.sql` - Export the database to db.sql.gz.
 - `bee db-export` - Export the database to [DATE_TIME].sql.gz.
 - `bee db-export --extra=" " db.sql` - Export the database to db.sql.gz without using the '--no-tablespaces' option.
 - `bee db-export --extra="--no-data --no-tablespaces" db.sql` Export the database without data, and using the '--no-tablespaces' option, to db.sql.gz.
 
 #### `db-import`
-*Description:* Import an SQL file into the current database.
+*Description:* Import an SQL file into the current database.  
 *Aliases:* `dbim`, `sql-import`  
 
 *Arguments:*
@@ -361,8 +359,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 #### `db-drop`
 *Description:* Drop the current database and recreate an empty database with the same details. This could be used prior to import if the target database has more tables than the source database.  
 *Aliases:* `sql-dropimport`  
-
-*Examples:*  
+*Examples:*
 - `bee db-drop` - Drop the current database and recreate an empty database with the same details.  You will then be prompted to confirm.
 - `bee --yes db-drop` - Drop the current database and recreate an empty database with the same details.  You will NOT be prompted to confirm.
 
@@ -375,8 +372,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 
 ### Roles
 #### `permissions`
-*Description:* List all permissions of the modules.
-*Aliases:*`pls`, `permissions-list`
+*Description:* List all permissions of the modules.  
+*Aliases:*`pls`, `permissions-list`  
 *Options:*
 - `--module=MODULE` - Get the permissions for this module.
 
@@ -385,8 +382,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee permissions --module=node` - Display a list of all permissions from the 'node' module for the current site.
 
 #### `roles`
-*Description:* List all roles with the permissions.
-*Aliases:*`rls`, `roles-list`
+*Description:* List all roles with the permissions.  
+*Aliases:*`rls`, `roles-list`  
 *Options:*
 - `--role=ROLE` - Get the permissions granted to this role.
 
@@ -395,9 +392,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee roles --role=editor` - Display all the permissions for the editor role.
 
 #### `role-create`
-*Description:* Add a role.
-*Aliases:*`rcrt`
-
+*Description:* Add a role.  
+*Aliases:*`rcrt`  
 *Arguments:*
 - `role` - Role to add.
 
@@ -405,9 +401,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee role-create manager` - Add role 'manager'.
 
 #### `role-delete`
-*Description:* Delete a role.
-*Aliases:*`rdel`
-
+*Description:* Delete a role.  
+*Aliases:*`rdel`  
 *Arguments:*
 - `role` - Role to delete.
 
@@ -415,9 +410,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee role-delete manager` - Delete role 'manager'.
 
 #### `role-add-perm`
-*Description:* Grant specified permission(s) to a role.
-*Aliases:*`rap`
-
+*Description:* Grant specified permission(s) to a role.  
+*Aliases:*`rap`  
 *Arguments:*
 - `permissions` - Permissions
 - `role` - Role
@@ -427,9 +421,8 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `bee role-add-perm  "'view own unpublished content' , 'view any unpublished content' , 'view revisions'" 'anonymous'` - Grant multiple permissions to the 'anonymous' role.
 
 #### `role-remove-perm`
-*Description:* Remove specified permission(s) from a role.
-*Aliases:*`rrp`
-
+*Description:* Remove specified permission(s) from a role.  
+*Aliases:*`rrp`  
 *Arguments:*
 - `permissions` - Permissions
 - `role` - Role
@@ -443,13 +436,13 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Description:* Create a user account with the specified name.  
 *Aliases:* `ucrt`  
 *Arguments:*
-- `username` - The username of the account being created.  
+- `username` - The username of the account being created.
 
 *Options:*
 - `--mail=EMAIL` - The email address for the new account; it must be unique and valid in this installation.  
-- `--password=PASSWORD` - The password for the new account.  
+- `--password=PASSWORD` - The password for the new account.
 
-*Examples:*  
+*Examples:*
 - `bee user-create joe --mail=joe@example.com` - Create the 'joe' user account. A random password will be generated.
 - `bee user-create joe --mail=joe@example.com --password=P@55w0rd` - Create the 'joe' user account with a defined password.
 - `bee user-create joe --mail=joe@example.com --password="Correct Horse Battery Staple"` - Create the 'joe' user account with a pass phrase that has spaces.
@@ -460,7 +453,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Arguments:*
 - `username` - The username of the account to cancel/remove.
 
-*Examples:*  
+*Examples:*
 - `bee user-cancel joe` - Cancel/remove the 'joe' user account.
 
 #### `user-block`
@@ -469,7 +462,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Arguments:*
 - `username` - The username of the account to block.
 
-*Examples:*  
+*Examples:*
 - `bee user-block joe` - Block the 'joe' user account.
 
 #### `user-unblock`
@@ -478,7 +471,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 *Arguments:*
 - `username` - The username of the account to unblock.
 
-*Examples:*  
+*Examples:*
 - `bee user-block joe` - Unblock the 'joe' user account.
 
 #### `user-add-role`
@@ -488,7 +481,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `role` - Role to add.
 - `username` - The username of the account to add role to.
 
-*Examples:*  
+*Examples:*
 - `bee user-add-role editor joe` - Add role 'editor' to account 'joe'.
 
 #### `user-remove-role`
@@ -498,12 +491,12 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 - `role` - Role to remove.
 - `username` - The username of the account to remove the role from.
 
-*Examples:*  
+*Examples:*
 - `bee user-remove-role joe editor` - Remove role 'editor' from account joe.
 
 #### `user-login`
 *Description:* Display a one-time login link for a given user.  
-*Aliases:* `uli`   
+*Aliases:* `uli`  
 *Arguments:*
 - `username` - (optional) The username of the user account to login as. Leave blank to login as User 1.
 
@@ -526,7 +519,7 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 
 #### `users`
 *Description:* List all user accounts.  
-*Aliases:* `uls` , `user-list`   
+*Aliases:* `uls` , `user-list`  
 *Examples:*
 - `bee users` - Display a list of all user accounts for the current site.
 
@@ -534,15 +527,15 @@ Note: The path is always relative to the Backdrop root so if you want to import 
 #### `cache-clear`
 *Description:* Clear a specific cache, or all Backdrop caches.  
 *Aliases:* `cc`  
-*Arguments:*  
-- `cache` - (optional) The name of the cache to clear. Leave blank to see a list of available caches.  
+*Arguments:*
+- `cache` - (optional) The name of the cache to clear. Leave blank to see a list of available caches.
 
-*Examples:*  
-- `bee cache-clear menu` - Clear the menu cache.  
+*Examples:*
+- `bee cache-clear menu` - Clear the menu cache.
 - `bee cache-clear all` - Clear all caches.
-- `bee cache-clear css_js` - Clear the CSS & JS cache.  
-- `bee cache-clear` - Select the cache to clear from a list of available options: 
-  
+- `bee cache-clear css_js` - Clear the CSS & JS cache.
+- `bee cache-clear` - Select the cache to clear from a list of available options:
+
 0. All (default)
 1. Core (page, admin bar, etc.)
 2. CSS & JS
@@ -597,20 +590,20 @@ Omitting the value will return the current maintenance mode status.
 ### Advanced
 #### `eval`
 *Description:* Evaluate (run/execute) arbitrary PHP code after bootstrapping Backdrop.  
-*Aliases:* `ev` , `php-eval`   
+*Aliases:* `ev` , `php-eval`  
 *Arguments:*
 - `code` - The PHP code to evaluate.
 
 *Examples:*
 - `bee eval '$node = node_load(1); print $node->title;'` - Loads node with nid 1 and then prints its title.
 - `bee eval "node_access_rebuild();"` - Rebuild node access permissions.
-- `bee eval "file_unmanaged_copy('$HOME/Pictures/image.jpg', 'public://image.jpg');"` - Copies a file whose path is determined by an environment's variable. Note the use of double quotes so the variable $HOME gets replaced by its value.  
+- `bee eval "file_unmanaged_copy('$HOME/Pictures/image.jpg', 'public://image.jpg');"` - Copies a file whose path is determined by an environment's variable. Note the use of double quotes so the variable $HOME gets replaced by its value.
 
 #### `php-script`
 *Description:* Execute an arbitrary PHP file after bootstrapping Backdrop.  
 *Aliases:* `scr`  
 *Arguments:*
-- `file` - The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.  
+- `file` - The file you wish to execute with extension and path. The path to the file should be relative to the Backdrop site root directory, or the absolute path.
 
 *Examples:*
 - `bee php-script ../my-scripts/scratch.php` - Run scratch.php script relative to the Backdrop root.

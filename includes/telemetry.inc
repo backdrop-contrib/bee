@@ -74,7 +74,9 @@ function bee_telemetry_send() {
       $response_headers = bee_get_headers_from_curl_response($response_header);
 
       // Close the curl request.
-      curl_close($curl_handle);
+      if (version_compare(PHP_VERSION, '8.0') < 0) {
+        curl_close($curl_handle);
+      }
 
       // Debug message of the header array.
       bee_instant_message('Telemetry $response_headers:', 'debug', $response_headers);
