@@ -210,6 +210,43 @@ function bee_all_commands($group = FALSE) {
 }
 
 /**
+ * Invoke a bee hook across every command file that implements it.
+ *
+ * Like module_invoke_all(), but iterates bee's command files — bee's own
+ * commands/*.bee.inc plus enabled modules' *.bee.inc — rather than enabled
+ * modules only, so bee's own command files can implement bee hooks too.
+ *
+ * @param string $hook
+ *   The full hook name, e.g. 'bee_post_download', invoked as
+ *   <command_file>_<hook>().
+ * @param mixed ...$args
+ *   Arguments passed to each implementation.
+ *
+ * @return array
+ *   The merged return values of every implementation.
+ */
+function bee_invoke_all($hook, ...$args) {
+  $results = array();
+
+  foreach (bee_command_file_list() as $command_file => $path) {
+    require_once $path;
+
+    $function = $command_file . '_' . $hook;
+    if (function_exists($function)) {
+      $result = call_user_func_array($function, $args);
+      if (is_array($result)) {
+        $results = array_merge($results, $result);
+      }
+      elseif (isset($result)) {
+        $results[] = $result;
+      }
+    }
+  }
+
+  return $results;
+}
+
+/**
  * Compile a list of all available `bee` command files.
  *
  * A `bee` command file is a file that matches `*.bee.inc` in one of the

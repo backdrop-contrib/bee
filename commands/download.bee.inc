@@ -56,6 +56,42 @@ function download_bee_command() {
         'bee download simplify:select' => bt('Select from a list of releases and the dev version for the Simplify module.'),
       ),
     ),
+    'update' => array(
+      'description' => bt('Update installed contrib projects in place to a newer release, then invoke hook_bee_post_download() so modules can react — for example, to re-apply local patches the new release overwrote. With no project named, updates every installed project that has a newer release available (like `composer update`).'),
+      'callback' => 'update_project_bee_callback',
+      'command_requirements' => array(
+        'backdrop_root' => TRUE,
+        'backdrop_installed' => TRUE,
+      ),
+      'group' => 'projects',
+      'arguments' => array(
+        'projects' => bt('One or more installed projects to update. A release tag or branch may be specified as project:release_tag[:branch], like the download command. Leave blank to update everything that is out of date.'),
+      ),
+      'optional_arguments' => array('projects'),
+      'multiple_argument' => 'projects',
+      'options' => array(
+        'dry-run' => array(
+          'description' => bt('Show what would be updated without downloading anything.'),
+          'short' => 'n',
+        ),
+        'github-token' => array(
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
+          'value' => bt('The token.'),
+        ),
+        'patches-dir' => array(
+          'description' => bt("Directory holding per-project patches to re-apply after each update. Defaults to a 'patches' directory beside the Backdrop root."),
+          'value' => bt('The path.'),
+        ),
+      ),
+      'bootstrap' => BEE_BOOTSTRAP_FULL,
+      'aliases' => array('up'),
+      'examples' => array(
+        'bee update' => bt('Update every installed project that has a newer release available.'),
+        'bee update --dry-run' => bt('List the projects that are out of date without changing anything.'),
+        'bee update webform' => bt('Update the Webform module to its latest release.'),
+        'bee update paragraphs:1.x-1.3.8' => bt('Update the Paragraphs module to a specific release.'),
+      ),
+    ),
     'download-core' => array(
       'description' => bt('Download Backdrop core.'),
       'callback' => 'download_core_bee_callback',
@@ -945,6 +981,219 @@ function download_bee_select_version($project, $organization, $github_api_token 
  * @return boolean
  *   TRUE if the project was downloaded successfully, FALSE if not.
  */
+/**
+ * Command callback: Update installed projects in place.
+ *
+ * Downloads the requested release over the existing copy and then invokes
+ * hook_bee_post_download() so modules can react to the new code (version
+ * control is the backup, so no on-disk backup is made).
+ *
+ * @param array $arguments
+ *   Command arguments; $arguments['projects'] is the list of projects to
+ *   update, empty to update every project with an available release.
+ * @param array $options
+ *   Command options: 'dry-run' to preview and 'github-token' for the GitHub API.
+ */
+function update_project_bee_callback($arguments, $options) {
+  global $_bee_backdrop_root;
+  $github_api_token = $options['github-token'] ?? '';
+  $dry_run = !empty($options['dry-run']);
+  $patches_dir = !empty($options['patches-dir']) ? $options['patches-dir'] : dirname($_bee_backdrop_root) . '/patches';
+  $types = array('module', 'theme', 'layout');
+
+  // With no project named, update everything out of date (like composer update).
+  $projects = $arguments['projects'] ?? array();
+  if (empty($projects)) {
+    $available = update_bee_available_projects();
+    if ($available === FALSE) {
+      bee_message(bt('Could not retrieve release data from the update service.'), 'error');
+      return;
+    }
+    if (empty($available)) {
+      bee_message(bt('Everything is up to date.'), 'success');
+      return;
+    }
+
+    // Show what is out of date before touching anything.
+    update_bee_render_available($available);
+    $projects = array_keys($available);
+
+    if ($dry_run) {
+      return;
+    }
+    if (!bee_confirm(bt('Update the !count project(s) listed above?', array('!count' => count($projects))))) {
+      return;
+    }
+  }
+  elseif ($dry_run) {
+    foreach ($projects as $project) {
+      $parts = explode(':', $project);
+      bee_message(bt('Would update !project.', array(
+        '!project' => $parts[0],
+      )), 'info');
+    }
+    return;
+  }
+
+  foreach ($projects as $project) {
+    // Accept the same project:release[:branch] syntax as `bee download`.
+    $parts = explode(':', $project);
+    $name = $parts[0];
+    $release = isset($parts[1]) ? $parts[1] : '';
+    $branch = isset($parts[2]) ? $parts[2] : '';
+
+    // Core replaces only web/core; update it against the web root so core patches re-apply.
+    if ($name === 'backdrop') {
+      $info = download_bee_get_project_info('backdrop', 'backdrop', $release, $branch, $github_api_token);
+      if (empty($info)) {
+        continue;
+      }
+      if (download_bee_download_project('backdrop', $info['download_url'], $_bee_backdrop_root, $info['branch'], TRUE, FALSE)) {
+        $version = isset($info['release']['tag_name']) ? $info['release']['tag_name'] : $info['branch'];
+        bee_message(bt('Backdrop core updated to !version.', array(
+          '!version' => $version,
+        )), 'success');
+        $info['patches_dir'] = $patches_dir;
+        bee_invoke_all('bee_post_download', 'backdrop', $_bee_backdrop_root, $info);
+      }
+      continue;
+    }
+
+    // Find where the project is installed, and its type.
+    $location = FALSE;
+    foreach ($types as $type) {
+      if ($found = download_bee_check_project_exists($name, $type)) {
+        $location = $found;
+        break;
+      }
+    }
+    if (!$location) {
+      bee_message(bt("'!project' is not installed; use 'bee download' to add it.", array(
+        '!project' => $name,
+      )), 'error');
+      continue;
+    }
+
+    // Resolve the requested (or latest) release.
+    $info = download_bee_get_project_info($name, 'backdrop-contrib', $release, $branch, $github_api_token);
+    if (empty($info)) {
+      continue;
+    }
+
+    // Replace the existing copy in place; skip the on-disk backup since the
+    // project is under version control.
+    if (download_bee_download_project($name, $info['download_url'], $location, $info['branch'], TRUE, FALSE)) {
+      $version = isset($info['release']['tag_name']) ? $info['release']['tag_name'] : $info['branch'];
+      bee_message(bt("'!project' updated to !version.", array(
+        '!project' => $name,
+        '!version' => $version,
+      )), 'success');
+
+      // Let command files react to the fresh code — bee's own default re-applies
+      // local patches; modules can implement the hook for anything else.
+      $info['patches_dir'] = $patches_dir;
+      bee_invoke_all('bee_post_download', $name, $location, $info);
+    }
+  }
+}
+
+/**
+ * Implements hook_bee_post_download().
+ *
+ * bee's own default implementation: re-apply the updated project's local
+ * patches, which the fresh release overwrote. Reads
+ * $info['patches_dir']/<project>/*.patch and applies each with `patch -p1`
+ * in filename order. A no-op when the directory holds no patches, so a site
+ * opts in simply by adding patch files.
+ */
+function download_bee_post_download($project, $location, array $info) {
+  if (empty($info['patches_dir'])) {
+    return;
+  }
+  $patch_dir = $info['patches_dir'] . '/' . $project;
+  if (!is_dir($patch_dir)) {
+    return;
+  }
+
+  $patches = glob($patch_dir . '/*.patch');
+  sort($patches);
+  foreach ($patches as $patch) {
+    $output = array();
+    $status = 0;
+    exec('patch -p1 --no-backup-if-mismatch -d ' . escapeshellarg($location) . ' < ' . escapeshellarg($patch) . ' 2>&1', $output, $status);
+    if ($status === 0) {
+      bee_message(bt('Re-applied !patch to !project.', array(
+        '!patch' => basename($patch),
+        '!project' => $project,
+      )), 'success');
+    }
+    else {
+      bee_message(bt("Failed to re-apply !patch to !project:\n!output", array(
+        '!patch' => basename($patch),
+        '!project' => $project,
+        '!output' => implode("\n", $output),
+      )), 'error');
+    }
+  }
+}
+
+/**
+ * Return installed projects that have a newer release available.
+ *
+ * @return array|false
+ *   An array keyed by project machine name, each value the project data row
+ *   from update_calculate_project_data(); or FALSE if the release data could
+ *   not be retrieved from the update service.
+ */
+function update_bee_available_projects() {
+  module_load_include('inc', 'update', 'update.compare');
+  module_load_include('inc', 'update', 'update.fetch');
+
+  $available = update_get_available(TRUE);
+  if (empty($available)) {
+    return FALSE;
+  }
+
+  $projects = array();
+  foreach (update_calculate_project_data($available) as $name => $project) {
+    $status = isset($project['status']) ? $project['status'] : UPDATE_UNKNOWN;
+    // A positive status below "current" means real data with an update waiting.
+    if ($status > 0 && $status < UPDATE_CURRENT) {
+      $projects[$name] = $project;
+    }
+  }
+  return $projects;
+}
+
+/**
+ * Render a table of projects with an available update.
+ *
+ * @param array $projects
+ *   Project data rows keyed by machine name, as returned by
+ *   update_bee_available_projects().
+ */
+function update_bee_render_available(array $projects) {
+  $rows = array();
+  foreach ($projects as $name => $project) {
+    $installed = isset($project['existing_version']) ? $project['existing_version'] : '?';
+    $latest = isset($project['recommended']) ? $project['recommended'] : (isset($project['latest_version']) ? $project['latest_version'] : '?');
+    $rows[] = array(
+      array('value' => isset($project['title']) ? $project['title'] : $name),
+      array('value' => $installed),
+      array('value' => $latest),
+    );
+  }
+
+  bee_render_table(array(
+    'header' => array(
+      array('value' => bt('Project')),
+      array('value' => bt('Installed')),
+      array('value' => bt('Available')),
+    ),
+    'rows' => $rows,
+  ));
+}
+
 function download_bee_download_project($project, $source_url, $destination, $branch = '', bool $replace = FALSE, bool $backup = TRUE) {
   // Get a temp directory.
   if (!$temp = bee_get_temp($project)) {
