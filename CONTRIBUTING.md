@@ -26,7 +26,7 @@ When you report a bug, please watch out for and respond promptly to any follow
 up questions that I or other contributors may have in clarifying your bug
 report.
 
-### Enhancements
+### Features
 You are welcome to request new commands or improvements to existing commands.
 Please provide clear details as to why you want the improvement or what the
 command would be used for.
@@ -47,6 +47,9 @@ Pull requests must only relate to issues. You can indicate which issue it fixes
 by starting the description of the pull request with:
 `Fixes #000` where '000' is the issue number you are addressing. This will link
 the pull request to the issue.
+
+I do not with to see AI generated code. I do not have the capacity to review 
+large generated code additions changes.
 
 ### Coding standards
 All code is expected to adhere to both:
