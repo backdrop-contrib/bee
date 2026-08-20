@@ -93,11 +93,31 @@ function update_db_bee_callback() {
       return;
     }
 
-    // Apply the updates, without calling `backdrop_goto()`.
-    // @see batch_process()
+    // Apply the updates; update_batch() handles maintenance mode, dependencies,
+    // sandboxing, and cache clearing.
     $batch = &batch_get();
     $batch['progressive'] = FALSE;
     update_batch($start);
+
+    // Print the message each update returned, as web update.php does.
+    foreach ($_SESSION['update_results'] as $module => $updates) {
+      if ($module === '#abort') {
+        continue;
+      }
+      foreach ($updates as $number => $queries) {
+        foreach ($queries as $query) {
+          if (empty($query['query'])) {
+            continue;
+          }
+          bee_message(bt('!module update #!number: !message', array(
+            '!module' => $module,
+            '!number' => $number,
+            '!message' => trim(strip_tags($query['query'])),
+          )), $query['success'] ? 'success' : 'error');
+        }
+      }
+    }
+
     bee_message(bt('All pending updates applied.'), 'success');
   }
 }
