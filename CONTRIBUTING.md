@@ -48,8 +48,8 @@ by starting the description of the pull request with:
 `Fixes #000` where '000' is the issue number you are addressing. This will link
 the pull request to the issue.
 
-I do not with to see AI generated code. I do not have the capacity to review 
-large generated code additions changes.
+I do not wish to see AI generated code. I do not have the capacity to review
+large generated code additions or changes.
 
 ### Coding standards
 All code is expected to adhere to both:

@@ -8,13 +8,15 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-06-06
+## [Unreleased] - 2026-15-06
 ### Fixed
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
+- Syntax bug in some command definitions.
 
 ### Changed
 - Update Download tests to use GitHub Token when running on GitHub.
+- Updated CONTRIBUTING.md
 
 ## [1.x-1.2.0] - 2026-02-25
 
