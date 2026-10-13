@@ -1246,6 +1246,17 @@ function download_bee_check_github_api_quota($github_api_token = '', int $minimu
     bee_instant_message('GitHub API Rate Limit connection failure', 'log');
     return FALSE;
   }
+  // GitHub returns an error message instead of the rate limit details if the
+  // request is refused, for example because the token is invalid.
+  if (!isset($data['resources']['core'])) {
+    bee_message(bt('The GitHub API refused the request: !reason', array(
+      '!reason' => $data['message'] ?? bt('no reason given'),
+    )), 'error');
+    if ($is_token) {
+      bee_message(bt('Check that the GitHub token is valid and has not expired.'), 'info');
+    }
+    return FALSE;
+  }
   // Return the core quota details.
   // var_export($data);
   $rate_info = $data['resources']['core'];
