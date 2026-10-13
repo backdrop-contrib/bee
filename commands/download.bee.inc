@@ -41,7 +41,7 @@ function download_bee_command() {
           'short' => 'f',
         ),
         'github-token' => array(
-          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the GH_TOKEN or GITHUB_TOKEN environment variable.'),
           'value' => bt('The token.'),
         ),
       ),
@@ -77,7 +77,7 @@ function download_bee_command() {
           'value' => bt("The release tag or keyword."),
         ),
         'github-token' => array(
-          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.'),
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the GH_TOKEN or GITHUB_TOKEN environment variable.'),
           'value' => bt('The token.'),
         ),
       ),
@@ -102,7 +102,7 @@ function download_bee_callback($arguments, $options) {
   $allow_multisite_copy = (!empty($options['allow-multisite-copy'])) ? TRUE : FALSE;
 
   // Set the GitHub Token if entered.
-  $github_api_token = $options['github-token'] ?? '';
+  $github_api_token = download_bee_github_token($options);
 
   // Estimate the number of API calls. We need TWO for each project. We also
   // need TWO for each dependency but we cannot know until we get the info file
@@ -352,7 +352,7 @@ function download_bee_callback($arguments, $options) {
  */
 function download_core_bee_callback($arguments, $options) {
   // Set the GitHub Token if entered.
-  $github_api_token = $options['github-token'] ?? '';
+  $github_api_token = download_bee_github_token($options);
 
   // Get the version details if entered.
   $version = $options['version'] ?? '';
@@ -1289,6 +1289,29 @@ function download_bee_check_github_api_quota($github_api_token = '', int $minimu
     // There is still enough quota remaining.
     return TRUE;
   }
+}
+
+/**
+ * Get the GitHub Personal Access Token to use for API calls.
+ *
+ * @param array $options
+ *   The command options, which may include 'github-token'.
+ *
+ * @return string
+ *   The token from the --github-token option, or else from the GH_TOKEN or
+ *   GITHUB_TOKEN environment variable. Empty for anonymous use.
+ */
+function download_bee_github_token(array $options) {
+  if (!empty($options['github-token'])) {
+    return $options['github-token'];
+  }
+  foreach (array('GH_TOKEN', 'GITHUB_TOKEN') as $variable) {
+    $token = getenv($variable);
+    if (!empty($token)) {
+      return $token;
+    }
+  }
+  return '';
 }
 
 /**

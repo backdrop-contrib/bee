@@ -133,7 +133,7 @@ options in a given file.
 
 *Options:*
 - `--allow-multisite-copy`, `-f` - Override the check that would prevent the project being downloaded to a multisite site if the project exists in the shared project directory.
-- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
+- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the `GH_TOKEN` or `GITHUB_TOKEN` environment variable.
 
 *Examples:*
 - `bee download webform` - Download the latest version of the Webform module.
@@ -276,7 +276,7 @@ options in a given file.
  - 'dev' (download the dev version from the default branch.)
  - 'branch' (download the dev version from an alternative branch. Specified by appending ':branch_name')
  - 'select' (a list of valid options will be offered including dev and all releases that are not draft. Latest and pre-releases will be labelled.)
-- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate.
+- `--github-token=THE TOKEN.` - A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the `GH_TOKEN` or `GITHUB_TOKEN` environment variable.
 
 *Examples:*
 - `bee download-core ../backdrop` - Download Backdrop into a 'backdrop' directory in the parent folder.
