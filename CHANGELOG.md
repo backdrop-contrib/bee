@@ -8,16 +8,20 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-09-15
+## [Unreleased] - 2026-11-13
 ### Fixed
 - Bee exits with a non-zero status when a command reports an error or a fatal
 error occurs, so scripts and CI pipelines can detect failure.
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
 - Syntax bug in some command definitions.
+- Various errors that can occur when tables are wider than the terminal width.
 
 ### Changed
 - Update Download tests to use GitHub Token when running on GitHub.
+- Changed how bee calculates column widths in tables. There is now no reduction
+in width of any column; a warning will be displayed if the table width is wider
+than the terminal.
 - Updated CONTRIBUTING.md
 
 ## [1.x-1.2.0] - 2026-02-25

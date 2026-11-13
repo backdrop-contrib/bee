@@ -333,7 +333,8 @@ function bee_render_table(array $variables, $newline = TRUE) {
 }
 
 /**
- * Calculate a table's column widths and make sure they fit in the terminal.
+ * Calculate a table's column widths and provide a warning if they do not fit in
+ * the terminal.
  *
  * @see bee_render_table()
  *
@@ -362,13 +363,9 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   }
   bee_instant_message(bt('Column widths:'), 'debug', $widths);
 
-  // Get the widest column, and calculate the width of the table.
-  $widest_column = 0;
+  // Calculate the width of the table.
   $table_width = 0;
   foreach ($widths as $index => $width) {
-    if ($width > $widths[$widest_column]) {
-      $widest_column = $index;
-    }
     $table_width += $width;
   }
   $table_width += mb_strlen((string) $delimiter_left);
@@ -380,11 +377,13 @@ function bee_get_column_widths($rows, $header, $delimiter, $delimiter_left, $del
   if (!is_integer($terminal_width) || $terminal_width == 0) {
     $terminal_width = 140;
   }
+
+  // Return debug messages of the two widths and a warning if the table width is
+  // greater than the terminal width.
   bee_instant_message(bt('The terminal width is: ') . $terminal_width, 'debug');
-  // Adjust the width of the widest column to fit in the terminal.
-  if ($terminal_width && $table_width > $terminal_width) {
-    $diff = $table_width - $terminal_width;
-    $widths[$widest_column] -= $diff;
+  bee_instant_message(bt('The table width is: ') . $table_width, 'debug');
+  if ($table_width > $terminal_width) {
+    bee_instant_message(bt('The terminal width is less than the table width. Expand your terminal for optimal readability of the table.'), 'warning');
   }
 
   return $widths;
