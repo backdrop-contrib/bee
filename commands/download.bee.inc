@@ -41,7 +41,7 @@ function download_bee_command() {
           'short' => 'f',
         ),
         'github-token' => array(
-          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the GH_TOKEN or GITHUB_TOKEN environment variable.'),
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. If no token is entered and the GH_TOKEN or GITHUB_TOKEN environment variable exists, that will be used.'),
           'value' => bt('The token.'),
         ),
       ),
@@ -77,7 +77,7 @@ function download_bee_command() {
           'value' => bt("The release tag or keyword."),
         ),
         'github-token' => array(
-          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. Defaults to the GH_TOKEN or GITHUB_TOKEN environment variable.'),
+          'description' => bt('A Github Personal Access Token (Classic) that can be used to extend the GitHub API rate. If no token is entered and the GH_TOKEN or GITHUB_TOKEN environment variable exists, that will be used.'),
           'value' => bt('The token.'),
         ),
       ),

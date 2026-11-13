@@ -10,8 +10,9 @@ system for each contributed module, theme and layout.
 
 ## [Unreleased] - 2026-11-13
 ### Added
-- The `download` and `download-core` commands use the `GH_TOKEN` or
-`GITHUB_TOKEN` environment variable if `--github-token` is not given.
+- If no `--github-token` is entered for the `download` and `download-core`
+commands and either the `GH_TOKEN` or `GITHUB_TOKEN` environment variable
+exists, that token will be used.
 
 ### Fixed
 - Bee exits with a non-zero status when a command reports an error or a fatal
