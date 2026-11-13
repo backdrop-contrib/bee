@@ -9,6 +9,11 @@ which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
 ## [Unreleased] - 2026-11-13
+### Added
+- If no `--github-token` is entered for the `download` and `download-core`
+commands and either the `GH_TOKEN` or `GITHUB_TOKEN` environment variable
+exists, that token will be used.
+
 ### Fixed
 - Bee exits with a non-zero status when a command reports an error or a fatal
 error occurs, so scripts and CI pipelines can detect failure.
