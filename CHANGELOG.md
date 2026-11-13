@@ -8,14 +8,27 @@ and this project follows the
 which is based on the major version of Backdrop CMS with a semantic version
 system for each contributed module, theme and layout.
 
-## [Unreleased] - 2026-15-06
+## [Unreleased] - 2026-11-13
+### Added
+- If no `--github-token` is entered for the `download` and `download-core`
+commands and either the `GH_TOKEN` or `GITHUB_TOKEN` environment variable
+exists, that token will be used.
+
 ### Fixed
+- Bee exits with a non-zero status when a command reports an error or a fatal
+error occurs, so scripts and CI pipelines can detect failure.
+- Unclear PHP warnings and a misleading rate limit message when the GitHub API
+refuses a request, for example because of an invalid token.
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
 - Syntax bug in some command definitions.
+- Various errors that can occur when tables are wider than the terminal width.
 
 ### Changed
 - Update Download tests to use GitHub Token when running on GitHub.
+- Changed how bee calculates column widths in tables. There is now no reduction
+in width of any column; a warning will be displayed if the table width is wider
+than the terminal.
 - Updated CONTRIBUTING.md
 
 ## [1.x-1.2.0] - 2026-02-25

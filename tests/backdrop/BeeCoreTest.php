@@ -24,8 +24,9 @@ class BeeCoreTest extends TestCase {
    */
   public function test_unknown_command_triggers_an_error() {
     $command = 'spoon';
-    $output = shell_exec("bee $command");
-    $this->assertStringContainsString("There is no '$command' command.", (string) $output);
+    exec("bee $command", $output, $result);
+    $this->assertStringContainsString("There is no '$command' command.", implode("\n", $output));
+    $this->assertNotEquals(0, $result);
   }
 
   /**

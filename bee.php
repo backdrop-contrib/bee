@@ -33,7 +33,9 @@ bee_initialize_console();
 bee_process_command();
 bee_print_messages();
 bee_display_output();
-exit();
+// Exit with a non-zero status if any error was reported, so that scripts and
+// CI pipelines can detect a failed command.
+exit(empty($_bee_messages['error']) ? 0 : 1);
 
 /**
  * Custom error handler for `bee`.
