@@ -17,6 +17,8 @@ exists, that token will be used.
 ### Fixed
 - Bee exits with a non-zero status when a command reports an error or a fatal
 error occurs, so scripts and CI pipelines can detect failure.
+- Unclear PHP warnings and a misleading rate limit message when the GitHub API
+refuses a request, for example because of an invalid token.
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
 - Syntax bug in some command definitions.
