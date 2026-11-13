@@ -142,7 +142,7 @@ function _bee_log_error(array $error, $fatal = FALSE) {
   echo "\n " . bee_format_text($type_info[0], $type_info[1], TRUE) . ' ' . bee_format_text(bt("!type: !message\nin !function (line !line of !file).", $error)) . "\n\n";
 
   if ($fatal) {
-    exit();
+    exit(1);
   }
 }
 

@@ -10,6 +10,8 @@ system for each contributed module, theme and layout.
 
 ## [Unreleased] - 2026-11-13
 ### Fixed
+- Bee exits with a non-zero status when a command reports an error or a fatal
+error occurs, so scripts and CI pipelines can detect failure.
 - Warnings if dependency does not exist in the Backdrop Contributed Modules
 space (e.g. CiviCRM).
 - Syntax bug in some command definitions.
